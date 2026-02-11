@@ -1,0 +1,1309 @@
+# Japanese translation for Form Plant
+# Copyright (C) 2025 Form Plant
+# This file is distributed under the same license as the Form Plant package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Form Plant 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-31 00:00:00+0000\n"
+"PO-Revision-Date: 2026-01-31 00:00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+# Post type labels
+msgid "Forms"
+msgstr "フォーム"
+
+msgid "Form"
+msgstr "フォーム"
+
+msgid "Add New"
+msgstr "新規追加"
+
+msgid "Add New Form"
+msgstr "新規フォーム追加"
+
+msgid "Edit Form"
+msgstr "フォーム編集"
+
+msgid "New Form"
+msgstr "新規フォーム"
+
+msgid "View Form"
+msgstr "フォーム表示"
+
+msgid "Search Forms"
+msgstr "フォーム検索"
+
+msgid "No forms found"
+msgstr "フォームが見つかりません"
+
+msgid "No forms found in Trash"
+msgstr "ゴミ箱にフォームが見つかりません"
+
+msgid "Form List"
+msgstr "フォーム一覧"
+
+msgid "Form Name"
+msgstr "フォーム名"
+
+# Status labels
+msgid "Published"
+msgstr "公開済み"
+
+msgid "Draft"
+msgstr "下書き"
+
+msgid "Pending Review"
+msgstr "レビュー待ち"
+
+msgid "Private"
+msgstr "非公開"
+
+msgid "Trash"
+msgstr "ゴミ箱"
+
+msgid "All"
+msgstr "すべて"
+
+msgid "All Forms"
+msgstr "すべてのフォーム"
+
+msgid "Publish"
+msgstr "公開"
+
+msgid "Update"
+msgstr "更新"
+
+# Actions
+msgid "Edit"
+msgstr "編集"
+
+msgid "Delete"
+msgstr "削除"
+
+msgid "Delete Permanently"
+msgstr "完全に削除"
+
+msgid "Move to Trash"
+msgstr "ゴミ箱に移動"
+
+msgid "Restore"
+msgstr "復元"
+
+msgid "Quick Edit"
+msgstr "クイック編集"
+
+msgid "Duplicate"
+msgstr "複製"
+
+msgid "Copy"
+msgstr "コピー"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgid "Close"
+msgstr "閉じる"
+
+msgid "Remove"
+msgstr "削除"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Back"
+msgstr "戻る"
+
+msgid "Next"
+msgstr "次へ"
+
+msgid "Previous"
+msgstr "前へ"
+
+msgid "Actions"
+msgstr "操作"
+
+msgid "View"
+msgstr "表示"
+
+# Field types
+msgid "Text"
+msgstr "テキスト"
+
+msgid "Textarea"
+msgstr "テキストエリア"
+
+msgid "Email"
+msgstr "メール"
+
+msgid "Phone"
+msgstr "電話番号"
+
+msgid "Phone Number"
+msgstr "電話番号"
+
+msgid "Number"
+msgstr "数値"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Date"
+msgstr "日付"
+
+msgid "Time"
+msgstr "時間"
+
+msgid "Select"
+msgstr "セレクト"
+
+msgid "Checkbox"
+msgstr "チェックボックス"
+
+msgid "Radio"
+msgstr "ラジオボタン"
+
+msgid "File Upload"
+msgstr "ファイルアップロード"
+
+msgid "Hidden"
+msgstr "非表示"
+
+msgid "HTML"
+msgstr "HTML"
+
+# Field type descriptions
+msgid "Single line text input field"
+msgstr "一行テキスト入力フィールド"
+
+msgid "Multi-line text input field"
+msgstr "複数行テキスト入力フィールド"
+
+msgid "Email address input field"
+msgstr "メールアドレス入力フィールド"
+
+msgid "Phone number input field"
+msgstr "電話番号入力フィールド"
+
+msgid "Number input field"
+msgstr "数値入力フィールド"
+
+msgid "URL input field"
+msgstr "URL入力フィールド"
+
+msgid "Date picker field"
+msgstr "日付選択フィールド"
+
+msgid "Time picker field"
+msgstr "時間選択フィールド"
+
+msgid "Dropdown selection field"
+msgstr "ドロップダウン選択フィールド"
+
+msgid "Multiple selection field"
+msgstr "複数選択フィールド"
+
+msgid "Single selection field"
+msgstr "単一選択フィールド"
+
+msgid "File upload field"
+msgstr "ファイルアップロードフィールド"
+
+msgid "Hidden field not displayed on screen"
+msgstr "画面に表示されない非表示フィールド"
+
+msgid "Custom HTML content"
+msgstr "カスタムHTMLコンテンツ"
+
+# Field labels and settings
+msgid "Add Field"
+msgstr "フィールドを追加"
+
+msgid "+ Add Field"
+msgstr "+ フィールドを追加"
+
+msgid "Edit Field"
+msgstr "フィールドを編集"
+
+msgid "Field Settings"
+msgstr "フィールド設定"
+
+msgid "Field Label"
+msgstr "フィールドラベル"
+
+msgid "Field Name"
+msgstr "フィールド名"
+
+msgid "Field Type"
+msgstr "フィールドタイプ"
+
+msgid "Fields"
+msgstr "フィールド"
+
+msgid "Required Field"
+msgstr "必須フィールド"
+
+msgid "Placeholder"
+msgstr "プレースホルダー"
+
+msgid "Default Value"
+msgstr "デフォルト値"
+
+msgid "Options"
+msgstr "選択肢"
+
+msgid "+ Add Option"
+msgstr "+ 選択肢を追加"
+
+msgid "Value"
+msgstr "値"
+
+msgid "Label"
+msgstr "ラベル"
+
+msgid "Default value for the field"
+msgstr "フィールドのデフォルト値"
+
+msgid "Custom Class"
+msgstr "カスタムクラス"
+
+msgid "Custom ID"
+msgstr "カスタムID"
+
+msgid "CSS Class"
+msgstr "CSSクラス"
+
+msgid "CSS classes to add to the field (separate multiple with spaces)"
+msgstr "フィールドに追加するCSSクラス（複数の場合はスペースで区切る）"
+
+msgid "Set a custom ID for the field (auto-generated if blank)"
+msgstr "フィールドのカスタムIDを設定（空白の場合は自動生成）"
+
+msgid "Only alphanumeric characters and underscores allowed"
+msgstr "半角英数字とアンダースコアのみ使用可能"
+
+msgid "No fields yet. Click \"Add Field\" button to add one."
+msgstr "フィールドがまだありません。「フィールドを追加」ボタンをクリックして追加してください。"
+
+msgid "No fields yet. Click \"Add Field\" button to add fields."
+msgstr "フィールドがまだありません。「フィールドを追加」ボタンをクリックしてフィールドを追加してください。"
+
+# Validation messages
+msgid "%s is required"
+msgstr "%s は必須です"
+
+msgid "%s format is invalid"
+msgstr "%s の形式が無効です"
+
+msgid "%s must be a number"
+msgstr "%s は数値でなければなりません"
+
+msgid "%1$s must be at least %2$s"
+msgstr "%1$s は %2$s 以上でなければなりません"
+
+msgid "%1$s must be at most %2$s"
+msgstr "%1$s は %2$s 以下でなければなりません"
+
+msgid "%1$s must be at least %2$s characters"
+msgstr "%1$s は %2$s 文字以上でなければなりません"
+
+msgid "%1$s must be at most %2$s characters"
+msgstr "%1$s は %2$s 文字以下でなければなりません"
+
+msgid "%1$s file size must be %2$sMB or less"
+msgstr "%1$s のファイルサイズは %2$sMB 以下でなければなりません"
+
+msgid "%1$s only accepts %2$s files"
+msgstr "%1$s は %2$s ファイルのみ受け付けます"
+
+msgid "%s upload failed"
+msgstr "%s のアップロードに失敗しました"
+
+msgid "This field is required"
+msgstr "この項目は必須です"
+
+msgid "This field is required. Please enter a value."
+msgstr "この項目は必須です。値を入力してください。"
+
+msgid "This field is required. Please make a selection."
+msgstr "この項目は必須です。選択してください。"
+
+msgid "This field is required. Please select a file."
+msgstr "この項目は必須です。ファイルを選択してください。"
+
+msgid "This field is required. Please select at least one option."
+msgstr "この項目は必須です。少なくとも1つ選択してください。"
+
+msgid "Validation Message"
+msgstr "バリデーションメッセージ"
+
+msgid "Message to display when required field is empty (default message used if blank)"
+msgstr "必須フィールドが空の場合に表示するメッセージ（空白の場合はデフォルトメッセージを使用）"
+
+msgid "Validation successful"
+msgstr "バリデーション成功"
+
+# JavaScript i18n - Admin
+msgid "Field name can only contain alphanumeric characters and underscores"
+msgstr "フィールド名には半角英数字とアンダースコアのみ使用できます"
+
+msgid "Please enter a field name"
+msgstr "フィールド名を入力してください"
+
+msgid "Please enter a field label"
+msgstr "フィールドラベルを入力してください"
+
+msgid "This field name is already in use"
+msgstr "このフィールド名は既に使用されています"
+
+msgid "At least one option is required"
+msgstr "少なくとも1つの選択肢が必要です"
+
+msgid "Please add at least one option"
+msgstr "少なくとも1つの選択肢を追加してください"
+
+msgid "Are you sure you want to delete this field?"
+msgstr "このフィールドを削除してもよろしいですか？"
+
+msgid "Are you sure you want to delete this form?"
+msgstr "このフォームを削除してもよろしいですか？"
+
+msgid "Move this form to trash?"
+msgstr "このフォームをゴミ箱に移動しますか？"
+
+msgid "Delete this CSS file?"
+msgstr "このCSSファイルを削除しますか？"
+
+msgid "Copied!"
+msgstr "コピーしました！"
+
+msgid "Uploading..."
+msgstr "アップロード中..."
+
+msgid "Upload complete:"
+msgstr "アップロード完了："
+
+msgid "Upload failed"
+msgstr "アップロードに失敗しました"
+
+msgid "An error occurred"
+msgstr "エラーが発生しました"
+
+msgid "A network error occurred"
+msgstr "ネットワークエラーが発生しました"
+
+msgid "Delete failed"
+msgstr "削除に失敗しました"
+
+# JavaScript i18n - Frontend
+msgid "There are errors in your input"
+msgstr "入力内容にエラーがあります"
+
+msgid "File size is too large. Please select a file under %sMB."
+msgstr "ファイルサイズが大きすぎます。%sMB以下のファイルを選択してください。"
+
+msgid "Please select an image file."
+msgstr "画像ファイルを選択してください。"
+
+msgid "A server error occurred. Please try again."
+msgstr "サーバーエラーが発生しました。もう一度お試しください。"
+
+msgid "An error occurred. Please try again."
+msgstr "エラーが発生しました。もう一度お試しください。"
+
+msgid "Confirm Your Input"
+msgstr "入力内容の確認"
+
+msgid "If the information below is correct, please click the \"Submit\" button."
+msgstr "以下の内容でよろしければ「送信」ボタンをクリックしてください。"
+
+msgid "Submit"
+msgstr "送信"
+
+msgid "Submit Form"
+msgstr "送信する"
+
+msgid "Loading..."
+msgstr "読み込み中..."
+
+msgid "Sending..."
+msgstr "送信中..."
+
+# Confirmation screen
+msgid "Confirmation Screen Settings"
+msgstr "確認画面設定"
+
+msgid "Show confirmation screen before submission"
+msgstr "送信前に確認画面を表示する"
+
+msgid "Confirmation Screen Title"
+msgstr "確認画面タイトル"
+
+msgid "Confirmation Screen Description"
+msgstr "確認画面説明文"
+
+msgid "Confirmation Screen HTML Template"
+msgstr "確認画面HTMLテンプレート"
+
+msgid "Input Screen"
+msgstr "入力画面"
+
+msgid "Input Screen HTML Template"
+msgstr "入力画面HTMLテンプレート"
+
+msgid "Layout"
+msgstr "レイアウト"
+
+msgid "Use HTML template"
+msgstr "HTMLテンプレートを使用"
+
+msgid "Custom HTML template (default template will be used if empty)"
+msgstr "カスタムHTMLテンプレート（空の場合はデフォルトテンプレートを使用）"
+
+msgid "Enter HTML template (default layout will be used if empty)"
+msgstr "HTMLテンプレートを入力（空の場合はデフォルトレイアウトを使用）"
+
+# Buttons
+msgid "Submit Button Settings"
+msgstr "送信ボタン設定"
+
+msgid "Back Button Settings"
+msgstr "戻るボタン設定"
+
+msgid "Button Text"
+msgstr "ボタンテキスト"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Configure submit button text, CSS class, and ID"
+msgstr "送信ボタンのテキスト、CSSクラス、IDを設定"
+
+msgid "Configure back button text, CSS class, and ID"
+msgstr "戻るボタンのテキスト、CSSクラス、IDを設定"
+
+msgid "Added to the default fplant-submit-button class"
+msgstr "デフォルトの fplant-submit-button クラスに追加されます"
+
+msgid "Added to the default fplant-back-button class"
+msgstr "デフォルトの fplant-back-button クラスに追加されます"
+
+msgid "Added to the default fplant-confirm-submit-button class"
+msgstr "デフォルトの fplant-confirm-submit-button クラスに追加されます"
+
+msgid "Display submit button"
+msgstr "送信ボタンを表示"
+
+msgid "e.g., btn btn-primary"
+msgstr "例: btn btn-primary"
+
+msgid "e.g., btn btn-secondary"
+msgstr "例: btn btn-secondary"
+
+msgid "e.g., my-submit-button"
+msgstr "例: my-submit-button"
+
+msgid "e.g., my-back-button"
+msgstr "例: my-back-button"
+
+msgid "e.g., my-confirm-submit-button"
+msgstr "例: my-confirm-submit-button"
+
+msgid "e.g., my-class another-class"
+msgstr "例: my-class another-class"
+
+msgid "e.g., my-custom-field"
+msgstr "例: my-custom-field"
+
+# Email settings
+msgid "Email Settings"
+msgstr "メール設定"
+
+msgid "Admin Email Settings"
+msgstr "管理者メール設定"
+
+msgid "Auto-reply Email Settings"
+msgstr "自動返信メール設定"
+
+msgid "Send email notification to admin"
+msgstr "管理者にメール通知を送信"
+
+msgid "Send auto-reply email to user"
+msgstr "ユーザーに自動返信メールを送信"
+
+msgid "Recipient Email Address"
+msgstr "受信者メールアドレス"
+
+msgid "Sender Email Address"
+msgstr "送信者メールアドレス"
+
+msgid "Sender Name"
+msgstr "送信者名"
+
+msgid "Subject"
+msgstr "件名"
+
+msgid "Email Body"
+msgstr "本文"
+
+msgid "Email Address"
+msgstr "メールアドレス"
+
+msgid "Recipient Field"
+msgstr "受信者フィールド"
+
+msgid "Select an email type field"
+msgstr "メール型フィールドを選択"
+
+msgid "Separate multiple addresses with commas"
+msgstr "複数のアドレスはカンマで区切ってください"
+
+msgid "Enter email body"
+msgstr "メール本文を入力"
+
+msgid "Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}"
+msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {site_name}, {site_url}"
+
+msgid "Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}"
+msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {submission_id}, {submission_date}, {ip_address}"
+
+msgid "Available tags: {confirmation_title}, {confirmation_message}, {all_fields}, {field:field_name}, {back_button}, {submit_button}"
+msgstr "使用可能なタグ: {confirmation_title}, {confirmation_message}, {all_fields}, {field:フィールド名}, {back_button}, {submit_button}"
+
+msgid "Available tags: {form_title}, {field:field_name}, {site_name}"
+msgstr "使用可能なタグ: {form_title}, {field:フィールド名}, {site_name}"
+
+msgid "Available tags: {form_title}, {submission_id}, {site_name}"
+msgstr "使用可能なタグ: {form_title}, {submission_id}, {site_name}"
+
+# Email content
+msgid "Thank you for your inquiry."
+msgstr "お問い合わせありがとうございます。"
+
+msgid "We have received the following:"
+msgstr "以下の内容を受け付けました："
+
+msgid "The following submission was received:"
+msgstr "以下のお問い合わせを受け付けました："
+
+msgid "[%s] New Inquiry"
+msgstr "[%s] 新しいお問い合わせ"
+
+msgid "Your inquiry has been received"
+msgstr "お問い合わせを受け付けました"
+
+# Completion settings
+msgid "Action After Submission"
+msgstr "送信後のアクション"
+
+msgid "Action Type"
+msgstr "アクションタイプ"
+
+msgid "Completion Page"
+msgstr "完了ページ"
+
+msgid "Completion Page HTML"
+msgstr "完了ページHTML"
+
+msgid "Message Only"
+msgstr "メッセージのみ"
+
+msgid "Success Message"
+msgstr "完了メッセージ"
+
+msgid "Redirect URL"
+msgstr "リダイレクトURL"
+
+msgid "Enter the HTML to display after submission. The form will be hidden and this HTML will be shown."
+msgstr "送信後に表示するHTMLを入力します。フォームは非表示になり、このHTMLが表示されます。"
+
+msgid "Enter the URL to redirect to after submission."
+msgstr "送信後にリダイレクトするURLを入力します。"
+
+msgid "Submission completed"
+msgstr "送信が完了しました"
+
+msgid "Submission completed successfully"
+msgstr "送信が正常に完了しました"
+
+# Submissions
+msgid "Submissions"
+msgstr "送信データ"
+
+msgid "Submission Details"
+msgstr "送信データ詳細"
+
+msgid "Submission Data"
+msgstr "送信データ"
+
+msgid "Submitted At"
+msgstr "送信日時"
+
+msgid "Submitted at: %s"
+msgstr "送信日時: %s"
+
+msgid "IP Address: %s"
+msgstr "IPアドレス: %s"
+
+msgid "IP Address"
+msgstr "IPアドレス"
+
+msgid "Referrer"
+msgstr "リファラー"
+
+msgid "User Agent"
+msgstr "ユーザーエージェント"
+
+msgid "Status"
+msgstr "ステータス"
+
+msgid "Author"
+msgstr "投稿者"
+
+msgid "Filter by Form"
+msgstr "フォームで絞り込み"
+
+msgid "No submissions yet."
+msgstr "送信データはまだありません。"
+
+msgid "Export CSV"
+msgstr "CSVエクスポート"
+
+msgid "Delete Selected"
+msgstr "選択項目を削除"
+
+msgid "Are you sure you want to delete this submission?"
+msgstr "この送信データを削除してもよろしいですか？"
+
+msgid "Are you sure you want to delete this permanently? This action cannot be undone."
+msgstr "これを完全に削除してもよろしいですか？この操作は取り消せません。"
+
+msgid "Are you sure you want to delete the selected"
+msgstr "選択した"
+
+msgid "submissions?"
+msgstr "件の送信データを削除してもよろしいですか？"
+
+msgid "Submission ID not specified"
+msgstr "送信IDが指定されていません"
+
+msgid "Submission not found"
+msgstr "送信データが見つかりません"
+
+msgid "Submission #%s"
+msgstr "送信 #%s"
+
+msgid "%1$d-%2$d of %3$d items"
+msgstr "%3$d件中 %1$d-%2$d件"
+
+# reCAPTCHA
+msgid "reCAPTCHA Settings"
+msgstr "reCAPTCHA設定"
+
+msgid "Enable reCAPTCHA"
+msgstr "reCAPTCHAを有効化"
+
+msgid "Site Key"
+msgstr "サイトキー"
+
+msgid "Secret Key"
+msgstr "シークレットキー"
+
+msgid "v3 Score Threshold"
+msgstr "v3スコア閾値"
+
+msgid "Enter your Google reCAPTCHA site key."
+msgstr "Google reCAPTCHAのサイトキーを入力してください。"
+
+msgid "Enter your Google reCAPTCHA secret key."
+msgstr "Google reCAPTCHAのシークレットキーを入力してください。"
+
+msgid "When using reCAPTCHA v3, submissions below this score will be flagged as spam (0.0-1.0, recommended: 0.5)"
+msgstr "reCAPTCHA v3使用時、このスコア未満の送信はスパムとして判定されます（0.0-1.0、推奨: 0.5）"
+
+msgid "Uses reCAPTCHA v3 (invisible/score-based) for automatic background verification."
+msgstr "reCAPTCHA v3（不可視/スコアベース）を使用してバックグラウンドで自動的に検証を行います。"
+
+msgid "You can get reCAPTCHA keys from %s."
+msgstr "reCAPTCHAキーは %s から取得できます。"
+
+msgid "To use reCAPTCHA, please first set up the API keys on the %s."
+msgstr "reCAPTCHAを使用するには、まず %s でAPIキーを設定してください。"
+
+msgid "reCAPTCHA verification failed"
+msgstr "reCAPTCHA認証に失敗しました"
+
+msgid "reCAPTCHA verification failed. Please reload the page and try again."
+msgstr "reCAPTCHA認証に失敗しました。ページを再読み込みしてもう一度お試しください。"
+
+msgid "reCAPTCHA verification is required"
+msgstr "reCAPTCHA認証が必要です"
+
+msgid "reCAPTCHA configuration is incomplete"
+msgstr "reCAPTCHAの設定が不完全です"
+
+msgid "An error occurred during reCAPTCHA verification"
+msgstr "reCAPTCHA認証中にエラーが発生しました"
+
+msgid "Failed to communicate with reCAPTCHA server"
+msgstr "reCAPTCHAサーバーとの通信に失敗しました"
+
+# Spam
+msgid "Suspected spam detected"
+msgstr "スパムの疑いを検出しました"
+
+msgid "Submission was blocked due to suspected spam activity"
+msgstr "スパム活動の疑いがあるため送信がブロックされました"
+
+# CSS settings
+msgid "Custom CSS Settings"
+msgstr "カスタムCSS設定"
+
+msgid "CSS Mode"
+msgstr "CSSモード"
+
+msgid "CSS File"
+msgstr "CSSファイル"
+
+msgid "Inline CSS"
+msgstr "インラインCSS"
+
+msgid "Use default CSS only"
+msgstr "デフォルトCSSのみを使用"
+
+msgid "Append custom CSS (Default + Custom)"
+msgstr "カスタムCSSを追加（デフォルト＋カスタム）"
+
+msgid "Replace with custom CSS (Do not load default)"
+msgstr "カスタムCSSで置き換え（デフォルトを読み込まない）"
+
+msgid "Current file:"
+msgstr "現在のファイル:"
+
+msgid "Please select a CSS file (.css)"
+msgstr "CSSファイル（.css）を選択してください"
+
+msgid "Please upload a CSS file (.css)"
+msgstr "CSSファイル（.css）をアップロードしてください"
+
+msgid "Enter custom CSS directly (can be used with file upload)"
+msgstr "カスタムCSSを直接入力（ファイルアップロードと併用可能）"
+
+msgid "When both CSS file and inline CSS are specified, they are loaded in order: File then Inline"
+msgstr "CSSファイルとインラインCSSの両方を指定した場合、ファイル→インラインの順で読み込まれます"
+
+# File upload settings
+msgid "File Upload Settings"
+msgstr "ファイルアップロード設定"
+
+msgid "Maximum File Size (MB)"
+msgstr "最大ファイルサイズ (MB)"
+
+msgid "Maximum file size: %sMB"
+msgstr "最大ファイルサイズ: %sMB"
+
+msgid "Specify the maximum file size in MB (Default: 2MB)"
+msgstr "最大ファイルサイズをMBで指定（デフォルト: 2MB）"
+
+# Date settings
+msgid "Date (Calendar)"
+msgstr "日付（カレンダー）"
+
+msgid "Date (Dropdown)"
+msgstr "日付（プルダウン）"
+
+msgid "Year"
+msgstr "年"
+
+msgid "Month"
+msgstr "月"
+
+msgid "Day"
+msgstr "日"
+
+msgid "Year Range Settings"
+msgstr "年の範囲設定"
+
+msgid "Start Year (Past)"
+msgstr "開始年（過去）"
+
+msgid "End Year (Future)"
+msgstr "終了年（未来）"
+
+msgid "How many years in the past"
+msgstr "何年前まで"
+
+msgid "How many years in the future"
+msgstr "何年後まで"
+
+# Radio Button
+msgid "Radio Button"
+msgstr "ラジオボタン"
+
+# Select Box
+msgid "Select Box"
+msgstr "セレクトボックス"
+
+msgid "Please select"
+msgstr "選択してください"
+
+# External usage
+msgid "External Usage"
+msgstr "外部利用"
+
+msgid "Embed Code"
+msgstr "埋め込みコード"
+
+msgid "Allow JavaScript embedding"
+msgstr "JavaScript埋め込みを許可"
+
+msgid "Allow iframe embedding"
+msgstr "iframe埋め込みを許可"
+
+msgid "Allowed Site URLs (multiple allowed)"
+msgstr "許可するサイトURL（複数可）"
+
+msgid "Enter one URL per line. Only these sites will be allowed for JS embedding (CORS control)."
+msgstr "1行に1つのURLを入力してください。これらのサイトのみJS埋め込みが許可されます（CORS制御）。"
+
+msgid "Enter one URL per line. Only these sites will be allowed to embed via iframe."
+msgstr "1行に1つのURLを入力してください。これらのサイトのみiframe埋め込みが許可されます。"
+
+msgid "Settings for embedding this form on external sites."
+msgstr "このフォームを外部サイトに埋め込むための設定です。"
+
+msgid "JS embedding is not allowed for this form"
+msgstr "このフォームではJavaScript埋め込みが許可されていません"
+
+msgid "Iframe embedding is not allowed for this form"
+msgstr "このフォームではiframe埋め込みが許可されていません"
+
+msgid "Embedding from this domain is not allowed"
+msgstr "このドメインからの埋め込みは許可されていません"
+
+msgid "Submissions from this domain are not allowed"
+msgstr "このドメインからの送信は許可されていません"
+
+# Settings page
+msgid "Settings"
+msgstr "設定"
+
+msgid "Settings page"
+msgstr "設定ページ"
+
+msgid "Form Plant Settings"
+msgstr "Form Plant 設定"
+
+msgid "Save Settings"
+msgstr "設定を保存"
+
+# Documentation
+msgid "Documentation"
+msgstr "ドキュメント"
+
+msgid "Developer Documentation"
+msgstr "開発者ドキュメント"
+
+msgid "Getting Started Guide"
+msgstr "使い方ガイド"
+
+msgid "For more information on how to use Form Plant, please refer to the following documentation."
+msgstr "Form Plantの使い方について詳しくは、以下のドキュメントをご覧ください。"
+
+msgid "Shortcode Reference"
+msgstr "ショートコードリファレンス"
+
+msgid "Field Type Reference"
+msgstr "フィールドタイプリファレンス"
+
+# Shortcode
+msgid "Shortcode"
+msgstr "ショートコード"
+
+msgid "Available Shortcodes"
+msgstr "利用可能なショートコード"
+
+# Tags
+msgid "Basic Tags"
+msgstr "基本タグ"
+
+msgid "Field Tags"
+msgstr "フィールドタグ"
+
+msgid "Error Message Tags"
+msgstr "エラーメッセージタグ"
+
+msgid "Specific tags will be displayed here when you add fields."
+msgstr "フィールドを追加すると、ここに固有のタグが表示されます。"
+
+msgid "Error message display area"
+msgstr "エラーメッセージ表示エリア"
+
+msgid "Success message display area"
+msgstr "完了メッセージ表示エリア"
+
+# Version info
+msgid "Version Information"
+msgstr "バージョン情報"
+
+msgid "Version"
+msgstr "バージョン"
+
+msgid "PHP Version"
+msgstr "PHPバージョン"
+
+msgid "WordPress Version"
+msgstr "WordPressバージョン"
+
+# Plugin name
+msgid "Form Plant"
+msgstr "Form Plant"
+
+# Error messages
+msgid "Error:"
+msgstr "エラー:"
+
+msgid " error"
+msgstr " エラー"
+
+msgid "Form not found"
+msgstr "フォームが見つかりません"
+
+msgid "Form ID is not specified"
+msgstr "フォームIDが指定されていません"
+
+msgid "Form ID not specified"
+msgstr "フォームIDが未指定です"
+
+msgid "Field name is not specified"
+msgstr "フィールド名が指定されていません"
+
+msgid "Field type is not specified"
+msgstr "フィールドタイプが指定されていません"
+
+msgid "Unsupported field type"
+msgstr "サポートされていないフィールドタイプ"
+
+msgid "Invalid request"
+msgstr "無効なリクエスト"
+
+msgid "Invalid form data format"
+msgstr "フォームデータの形式が無効です"
+
+msgid "Invalid filename"
+msgstr "無効なファイル名"
+
+msgid "Permission denied"
+msgstr "権限がありません"
+
+msgid "No data specified for deletion"
+msgstr "削除するデータが指定されていません"
+
+msgid "Submission processing failed"
+msgstr "送信処理に失敗しました"
+
+msgid "Failed to save data"
+msgstr "データの保存に失敗しました"
+
+msgid "Failed to save form"
+msgstr "フォームの保存に失敗しました"
+
+msgid "Failed to create form"
+msgstr "フォームの作成に失敗しました"
+
+msgid "Failed to delete form"
+msgstr "フォームの削除に失敗しました"
+
+msgid "Failed to delete data"
+msgstr "データの削除に失敗しました"
+
+msgid "Failed to duplicate form"
+msgstr "フォームの複製に失敗しました"
+
+msgid "Failed to move form"
+msgstr "フォームの移動に失敗しました"
+
+msgid "Failed to upload %s"
+msgstr "%s のアップロードに失敗しました"
+
+msgid "Failed to create upload directory"
+msgstr "アップロードディレクトリの作成に失敗しました"
+
+msgid "Warning: Could not create the upload directory. Please check the server permissions for wp-content/uploads."
+msgstr "警告: アップロードディレクトリを作成できませんでした。wp-content/uploads のサーバー権限を確認してください。"
+
+msgid "This file type cannot be uploaded"
+msgstr "このファイルタイプはアップロードできません"
+
+msgid "Dismiss this notice"
+msgstr "この通知を閉じる"
+
+# Success messages
+msgid "Form saved"
+msgstr "フォームを保存しました"
+
+msgid "Form created"
+msgstr "フォームを作成しました"
+
+msgid "Form updated"
+msgstr "フォームを更新しました"
+
+msgid "Form deleted"
+msgstr "フォームを削除しました"
+
+msgid "Form duplicated"
+msgstr "フォームを複製しました"
+
+msgid "Form duplicated."
+msgstr "フォームを複製しました。"
+
+msgid "Form moved to trash"
+msgstr "フォームをゴミ箱に移動しました"
+
+msgid "Form created."
+msgstr "フォームを作成しました。"
+
+msgid "Form updated."
+msgstr "フォームを更新しました。"
+
+msgid "No forms found."
+msgstr "フォームが見つかりません。"
+
+msgid "No forms found in Trash."
+msgstr "ゴミ箱にフォームがありません。"
+
+# Data saving options
+msgid "Save submission data including input data"
+msgstr "入力データを含む送信データを保存"
+
+msgid "Save only submission record (do not save input data)"
+msgstr "送信記録のみ保存（入力データは保存しない）"
+
+msgid "Do not save anything"
+msgstr "何も保存しない"
+
+msgid "When \"Save only submission record\" is selected, only metadata such as submission date and IP address will be recorded, and input content will not be saved."
+msgstr "「送信記録のみ保存」を選択した場合、送信日時やIPアドレスなどのメタデータのみが記録され、入力内容は保存されません。"
+
+msgid "Input data was not saved (metadata only setting)"
+msgstr "入力データは保存されていません（メタデータのみ設定）"
+
+# Title
+msgid "Title"
+msgstr "タイトル"
+
+msgid "(No Title)"
+msgstr "（タイトルなし）"
+
+msgid "Enter form title"
+msgstr "フォームタイトルを入力"
+
+msgid "Your Name"
+msgstr "お名前"
+
+# Form Settings
+msgid "Form Settings"
+msgstr "フォーム設定"
+
+# Tag inserter
+msgid "-- Select tag --"
+msgstr "-- タグを選択 --"
+
+msgid "Submit button"
+msgstr "送信ボタン"
+
+msgid "Error display area"
+msgstr "エラー表示エリア"
+
+msgid "Success display area"
+msgstr "成功表示エリア"
+
+msgid "Insert"
+msgstr "挿入"
+
+msgid "Field tags will be available after adding fields."
+msgstr "フィールドを追加するとフィールドタグが利用可能になります。"
+
+msgid "The following required items are missing from the HTML template:"
+msgstr "以下の必須項目がHTMLテンプレートに含まれていません："
+
+msgid "* Required fields (*) and submit button must be included in the template."
+msgstr "※ 必須のフィールド（*）と送信ボタンは必ず設定してください。"
+
+msgid "HTML template is empty. Please add the required tags or uncheck \"Use HTML template\"."
+msgstr "HTMLテンプレートが空です。必要なタグを追加するか、「HTMLテンプレートを使用」のチェックを外してください。"
+
+# Confirmation template tags
+msgid "Use confirmation screen HTML template"
+msgstr "確認画面HTMLテンプレートを使用"
+
+msgid "Field Value Tags"
+msgstr "フィールド値タグ"
+
+msgid "All fields table"
+msgstr "全フィールド一覧"
+
+msgid "Back button"
+msgstr "戻るボタン"
+
+msgid "Message"
+msgstr "メッセージ"
+
+msgid "* Submit button must be included in the template."
+msgstr "※ 送信ボタンはテンプレートに必ず含めてください。"
+
+msgid "Field value tags will be available after adding fields."
+msgstr "フィールドを追加するとフィールド値タグが利用可能になります。"
+
+msgid "Confirmation HTML template is empty. Please add the required tags or uncheck \"Use confirmation screen HTML template\"."
+msgstr "確認画面HTMLテンプレートが空です。必要なタグを追加するか、「確認画面HTMLテンプレートを使用」のチェックを外してください。"
+
+msgid "Submit button [fplant_confirm_submit] is required in the confirmation template."
+msgstr "送信ボタン [fplant_confirm_submit] は確認画面テンプレートに必須です。"
+
+# URL Parameter Settings
+msgid "URL Parameter Settings"
+msgstr "URLパラメータ設定"
+
+msgid "Allow initial values from URL parameters"
+msgstr "URLパラメータからの初期値設定を許可"
+
+msgid "When enabled, field values can be set via URL parameters (e.g., ?field_name=value)"
+msgstr "有効にすると、URLパラメータでフィールドの初期値を設定できます（例: ?field_name=value）"
+
+msgid "* Set {field_name} as the default value for each field."
+msgstr "※ 各フィールドのデフォルト値に{フィールド名}を入れてください。"
+
+# Submission filters
+msgid "Start Date"
+msgstr "開始日"
+
+msgid "End Date"
+msgstr "終了日"
+
+msgid "Search"
+msgstr "検索"
+
+msgid "Search in submission data..."
+msgstr "送信データを検索..."
+
+msgid "File"
+msgstr "ファイル"
+
+msgid "Contains file attachment"
+msgstr "添付ファイルあり"
+
+msgid "Please select items to delete"
+msgstr "削除する項目を選択してください"
+
+# File download
+msgid "Security check failed"
+msgstr "セキュリティチェックに失敗しました"
+
+msgid "Invalid parameters"
+msgstr "無効なパラメータです"
+
+msgid "Field not found"
+msgstr "フィールドが見つかりません"
+
+msgid "Access denied"
+msgstr "アクセスが拒否されました"
+
+# Text field settings
+msgid "Text Field Settings"
+msgstr "テキストフィールド設定"
+
+msgid "Size"
+msgstr "サイズ"
+
+msgid "Max Length"
+msgstr "最大文字数"
+
+msgid "Display width of the input field (number of characters)"
+msgstr "入力フィールドの表示幅（文字数）"
+
+msgid "Maximum number of characters allowed"
+msgstr "入力可能な最大文字数"
+
+# Email CC/BCC/Reply-To settings
+msgid "CC"
+msgstr "CC"
+
+msgid "BCC"
+msgstr "BCC"
+
+msgid "Reply-To"
+msgstr "返信先（Reply-To）"
+
+msgid "Reply destination when the recipient replies to this email"
+msgstr "受信者がこのメールに返信する際の宛先"
+
+# Options textarea (ACF-style)
+msgid "Enter one option per line. Use \"value:label\" format to set different value and label. If no colon, the text becomes both value and label."
+msgstr "1行に1つの選択肢を入力してください。「値:ラベル」形式で値とラベルを別々に設定できます。コロンがない場合は、入力したテキストが値とラベルの両方になります。"
+
+# Screen Options
+msgid "Number of items per page"
+msgstr "ページ毎の表示件数"
+
+msgid "Columns"
+msgstr "カラム"
+
+# Form list notification messages
+msgid "%d form moved to Trash."
+msgid_plural "%d forms moved to Trash."
+msgstr[0] "%d件のフォームをゴミ箱に移動しました。"
+
+msgid "%d form restored."
+msgid_plural "%d forms restored."
+msgstr[0] "%d件のフォームを復元しました。"
+
+msgid "%d form permanently deleted."
+msgid_plural "%d forms permanently deleted."
+msgstr[0] "%d件のフォームを完全に削除しました。"
+
+# Layout settings (checkbox/radio)
+msgid "Vertical"
+msgstr "縦並び"
+
+msgid "Horizontal"
+msgstr "横並び"
+
+msgid "Choose how options are displayed"
+msgstr "選択肢の表示方法を選択してください"
+
+# Delimiter settings (checkbox)
+msgid "Delimiter"
+msgstr "区切り文字"
+
+msgid "Separator used when displaying multiple selected values in confirmation screen and emails"
+msgstr "確認画面やメールで複数の選択値を表示する際の区切り文字"
+
+# Email default content
+msgid "[{form_title}] New Inquiry"
+msgstr "[{form_title}] お問い合わせ"
+
+msgid "You have received a new inquiry."
+msgstr "お問い合わせがありました。"
+
+msgid "Submission Date:"
+msgstr "送信日時:"
+
+msgid "Submission ID:"
+msgstr "送信ID:"
+
+msgid "Thank you for your inquiry"
+msgstr "お問い合わせありがとうございます"
+
+msgid "We have received the following information."
+msgstr "以下の内容を受け付けました。"

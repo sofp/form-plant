@@ -1,0 +1,568 @@
+/**
+ * Form Plant - Admin screen CSS
+ *
+ * @package Form_Plant
+ */
+
+/* Common */
+.fplant-admin-page {
+	max-width: 1400px;
+	margin: 20px 0;
+}
+
+.fplant-page-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 30px;
+	padding-bottom: 15px;
+	border-bottom: 2px solid #c3c4c7;
+}
+
+.fplant-page-header h1 {
+	margin: 0;
+}
+
+/* Buttons */
+.fplant-button {
+	display: inline-block;
+	padding: 8px 16px;
+	background-color: #2271b1;
+	color: #fff;
+	text-decoration: none;
+	border-radius: 3px;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.fplant-button:hover {
+	background-color: #135e96;
+	color: #fff;
+}
+
+.fplant-button-secondary {
+	background-color: #dcdcde;
+	color: #2c3338;
+}
+
+.fplant-button-secondary:hover {
+	background-color: #c3c4c7;
+	color: #2c3338;
+}
+
+.fplant-button-danger {
+	background-color: #d63638;
+}
+
+.fplant-button-danger:hover {
+	background-color: #b32d2e;
+}
+
+/* Table */
+.fplant-table {
+	width: 100%;
+	border-collapse: collapse;
+	background-color: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.fplant-table th,
+.fplant-table td {
+	padding: 12px 15px;
+	text-align: left;
+	border-bottom: 1px solid #c3c4c7;
+}
+
+.fplant-table th {
+	background-color: #f6f7f7;
+	font-weight: 600;
+}
+
+.fplant-table tr:hover {
+	background-color: #f6f7f7;
+}
+
+.fplant-table-actions a {
+	text-decoration: none;
+	margin-right: 10px;
+}
+
+.fplant-table-actions a:last-child {
+	margin-right: 0;
+}
+
+/* Form editor */
+.fplant-form-editor {
+	background-color: #fff;
+	padding: 20px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.fplant-tabs {
+	display: flex;
+	border-bottom: 2px solid #c3c4c7;
+	margin-bottom: 20px;
+}
+
+.fplant-tab {
+	padding: 12px 24px;
+	background-color: transparent;
+	border: none;
+	border-bottom: 2px solid transparent;
+	margin-bottom: -2px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 600;
+	color: #50575e;
+	transition: color 0.2s;
+}
+
+.fplant-tab:hover {
+	color: #2271b1;
+}
+
+.fplant-tab.active {
+	color: #2271b1;
+	border-bottom-color: #2271b1;
+}
+
+.fplant-tab-content {
+	display: none;
+}
+
+.fplant-tab-content.active {
+	display: block;
+}
+
+/* Field list */
+.fplant-field-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.fplant-field-item {
+	background-color: #f6f7f7;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 15px;
+	margin-bottom: 10px;
+	transition: all 0.2s;
+}
+
+.fplant-field-item:hover {
+	background-color: #fff;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.fplant-field-item-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.fplant-field-item-title {
+	font-weight: 600;
+	color: #2c3338;
+	flex: 1;
+}
+
+.fplant-field-item-actions {
+	display: flex;
+	gap: 10px;
+}
+
+/* Style while dragging */
+.fplant-field-item.ui-sortable-helper {
+	background-color: #fff;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	transform: rotate(2deg);
+}
+
+/* Placeholder */
+.fplant-field-placeholder {
+	background-color: #e3f2fd;
+	border: 2px dashed #2271b1;
+	border-radius: 4px;
+	margin-bottom: 10px;
+}
+
+/* Card */
+.fplant-card {
+	background-color: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.fplant-card-header {
+	font-size: 18px;
+	font-weight: 600;
+	margin-bottom: 15px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #c3c4c7;
+}
+
+/* Form controls */
+.fplant-form-control {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	font-size: 14px;
+}
+
+.fplant-form-control:focus {
+	border-color: #2271b1;
+	outline: none;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.fplant-form-group {
+	margin-bottom: 20px;
+}
+
+.fplant-form-group label {
+	display: block;
+	margin-bottom: 5px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.fplant-form-group .description {
+	margin-top: 5px;
+	font-size: 13px;
+	color: #646970;
+}
+
+/* Checkbox and radio */
+.fplant-checkbox,
+.fplant-radio {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 10px;
+}
+
+.fplant-checkbox input,
+.fplant-radio input {
+	width: auto;
+}
+
+/* Notifications */
+.fplant-notice {
+	padding: 12px 16px;
+	border-left: 4px solid;
+	margin: 20px 0;
+	border-radius: 0 4px 4px 0;
+}
+
+.fplant-notice-success {
+	background-color: #edfaef;
+	border-color: #00a32a;
+}
+
+.fplant-notice-error {
+	background-color: #fcf0f1;
+	border-color: #d63638;
+}
+
+.fplant-notice-warning {
+	background-color: #fcf9e8;
+	border-color: #dba617;
+}
+
+.fplant-notice-info {
+	background-color: #f0f6fc;
+	border-color: #72aee6;
+}
+
+/* Loading */
+.fplant-loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+/* Modal */
+.fplant-modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.7);
+	z-index: 100000;
+}
+
+.fplant-modal.active {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.fplant-modal-content {
+	background-color: #fff;
+	border-radius: 4px;
+	max-width: 600px;
+	max-height: 90vh;
+	overflow-y: auto;
+	padding: 30px;
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.fplant-field-modal-content {
+	max-width: 700px;
+}
+
+.fplant-modal-body {
+	margin-bottom: 20px;
+}
+
+.fplant-modal-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	padding-top: 20px;
+	border-top: 1px solid #c3c4c7;
+}
+
+.fplant-modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #c3c4c7;
+}
+
+.fplant-modal-header h2 {
+	margin: 0;
+}
+
+.fplant-modal-close {
+	background: none;
+	border: none;
+	font-size: 24px;
+	cursor: pointer;
+	color: #646970;
+}
+
+.fplant-modal-close:hover {
+	color: #2c3338;
+}
+
+/* Options textarea */
+#fplant-field-options-textarea {
+	width: 100%;
+	min-height: 120px;
+	font-family: monospace;
+	line-height: 1.6;
+	resize: vertical;
+}
+
+#fplant-field-options-section .description {
+	margin-top: 8px;
+	color: #646970;
+	font-style: italic;
+}
+
+.required {
+	color: #d63638;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.fplant-page-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 15px;
+	}
+
+	.fplant-tabs {
+		flex-wrap: wrap;
+	}
+
+	.fplant-tab {
+		flex: 1 1 auto;
+	}
+
+	.fplant-table-actions a {
+		display: block;
+		margin-right: 0;
+		margin-bottom: 5px;
+	}
+
+	.fplant-table-actions a:last-child {
+		margin-bottom: 0;
+	}
+}
+
+/* Grayout when settings fields are disabled */
+.fplant-html-template-fields.fplant-disabled,
+.fplant-confirmation-fields.fplant-disabled,
+.fplant-confirmation-template-fields.fplant-disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.fplant-html-template-fields.fplant-disabled textarea,
+.fplant-confirmation-fields.fplant-disabled input,
+.fplant-confirmation-fields.fplant-disabled textarea,
+.fplant-confirmation-template-fields.fplant-disabled textarea {
+	background-color: #f0f0f0;
+}
+
+/* Form list - WordPress standard style adjustments */
+.wrap .wp-list-table .column-shortcode {
+	width: 200px;
+}
+
+.wrap .wp-list-table .column-submissions {
+	width: 80px;
+}
+
+.wrap .wp-list-table .column-author {
+	width: 100px;
+}
+
+.wrap .wp-list-table .column-date {
+	width: 120px;
+}
+
+/* Quick edit button */
+.wrap .wp-list-table .editinline {
+	cursor: pointer;
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.wrap .wp-list-table .editinline:hover {
+	color: #135e96;
+}
+
+/* Quick edit form */
+.inline-edit-row .inline-edit-wrapper {
+	padding: 10px;
+}
+
+.inline-edit-row .inline-edit-col {
+	padding: 5px 0;
+}
+
+.inline-edit-row .title {
+	display: inline-block;
+	width: 80px;
+	font-weight: 600;
+}
+
+.inline-edit-row .input-text-wrap {
+	display: inline-block;
+}
+
+.inline-edit-row .input-text-wrap input {
+	width: 300px;
+}
+
+.inline-edit-row .inline-edit-col-right select {
+	width: 150px;
+}
+
+.inline-edit-row .submit {
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid #dcdcde;
+}
+
+.inline-edit-row .spinner {
+	float: none;
+	margin-left: 10px;
+}
+
+/* Status views */
+.wrap .subsubsub {
+	margin-bottom: 10px;
+}
+
+/* Shortcode copy button */
+.wrap .wp-list-table code {
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-size: 12px;
+}
+
+.wrap .wp-list-table .fplant-copy-button {
+	margin-left: 5px;
+	vertical-align: middle;
+}
+
+/* Publish settings block */
+.fplant-publish-box {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 12px 15px;
+	margin-bottom: 20px;
+}
+
+.fplant-publish-box-left {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+.fplant-publish-box-left select {
+	min-width: 120px;
+}
+
+.fplant-publish-box-right {
+	display: flex;
+	align-items: center;
+}
+
+.fplant-button-link {
+	background: none;
+	border: none;
+	color: #b32d2e;
+	cursor: pointer;
+	padding: 0;
+	font-size: 13px;
+	text-decoration: underline;
+}
+
+.fplant-button-link:hover {
+	color: #a00;
+}
+
+/* Tag inserter UI */
+.fplant-tag-inserter {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	margin-bottom: 15px;
+}
+
+.fplant-tag-inserter .fplant-tag-select {
+	flex: 1;
+	max-width: 500px;
+}
+
+.fplant-tag-inserter .fplant-insert-tag {
+	flex-shrink: 0;
+}
+
+/* Style when disabled */
+.fplant-html-template-fields.fplant-disabled .fplant-tag-select,
+.fplant-html-template-fields.fplant-disabled .fplant-insert-tag,
+.fplant-confirmation-template-fields.fplant-disabled .fplant-confirmation-tag-select,
+.fplant-confirmation-template-fields.fplant-disabled .fplant-insert-confirmation-tag {
+	opacity: 0.5;
+	pointer-events: none;
+}
