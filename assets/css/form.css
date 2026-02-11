@@ -1,0 +1,453 @@
+/**
+ * Form Plant - Frontend CSS
+ *
+ * @package Form_Plant
+ */
+
+/* Form wrapper */
+.fplant-form-wrapper {
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+/* Form */
+.fplant-form {
+	padding: 20px;
+}
+
+/* Field group */
+.fplant-field-group {
+	margin-bottom: 20px;
+}
+
+.fplant-field-group label {
+	display: block;
+	margin-bottom: 5px;
+	font-weight: 600;
+	color: #333;
+}
+
+.fplant-field-group label .required {
+	color: #d63638;
+	margin-left: 3px;
+}
+
+/* Field */
+.fplant-field {
+	width: 100%;
+	padding: 10px 15px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 16px;
+	transition: border-color 0.2s;
+	box-sizing: border-box;
+}
+
+.fplant-field:focus {
+	outline: none;
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.fplant-field:disabled {
+	background-color: #f6f7f7;
+	cursor: not-allowed;
+}
+
+/* Textarea */
+.fplant-field-textarea {
+	resize: vertical;
+	min-height: 100px;
+}
+
+/* Select box */
+.fplant-field-select {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E');
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+	background-size: 12px;
+	padding-right: 35px;
+	appearance: none;
+}
+
+/* Radio buttons and checkboxes */
+.fplant-field-radio,
+.fplant-field-checkbox {
+	border: none;
+	padding: 0;
+}
+
+.fplant-field-radio label,
+.fplant-field-checkbox label {
+	display: block;
+	margin-bottom: 10px;
+	font-weight: normal;
+	cursor: pointer;
+}
+
+.fplant-field-radio input,
+.fplant-field-checkbox input {
+	width: auto;
+	margin-right: 8px;
+	cursor: pointer;
+}
+
+.fplant-radio-label,
+.fplant-checkbox-label {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+	font-weight: normal;
+}
+
+.fplant-radio-label input,
+.fplant-checkbox-label input {
+	margin: 0 8px 0 0;
+	width: auto;
+}
+
+/* Horizontal layout */
+.fplant-field-radio.fplant-layout-horizontal,
+.fplant-field-checkbox.fplant-layout-horizontal {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 15px;
+}
+
+.fplant-layout-horizontal .fplant-radio-label,
+.fplant-layout-horizontal .fplant-checkbox-label {
+	margin-bottom: 0;
+}
+
+/* Vertical layout (default) */
+.fplant-field-radio.fplant-layout-vertical,
+.fplant-field-checkbox.fplant-layout-vertical {
+	display: block;
+}
+
+/* Responsive: On mobile, horizontal layout falls back to vertical */
+@media (max-width: 480px) {
+	.fplant-field-radio.fplant-layout-horizontal,
+	.fplant-field-checkbox.fplant-layout-horizontal {
+		display: block;
+	}
+
+	.fplant-layout-horizontal .fplant-radio-label,
+	.fplant-layout-horizontal .fplant-checkbox-label {
+		margin-bottom: 10px;
+	}
+}
+
+/* Submit button */
+.fplant-submit-wrapper {
+	margin-top: 30px;
+}
+
+.fplant-submit-button {
+	padding: 12px 30px;
+	background-color: #2271b1;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.fplant-submit-button:hover {
+	background-color: #135e96;
+}
+
+.fplant-submit-button:disabled {
+	background-color: #c3c4c7;
+	cursor: not-allowed;
+}
+
+/* Messages */
+.fplant-messages {
+	margin-bottom: 20px;
+}
+
+.fplant-success,
+.fplant-errors {
+	display: none;
+	padding: 15px;
+	border-radius: 4px;
+	margin-bottom: 15px;
+}
+
+.fplant-success {
+	background-color: #d7f0e7;
+	border-left: 4px solid #00a32a;
+	color: #00663b;
+}
+
+.fplant-errors {
+	background-color: #ffebeb;
+	border-left: 4px solid #d63638;
+	color: #7c2a2b;
+}
+
+.fplant-errors ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.fplant-errors li {
+	margin: 5px 0;
+}
+
+/* Field error */
+.fplant-field-error {
+	margin-top: 5px;
+	padding: 8px 12px;
+	background-color: #ffebeb;
+	border-left: 3px solid #d63638;
+	color: #7c2a2b;
+	font-size: 14px;
+	border-radius: 3px;
+}
+
+.fplant-field-group.fplant-field-has-error .fplant-field {
+	border-color: #d63638;
+}
+
+.fplant-field-group.fplant-field-has-error .fplant-field:focus {
+	border-color: #d63638;
+	box-shadow: 0 0 0 1px #d63638;
+}
+
+/* Loading */
+.fplant-form.fplant-loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.fplant-form.fplant-loading .fplant-submit-button::after {
+	content: "...";
+	animation: loading 1s infinite;
+}
+
+@keyframes loading {
+	0% {
+		content: ".";
+	}
+	33% {
+		content: "..";
+	}
+	66% {
+		content: "...";
+	}
+}
+
+/* Confirmation screen */
+.fplant-confirmation {
+	padding: 20px;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	margin-bottom: 20px;
+}
+
+.fplant-confirmation-header {
+	margin-bottom: 20px;
+	padding-bottom: 15px;
+	border-bottom: 2px solid #f0f0f1;
+}
+
+.fplant-confirmation-header h3 {
+	margin: 0 0 10px 0;
+	font-size: 24px;
+	color: #1d2327;
+}
+
+.fplant-confirmation-header p {
+	margin: 0;
+	color: #646970;
+	font-size: 14px;
+}
+
+.fplant-confirmation-body {
+	margin-bottom: 30px;
+}
+
+.fplant-confirmation-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.fplant-confirmation-table th,
+.fplant-confirmation-table td {
+	padding: 15px;
+	border-bottom: 1px solid #f0f0f1;
+	text-align: left;
+}
+
+.fplant-confirmation-table th {
+	width: 30%;
+	font-weight: 600;
+	color: #1d2327;
+	background-color: #f9f9f9;
+	vertical-align: top;
+}
+
+.fplant-confirmation-table td {
+	color: #3c434a;
+	word-break: break-word;
+}
+
+.fplant-confirmation-table tr:last-child th,
+.fplant-confirmation-table tr:last-child td {
+	border-bottom: none;
+}
+
+.fplant-confirmation-footer {
+	display: flex;
+	gap: 10px;
+	justify-content: center;
+}
+
+.fplant-back-button,
+.fplant-confirm-submit-button {
+	padding: 12px 30px;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.fplant-back-button {
+	background-color: #f6f7f7;
+	color: #2c3338;
+	border: 1px solid #c3c4c7;
+}
+
+.fplant-back-button:hover {
+	background-color: #e8e9eb;
+	border-color: #8c8f94;
+}
+
+.fplant-confirm-submit-button {
+	background-color: #2271b1;
+	color: #fff;
+}
+
+.fplant-confirm-submit-button:hover {
+	background-color: #135e96;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.fplant-form {
+		padding: 15px;
+	}
+
+	.fplant-field,
+	.fplant-submit-button {
+		font-size: 14px;
+	}
+
+	.fplant-confirmation {
+		padding: 15px;
+	}
+
+	.fplant-confirmation-header h3 {
+		font-size: 20px;
+	}
+
+	.fplant-confirmation-table {
+		display: block;
+	}
+
+	.fplant-confirmation-table tr {
+		display: block;
+		margin-bottom: 15px;
+		border-bottom: 1px solid #f0f0f1;
+		padding-bottom: 15px;
+	}
+
+	.fplant-confirmation-table tr:last-child {
+		border-bottom: none;
+		margin-bottom: 0;
+		padding-bottom: 0;
+	}
+
+	.fplant-confirmation-table th,
+	.fplant-confirmation-table td {
+		display: block;
+		width: 100%;
+		padding: 5px 0;
+		border-bottom: none;
+	}
+
+	.fplant-confirmation-table th {
+		background-color: transparent;
+		font-size: 14px;
+		margin-bottom: 5px;
+	}
+
+	.fplant-confirmation-footer {
+		flex-direction: column;
+	}
+
+	.fplant-back-button,
+	.fplant-confirm-submit-button {
+		width: 100%;
+	}
+}
+
+/* Date (dropdown) field */
+.fplant-field-date-select {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.fplant-date-select-year,
+.fplant-date-select-month,
+.fplant-date-select-day {
+	padding: 8px 12px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 16px;
+	background-color: #fff;
+	transition: border-color 0.3s;
+}
+
+.fplant-date-select-year {
+	min-width: 100px;
+}
+
+.fplant-date-select-month,
+.fplant-date-select-day {
+	min-width: 70px;
+}
+
+.fplant-date-select-year:focus,
+.fplant-date-select-month:focus,
+.fplant-date-select-day:focus {
+	outline: none;
+	border-color: #007bff;
+}
+
+.fplant-date-separator {
+	color: #666;
+	font-size: 14px;
+}
+
+.fplant-field-has-error .fplant-date-select-year,
+.fplant-field-has-error .fplant-date-select-month,
+.fplant-field-has-error .fplant-date-select-day {
+	border-color: #d63638;
+}
+
+.fplant-field-has-error .fplant-date-select-year:focus,
+.fplant-field-has-error .fplant-date-select-month:focus,
+.fplant-field-has-error .fplant-date-select-day:focus {
+	box-shadow: 0 0 0 1px #d63638;
+}
