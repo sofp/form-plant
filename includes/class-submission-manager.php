@@ -170,11 +170,27 @@ class FPLANT_Submission_Manager {
 		// Decode JSON if sent via FormData
 		if ( is_string( $data ) ) {
 			$data = json_decode( $data, true );
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'Invalid data format', 'form-plant' ),
+					)
+				);
+			}
 		}
 
 		// Sanitize decoded JSON data
 		if ( is_array( $data ) ) {
 			$data = FPLANT_Form_Manager::sanitize_array_recursive( $data );
+		}
+
+		// Honeypot check
+		if ( ! empty( $data['fplant_website_url'] ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Invalid request', 'form-plant' ),
+				)
+			);
 		}
 
 		// Verify reCAPTCHA
@@ -202,6 +218,9 @@ class FPLANT_Submission_Manager {
 
 		// Add uploaded file info to data
 		$data = array_merge( $data, $uploaded_files );
+
+		// Remove honeypot data before processing
+		unset( $data['fplant_website_url'] );
 
 		// Process submission
 		$result = $this->process_submission( $form_id, $data );
@@ -234,11 +253,27 @@ class FPLANT_Submission_Manager {
 		// Decode JSON if sent via FormData
 		if ( is_string( $data ) ) {
 			$data = json_decode( $data, true );
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'Invalid data format', 'form-plant' ),
+					)
+				);
+			}
 		}
 
 		// Sanitize decoded JSON data
 		if ( is_array( $data ) ) {
 			$data = FPLANT_Form_Manager::sanitize_array_recursive( $data );
+		}
+
+		// Honeypot check
+		if ( ! empty( $data['fplant_website_url'] ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Invalid request', 'form-plant' ),
+				)
+			);
 		}
 
 		// Get form data
@@ -606,14 +641,17 @@ class FPLANT_Submission_Manager {
 	/**
 	 * Handle file uploads
 	 *
+	 * Processes only expected file fields from form definition (not iterating over $_FILES directly).
+	 * Nonce must be verified by the calling method (AJAX handler or REST API endpoint).
+	 *
 	 * @param int $form_id Form ID.
 	 * @return array|WP_Error Array of uploaded file info, or error.
 	 */
-	private function handle_file_uploads( $form_id = 0 ) {
+	public function handle_file_uploads( $form_id = 0 ) {
 		$uploaded_files = array();
 
 		// Skip if $_FILES is empty
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling AJAX handler (handle_submission, handle_submit_ajax)
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling handler (AJAX or REST API)
 		if ( empty( $_FILES ) ) {
 			return $uploaded_files;
 		}
@@ -636,8 +674,8 @@ class FPLANT_Submission_Manager {
 			'com', 'htaccess', 'htpasswd', 'ini', 'py', 'rb', 'js', 'mjs',
 		);
 
-		// Whitelist of allowed MIME types (extension => MIME type mapping for wp_handle_upload)
-		$allowed_mimes = array(
+		// Default allowed MIME types (used as fallback when field has no allowed_types setting)
+		$default_allowed_mimes = array(
 			'jpg|jpeg|jpe' => 'image/jpeg',
 			'png'          => 'image/png',
 			'gif'          => 'image/gif',
@@ -646,9 +684,30 @@ class FPLANT_Submission_Manager {
 			'docx'         => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 		);
 
-		// Process each file field
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling AJAX handler (handle_submission, handle_submit_ajax)
-		foreach ( $_FILES as $field_name => $file ) {
+		// Get expected file field settings from form definition
+		$form = FPLANT_Database::get_form( $form_id );
+		$file_field_configs = array();
+		if ( $form && ! empty( $form['fields'] ) ) {
+			foreach ( $form['fields'] as $field ) {
+				if ( 'file' === $field['type'] ) {
+					$file_field_configs[ $field['name'] ] = $field;
+				}
+			}
+		}
+
+		// Process only expected file fields from form definition (not iterating over $_FILES directly)
+		foreach ( $file_field_configs as $field_name => $field_config ) {
+			// Validate field name format before using as array key
+			if ( ! preg_match( '/^[A-Za-z0-9_]+$/', (string) $field_name ) ) {
+				continue;
+			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling AJAX handler
+			if ( ! isset( $_FILES[ $field_name ] ) ) {
+				continue;
+			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in calling AJAX handler, file data validated below
+			$file = $_FILES[ $field_name ];
+
 			// Skip if no file uploaded
 			if ( empty( $file['name'] ) || $file['error'] === UPLOAD_ERR_NO_FILE ) {
 				continue;
@@ -661,15 +720,16 @@ class FPLANT_Submission_Manager {
 					sprintf(
 						/* translators: %s: field name */
 						__( 'Failed to upload %s', 'form-plant' ),
-						$field_name
+						sanitize_text_field( $field_name )
 					)
 				);
 			}
 
 			// Sanitize filename
-			$file_info     = pathinfo( $file['name'] );
-			$file_ext      = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : '';
-			$file_basename = sanitize_file_name( $file_info['filename'] );
+			$sanitized_name = sanitize_file_name( $file['name'] );
+			$file_info      = pathinfo( $sanitized_name );
+			$file_ext       = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : '';
+			$file_basename  = $file_info['filename'];
 
 			// Security: check if extension is in blacklist
 			if ( in_array( $file_ext, $dangerous_extensions, true ) ) {
@@ -686,6 +746,24 @@ class FPLANT_Submission_Manager {
 						'invalid_filename',
 						__( 'Invalid filename', 'form-plant' )
 					);
+				}
+			}
+
+			// Build allowed MIME types from field settings or use default
+			$allowed_mimes = $default_allowed_mimes;
+			if ( ! empty( $field_config['allowed_types'] ) ) {
+				$wp_mimes            = wp_get_mime_types();
+				$field_allowed_mimes = array();
+				foreach ( $field_config['allowed_types'] as $ext ) {
+					$ext = strtolower( $ext );
+					foreach ( $wp_mimes as $pattern => $mime ) {
+						if ( preg_match( '/(?:^|\|)' . preg_quote( $ext, '/' ) . '(?:\||$)/', $pattern ) ) {
+							$field_allowed_mimes[ $pattern ] = $mime;
+						}
+					}
+				}
+				if ( ! empty( $field_allowed_mimes ) ) {
+					$allowed_mimes = $field_allowed_mimes;
 				}
 			}
 
@@ -738,8 +816,8 @@ class FPLANT_Submission_Manager {
 					sprintf(
 						/* translators: %s: field name */
 						__( 'Failed to upload %s', 'form-plant' ),
-						$field_name
-					) . ': ' . $upload_result['error']
+						sanitize_text_field( $field_name )
+					) . ': ' . sanitize_text_field( $upload_result['error'] )
 				);
 			}
 
@@ -747,7 +825,7 @@ class FPLANT_Submission_Manager {
 			$uploaded_files[ $field_name ] = array(
 				'url'      => $upload_result['url'],
 				'file'     => $upload_result['file'],
-				'type'     => ! empty( $upload_result['type'] ) ? $upload_result['type'] : ( ! empty( $real_mime_type ) ? $real_mime_type : $file['type'] ),
+				'type'     => ! empty( $upload_result['type'] ) ? $upload_result['type'] : ( ! empty( $real_mime_type ) ? $real_mime_type : sanitize_mime_type( $file['type'] ) ),
 				'filename' => basename( $upload_result['file'] ),
 			);
 		}
@@ -1113,9 +1191,19 @@ class FPLANT_Submission_Manager {
 			}
 		}
 
-		// Check each file field
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling AJAX handler (handle_confirm_ajax)
-		foreach ( $_FILES as $field_name => $file ) {
+		// Check only expected file fields from form definition (not iterating over $_FILES directly)
+		foreach ( $file_fields as $field_name => $field ) {
+			// Validate field name format before using as array key
+			if ( ! preg_match( '/^[A-Za-z0-9_]+$/', (string) $field_name ) ) {
+				continue;
+			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling AJAX handler
+			if ( ! isset( $_FILES[ $field_name ] ) ) {
+				continue;
+			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in calling AJAX handler, file data validated below
+			$file = $_FILES[ $field_name ];
+
 			// Skip if no file uploaded
 			if ( empty( $file['name'] ) || $file['error'] === UPLOAD_ERR_NO_FILE ) {
 				continue;
@@ -1128,46 +1216,41 @@ class FPLANT_Submission_Manager {
 					sprintf(
 						/* translators: %s: field name */
 						__( 'Failed to upload %s', 'form-plant' ),
-						$field_name
+						sanitize_text_field( $field_name )
 					)
 				);
 			}
 
-			// Check size and extension if field settings exist
-			if ( isset( $file_fields[ $field_name ] ) ) {
-				$field = $file_fields[ $field_name ];
+			// File size check
+			$max_size = isset( $field['max_size'] ) ? intval( $field['max_size'] ) * 1024 * 1024 : 2097152; // Default 2MB
+			if ( $file['size'] > $max_size ) {
+				return new WP_Error(
+					'file_size_error',
+					sprintf(
+						/* translators: 1: field label, 2: max file size */
+						__( '%1$s file size must be %2$sMB or less', 'form-plant' ),
+						$field['label'],
+						$max_size / 1024 / 1024
+					)
+				);
+			}
 
-				// File size check
-				$max_size = isset( $field['max_size'] ) ? intval( $field['max_size'] ) * 1024 * 1024 : 2097152; // Default 2MB
-				if ( $file['size'] > $max_size ) {
+			// File extension check
+			if ( ! empty( $field['allowed_types'] ) ) {
+				$file_info = pathinfo( sanitize_file_name( $file['name'] ) );
+				$file_ext  = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : '';
+				$allowed_types = array_map( 'strtolower', $field['allowed_types'] );
+
+				if ( ! in_array( $file_ext, $allowed_types, true ) ) {
 					return new WP_Error(
-						'file_size_error',
+						'file_type_error',
 						sprintf(
-							/* translators: 1: field label, 2: max file size */
-							__( '%1$s file size must be %2$sMB or less', 'form-plant' ),
+							/* translators: 1: field label, 2: allowed file types */
+							__( '%1$s only accepts %2$s files', 'form-plant' ),
 							$field['label'],
-							$max_size / 1024 / 1024
+							implode( ', ', $allowed_types )
 						)
 					);
-				}
-
-				// File extension check
-				if ( ! empty( $field['allowed_types'] ) ) {
-					$file_info = pathinfo( $file['name'] );
-					$file_ext  = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : '';
-					$allowed_types = array_map( 'strtolower', $field['allowed_types'] );
-
-					if ( ! in_array( $file_ext, $allowed_types, true ) ) {
-						return new WP_Error(
-							'file_type_error',
-							sprintf(
-								/* translators: 1: field label, 2: allowed file types */
-								__( '%1$s only accepts %2$s files', 'form-plant' ),
-								$field['label'],
-								implode( ', ', $allowed_types )
-							)
-						);
-					}
 				}
 			}
 		}

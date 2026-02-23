@@ -96,7 +96,7 @@ class FPLANT_Form_Manager {
 		// Field definitions
 		if ( isset( $data['fields'] ) ) {
 			// Allow HTML in description field
-			$html_allowed_keys = array( 'description' );
+			$html_allowed_keys = array( 'description', 'content' );
 			$sanitized_fields  = self::sanitize_array_recursive( $data['fields'], $html_allowed_keys );
 			FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_FIELDS, $sanitized_fields );
 			$updated = true;
@@ -110,8 +110,8 @@ class FPLANT_Form_Manager {
 
 		// Form settings
 		if ( isset( $data['settings'] ) ) {
-			// Allow HTML in confirmation_message and after_submit_html
-			$html_allowed_keys = array( 'confirmation_message', 'after_submit_html' );
+			// Allow HTML in keys that store user-authored HTML content
+			$html_allowed_keys = array( 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template' );
 			$sanitized_settings = self::sanitize_array_recursive( $data['settings'], $html_allowed_keys );
 			FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_SETTINGS, $sanitized_settings );
 			$updated = true;
@@ -119,14 +119,14 @@ class FPLANT_Form_Manager {
 
 		// Admin email settings
 		if ( isset( $data['email_admin'] ) ) {
-			$sanitized_email_admin = self::sanitize_array_recursive( $data['email_admin'] );
+			$sanitized_email_admin = self::sanitize_array_recursive( $data['email_admin'], array( 'body' ) );
 			FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_EMAIL_ADMIN, $sanitized_email_admin );
 			$updated = true;
 		}
 
 		// Auto-reply email settings
 		if ( isset( $data['email_user'] ) ) {
-			$sanitized_email_user = self::sanitize_array_recursive( $data['email_user'] );
+			$sanitized_email_user = self::sanitize_array_recursive( $data['email_user'], array( 'body' ) );
 			FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_EMAIL_USER, $sanitized_email_user );
 			$updated = true;
 		}
@@ -168,7 +168,7 @@ class FPLANT_Form_Manager {
 			}
 			return $sanitized;
 		} elseif ( is_string( $data ) ) {
-			return sanitize_text_field( $data );
+			return sanitize_textarea_field( $data );
 		} elseif ( is_bool( $data ) || is_int( $data ) || is_float( $data ) ) {
 			return $data;
 		}
@@ -280,9 +280,10 @@ class FPLANT_Form_Manager {
 		if ( isset( $_POST['fplant_form_data'] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON data, sanitized per field after json_decode in update_form
 			$form_data = json_decode( wp_unslash( $_POST['fplant_form_data'] ), true );
-			if ( $form_data ) {
-				$this->update_form( $post_id, $form_data );
+			if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $form_data ) ) {
+				return;
 			}
+			$this->update_form( $post_id, $form_data );
 		}
 	}
 

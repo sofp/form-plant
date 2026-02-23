@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<p><?php echo esc_html( $message ); ?></p>
 </div>
 <div class="fplant-confirmation-body">
-	<?php echo $fields_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped in all_fields.php template ?>
+	<?php echo wp_kses( $fields_html, fplant_get_allowed_form_html() ); ?>
 </div>
 <div class="fplant-confirmation-footer">
 	<button type="button" class="fplant-back-button <?php echo esc_attr( $back_class ); ?>"<?php echo ! empty( $back_id ) ? ' id="' . esc_attr( $back_id ) . '"' : ''; ?>>

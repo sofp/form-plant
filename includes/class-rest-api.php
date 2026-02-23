@@ -33,35 +33,6 @@ class FPLANT_REST_API {
 	 * Register REST API routes
 	 */
 	public function register_routes() {
-		// Get form config
-		register_rest_route(
-			$this->namespace,
-			'/config/(?P<id>\d+)',
-			array(
-				'methods'             => 'GET',
-				'callback'            => array( $this, 'get_form_config' ),
-				'permission_callback' => '__return_true',
-				'args'                => array(
-					'id' => array(
-						'validate_callback' => function( $param ) {
-							return is_numeric( $param );
-						},
-					),
-				),
-			)
-		);
-
-		// Submit form
-		register_rest_route(
-			$this->namespace,
-			'/submit',
-			array(
-				'methods'             => 'POST',
-				'callback'            => array( $this, 'submit_form' ),
-				'permission_callback' => '__return_true',
-			)
-		);
-
 		// Embed: get form HTML
 		register_rest_route(
 			$this->namespace,
@@ -115,114 +86,6 @@ class FPLANT_REST_API {
 				),
 			)
 		);
-	}
-
-	/**
-	 * Get form config
-	 *
-	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function get_form_config( $request ) {
-		$form_id = $request->get_param( 'id' );
-		$form    = FPLANT_Database::get_form( $form_id );
-
-		if ( ! $form ) {
-			return new WP_Error(
-				'form_not_found',
-				__( 'Form not found', 'form-plant' ),
-				array( 'status' => 404 )
-			);
-		}
-
-		// Format data for response
-		$response_data = array(
-			'id'            => $form['id'],
-			'name'          => $form['title'],
-			'html_template' => $form['html_template'],
-			'fields'        => $this->format_fields_for_api( $form['fields'] ),
-			'settings'      => array(
-				'submitButtonText' => ! empty( $form['settings']['submit_button_text'] )
-					? $form['settings']['submit_button_text']
-					: __( 'Submit', 'form-plant' ),
-				'successMessage'   => ! empty( $form['settings']['success_message'] )
-					? $form['settings']['success_message']
-					: __( 'Submission completed', 'form-plant' ),
-				'errorMessage'     => __( 'An error occurred', 'form-plant' ),
-			),
-		);
-
-		return rest_ensure_response(
-			array(
-				'success' => true,
-				'data'    => $response_data,
-			)
-		);
-	}
-
-	/**
-	 * Submit form
-	 *
-	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function submit_form( $request ) {
-		$form_id = $request->get_param( 'formId' );
-		$fields  = $request->get_param( 'fields' );
-
-		if ( ! $form_id || ! $fields ) {
-			return new WP_Error(
-				'invalid_request',
-				__( 'Invalid request', 'form-plant' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		// Process submission
-		$submission_manager = new FPLANT_Submission_Manager();
-		$result             = $submission_manager->process_submission( $form_id, $fields );
-
-		if ( $result['success'] ) {
-			return rest_ensure_response( $result );
-		} else {
-			return new WP_Error(
-				'submission_failed',
-				$result['message'],
-				array(
-					'status' => 400,
-					'errors' => $result['errors'] ?? array(),
-				)
-			);
-		}
-	}
-
-	/**
-	 * Format fields for API
-	 *
-	 * @param array $fields Field array.
-	 * @return array
-	 */
-	private function format_fields_for_api( $fields ) {
-		$formatted = array();
-
-		foreach ( $fields as $field ) {
-			$formatted[ $field['name'] ] = array(
-				'type'        => $field['type'],
-				'label'       => $field['label'],
-				'placeholder' => $field['placeholder'] ?? '',
-				'required'    => ! empty( $field['required'] ),
-				'validation'  => $field['validation'] ?? array(),
-			);
-
-			// Additional info by field type
-			if ( 'textarea' === $field['type'] ) {
-				$formatted[ $field['name'] ]['rows'] = $field['rows'] ?? 5;
-			} elseif ( in_array( $field['type'], array( 'select', 'radio', 'checkbox' ), true ) ) {
-				$formatted[ $field['name'] ]['options'] = $field['options'] ?? array();
-			}
-		}
-
-		return $formatted;
 	}
 
 	/**
@@ -290,6 +153,7 @@ class FPLANT_REST_API {
 				header( 'Access-Control-Allow-Methods: GET, POST, OPTIONS' );
 				header( 'Access-Control-Allow-Headers: Content-Type' );
 				header( 'Access-Control-Allow-Credentials: true' );
+				header( 'Vary: Origin' );
 			}
 		}
 
@@ -476,11 +340,15 @@ class FPLANT_REST_API {
 				<input type="hidden" name="fplant_form_id" value="<?php echo esc_attr( $form_id ); ?>">
 				<input type="hidden" name="fplant_embed_mode" value="1">
 
+				<div class="fplant-field-wrap fplant-field-url" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;overflow:hidden;">
+					<label for="fplant_field_url_<?php echo esc_attr( $form_id ); ?>">Website URL</label>
+					<input type="text" name="fplant_website_url" id="fplant_field_url_<?php echo esc_attr( $form_id ); ?>" value="" tabindex="-1" autocomplete="off">
+				</div>
+
 				<?php if ( ! empty( $form['html_template'] ) && ! empty( $settings['use_html_template'] ) ) : ?>
 					<?php
 					// Process shortcodes in the input screen HTML template (same as embed.php)
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in shortcode handlers
-					echo do_shortcode( $form['html_template'] );
+					echo wp_kses( do_shortcode( $form['html_template'] ), fplant_get_allowed_form_html() );
 					?>
 				<?php else : ?>
 					<?php
@@ -506,8 +374,7 @@ class FPLANT_REST_API {
 
 							<?php
 							// Render field using template (supports theme overrides)
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is escaped in render_field()
-							echo $field_manager->render_field( $field, $field_value, $form_id, $settings );
+							echo wp_kses( $field_manager->render_field( $field, $field_value, $form_id, $settings ), fplant_get_allowed_form_html() );
 							?>
 							<div class="fplant-field-error" style="display: none;"></div>
 						</div>
@@ -547,12 +414,20 @@ class FPLANT_REST_API {
 	 */
 	public function validate_embed_form( $request ) {
 		$form_id = $request->get_param( 'form_id' );
-		$data    = $request->get_param( 'data' );
+		$data    = $this->parse_form_data( $request );
 
 		if ( ! $form_id ) {
 			return new WP_Error(
 				'invalid_request',
 				__( 'Invalid request', 'form-plant' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( ! is_array( $data ) ) {
+			return new WP_Error(
+				'invalid_request',
+				__( 'Invalid data format', 'form-plant' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -601,6 +476,15 @@ class FPLANT_REST_API {
 			}
 		}
 
+		// Honeypot check
+		if ( ! empty( $data['fplant_website_url'] ) ) {
+			return new WP_Error(
+				'validation_failed',
+				__( 'Invalid request', 'form-plant' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		// Validation.
 		$validator         = new FPLANT_Validator();
 		$validation_result = $validator->validate( $form['fields'], $data, $form_id );
@@ -616,9 +500,19 @@ class FPLANT_REST_API {
 			);
 		}
 
+		// Get filenames from $_FILES for confirmation display.
+		$fplant_filenames = array();
+		foreach ( $form['fields'] as $fplant_field ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified via REST API authentication
+			if ( 'file' === $fplant_field['type'] && ! empty( $_FILES[ $fplant_field['name'] ]['name'] ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified via REST API authentication
+				$fplant_filenames[ $fplant_field['name'] ] = sanitize_file_name( $_FILES[ $fplant_field['name'] ]['name'] );
+			}
+		}
+
 		// Generate confirmation HTML.
 		$field_manager     = new FPLANT_Field_Manager();
-		$confirmation_html = $field_manager->render_confirmation( $form, $data );
+		$confirmation_html = $field_manager->render_confirmation( $form, $data, $fplant_filenames );
 
 		return rest_ensure_response(
 			array(
@@ -636,12 +530,20 @@ class FPLANT_REST_API {
 	 */
 	public function submit_embed_form( $request ) {
 		$form_id = $request->get_param( 'form_id' );
-		$data    = $request->get_param( 'data' );
+		$data    = $this->parse_form_data( $request );
 
 		if ( ! $form_id ) {
 			return new WP_Error(
 				'invalid_request',
 				__( 'Invalid request', 'form-plant' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( ! is_array( $data ) ) {
+			return new WP_Error(
+				'invalid_request',
+				__( 'Invalid data format', 'form-plant' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -690,6 +592,15 @@ class FPLANT_REST_API {
 			}
 		}
 
+		// Honeypot check
+		if ( ! empty( $data['fplant_website_url'] ) ) {
+			return new WP_Error(
+				'validation_failed',
+				__( 'Invalid request', 'form-plant' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		// Verify reCAPTCHA
 		if ( ! empty( $form['settings']['recaptcha_enabled'] ) ) {
 			$recaptcha_token = $request->get_param( 'recaptcha_token' );
@@ -698,6 +609,30 @@ class FPLANT_REST_API {
 				return $recaptcha_result;
 			}
 		}
+
+		// Handle file uploads (processes only expected file fields from form definition).
+		$submission_manager = new FPLANT_Submission_Manager();
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- REST API endpoint, no nonce required
+		if ( ! empty( $_FILES ) ) {
+			$uploaded_files = $submission_manager->handle_file_uploads( $form_id );
+			if ( is_wp_error( $uploaded_files ) ) {
+				return new WP_Error(
+					'file_upload_failed',
+					$uploaded_files->get_error_message(),
+					array( 'status' => 400 )
+				);
+			}
+			// Merge uploaded file data into data for validation and submission.
+			// File data must be an array {url, file, type, filename} for sanitize_submission_data().
+			if ( is_array( $uploaded_files ) ) {
+				foreach ( $uploaded_files as $field_name => $file_info ) {
+					$data[ $field_name ] = $file_info;
+				}
+			}
+		}
+
+		// Remove honeypot data before processing
+		unset( $data['fplant_website_url'] );
 
 		// Validation
 		$validator         = new FPLANT_Validator();
@@ -715,8 +650,7 @@ class FPLANT_REST_API {
 		}
 
 		// Process submission (includes email sending)
-		$submission_manager = new FPLANT_Submission_Manager();
-		$result             = $submission_manager->process_submission( $form_id, $data );
+		$result = $submission_manager->process_submission( $form_id, $data );
 
 		if ( ! $result || is_wp_error( $result ) || empty( $result['success'] ) ) {
 			$error_message = isset( $result['message'] ) ? $result['message'] : __( 'Submission processing failed', 'form-plant' );
@@ -817,6 +751,33 @@ class FPLANT_REST_API {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Parse form data from request
+	 *
+	 * When data is sent as FormData (multipart/form-data), the 'data' parameter
+	 * is a JSON string that needs decoding. When sent as JSON, it's already an array.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return array|null Parsed data array, or null on failure.
+	 */
+	private function parse_form_data( $request ) {
+		$data = $request->get_param( 'data' );
+
+		if ( is_string( $data ) ) {
+			// FormData submission: 'data' is a JSON-encoded string.
+			$data = json_decode( $data, true );
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				return null;
+			}
+		}
+
+		if ( is_array( $data ) ) {
+			return FPLANT_Form_Manager::sanitize_array_recursive( $data );
+		}
+
+		return null;
 	}
 
 	/**

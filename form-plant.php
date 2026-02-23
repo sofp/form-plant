@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Form Plant
- * Plugin URI: https://github.com/sofplant/form-plant
+ * Plugin URI: https://www.sofplant.com/form-plant/
  * Description: A versatile form plugin with easy modal-based setup and flexible customization options.
  * Version: 1.0.0
  * Author: SOFPLANT
@@ -60,3 +60,104 @@ function fplant_deactivate() {
 	FPLANT_Form_Plant::deactivate();
 }
 register_deactivation_hook( __FILE__, 'fplant_deactivate' );
+
+/**
+ * Get allowed HTML tags for form output.
+ *
+ * Returns an expanded set of HTML tags/attributes allowed in form output.
+ * Used with wp_kses() for do_shortcode() and render_field() output.
+ *
+ * @return array Allowed HTML tags and their attributes.
+ */
+function fplant_get_allowed_form_html() {
+	$allowed = wp_kses_allowed_html( 'post' );
+
+	$form_tags = array(
+		'form'     => array(
+			'action'     => true,
+			'method'     => true,
+			'class'      => true,
+			'id'         => true,
+			'enctype'    => true,
+			'novalidate' => true,
+		),
+		'input'    => array(
+			'type'         => true,
+			'name'         => true,
+			'value'        => true,
+			'class'        => true,
+			'id'           => true,
+			'placeholder'  => true,
+			'required'     => true,
+			'checked'      => true,
+			'disabled'     => true,
+			'readonly'     => true,
+			'maxlength'    => true,
+			'minlength'    => true,
+			'size'         => true,
+			'min'          => true,
+			'max'          => true,
+			'step'         => true,
+			'accept'       => true,
+			'multiple'     => true,
+			'pattern'      => true,
+			'autocomplete' => true,
+			'style'        => true,
+		),
+		'textarea' => array(
+			'name'        => true,
+			'class'       => true,
+			'id'          => true,
+			'rows'        => true,
+			'cols'        => true,
+			'placeholder' => true,
+			'required'    => true,
+			'disabled'    => true,
+			'readonly'    => true,
+			'maxlength'   => true,
+			'style'       => true,
+		),
+		'select'   => array(
+			'name'     => true,
+			'class'    => true,
+			'id'       => true,
+			'required' => true,
+			'disabled' => true,
+			'multiple' => true,
+			'style'    => true,
+		),
+		'option'   => array(
+			'value'    => true,
+			'selected' => true,
+			'disabled' => true,
+		),
+		'optgroup' => array(
+			'label'    => true,
+			'disabled' => true,
+		),
+		'label'    => array(
+			'for'   => true,
+			'class' => true,
+			'id'    => true,
+		),
+		'button'   => array(
+			'type'     => true,
+			'name'     => true,
+			'value'    => true,
+			'class'    => true,
+			'id'       => true,
+			'disabled' => true,
+			'style'    => true,
+		),
+		'fieldset' => array(
+			'class'    => true,
+			'id'       => true,
+			'disabled' => true,
+		),
+		'legend'   => array(
+			'class' => true,
+		),
+	);
+
+	return array_merge( $allowed, $form_tags );
+}

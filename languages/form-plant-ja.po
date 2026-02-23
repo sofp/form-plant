@@ -1307,3 +1307,38 @@ msgstr "お問い合わせありがとうございます"
 
 msgid "We have received the following information."
 msgstr "以下の内容を受け付けました。"
+
+# CSS upload/delete messages
+msgid "Permission denied."
+msgstr "権限がありません。"
+
+msgid "Invalid nonce."
+msgstr "不正なリクエストです。"
+
+msgid "No file uploaded."
+msgstr "ファイルがアップロードされていません。"
+
+msgid "Only .css files are allowed."
+msgstr ".cssファイルのみ許可されています。"
+
+msgid "Invalid file type."
+msgstr "無効なファイルタイプです。"
+
+msgid "Failed to create upload directory."
+msgstr "アップロードディレクトリの作成に失敗しました。"
+
+msgid "No file specified."
+msgstr "ファイルが指定されていません。"
+
+msgid "Invalid filename."
+msgstr "無効なファイル名です。"
+
+msgid "File deleted."
+msgstr "ファイルを削除しました。"
+
+msgid "Invalid file path."
+msgstr "無効なファイルパスです。"
+
+msgid "Failed to delete file."
+msgstr "ファイルの削除に失敗しました。"
+

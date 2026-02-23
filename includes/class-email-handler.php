@@ -292,7 +292,7 @@ class FPLANT_Email_Handler {
 					}
 					$value = implode( $delimiter, $value );
 				}
-				$text = str_replace( '{field:' . $field_name . '}', esc_html( $value ), $text );
+				$text = str_replace( '{field:' . $field_name . '}', $value, $text );
 			}
 		}
 
@@ -314,11 +314,11 @@ class FPLANT_Email_Handler {
 				}
 				$value = implode( $delimiter, $value );
 			}
-			$text = str_replace( '{' . $key . '}', esc_html( $value ), $text );
+			$text = str_replace( '{' . $key . '}', $value, $text );
 		}
 
 		// System tags
-		$text = str_replace( '{form_title}', esc_html( $form['title'] ), $text );
+		$text = str_replace( '{form_title}', $form['title'], $text );
 		$text = str_replace( '{submission_id}', $submission_id, $text );
 		$text = str_replace( '{submission_date}', current_time( 'Y-m-d H:i:s' ), $text );
 		$text = str_replace( '{ip_address}', $this->get_client_ip(), $text );

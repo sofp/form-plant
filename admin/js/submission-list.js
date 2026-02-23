@@ -42,6 +42,48 @@
 			$('#fplant-select-all').prop('checked', allChecked);
 		});
 
+		// View submission detail
+		$('.fplant-view-submission').on('click', function() {
+			const submissionId = $(this).data('submission-id');
+			const $modal = $('#fplant-submission-detail-modal');
+			const $content = $('#fplant-submission-detail-content');
+
+			$content.html('<p>' + fplantSubmissionList.i18n.loading + '</p>');
+			$modal.show();
+
+			$.ajax({
+				url: ajaxurl,
+				type: 'POST',
+				data: {
+					action: 'fplant_get_submission_detail',
+					nonce: fplantSubmissionList.nonce,
+					submission_id: submissionId
+				},
+				success: function(response) {
+					if (response.success) {
+						$content.html(response.data.html);
+					} else {
+						$content.html('<p>' + (response.data.message || fplantSubmissionList.i18n.errorOccurred) + '</p>');
+					}
+				},
+				error: function() {
+					$content.html('<p>' + fplantSubmissionList.i18n.errorOccurred + '</p>');
+				}
+			});
+		});
+
+		// Close modal
+		$('.fplant-modal-close').on('click', function() {
+			$(this).closest('.fplant-modal').hide();
+		});
+
+		// Close modal on backdrop click
+		$('.fplant-modal').on('click', function(e) {
+			if (e.target === this) {
+				$(this).hide();
+			}
+		});
+
 		// Individual delete
 		$('.fplant-delete-submission').on('click', function() {
 			const submissionId = $(this).data('submission-id');

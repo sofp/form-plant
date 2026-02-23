@@ -18,8 +18,8 @@
 			this.isConfirmationStep = false;
 			this.confirmation = null;
 			// reCAPTCHA settings
-			this.recaptchaConfig = window.wpfplantRecaptchaConfig && window.wpfplantRecaptchaConfig[this.formId]
-				? window.wpfplantRecaptchaConfig[this.formId]
+			this.recaptchaConfig = window.fplantRecaptchaConfig && window.fplantRecaptchaConfig[this.formId]
+				? window.fplantRecaptchaConfig[this.formId]
 				: { enabled: false };
 			this.init();
 		}
@@ -155,7 +155,7 @@
 			if (!isValid) {
 				// Only show error list if [fplant_errors] exists
 				if (Object.keys(fieldErrors).length > 0 && this.form.querySelector('.fplant-errors')) {
-					this.showErrors(wpfplantData.i18n.validationError, fieldErrors);
+					this.showErrors(fplantData.i18n.validationError, fieldErrors);
 				}
 
 				// Scroll to first error field
@@ -219,7 +219,7 @@
 					}
 				});
 				if (checked === 0) {
-					errorMessage = customMessage || wpfplantData.i18n.requiredCheckbox;
+					errorMessage = customMessage || fplantData.i18n.requiredCheckbox;
 				}
 			} else if (fieldType === 'radio') {
 				// Radio button: one selected
@@ -230,25 +230,25 @@
 					}
 				});
 				if (checked === 0) {
-					errorMessage = customMessage || wpfplantData.i18n.requiredRadio;
+					errorMessage = customMessage || fplantData.i18n.requiredRadio;
 				}
 			} else if (fieldType === 'select' || fieldType === 'SELECT') {
 				// Select box
 				value = firstField.value;
 				if (!value || value === '') {
-					errorMessage = customMessage || wpfplantData.i18n.requiredSelect;
+					errorMessage = customMessage || fplantData.i18n.requiredSelect;
 				}
 			} else if (fieldType === 'file') {
 				// File upload
 				const file = firstField.files && firstField.files[0];
 				if (!file) {
-					errorMessage = customMessage || wpfplantData.i18n.requiredFile;
+					errorMessage = customMessage || fplantData.i18n.requiredFile;
 				} else {
 					// File size check
 					const maxSize = parseInt(firstField.dataset.maxSize) || 2097152; // Default 2MB
 					if (file.size > maxSize) {
 						const maxSizeMB = (maxSize / 1048576).toFixed(1);
-						errorMessage = wpfplantData.i18n.fileTooLarge.replace('%s', maxSizeMB);
+						errorMessage = fplantData.i18n.fileTooLarge.replace('%s', maxSizeMB);
 					}
 
 					// File type check
@@ -256,7 +256,7 @@
 					if (accept && accept.indexOf('image/*') !== -1) {
 						// If image only
 						if (!file.type.startsWith('image/')) {
-							errorMessage = wpfplantData.i18n.imageRequired;
+							errorMessage = fplantData.i18n.imageRequired;
 						}
 					}
 				}
@@ -264,7 +264,7 @@
 				// Text fields
 				value = firstField.value;
 				if (!value || value.trim() === '') {
-					errorMessage = customMessage || wpfplantData.i18n.requiredText;
+					errorMessage = customMessage || fplantData.i18n.requiredText;
 				}
 			}
 
@@ -302,7 +302,7 @@
 				// Create FormData object
 				body = new FormData();
 				body.append('action', 'fplant_validate_form');
-				body.append('nonce', wpfplantData.nonce);
+				body.append('nonce', fplantData.nonce);
 				body.append('form_id', this.formId);
 				body.append('data', JSON.stringify(formData));
 
@@ -318,14 +318,14 @@
 				headers['Content-Type'] = 'application/x-www-form-urlencoded';
 				body = new URLSearchParams({
 					action: 'fplant_validate_form',
-					nonce: wpfplantData.nonce,
+					nonce: fplantData.nonce,
 					form_id: this.formId,
 					data: JSON.stringify(formData)
 				});
 			}
 
 			// Fetch submission
-			fetch(wpfplantData.ajaxUrl, {
+			fetch(fplantData.ajaxUrl, {
 				method: 'POST',
 				headers: headers,
 				body: body
@@ -339,7 +339,7 @@
 				} else {
 					// Validation error
 					const errors = response.data.errors || {};
-					const message = response.data.message || wpfplantData.i18n.validationError;
+					const message = response.data.message || fplantData.i18n.validationError;
 					// Only show overall error if [fplant_errors] exists
 					if (this.form.querySelector('.fplant-errors')) {
 						this.showErrors(message, errors);
@@ -350,7 +350,7 @@
 			})
 			.catch(error => {
 				this.setLoading(false);
-				this.showErrors(wpfplantData.i18n.serverError);
+				this.showErrors(fplantData.i18n.serverError);
 			});
 		}
 
@@ -475,7 +475,7 @@
 					}
 				} catch (error) {
 					this.setLoading(false);
-					this.showErrors(wpfplantData.i18n.recaptchaError);
+					this.showErrors(fplantData.i18n.recaptchaError);
 					return;
 				}
 			}
@@ -490,7 +490,7 @@
 				// Create FormData object
 				body = new FormData();
 				body.append('action', 'fplant_submit_form');
-				body.append('nonce', wpfplantData.nonce);
+				body.append('nonce', fplantData.nonce);
 				body.append('form_id', this.formId);
 				body.append('data', JSON.stringify(formData));
 
@@ -511,7 +511,7 @@
 				headers['Content-Type'] = 'application/x-www-form-urlencoded';
 				const params = {
 					action: 'fplant_submit_form',
-					nonce: wpfplantData.nonce,
+					nonce: fplantData.nonce,
 					form_id: this.formId,
 					data: JSON.stringify(formData)
 				};
@@ -525,7 +525,7 @@
 			}
 
 			// Fetch submission
-			fetch(wpfplantData.ajaxUrl, {
+			fetch(fplantData.ajaxUrl, {
 				method: 'POST',
 				headers: headers,
 				body: body
@@ -563,20 +563,20 @@
 		}
 
 		buildConfirmationHtml(formData) {
-			const title = this.form.dataset.confirmationTitle || wpfplantData.i18n.confirmationTitle;
-			const message = this.form.dataset.confirmationMessage || wpfplantData.i18n.confirmationMessage;
+			const title = this.form.dataset.confirmationTitle || fplantData.i18n.confirmationTitle;
+			const message = this.form.dataset.confirmationMessage || fplantData.i18n.confirmationMessage;
 
 			// Get button text and attributes
-			const buttonTexts = window.wpfplantConfirmationButtons && window.wpfplantConfirmationButtons[this.formId];
-			const backText = buttonTexts ? buttonTexts.back : wpfplantData.i18n.back;
+			const buttonTexts = window.fplantConfirmationButtons && window.fplantConfirmationButtons[this.formId];
+			const backText = buttonTexts ? buttonTexts.back : fplantData.i18n.back;
 			const backClass = buttonTexts ? buttonTexts.back_class : '';
 			const backId = buttonTexts ? buttonTexts.back_id : '';
-			const submitText = buttonTexts ? buttonTexts.submit : wpfplantData.i18n.submitForm;
+			const submitText = buttonTexts ? buttonTexts.submit : fplantData.i18n.submitForm;
 			const submitClass = buttonTexts ? buttonTexts.submit_class : '';
 			const submitId = buttonTexts ? buttonTexts.submit_id : '';
 
 			// Use custom template if available
-			const customTemplate = window.wpfplantConfirmationTemplate && window.wpfplantConfirmationTemplate[this.formId];
+			const customTemplate = window.fplantConfirmationTemplate && window.fplantConfirmationTemplate[this.formId];
 			if (customTemplate) {
 				return this.renderConfirmationTemplate(customTemplate, formData, title, message, buttonTexts);
 			}
@@ -647,8 +647,8 @@
 		}
 
 		getFieldLabel(fieldName) {
-			// First, try to get label from wpfplantFieldsConfig
-			const fieldsConfig = window.wpfplantFieldsConfig && window.wpfplantFieldsConfig[this.formId];
+			// First, try to get label from fplantFieldsConfig
+			const fieldsConfig = window.fplantFieldsConfig && window.fplantFieldsConfig[this.formId];
 			if (fieldsConfig) {
 				const fieldConfig = fieldsConfig.find(f => f.name === fieldName);
 				if (fieldConfig && fieldConfig.label) {
@@ -688,7 +688,7 @@
 		 * Convert option value(s) to label(s) for select/radio/checkbox fields
 		 */
 		getOptionLabel(fieldName, value) {
-			const fieldsConfig = window.wpfplantFieldsConfig && window.wpfplantFieldsConfig[this.formId];
+			const fieldsConfig = window.fplantFieldsConfig && window.fplantFieldsConfig[this.formId];
 			if (!fieldsConfig) {
 				return value;
 			}
@@ -717,7 +717,7 @@
 		 * Check if field is select, radio, or checkbox type
 		 */
 		isChoiceField(fieldName) {
-			const fieldsConfig = window.wpfplantFieldsConfig && window.wpfplantFieldsConfig[this.formId];
+			const fieldsConfig = window.fplantFieldsConfig && window.fplantFieldsConfig[this.formId];
 			if (!fieldsConfig) {
 				return false;
 			}
@@ -731,8 +731,8 @@
 			const formData = new FormData(this.form);
 
 			for (const [key, value] of formData.entries()) {
-				// Skip fields starting with wpfplant
-				if (key.indexOf('fplant_') === 0) {
+				// Skip internal fields starting with fplant_ (but keep honeypot field for server-side check)
+				if (key.indexOf('fplant_') === 0 && key !== 'fplant_website_url') {
 					continue;
 				}
 
@@ -798,14 +798,14 @@
 				this.form.reset();
 
 				// Dispatch custom event
-				this.form.dispatchEvent(new CustomEvent('wpfplant:success', { detail: response.data }));
+				this.form.dispatchEvent(new CustomEvent('fplant:success', { detail: response.data }));
 			} else {
 				this.showErrors(response.data.message, response.data.errors);
 			}
 		}
 
 		handleError(error) {
-			this.showErrors(wpfplantData.i18n.errorOccurred);
+			this.showErrors(fplantData.i18n.errorOccurred);
 		}
 
 		showSuccess(message) {
@@ -946,11 +946,11 @@
 
 		getCustomValidationMessage(fieldName) {
 			const formId = this.form.dataset.formId;
-			if (!formId || !window.wpfplantFieldsConfig || !window.wpfplantFieldsConfig[formId]) {
+			if (!formId || !window.fplantFieldsConfig || !window.fplantFieldsConfig[formId]) {
 				return null;
 			}
 
-			const fields = window.wpfplantFieldsConfig[formId];
+			const fields = window.fplantFieldsConfig[formId];
 			const field = fields.find(f => f.name === fieldName);
 
 			if (field && field.validation_message && field.validation_message.trim() !== '') {
@@ -1007,10 +1007,10 @@
 			}
 
 			// Get button text and attributes
-			const backText = buttonTexts ? buttonTexts.back : wpfplantData.i18n.back;
+			const backText = buttonTexts ? buttonTexts.back : fplantData.i18n.back;
 			const backClass = buttonTexts ? buttonTexts.back_class : '';
 			const backId = buttonTexts ? buttonTexts.back_id : '';
-			const submitText = buttonTexts ? buttonTexts.submit : wpfplantData.i18n.submitForm;
+			const submitText = buttonTexts ? buttonTexts.submit : fplantData.i18n.submitForm;
 			const submitClass = buttonTexts ? buttonTexts.submit_class : '';
 			const submitId = buttonTexts ? buttonTexts.submit_id : '';
 

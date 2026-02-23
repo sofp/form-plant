@@ -10,9 +10,9 @@
 	'use strict';
 
 	/**
-	 * WPFPlantEmbed - Embed SDK
+	 * FPlantEmbed - Embed SDK
 	 */
-	window.WPFPlantEmbed = {
+	window.FPlantEmbed = {
 		/**
 		 * Store initialized forms
 		 */
@@ -48,7 +48,7 @@
 			// Get target element
 			var target = document.querySelector(targetSelector);
 			if (!target) {
-				console.error('WPFPlantEmbed: Target element not found:', targetSelector);
+				console.error('FPlantEmbed: Target element not found:', targetSelector);
 				return;
 			}
 
@@ -69,7 +69,7 @@
 			this.fetchJson(apiUrl, function(error, response) {
 				if (error) {
 					target.innerHTML = '<div class="fplant-embed-error">Failed to load form</div>';
-					console.error('WPFPlantEmbed:', error);
+					console.error('FPlantEmbed:', error);
 					return;
 				}
 
@@ -285,22 +285,20 @@
 			// Clear errors
 			this.clearErrors(formId);
 
-			// Collect form data
-			var data = this.collectFormData(form);
+			// Collect form data (separating files from text data)
+			var collected = this.collectFormData(form);
 
 			// Save form data (used when submitting from confirmation screen)
-			formInfo.pendingData = data;
+			formInfo.pendingData = collected.data;
+			formInfo.pendingFiles = collected.files;
 
 			if (useConfirmation) {
 				// Confirmation screen enabled: validation and get confirmation HTML
 				var apiUrl = formInfo.siteUrl + '/wp-json/form-plant/v1/embed/validate';
 
-				var postData = {
-					form_id: formId,
-					data: data
-				};
+				var fd = self.buildFormData(formId, collected.data, collected.files);
 
-				self.postJson(apiUrl, postData, function(error, response) {
+				self.postFormData(apiUrl, fd, function(error, response) {
 					submitButton.disabled = false;
 					submitButton.textContent = formInfo.formData.settings.input_submit_text || 'Confirm';
 
@@ -415,7 +413,13 @@
 			}
 
 			// Use saved form data
-			var data = formInfo.pendingData || this.collectFormData(form);
+			var data = formInfo.pendingData;
+			var files = formInfo.pendingFiles || {};
+			if (!data) {
+				var collected = this.collectFormData(form);
+				data = collected.data;
+				files = collected.files;
+			}
 
 			// Get reCAPTCHA token before submitting
 			this.getRecaptchaToken(formId, function(recaptchaError, recaptchaToken) {
@@ -434,17 +438,14 @@
 				// Submit to REST API
 				var apiUrl = formInfo.siteUrl + '/wp-json/form-plant/v1/embed/submit';
 
-				var postData = {
-					form_id: formId,
-					data: data
-				};
+				var fd = self.buildFormData(formId, data, files);
 
 				// Add reCAPTCHA token if available
 				if (recaptchaToken) {
-					postData.recaptcha_token = recaptchaToken;
+					fd.append('recaptcha_token', recaptchaToken);
 				}
 
-				self.postJson(apiUrl, postData, function(error, response) {
+				self.postFormData(apiUrl, fd, function(error, response) {
 					if (confirmSubmitButton) {
 						confirmSubmitButton.disabled = false;
 						confirmSubmitButton.textContent = formInfo.formData.settings.input_submit_text || 'Submit';
@@ -498,18 +499,24 @@
 		},
 
 		/**
-		 * Collect form data
+		 * Collect form data (separating files from text data)
 		 *
 		 * @param {HTMLFormElement} form Form element
-		 * @return {object} Form data
+		 * @return {object} { data: {key: value}, files: {key: File} }
 		 */
 		collectFormData: function(form) {
 			var data = {};
+			var files = {};
 			var formData = new FormData(form);
 
 			formData.forEach(function(value, key) {
-				// Array case (checkboxes, etc.)
-				if (key.endsWith('[]')) {
+				if (value instanceof File) {
+					// Store file references separately (File objects can't be JSON-serialized)
+					if (value.name && value.size > 0) {
+						files[key] = value;
+					}
+				} else if (key.endsWith('[]')) {
+					// Array case (checkboxes, etc.)
 					var arrayKey = key.slice(0, -2);
 					if (!data[arrayKey]) {
 						data[arrayKey] = [];
@@ -520,7 +527,69 @@
 				}
 			});
 
-			return data;
+			return { data: data, files: files };
+		},
+
+		/**
+		 * Build FormData for API request (supports file uploads)
+		 *
+		 * @param {number} formId Form ID
+		 * @param {object} data Text field data
+		 * @param {object} files File field data {key: File}
+		 * @return {FormData}
+		 */
+		buildFormData: function(formId, data, files) {
+			var fd = new FormData();
+			fd.append('form_id', formId);
+			fd.append('data', JSON.stringify(data));
+
+			// Add file fields
+			for (var key in files) {
+				if (files.hasOwnProperty(key)) {
+					fd.append(key, files[key]);
+				}
+			}
+
+			return fd;
+		},
+
+		/**
+		 * POST FormData (multipart/form-data, supports file uploads)
+		 *
+		 * @param {string} url URL
+		 * @param {FormData} formData FormData object
+		 * @param {function} callback Callback(error, data)
+		 */
+		postFormData: function(url, formData, callback) {
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', url, true);
+			// Do not set Content-Type - browser sets it with multipart boundary automatically
+
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState === 4) {
+					if (xhr.status >= 200 && xhr.status < 300) {
+						try {
+							var responseData = JSON.parse(xhr.responseText);
+							callback(null, responseData);
+						} catch (e) {
+							callback(e, null);
+						}
+					} else {
+						try {
+							var errorData = JSON.parse(xhr.responseText);
+							callback(errorData, null);
+						} catch (e) {
+							callback(new Error('HTTP ' + xhr.status), null);
+						}
+					}
+				}
+			};
+
+			xhr.onerror = function() {
+				callback(new Error('Network error'), null);
+			};
+
+			xhr.send(formData);
 		},
 
 		/**

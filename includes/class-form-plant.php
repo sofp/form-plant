@@ -242,11 +242,18 @@ class FPLANT_Form_Plant {
 		// Collect inline CSS to add later
 		$inline_css_queue = array();
 
+		// Collect per-form JS config and check reCAPTCHA need
+		$recaptcha_site_key = get_option( 'fplant_recaptcha_site_key' );
+		$needs_recaptcha    = false;
+		$form_inline_js     = '';
+
 		foreach ( $form_ids as $form_id ) {
 			$form = FPLANT_Database::get_form( $form_id );
 			if ( ! $form ) {
 				continue;
 			}
+
+			// --- CSS handling ---
 
 			$css_mode = isset( $form['settings']['custom_css_mode'] )
 				? $form['settings']['custom_css_mode']
@@ -297,6 +304,16 @@ class FPLANT_Form_Plant {
 					$inline_css_queue[] = $this->sanitize_css( $custom_css_inline );
 				}
 			}
+
+			// --- reCAPTCHA check ---
+
+			if ( ! empty( $recaptcha_site_key ) && ! empty( $form['settings']['recaptcha_enabled'] ) ) {
+				$needs_recaptcha = true;
+			}
+
+			// --- Per-form JS config ---
+
+			$form_inline_js .= $this->generate_form_inline_js( $form );
 		}
 
 		// Load default CSS (when not in replace mode, or when no forms)
@@ -311,20 +328,6 @@ class FPLANT_Form_Plant {
 			// Add queued inline CSS
 			foreach ( $inline_css_queue as $inline_css ) {
 				wp_add_inline_style( 'fplant-form', $inline_css );
-			}
-		}
-
-		// Conditionally load reCAPTCHA v3 script
-		$recaptcha_site_key = get_option( 'fplant_recaptcha_site_key' );
-		$needs_recaptcha    = false;
-
-		if ( ! empty( $recaptcha_site_key ) ) {
-			foreach ( $form_ids as $fid ) {
-				$f = FPLANT_Database::get_form( $fid );
-				if ( $f && ! empty( $f['settings']['recaptcha_enabled'] ) ) {
-					$needs_recaptcha = true;
-					break;
-				}
 			}
 		}
 
@@ -345,7 +348,7 @@ class FPLANT_Form_Plant {
 		// Localize
 		wp_localize_script(
 			'fplant-form',
-			'wpfplantData',
+			'fplantData',
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'fplant_form_nonce' ),
@@ -369,6 +372,57 @@ class FPLANT_Form_Plant {
 				),
 			)
 		);
+
+		// Per-form inline JS (fields config, confirmation, reCAPTCHA config)
+		if ( ! empty( $form_inline_js ) ) {
+			wp_add_inline_script( 'fplant-form', $form_inline_js, 'before' );
+		}
+	}
+
+	/**
+	 * Generate per-form inline JavaScript configuration.
+	 *
+	 * @param array $form Form data.
+	 * @return string Inline JavaScript code.
+	 */
+	private function generate_form_inline_js( $form ) {
+		$fplant_form_id = absint( $form['id'] );
+
+		$inline_js = '';
+
+		// fplantFieldsConfig
+		$inline_js .= 'if (typeof window.fplantFieldsConfig === "undefined") { window.fplantFieldsConfig = {}; }' . "\n";
+		$inline_js .= 'window.fplantFieldsConfig[' . $fplant_form_id . '] = ' . wp_json_encode( $form['fields'], JSON_UNESCAPED_UNICODE ) . ";\n";
+
+		// fplantConfirmationTemplate
+		$inline_js .= 'if (typeof window.fplantConfirmationTemplate === "undefined") { window.fplantConfirmationTemplate = {}; }' . "\n";
+		$inline_js .= 'window.fplantConfirmationTemplate[' . $fplant_form_id . '] = ' . wp_json_encode( $form['settings']['confirmation_template'] ?? '', JSON_UNESCAPED_UNICODE ) . ";\n";
+
+		// fplantConfirmationButtons
+		$inline_js .= 'if (typeof window.fplantConfirmationButtons === "undefined") { window.fplantConfirmationButtons = {}; }' . "\n";
+		$inline_js .= 'window.fplantConfirmationButtons[' . $fplant_form_id . '] = ' . wp_json_encode(
+			array(
+				'back'         => $form['settings']['confirmation_back_text'] ?? __( 'Back', 'form-plant' ),
+				'back_class'   => $form['settings']['confirmation_back_class'] ?? '',
+				'back_id'      => $form['settings']['confirmation_back_id'] ?? '',
+				'submit'       => $form['settings']['confirmation_submit_text'] ?? __( 'Submit Form', 'form-plant' ),
+				'submit_class' => $form['settings']['confirmation_submit_class'] ?? '',
+				'submit_id'    => $form['settings']['confirmation_submit_id'] ?? '',
+			),
+			JSON_UNESCAPED_UNICODE
+		) . ";\n";
+
+		// fplantRecaptchaConfig
+		$inline_js .= 'if (typeof window.fplantRecaptchaConfig === "undefined") { window.fplantRecaptchaConfig = {}; }' . "\n";
+		$inline_js .= 'window.fplantRecaptchaConfig[' . $fplant_form_id . '] = ' . wp_json_encode(
+			array(
+				'enabled' => ! empty( $form['settings']['recaptcha_enabled'] ),
+				'version' => $form['settings']['recaptcha_version'] ?? 'v3',
+				'siteKey' => get_option( 'fplant_recaptcha_site_key', '' ),
+			)
+		) . ";\n";
+
+		return $inline_js;
 	}
 
 	/**
@@ -412,7 +466,7 @@ class FPLANT_Form_Plant {
 		// Localize
 		wp_localize_script(
 			'fplant-admin',
-			'wpfplantAdminData',
+			'fplantAdminData',
 			array(
 				'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
 				'nonce'    => wp_create_nonce( 'fplant_admin_nonce' ),
@@ -463,7 +517,7 @@ class FPLANT_Form_Plant {
 		);
 
 		// Submission list page
-		if ( 'fplant_form_page_fplant-submissions' === $hook ) {
+		if ( 'form-plant_page_fplant-submissions' === $hook ) {
 			wp_enqueue_script(
 				'fplant-submission-list',
 				FPLANT_PLUGIN_URL . 'admin/js/submission-list.js',
@@ -485,6 +539,7 @@ class FPLANT_Form_Plant {
 						'submissions'    => __( 'submissions?', 'form-plant' ),
 						'deleteFailed'   => __( 'Delete failed', 'form-plant' ),
 						'errorOccurred'  => __( 'An error occurred', 'form-plant' ),
+						'loading'        => __( 'Loading...', 'form-plant' ),
 					),
 				)
 			);
@@ -610,27 +665,27 @@ class FPLANT_Form_Plant {
 	public function handle_css_upload() {
 		// Permission check
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => 'Permission denied.' ) );
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'form-plant' ) ) );
 		}
 
 		// Nonce verification
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'fplant_css_upload' ) ) {
-			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'form-plant' ) ) );
 		}
 
 		// File check
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES validated for file operations
 		if ( ! isset( $_FILES['css_file'] ) || empty( $_FILES['css_file']['tmp_name'] ) ) {
-			wp_send_json_error( array( 'message' => 'No file uploaded.' ) );
+			wp_send_json_error( array( 'message' => __( 'No file uploaded.', 'form-plant' ) ) );
 		}
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES validated for file operations
 		$file = $_FILES['css_file'];
 
 		// Extension check
-		$ext = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
+		$ext = strtolower( pathinfo( sanitize_file_name( $file['name'] ), PATHINFO_EXTENSION ) );
 		if ( 'css' !== $ext ) {
-			wp_send_json_error( array( 'message' => 'Only .css files are allowed.' ) );
+			wp_send_json_error( array( 'message' => __( 'Only .css files are allowed.', 'form-plant' ) ) );
 		}
 
 		// MIME type check
@@ -640,12 +695,12 @@ class FPLANT_Form_Plant {
 
 		// CSS files are detected as text/plain or text/css
 		if ( ! in_array( $mime, array( 'text/plain', 'text/css', 'text/x-css' ), true ) ) {
-			wp_send_json_error( array( 'message' => 'Invalid file type.' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid file type.', 'form-plant' ) ) );
 		}
 
 		// Create directory
 		if ( ! $this->create_css_upload_dir() ) {
-			wp_send_json_error( array( 'message' => 'Failed to create upload directory.' ) );
+			wp_send_json_error( array( 'message' => __( 'Failed to create upload directory.', 'form-plant' ) ) );
 		}
 
 		// Generate filename
@@ -694,18 +749,18 @@ class FPLANT_Form_Plant {
 	public function handle_css_delete() {
 		// Permission check
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => 'Permission denied.' ) );
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'form-plant' ) ) );
 		}
 
 		// Nonce verification
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'fplant_css_upload' ) ) {
-			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'form-plant' ) ) );
 		}
 
 		// Get file URL
 		$file_url = isset( $_POST['file_url'] ) ? esc_url_raw( wp_unslash( $_POST['file_url'] ) ) : '';
 		if ( empty( $file_url ) ) {
-			wp_send_json_error( array( 'message' => 'No file specified.' ) );
+			wp_send_json_error( array( 'message' => __( 'No file specified.', 'form-plant' ) ) );
 		}
 
 		// Get file path from URL
@@ -714,12 +769,12 @@ class FPLANT_Form_Plant {
 
 		// Security: Check for path traversal in filename
 		if ( strpos( $filename, '..' ) !== false || strpos( $filename, '/' ) !== false ) {
-			wp_send_json_error( array( 'message' => 'Invalid filename.' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid filename.', 'form-plant' ) ) );
 		}
 
 		// Check if CSS file
-		if ( strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) ) !== 'css' ) {
-			wp_send_json_error( array( 'message' => 'Invalid file type.' ) );
+		if ( strtolower( pathinfo( sanitize_file_name( $filename ), PATHINFO_EXTENSION ) ) !== 'css' ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid file type.', 'form-plant' ) ) );
 		}
 
 		$file_path = $dir_info['path'] . '/' . $filename;
@@ -727,7 +782,7 @@ class FPLANT_Form_Plant {
 		// Check if file exists
 		if ( ! file_exists( $file_path ) ) {
 			// Return success even if file doesn't exist (already deleted)
-			wp_send_json_success( array( 'message' => 'File deleted.' ) );
+			wp_send_json_success( array( 'message' => __( 'File deleted.', 'form-plant' ) ) );
 		}
 
 		// Security: Normalize with realpath() and verify within allowed directory
@@ -737,16 +792,16 @@ class FPLANT_Form_Plant {
 		if ( false === $real_file_path ||
 			false === $real_dir_path ||
 			strpos( $real_file_path, $real_dir_path . DIRECTORY_SEPARATOR ) !== 0 ) {
-			wp_send_json_error( array( 'message' => 'Invalid file path.' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid file path.', 'form-plant' ) ) );
 		}
 
 		// Delete file
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		if ( ! unlink( $real_file_path ) ) {
-			wp_send_json_error( array( 'message' => 'Failed to delete file.' ) );
+			wp_send_json_error( array( 'message' => __( 'Failed to delete file.', 'form-plant' ) ) );
 		}
 
-		wp_send_json_success( array( 'message' => 'File deleted.' ) );
+		wp_send_json_success( array( 'message' => __( 'File deleted.', 'form-plant' ) ) );
 	}
 
 	/**

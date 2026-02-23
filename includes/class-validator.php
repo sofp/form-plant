@@ -189,10 +189,14 @@ class FPLANT_Validator {
 
 			case 'file':
 				// File upload validation is handled separately
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in calling AJAX handler, $_FILES validated by validate_file method
-				$file_error = $this->validate_file( $field, $_FILES[ $field['name'] ] ?? null );
-				if ( $file_error ) {
-					return $file_error;
+				$field_name = (string) $field['name'];
+				// Validate field name format (alphanumeric and underscores only)
+				if ( preg_match( '/^[A-Za-z0-9_]+$/', $field_name ) ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in calling AJAX handler, field name validated by preg_match above, $_FILES validated by validate_file method
+					$file_error = $this->validate_file( $field, $_FILES[ $field_name ] ?? null );
+					if ( $file_error ) {
+						return $file_error;
+					}
 				}
 				break;
 		}
@@ -306,7 +310,7 @@ class FPLANT_Validator {
 
 		// Extension check
 		$allowed_types = ! empty( $field['allowed_types'] ) ? $field['allowed_types'] : array( 'jpg', 'jpeg', 'png', 'gif', 'pdf' );
-		$file_extension = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
+		$file_extension = strtolower( pathinfo( sanitize_file_name( $file['name'] ), PATHINFO_EXTENSION ) );
 
 		if ( ! in_array( $file_extension, $allowed_types, true ) ) {
 			$message = sprintf(
@@ -330,7 +334,7 @@ class FPLANT_Validator {
 	 */
 	public function check_spam( $form_data, $spam_settings ) {
 		// Honeypot check
-		if ( ! empty( $spam_settings['honeypot'] ) && ! empty( $form_data['fplant_honeypot'] ) ) {
+		if ( ! empty( $spam_settings['honeypot'] ) && ! empty( $form_data['fplant_website_url'] ) ) {
 			return true; // Spam
 		}
 

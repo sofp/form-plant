@@ -949,18 +949,15 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 						<div class="fplant-form-group">
 							<label><?php esc_html_e( 'Embed Code', 'form-plant' ); ?></label>
 							<div class="fplant-embed-code-wrapper">
-								<?php
-								// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Embed code template for users to copy, not executed script
-								?>
 								<textarea
 									class="fplant-form-control fplant-embed-js-code"
 									rows="5"
 									readonly
 									onclick="this.select();"
-								><div id="fplant-form-<?php echo esc_attr( $fplant_form['id'] ); ?>"></div>
-<script src="<?php echo esc_url( FPLANT_PLUGIN_URL . 'assets/js/embed.js' ); ?>"></script>
-<script>WPFPlantEmbed.render(<?php echo esc_js( $fplant_form['id'] ); ?>, '#fplant-form-<?php echo esc_attr( $fplant_form['id'] ); ?>', '<?php echo esc_url( home_url() ); ?>');</script></textarea>
-								<?php // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
+									data-form-id="<?php echo esc_attr( $fplant_form['id'] ); ?>"
+									data-embed-js-url="<?php echo esc_url( FPLANT_PLUGIN_URL . 'assets/js/embed.js' ); ?>"
+									data-home-url="<?php echo esc_url( home_url() ); ?>"
+								></textarea>
 								<button type="button" class="button fplant-copy-embed-code" data-target=".fplant-embed-js-code">
 									<?php esc_html_e( 'Copy', 'form-plant' ); ?>
 								</button>

@@ -186,39 +186,11 @@ class FPLANT_Embed {
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<title><?php esc_html_e( 'エラー', 'form-plant' ); ?></title>
-			<style>
-				body {
-					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					min-height: 100vh;
-					margin: 0;
-					background-color: #f6f7f7;
-				}
-				.error-container {
-					text-align: center;
-					padding: 40px;
-					background: #fff;
-					border-radius: 8px;
-					box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-				}
-				.error-code {
-					font-size: 48px;
-					font-weight: bold;
-					color: #d63638;
-					margin-bottom: 10px;
-				}
-				.error-message {
-					color: #3c434a;
-					font-size: 16px;
-				}
-			</style>
 		</head>
-		<body>
-			<div class="error-container">
-				<div class="error-code"><?php echo esc_html( $status_code ); ?></div>
-				<div class="error-message"><?php echo esc_html( $message ); ?></div>
+		<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background-color: #f6f7f7;">
+			<div style="text-align: center; padding: 40px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+				<div style="font-size: 48px; font-weight: bold; color: #d63638; margin-bottom: 10px;"><?php echo esc_html( $status_code ); ?></div>
+				<div style="color: #3c434a; font-size: 16px;"><?php echo esc_html( $message ); ?></div>
 			</div>
 		</body>
 		</html>
@@ -227,11 +199,139 @@ class FPLANT_Embed {
 	}
 
 	/**
+	 * Enqueue embed scripts and styles
+	 *
+	 * @param array $form Form data.
+	 */
+	private function enqueue_embed_assets( $form ) {
+		$form_id  = $form['id'];
+		$settings = $form['settings'] ?? array();
+		$fields   = $form['fields'] ?? array();
+
+		// Custom CSS settings
+		$custom_css_mode     = $settings['custom_css_mode'] ?? 'none';
+		$load_default_css    = ( 'replace' !== $custom_css_mode );
+		$custom_css_file_url = $settings['custom_css_file_url'] ?? '';
+		$custom_css_inline   = $settings['custom_css_inline'] ?? '';
+
+		// Default CSS
+		if ( $load_default_css ) {
+			wp_enqueue_style( 'fplant-form', FPLANT_PLUGIN_URL . 'assets/css/form.css', array(), FPLANT_VERSION );
+		}
+
+		// Custom CSS file
+		$inline_css_handle = $load_default_css ? 'fplant-form' : '';
+		if ( 'none' !== $custom_css_mode && ! empty( $custom_css_file_url ) ) {
+			wp_enqueue_style( 'fplant-embed-custom-css', $custom_css_file_url, array(), FPLANT_VERSION );
+			$inline_css_handle = 'fplant-embed-custom-css';
+		}
+
+		// Custom CSS inline
+		if ( 'none' !== $custom_css_mode && ! empty( $custom_css_inline ) ) {
+			$plugin = FPLANT_Form_Plant::get_instance();
+			if ( empty( $inline_css_handle ) ) {
+				// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Intentionally no version for inline-only style
+				wp_register_style( 'fplant-embed-inline', false );
+				wp_enqueue_style( 'fplant-embed-inline' );
+				$inline_css_handle = 'fplant-embed-inline';
+			}
+			wp_add_inline_style( $inline_css_handle, $plugin->sanitize_css( $custom_css_inline ) );
+		}
+
+		// Embed base CSS (margin/padding reset, transparent background)
+		$embed_css = 'html, body { margin: 0; padding: 0; background: transparent; }'
+			. ' .fplant-form-wrapper { max-width: 100%; padding: 20px; box-sizing: border-box; }';
+		$base_handle = $load_default_css ? 'fplant-form' : ( ! empty( $inline_css_handle ) ? $inline_css_handle : '' );
+		if ( empty( $base_handle ) ) {
+			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Intentionally no version for inline-only style
+			wp_register_style( 'fplant-embed-base', false );
+			wp_enqueue_style( 'fplant-embed-base' );
+			$base_handle = 'fplant-embed-base';
+		}
+		wp_add_inline_style( $base_handle, $embed_css );
+
+		// reCAPTCHA
+		$recaptcha_enabled  = ! empty( $settings['recaptcha_enabled'] );
+		$recaptcha_site_key = get_option( 'fplant_recaptcha_site_key', '' );
+		$recaptcha_version  = $settings['recaptcha_version'] ?? 'v3';
+
+		if ( $recaptcha_enabled && ! empty( $recaptcha_site_key ) ) {
+			wp_enqueue_script(
+				'fplant-recaptcha',
+				'https://www.google.com/recaptcha/api.js?render=' . rawurlencode( $recaptcha_site_key ),
+				array(),
+				null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- External script, version managed by Google
+				array( 'in_footer' => false )
+			);
+		}
+
+		// form.js
+		wp_enqueue_script( 'fplant-form', FPLANT_PLUGIN_URL . 'assets/js/form.js', array(), FPLANT_VERSION, true );
+
+		// fplantData (localized script data)
+		$use_confirmation = ! empty( $settings['use_confirmation'] );
+		$nonce            = wp_create_nonce( 'fplant_form_nonce' );
+
+		wp_localize_script(
+			'fplant-form',
+			'fplantData',
+			array(
+				'ajaxUrl'         => admin_url( 'admin-ajax.php' ),
+				'restUrl'         => rest_url( 'form-plant/v1/' ),
+				'formId'          => (int) $form_id,
+				'nonce'           => $nonce,
+				'useConfirmation' => $use_confirmation,
+				'embedMode'       => true,
+				'settings'        => $settings,
+				'fields'          => $fields,
+				'i18n'            => array(
+					'validationError'     => __( 'There are errors in your input', 'form-plant' ),
+					'requiredCheckbox'    => __( 'This field is required. Please select at least one option.', 'form-plant' ),
+					'requiredRadio'       => __( 'This field is required. Please make a selection.', 'form-plant' ),
+					'requiredSelect'      => __( 'This field is required. Please make a selection.', 'form-plant' ),
+					'requiredFile'        => __( 'This field is required. Please select a file.', 'form-plant' ),
+					'requiredText'        => __( 'This field is required. Please enter a value.', 'form-plant' ),
+					/* translators: %s: Maximum file size in megabytes */
+				'fileTooLarge'        => __( 'File size is too large. Please select a file under %sMB.', 'form-plant' ),
+					'imageRequired'       => __( 'Please select an image file.', 'form-plant' ),
+					'serverError'         => __( 'A server error occurred. Please try again.', 'form-plant' ),
+					'errorOccurred'       => __( 'An error occurred. Please try again.', 'form-plant' ),
+					'recaptchaError'      => __( 'reCAPTCHA verification failed. Please reload the page and try again.', 'form-plant' ),
+					'confirmationTitle'   => __( 'Confirm Your Input', 'form-plant' ),
+					'confirmationMessage' => __( 'If the information below is correct, please click the "Submit" button.', 'form-plant' ),
+					'back'                => __( 'Back', 'form-plant' ),
+					'submitForm'          => __( 'Submit', 'form-plant' ),
+				),
+			)
+		);
+
+		// fplantRecaptchaConfig (inline script)
+		$recaptcha_config_js = 'var fplantRecaptchaConfig = {};'
+			. 'fplantRecaptchaConfig[' . (int) $form_id . '] = '
+			. wp_json_encode(
+				array(
+					'enabled' => $recaptcha_enabled,
+					'version' => $recaptcha_version,
+					'siteKey' => $recaptcha_site_key,
+				)
+			) . ';';
+		wp_add_inline_script( 'fplant-form', $recaptcha_config_js, 'before' );
+
+		// fplantFieldsConfig (inline script)
+		$fields_config_js = 'if (typeof window.fplantFieldsConfig === "undefined") { window.fplantFieldsConfig = {}; }'
+			. "\nwindow.fplantFieldsConfig[" . (int) $form_id . '] = ' . wp_json_encode( $fields, JSON_UNESCAPED_UNICODE ) . ';';
+		wp_add_inline_script( 'fplant-form', $fields_config_js, 'before' );
+	}
+
+	/**
 	 * Load embed template
 	 *
 	 * @param array $form Form data.
 	 */
 	private function load_embed_template( $form ) {
+		// Enqueue assets before loading template
+		$this->enqueue_embed_assets( $form );
+
 		// Set variables to pass to template
 		$form_id = $form['id'];
 		$fields  = $form['fields'] ?? array();

@@ -9,78 +9,76 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-
-$field_name  = esc_attr( $field['name'] );
-$field_id    = ! empty( $field['custom_id'] ) ? esc_attr( $field['custom_id'] ) : 'fplant-field-' . $field_name;
-$field_class = 'fplant-field fplant-field-date-select';
+$fplant_field_name  = esc_attr( $field['name'] );
+$fplant_field_id    = ! empty( $field['custom_id'] ) ? esc_attr( $field['custom_id'] ) : 'fplant-field-' . $fplant_field_name;
+$fplant_field_class = 'fplant-field fplant-field-date-select';
 if ( ! empty( $field['class'] ) ) {
-	$field_class .= ' ' . esc_attr( $field['class'] );
+	$fplant_field_class .= ' ' . esc_attr( $field['class'] );
 }
 if ( ! empty( $field['custom_class'] ) ) {
-	$field_class .= ' ' . esc_attr( $field['custom_class'] );
+	$fplant_field_class .= ' ' . esc_attr( $field['custom_class'] );
 }
 
 // Parse existing value (expected format: YYYY-MM-DD)
-$year  = '';
-$month = '';
-$day   = '';
+$fplant_year  = '';
+$fplant_month = '';
+$fplant_day   = '';
 
 if ( ! empty( $value ) ) {
-	$date_parts = explode( '-', $value );
-	if ( count( $date_parts ) === 3 ) {
-		$year  = $date_parts[0];
-		$month = $date_parts[1];
-		$day   = $date_parts[2];
+	$fplant_date_parts = explode( '-', $value );
+	if ( count( $fplant_date_parts ) === 3 ) {
+		$fplant_year  = $fplant_date_parts[0];
+		$fplant_month = $fplant_date_parts[1];
+		$fplant_day   = $fplant_date_parts[2];
 	}
 }
 
 // Set year range (default: 100 years in the past to 10 years in the future)
-$current_year = (int) gmdate( 'Y' );
-$year_start_offset = isset( $field['year_start'] ) ? (int) $field['year_start'] : 100;
-$year_end_offset   = isset( $field['year_end'] ) ? (int) $field['year_end'] : 10;
-$start_year = $current_year - $year_start_offset;
-$end_year   = $current_year + $year_end_offset;
+$fplant_current_year = (int) gmdate( 'Y' );
+$fplant_year_start_offset = isset( $field['year_start'] ) ? (int) $field['year_start'] : 100;
+$fplant_year_end_offset   = isset( $field['year_end'] ) ? (int) $field['year_end'] : 10;
+$fplant_start_year = $fplant_current_year - $fplant_year_start_offset;
+$fplant_end_year   = $fplant_current_year + $fplant_year_end_offset;
 ?>
 
-<div id="<?php echo esc_attr( $field_id ); ?>" class="<?php echo esc_attr( $field_class ); ?>">
+<div id="<?php echo esc_attr( $fplant_field_id ); ?>" class="<?php echo esc_attr( $fplant_field_class ); ?>">
 	<select
-		name="<?php echo esc_attr( $field_name ); ?>[year]"
+		name="<?php echo esc_attr( $fplant_field_name ); ?>[year]"
 		class="fplant-date-select-year"
-		data-field-name="<?php echo esc_attr( $field_name ); ?>"
+		data-field-name="<?php echo esc_attr( $fplant_field_name ); ?>"
 	>
 		<option value=""><?php esc_html_e( 'Year', 'form-plant' ); ?></option>
-		<?php for ( $y = $end_year; $y >= $start_year; $y-- ) : ?>
-			<option value="<?php echo esc_attr( $y ); ?>" <?php selected( $year, $y ); ?>>
-				<?php echo esc_html( $y ); ?>
+		<?php for ( $fplant_y = $fplant_end_year; $fplant_y >= $fplant_start_year; $fplant_y-- ) : ?>
+			<option value="<?php echo esc_attr( $fplant_y ); ?>" <?php selected( $fplant_year, $fplant_y ); ?>>
+				<?php echo esc_html( $fplant_y ); ?>
 			</option>
 		<?php endfor; ?>
 	</select>
 	<span class="fplant-date-separator">/</span>
 
 	<select
-		name="<?php echo esc_attr( $field_name ); ?>[month]"
+		name="<?php echo esc_attr( $fplant_field_name ); ?>[month]"
 		class="fplant-date-select-month"
-		data-field-name="<?php echo esc_attr( $field_name ); ?>"
+		data-field-name="<?php echo esc_attr( $fplant_field_name ); ?>"
 	>
 		<option value=""><?php esc_html_e( 'Month', 'form-plant' ); ?></option>
-		<?php for ( $m = 1; $m <= 12; $m++ ) : ?>
-			<option value="<?php echo esc_attr( sprintf( '%02d', $m ) ); ?>" <?php selected( $month, sprintf( '%02d', $m ) ); ?>>
-				<?php echo esc_html( $m ); ?>
+		<?php for ( $fplant_m = 1; $fplant_m <= 12; $fplant_m++ ) : ?>
+			<option value="<?php echo esc_attr( sprintf( '%02d', $fplant_m ) ); ?>" <?php selected( $fplant_month, sprintf( '%02d', $fplant_m ) ); ?>>
+				<?php echo esc_html( $fplant_m ); ?>
 			</option>
 		<?php endfor; ?>
 	</select>
 	<span class="fplant-date-separator">/</span>
 
 	<select
-		name="<?php echo esc_attr( $field_name ); ?>[day]"
+		name="<?php echo esc_attr( $fplant_field_name ); ?>[day]"
 		class="fplant-date-select-day"
-		data-field-name="<?php echo esc_attr( $field_name ); ?>"
+		data-field-name="<?php echo esc_attr( $fplant_field_name ); ?>"
 	>
 		<option value=""><?php esc_html_e( 'Day', 'form-plant' ); ?></option>
-		<?php for ( $d = 1; $d <= 31; $d++ ) : ?>
-			<option value="<?php echo esc_attr( sprintf( '%02d', $d ) ); ?>" <?php selected( $day, sprintf( '%02d', $d ) ); ?>>
-				<?php echo esc_html( $d ); ?>
+		<?php for ( $fplant_d = 1; $fplant_d <= 31; $fplant_d++ ) : ?>
+			<option value="<?php echo esc_attr( sprintf( '%02d', $fplant_d ) ); ?>" <?php selected( $fplant_day, sprintf( '%02d', $fplant_d ) ); ?>>
+				<?php echo esc_html( $fplant_d ); ?>
 			</option>
 		<?php endfor; ?>
 	</select>
@@ -88,7 +86,7 @@ $end_year   = $current_year + $year_end_offset;
 	<!-- Hidden field to store combined value -->
 	<input
 		type="hidden"
-		name="<?php echo esc_attr( $field_name ); ?>"
+		name="<?php echo esc_attr( $fplant_field_name ); ?>"
 		class="fplant-date-select-value"
 		value="<?php echo esc_attr( $value ); ?>"
 	>

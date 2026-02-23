@@ -22,7 +22,7 @@
 		// Create WordPress-style notice
 		var notice = $('<div class="notice notice-' + type + ' is-dismissible fplant-admin-notice">' +
 			'<p>' + message + '</p>' +
-			'<button type="button" class="notice-dismiss"><span class="screen-reader-text">' + wpfplantAdminData.i18n.dismissNotice + '</span></button>' +
+			'<button type="button" class="notice-dismiss"><span class="screen-reader-text">' + fplantAdminData.i18n.dismissNotice + '</span></button>' +
 			'</div>');
 
 		// Insert after .fplant-page-header
@@ -92,7 +92,7 @@
 		const field = isEdit ? formFields[index] : null;
 
 		// Set modal title
-		$('#fplant-field-modal-title').text(isEdit ? wpfplantAdminData.i18n.editField : wpfplantAdminData.i18n.addField);
+		$('#fplant-field-modal-title').text(isEdit ? fplantAdminData.i18n.editField : fplantAdminData.i18n.addField);
 
 		// Set field data
 		$('#fplant-field-type').val(field ? field.type : 'text');
@@ -346,19 +346,19 @@
 
 			// Validation
 			if (!fieldName) {
-				showFieldModalError(wpfplantAdminData.i18n.fieldNameRequired);
+				showFieldModalError(fplantAdminData.i18n.fieldNameRequired);
 				return;
 			}
 
 			// Field name format check (alphanumeric and underscores only)
 			if (!/^[a-zA-Z0-9_]+$/.test(fieldName)) {
-				showFieldModalError(wpfplantAdminData.i18n.fieldNameAlphanumeric);
+				showFieldModalError(fplantAdminData.i18n.fieldNameAlphanumeric);
 				return;
 			}
 
 			// Label required for non-hidden and non-html types
 			if (fieldType !== 'hidden' && fieldType !== 'html' && !fieldLabel) {
-				showFieldModalError(wpfplantAdminData.i18n.fieldLabelRequired);
+				showFieldModalError(fplantAdminData.i18n.fieldLabelRequired);
 				return;
 			}
 
@@ -366,7 +366,7 @@
 			if (currentEditingIndex === null) {
 				const exists = formFields.some(f => f.name === fieldName);
 				if (exists) {
-					showFieldModalError(wpfplantAdminData.i18n.fieldNameExists);
+					showFieldModalError(fplantAdminData.i18n.fieldNameExists);
 					return;
 				}
 			}
@@ -429,7 +429,7 @@
 			if (fieldType === 'html') {
 				const htmlContent = $('#fplant-field-html-content').val();
 				if (!htmlContent.trim()) {
-					showFieldModalError(wpfplantAdminData.i18n.htmlContentRequired || 'HTML content is required');
+					showFieldModalError(fplantAdminData.i18n.htmlContentRequired || 'HTML content is required');
 					return;
 				}
 				field.content = htmlContent;
@@ -443,7 +443,7 @@
 				const options = parseOptionsFromTextarea();
 
 				if (options.length === 0) {
-					showFieldModalError(wpfplantAdminData.i18n.addOneOption);
+					showFieldModalError(fplantAdminData.i18n.addOneOption);
 					return;
 				}
 
@@ -487,7 +487,7 @@
 		$list.empty();
 
 		if (formFields.length === 0) {
-			$list.html('<p class="fplant-no-fields">' + wpfplantAdminData.i18n.noFieldsYet + '</p>');
+			$list.html('<p class="fplant-no-fields">' + fplantAdminData.i18n.noFieldsYet + '</p>');
 			return;
 		}
 
@@ -500,11 +500,11 @@
 							${field.label}
 							<span style="color: #646970; font-weight: normal;">(${field.type})</span>
 							<br>
-							<span style="color: #787c82; font-size: 12px; font-weight: normal;">${wpfplantAdminData.i18n.fieldNameLabel} ${field.name}</span>
+							<span style="color: #787c82; font-size: 12px; font-weight: normal;">${fplantAdminData.i18n.fieldNameLabel} ${field.name}</span>
 						</div>
 						<div class="fplant-field-item-actions">
-							<button type="button" class="button fplant-edit-field" data-index="${index}">${wpfplantAdminData.i18n.edit}</button>
-							<button type="button" class="button fplant-delete-field" data-index="${index}" style="color: #d63638;">${wpfplantAdminData.i18n.delete}</button>
+							<button type="button" class="button fplant-edit-field" data-index="${index}">${fplantAdminData.i18n.edit}</button>
+							<button type="button" class="button fplant-delete-field" data-index="${index}" style="color: #d63638;">${fplantAdminData.i18n.delete}</button>
 						</div>
 					</div>
 				</div>
@@ -524,7 +524,7 @@
 		$(document).on('click', '.fplant-delete-field', function(e) {
 			e.preventDefault();
 
-			if (!confirm(wpfplantAdminData.i18n.confirmDeleteField)) {
+			if (!confirm(fplantAdminData.i18n.confirmDeleteField)) {
 				return;
 			}
 
@@ -553,7 +553,7 @@
 		$(document).on('click', '.fplant-delete-form', function(e) {
 			e.preventDefault();
 
-			if (!confirm(wpfplantAdminData.i18n.confirmDeleteForm)) {
+			if (!confirm(fplantAdminData.i18n.confirmDeleteForm)) {
 				return;
 			}
 
@@ -561,11 +561,11 @@
 			const $row = $(this).closest('tr');
 
 			$.ajax({
-				url: wpfplantAdminData.ajaxUrl,
+				url: fplantAdminData.ajaxUrl,
 				type: 'POST',
 				data: {
 					action: 'fplant_delete_form',
-					nonce: wpfplantAdminData.nonce,
+					nonce: fplantAdminData.nonce,
 					form_id: formId
 				},
 				success: function(response) {
@@ -574,11 +574,11 @@
 							$(this).remove();
 						});
 					} else {
-						alert(response.data.message || wpfplantAdminData.i18n.errorOccurred);
+						alert(response.data.message || fplantAdminData.i18n.errorOccurred);
 					}
 				},
 				error: function() {
-					alert(wpfplantAdminData.i18n.errorOccurred);
+					alert(fplantAdminData.i18n.errorOccurred);
 				}
 			});
 		});
@@ -624,22 +624,22 @@
 			const formId = $(this).data('form-id');
 
 			$.ajax({
-				url: wpfplantAdminData.ajaxUrl,
+				url: fplantAdminData.ajaxUrl,
 				type: 'POST',
 				data: {
 					action: 'fplant_duplicate_form',
-					nonce: wpfplantAdminData.nonce,
+					nonce: fplantAdminData.nonce,
 					form_id: formId
 				},
 				success: function(response) {
 					if (response.success) {
 						location.reload();
 					} else {
-						alert(response.data.message || wpfplantAdminData.i18n.errorOccurred);
+						alert(response.data.message || fplantAdminData.i18n.errorOccurred);
 					}
 				},
 				error: function() {
-					alert(wpfplantAdminData.i18n.errorOccurred);
+					alert(fplantAdminData.i18n.errorOccurred);
 				}
 			});
 		});
@@ -687,7 +687,7 @@
 
 			// Feedback
 			const originalText = $(this).text();
-			$(this).text(wpfplantAdminData.i18n.copied);
+			$(this).text(fplantAdminData.i18n.copied);
 			setTimeout(() => {
 				$(this).text(originalText);
 			}, 2000);
@@ -746,6 +746,20 @@
 			}
 		});
 
+		// Generate JS embed code in textarea from data attributes
+		$('.fplant-embed-js-code').each(function() {
+			var formId = $(this).data('formId');
+			var embedJsUrl = $(this).data('embedJsUrl');
+			var homeUrl = $(this).data('homeUrl');
+			if (formId && embedJsUrl && homeUrl) {
+				$(this).val(
+					'<div id="fplant-form-' + formId + '"></div>\n' +
+					'<script src="' + embedJsUrl + '"></script>\n' +
+					'<script>FPlantEmbed.render(' + formId + ', \'#fplant-form-' + formId + '\', \'' + homeUrl + '\');</script>'
+				);
+			}
+		});
+
 		// Embed code copy button
 		$(document).on('click', '.fplant-copy-embed-code', function(e) {
 			e.preventDefault();
@@ -758,7 +772,7 @@
 
 				// Feedback
 				const originalText = $(this).text();
-				$(this).text(wpfplantAdminData.i18n.copied);
+				$(this).text(fplantAdminData.i18n.copied);
 				setTimeout(() => {
 					$(this).text(originalText);
 				}, 2000);
@@ -851,11 +865,11 @@
 		const formId = $('.fplant-save-form').data('form-id') || 0;
 
 		$.ajax({
-			url: wpfplantAdminData.ajaxUrl,
+			url: fplantAdminData.ajaxUrl,
 			type: 'POST',
 			data: {
 				action: 'fplant_save_form',
-				nonce: wpfplantAdminData.nonce,
+				nonce: fplantAdminData.nonce,
 				form_id: formId,
 				form_data: JSON.stringify(formData)
 			},
@@ -864,7 +878,7 @@
 					// Reload page on save success
 					if (response.data.form_id && !formId) {
 						// Redirect to edit page for new forms
-						window.location.href = wpfplantAdminData.editUrl + '&id=' + response.data.form_id + '&message=created';
+						window.location.href = fplantAdminData.editUrl + '&id=' + response.data.form_id + '&message=created';
 					} else {
 						// Reload for existing form updates
 						var url = new URL(window.location.href);
@@ -872,11 +886,11 @@
 						window.location.href = url.toString();
 					}
 				} else {
-					showAdminNotice(response.data.message || wpfplantAdminData.i18n.errorOccurred, 'error');
+					showAdminNotice(response.data.message || fplantAdminData.i18n.errorOccurred, 'error');
 				}
 			},
 			error: function() {
-				showAdminNotice(wpfplantAdminData.i18n.errorOccurred, 'error');
+				showAdminNotice(fplantAdminData.i18n.errorOccurred, 'error');
 			}
 		});
 	}
@@ -897,29 +911,29 @@
 		$(document).on('click', '.fplant-delete-form-edit', function(e) {
 			e.preventDefault();
 
-			if (!confirm(wpfplantAdminData.i18n.confirmTrashForm)) {
+			if (!confirm(fplantAdminData.i18n.confirmTrashForm)) {
 				return;
 			}
 
 			const formId = $(this).data('form-id');
 
 			$.ajax({
-				url: wpfplantAdminData.ajaxUrl,
+				url: fplantAdminData.ajaxUrl,
 				type: 'POST',
 				data: {
 					action: 'fplant_trash_form',
-					nonce: wpfplantAdminData.nonce,
+					nonce: fplantAdminData.nonce,
 					form_id: formId
 				},
 				success: function(response) {
 					if (response.success) {
-						window.location.href = wpfplantAdminData.listUrl;
+						window.location.href = fplantAdminData.listUrl;
 					} else {
-						alert(response.data.message || wpfplantAdminData.i18n.errorOccurred);
+						alert(response.data.message || fplantAdminData.i18n.errorOccurred);
 					}
 				},
 				error: function() {
-					alert(wpfplantAdminData.i18n.errorOccurred);
+					alert(fplantAdminData.i18n.errorOccurred);
 				}
 			});
 		});
@@ -1033,7 +1047,7 @@
 		if (!template.trim()) {
 			return {
 				success: false,
-				message: wpfplantAdminData.i18n.templateEmpty || 'HTML template is empty. Please add the required tags or uncheck "Use HTML template".'
+				message: fplantAdminData.i18n.templateEmpty || 'HTML template is empty. Please add the required tags or uncheck "Use HTML template".'
 			};
 		}
 
@@ -1041,7 +1055,7 @@
 
 		// Check for submit button
 		if (template.indexOf('[fplant_submit') === -1) {
-			missingItems.push(wpfplantAdminData.i18n.submitButton || 'Submit button');
+			missingItems.push(fplantAdminData.i18n.submitButton || 'Submit button');
 		}
 
 		// Get required fields from formFields array
@@ -1058,7 +1072,7 @@
 		if (missingItems.length > 0) {
 			return {
 				success: false,
-				message: wpfplantAdminData.i18n.missingRequiredFields + '\n' + missingItems.join(', ')
+				message: fplantAdminData.i18n.missingRequiredFields + '\n' + missingItems.join(', ')
 			};
 		}
 
@@ -1167,7 +1181,7 @@
 		if (!template.trim()) {
 			return {
 				success: false,
-				message: wpfplantAdminData.i18n.confirmationTemplateEmpty || 'Confirmation HTML template is empty. Please add the required tags or uncheck "Use confirmation screen HTML template".'
+				message: fplantAdminData.i18n.confirmationTemplateEmpty || 'Confirmation HTML template is empty. Please add the required tags or uncheck "Use confirmation screen HTML template".'
 			};
 		}
 
@@ -1175,7 +1189,7 @@
 		if (template.indexOf('[fplant_confirm_submit') === -1) {
 			return {
 				success: false,
-				message: wpfplantAdminData.i18n.confirmationSubmitRequired || 'Submit button [fplant_confirm_submit] is required in the confirmation template.'
+				message: fplantAdminData.i18n.confirmationSubmitRequired || 'Submit button [fplant_confirm_submit] is required in the confirmation template.'
 			};
 		}
 
@@ -1198,7 +1212,7 @@
 
 		// OK button updates preview and closes modal, saves to database
 		$('#fplant-save-input-submit').on('click', function() {
-			var text = $('#fplant-input-submit-text').val() || wpfplantAdminData.i18n.submit;
+			var text = $('#fplant-input-submit-text').val() || fplantAdminData.i18n.submit;
 			$('.fplant-input-submit-preview').text(text);
 			$('#fplant-input-submit-modal').removeClass('active');
 			saveFormToDatabase();
@@ -1219,7 +1233,7 @@
 		});
 
 		$('#fplant-save-confirmation-back').on('click', function() {
-			var text = $('#fplant-confirmation-back-text').val() || wpfplantAdminData.i18n.back;
+			var text = $('#fplant-confirmation-back-text').val() || fplantAdminData.i18n.back;
 			$('.fplant-confirmation-back-preview').text(text);
 			$('#fplant-confirmation-back-modal').removeClass('active');
 			saveFormToDatabase();
@@ -1235,7 +1249,7 @@
 		});
 
 		$('#fplant-save-confirmation-submit').on('click', function() {
-			var text = $('#fplant-confirmation-submit-text').val() || wpfplantAdminData.i18n.submitForm;
+			var text = $('#fplant-confirmation-submit-text').val() || fplantAdminData.i18n.submitForm;
 			$('.fplant-confirmation-submit-preview').text(text);
 			$('#fplant-confirmation-submit-modal').removeClass('active');
 			saveFormToDatabase();
@@ -1277,13 +1291,13 @@
 
 			// Check if CSS file
 			if (!file.name.endsWith('.css')) {
-				alert(wpfplantAdminData.i18n.cssFileRequired);
+				alert(fplantAdminData.i18n.cssFileRequired);
 				$input.val('');
 				return;
 			}
 
 			var $status = $input.siblings('.fplant-css-upload-status');
-			$status.text(wpfplantAdminData.i18n.uploading);
+			$status.text(fplantAdminData.i18n.uploading);
 
 			// Get form ID
 			var formId = 0;
@@ -1295,13 +1309,13 @@
 			// Create FormData
 			var formData = new FormData();
 			formData.append('action', 'fplant_upload_css');
-			formData.append('nonce', wpfplantAdminData.cssNonce);
+			formData.append('nonce', fplantAdminData.cssNonce);
 			formData.append('css_file', file);
 			formData.append('form_id', formId);
 
 			// Ajax upload
 			$.ajax({
-				url: wpfplantAdminData.ajaxUrl,
+				url: fplantAdminData.ajaxUrl,
 				type: 'POST',
 				data: formData,
 				processData: false,
@@ -1309,12 +1323,12 @@
 				success: function(response) {
 					if (response.success) {
 						$('.fplant-custom-css-file-url').val(response.data.url);
-						$status.text(wpfplantAdminData.i18n.uploadComplete + ' ' + response.data.filename);
+						$status.text(fplantAdminData.i18n.uploadComplete + ' ' + response.data.filename);
 
 						// Update current file display
 						var $currentFile = $('.fplant-css-current-file');
 						if ($currentFile.length === 0) {
-							$currentFile = $('<div class="fplant-css-current-file" style="margin-top: 10px;"><strong>' + wpfplantAdminData.i18n.currentFile + '</strong> <code class="fplant-custom-css-file-url-display"></code> <button type="button" class="button button-small fplant-remove-css-file">' + wpfplantAdminData.i18n.delete + '</button></div>');
+							$currentFile = $('<div class="fplant-css-current-file" style="margin-top: 10px;"><strong>' + fplantAdminData.i18n.currentFile + '</strong> <code class="fplant-custom-css-file-url-display"></code> <button type="button" class="button button-small fplant-remove-css-file">' + fplantAdminData.i18n.delete + '</button></div>');
 							$input.closest('.fplant-form-group').find('.fplant-css-upload-wrapper').after($currentFile);
 							// Re-bind delete button event
 							$currentFile.find('.fplant-remove-css-file').on('click', handleCssDelete);
@@ -1322,12 +1336,12 @@
 						$currentFile.find('.fplant-custom-css-file-url-display').text(response.data.filename);
 						$currentFile.show();
 					} else {
-						$status.text(wpfplantAdminData.i18n.errorPrefix + ' ' + (response.data.message || wpfplantAdminData.i18n.uploadFailed));
+						$status.text(fplantAdminData.i18n.errorPrefix + ' ' + (response.data.message || fplantAdminData.i18n.uploadFailed));
 					}
 					$input.val('');
 				},
 				error: function() {
-					$status.text(wpfplantAdminData.i18n.errorPrefix + ' ' + wpfplantAdminData.i18n.networkError);
+					$status.text(fplantAdminData.i18n.errorPrefix + ' ' + fplantAdminData.i18n.networkError);
 					$input.val('');
 				}
 			});
@@ -1342,16 +1356,16 @@
 				return;
 			}
 
-			if (!confirm(wpfplantAdminData.i18n.confirmDeleteCss)) {
+			if (!confirm(fplantAdminData.i18n.confirmDeleteCss)) {
 				return;
 			}
 
 			$.ajax({
-				url: wpfplantAdminData.ajaxUrl,
+				url: fplantAdminData.ajaxUrl,
 				type: 'POST',
 				data: {
 					action: 'fplant_delete_css',
-					nonce: wpfplantAdminData.cssNonce,
+					nonce: fplantAdminData.cssNonce,
 					file_url: fileUrl
 				},
 				success: function(response) {
@@ -1360,11 +1374,11 @@
 						$('.fplant-css-current-file').hide();
 						$('.fplant-css-upload-status').text('');
 					} else {
-						alert(wpfplantAdminData.i18n.errorPrefix + ' ' + (response.data.message || wpfplantAdminData.i18n.deleteFailed));
+						alert(fplantAdminData.i18n.errorPrefix + ' ' + (response.data.message || fplantAdminData.i18n.deleteFailed));
 					}
 				},
 				error: function() {
-					alert(wpfplantAdminData.i18n.networkError);
+					alert(fplantAdminData.i18n.networkError);
 				}
 			});
 		}
@@ -1438,7 +1452,7 @@
 			$spinner.addClass('is-active');
 
 			$.ajax({
-				url: wpfplantAdminData.ajaxUrl,
+				url: fplantAdminData.ajaxUrl,
 				type: 'POST',
 				data: {
 					action: 'fplant_quick_edit_form',
@@ -1453,12 +1467,12 @@
 						// Reload page to reflect changes
 						location.reload();
 					} else {
-						alert(response.data.message || wpfplantAdminData.i18n.errorOccurred);
+						alert(response.data.message || fplantAdminData.i18n.errorOccurred);
 					}
 				},
 				error: function() {
 					$spinner.removeClass('is-active');
-					alert(wpfplantAdminData.i18n.errorOccurred);
+					alert(fplantAdminData.i18n.errorOccurred);
 				}
 			});
 		});
@@ -1495,8 +1509,8 @@
 		initQuickEdit();
 
 		// Load existing fields if any
-		if (typeof wpfplantAdminData.formData !== 'undefined' && wpfplantAdminData.formData.fields) {
-			formFields = wpfplantAdminData.formData.fields;
+		if (typeof fplantAdminData.formData !== 'undefined' && fplantAdminData.formData.fields) {
+			formFields = fplantAdminData.formData.fields;
 			renderFieldList();
 		}
 	});

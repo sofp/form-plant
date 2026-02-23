@@ -740,17 +740,18 @@ class FPLANT_Admin {
 			wp_send_json_error( array( 'message' => __( 'Permission denied', 'form-plant' ) ) );
 		}
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array items sanitized with absint() below
-		$submission_ids = isset( $_POST['submission_ids'] ) ? wp_unslash( $_POST['submission_ids'] ) : array();
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated as array below, sanitized with array_map absint
+		$raw_ids = isset( $_POST['submission_ids'] ) ? wp_unslash( $_POST['submission_ids'] ) : array();
 
-		if ( empty( $submission_ids ) || ! is_array( $submission_ids ) ) {
+		if ( empty( $raw_ids ) || ! is_array( $raw_ids ) ) {
 			wp_send_json_error( array( 'message' => __( 'No data specified for deletion', 'form-plant' ) ) );
 		}
+
+		$submission_ids = array_map( 'absint', $raw_ids );
 
 		// Delete processing
 		$deleted_count = 0;
 		foreach ( $submission_ids as $submission_id ) {
-			$submission_id = absint( $submission_id );
 			if ( $submission_id > 0 ) {
 				if ( FPLANT_Database::delete_submission( $submission_id ) ) {
 					$deleted_count++;
