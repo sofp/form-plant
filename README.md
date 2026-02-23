@@ -1,5 +1,7 @@
 # Form Plant
 
+[日本語版はこちら](README.ja.md)
+
 A versatile form plugin for WordPress
 
 ## Overview
