@@ -313,13 +313,14 @@ class FPLANT_Embed {
 					'enabled' => $recaptcha_enabled,
 					'version' => $recaptcha_version,
 					'siteKey' => $recaptcha_site_key,
-				)
+				),
+				JSON_HEX_TAG
 			) . ';';
 		wp_add_inline_script( 'fplant-form', $recaptcha_config_js, 'before' );
 
 		// fplantFieldsConfig (inline script)
 		$fields_config_js = 'if (typeof window.fplantFieldsConfig === "undefined") { window.fplantFieldsConfig = {}; }'
-			. "\nwindow.fplantFieldsConfig[" . (int) $form_id . '] = ' . wp_json_encode( $fields, JSON_UNESCAPED_UNICODE ) . ';';
+			. "\nwindow.fplantFieldsConfig[" . (int) $form_id . '] = ' . wp_json_encode( $fields, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG ) . ';';
 		wp_add_inline_script( 'fplant-form', $fields_config_js, 'before' );
 	}
 

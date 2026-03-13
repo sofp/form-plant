@@ -503,10 +503,12 @@ class FPLANT_REST_API {
 		// Get filenames from $_FILES for confirmation display.
 		$fplant_filenames = array();
 		foreach ( $form['fields'] as $fplant_field ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified via REST API authentication
-			if ( 'file' === $fplant_field['type'] && ! empty( $_FILES[ $fplant_field['name'] ]['name'] ) ) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified via REST API authentication
-				$fplant_filenames[ $fplant_field['name'] ] = sanitize_file_name( $_FILES[ $fplant_field['name'] ]['name'] );
+			if ( 'file' === $fplant_field['type'] ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified via REST API authentication, file name sanitized below.
+				$file_input = isset( $_FILES[ $fplant_field['name'] ] ) ? $_FILES[ $fplant_field['name'] ] : null;
+				if ( ! empty( $file_input['name'] ) ) {
+					$fplant_filenames[ $fplant_field['name'] ] = sanitize_file_name( $file_input['name'] );
+				}
 			}
 		}
 
@@ -764,20 +766,11 @@ class FPLANT_REST_API {
 	 */
 	private function parse_form_data( $request ) {
 		$data = $request->get_param( 'data' );
-
-		if ( is_string( $data ) ) {
-			// FormData submission: 'data' is a JSON-encoded string.
-			$data = json_decode( $data, true );
-			if ( json_last_error() !== JSON_ERROR_NONE ) {
-				return null;
-			}
+		$data = FPLANT_Form_Manager::sanitize_json_input( $data );
+		if ( null === $data ) {
+			return null;
 		}
-
-		if ( is_array( $data ) ) {
-			return FPLANT_Form_Manager::sanitize_array_recursive( $data );
-		}
-
-		return null;
+		return $data;
 	}
 
 	/**

@@ -527,6 +527,32 @@
 	align-items: center;
 }
 
+.fplant-shortcode-box {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	background-color: #f0f0f1;
+	border: 1px solid #c3c4c7;
+	border-top: none;
+	padding: 8px 15px;
+	margin-top: -20px;
+	margin-bottom: 20px;
+	border-radius: 0 0 4px 4px;
+}
+
+.fplant-shortcode-box code {
+	background-color: #fff;
+	padding: 2px 8px;
+	border-radius: 3px;
+	user-select: all;
+}
+
+.fplant-shortcode-label {
+	font-size: 13px;
+	color: #50575e;
+	white-space: nowrap;
+}
+
 .fplant-button-link {
 	background: none;
 	border: none;

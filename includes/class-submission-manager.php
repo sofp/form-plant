@@ -164,24 +164,10 @@ class FPLANT_Submission_Manager {
 
 		// Get form ID and data
 		$form_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON data, sanitized after json_decode below
-		$data    = isset( $_POST['data'] ) ? wp_unslash( $_POST['data'] ) : array();
-
-		// Decode JSON if sent via FormData
-		if ( is_string( $data ) ) {
-			$data = json_decode( $data, true );
-			if ( json_last_error() !== JSON_ERROR_NONE ) {
-				wp_send_json_error(
-					array(
-						'message' => __( 'Invalid data format', 'form-plant' ),
-					)
-				);
-			}
-		}
-
-		// Sanitize decoded JSON data
-		if ( is_array( $data ) ) {
-			$data = FPLANT_Form_Manager::sanitize_array_recursive( $data );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_json_input().
+		$data = FPLANT_Form_Manager::sanitize_json_input( isset( $_POST['data'] ) ? wp_unslash( $_POST['data'] ) : '' );
+		if ( null === $data ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid data format', 'form-plant' ) ) );
 		}
 
 		// Honeypot check
@@ -247,24 +233,10 @@ class FPLANT_Submission_Manager {
 
 		// Get form ID and data
 		$form_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON data, sanitized after json_decode below
-		$data    = isset( $_POST['data'] ) ? wp_unslash( $_POST['data'] ) : array();
-
-		// Decode JSON if sent via FormData
-		if ( is_string( $data ) ) {
-			$data = json_decode( $data, true );
-			if ( json_last_error() !== JSON_ERROR_NONE ) {
-				wp_send_json_error(
-					array(
-						'message' => __( 'Invalid data format', 'form-plant' ),
-					)
-				);
-			}
-		}
-
-		// Sanitize decoded JSON data
-		if ( is_array( $data ) ) {
-			$data = FPLANT_Form_Manager::sanitize_array_recursive( $data );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_json_input().
+		$data = FPLANT_Form_Manager::sanitize_json_input( isset( $_POST['data'] ) ? wp_unslash( $_POST['data'] ) : '' );
+		if ( null === $data ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid data format', 'form-plant' ) ) );
 		}
 
 		// Honeypot check
@@ -1042,10 +1014,12 @@ class FPLANT_Submission_Manager {
 	private function get_file_field_names( $fields ) {
 		$filenames = array();
 		foreach ( $fields as $field ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling AJAX handler
-			if ( 'file' === $field['type'] && ! empty( $_FILES[ $field['name'] ]['name'] ) ) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling AJAX handler
-				$filenames[ $field['name'] ] = sanitize_file_name( $_FILES[ $field['name'] ]['name'] );
+			if ( 'file' === $field['type'] ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in calling AJAX handler, file name sanitized below.
+				$file_input = isset( $_FILES[ $field['name'] ] ) ? $_FILES[ $field['name'] ] : null;
+				if ( ! empty( $file_input['name'] ) ) {
+					$filenames[ $field['name'] ] = sanitize_file_name( $file_input['name'] );
+				}
 			}
 		}
 		return $filenames;

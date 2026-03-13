@@ -2,22 +2,37 @@
 
 [日本語版はこちら](README.ja.md)
 
-A versatile form plugin for WordPress
+A WordPress form plugin with built-in confirmation screen, submission data storage, and external site embedding — ready to use right out of the box.
 
 ## Overview
 
-Form Plant is a versatile form plugin with easy modal-based setup and flexible customization options.
+Form Plant is a WordPress form plugin that includes a confirmation screen, submission data storage, and CSV export as standard features — no add-ons required.
+
+Many form plugins require extra extensions for confirmation pages or data management. Form Plant gives you these essentials from the start, so you can set up a fully functional contact form in minutes.
+
+## Why Form Plant?
+
+- **Confirmation screen included** — Let users review their input before submitting. No extra plugin needed.
+- **Submission data storage** — All form entries are saved in the database and manageable from the admin panel.
+- **CSV export** — Download submission data anytime for reporting or backup.
+- **Embed on external sites** — Display your forms on any website via iframe or JavaScript snippet, not just within WordPress.
+- **Quick setup** — An intuitive modal UI lets you build forms without touching code.
+- **Flexible customization** — Custom HTML templates, validation messages, and post-submission actions give you full control when you need it.
 
 ## Features
 
-- **Intuitive modal UI** - Easy-to-use modal interface for field configuration
-- **HTML layout editing** - Flexible layout using short tags
-- **Various field types** - Text, email, phone, select box, file upload, and more
-- **Confirmation screen** - Display confirmation before submission
-- **Email notifications** - Admin notifications and auto-reply emails
-- **Submission data management** - View and export submission data from the admin panel
-- **REST API support** - Embed forms on external sites via iframe/JavaScript
-- **Spam protection** - reCAPTCHA v3 support
+- Intuitive modal UI for field configuration
+- Email notifications (admin notification and auto-reply)
+- Custom HTML template support
+- Confirmation screen before submission
+- Custom validation messages
+- Post-submission actions (message / custom HTML / redirect)
+- Two types of date input (calendar / dropdown)
+- Honeypot and reCAPTCHA v3 spam protection
+- External site embedding via iframe / JavaScript
+- Submission data storage and management
+- CSV export of submission data
+- File upload support
 
 ## Requirements
 
@@ -47,7 +62,7 @@ See [LICENSE.txt](LICENSE.txt) for details.
 
 ## Support
 
-- GitHub Repository: https://github.com/sofplant/form-plant
+- GitHub Repository: https://github.com/sofp/form-plant
 - Detailed documentation: See the "Settings" page within the plugin
 
 ## Developer Information

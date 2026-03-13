@@ -46,8 +46,9 @@ class FPLANT_Validator {
 					$is_empty = empty( $value ) || ( is_array( $value ) && count( $value ) === 0 );
 				} elseif ( 'file' === $field['type'] ) {
 					// Check $_FILES for file fields
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Nonce verified in calling AJAX handler, $_FILES checked for isset
-					$is_empty = empty( $_FILES[ $field_name ] ) || empty( $_FILES[ $field_name ]['name'] ) || UPLOAD_ERR_NO_FILE === $_FILES[ $field_name ]['error'];
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+					$file_input = isset( $_FILES[ $field_name ] ) ? $_FILES[ $field_name ] : null;
+					$is_empty   = empty( $file_input ) || empty( $file_input['name'] ) || UPLOAD_ERR_NO_FILE === intval( $file_input['error'] ?? UPLOAD_ERR_NO_FILE );
 				} else {
 					$is_empty = empty( $value ) && '0' !== $value;
 				}
@@ -192,7 +193,7 @@ class FPLANT_Validator {
 				$field_name = (string) $field['name'];
 				// Validate field name format (alphanumeric and underscores only)
 				if ( preg_match( '/^[A-Za-z0-9_]+$/', $field_name ) ) {
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in calling AJAX handler, field name validated by preg_match above, $_FILES validated by validate_file method
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in calling handler, $_FILES sanitized in validate_file().
 					$file_error = $this->validate_file( $field, $_FILES[ $field_name ] ?? null );
 					if ( $file_error ) {
 						return $file_error;
@@ -283,6 +284,15 @@ class FPLANT_Validator {
 		if ( ! $file || empty( $file['name'] ) ) {
 			return false;
 		}
+
+		// Sanitize raw $_FILES data.
+		$file = array(
+			'name'     => sanitize_file_name( $file['name'] ),
+			'type'     => isset( $file['type'] ) ? sanitize_mime_type( $file['type'] ) : '',
+			'tmp_name' => isset( $file['tmp_name'] ) ? $file['tmp_name'] : '',
+			'error'    => isset( $file['error'] ) ? intval( $file['error'] ) : UPLOAD_ERR_NO_FILE,
+			'size'     => isset( $file['size'] ) ? intval( $file['size'] ) : 0,
+		);
 
 		// Error check
 		if ( $file['error'] !== UPLOAD_ERR_OK ) {

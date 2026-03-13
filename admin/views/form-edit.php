@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$fplant_is_new = empty( $fplant_form );
+$fplant_is_new = empty( $fplant_form['id'] );
 $fplant_page_title = $fplant_is_new ? __( 'New Form', 'form-plant' ) : __( 'Edit Form', 'form-plant' );
 
 // Handle save message
@@ -89,6 +89,16 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				</button>
 			</div>
 		</div>
+
+		<?php if ( ! $fplant_is_new ) : ?>
+		<div class="fplant-shortcode-box">
+			<span class="fplant-shortcode-label"><?php esc_html_e( 'Shortcode:', 'form-plant' ); ?></span>
+			<code class="fplant-shortcode-code">[fplant id="<?php echo esc_attr( absint( $fplant_form['id'] ) ); ?>"]</code>
+			<button type="button" class="button button-small fplant-copy-button" data-copy='[fplant id="<?php echo esc_attr( absint( $fplant_form['id'] ) ); ?>"]'>
+				<?php esc_html_e( 'Copy', 'form-plant' ); ?>
+			</button>
+		</div>
+		<?php endif; ?>
 
 		<div class="fplant-tabs">
 			<button type="button" class="fplant-tab active" data-tab="tab-fields">
@@ -461,12 +471,12 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				<div class="fplant-form-group">
 					<label><?php esc_html_e( 'Recipient Email Address', 'form-plant' ); ?></label>
 					<input
-						type="email"
+						type="text"
 						class="fplant-form-control fplant-email-admin-to"
 						value="<?php echo esc_attr( $fplant_form['email_admin']['to'] ?? get_option( 'admin_email' ) ); ?>"
 						placeholder="admin@example.com"
 					>
-					<p class="description"><?php esc_html_e( 'Separate multiple addresses with commas', 'form-plant' ); ?></p>
+					<p class="description"><?php esc_html_e( 'Separate multiple addresses with commas. Available tag: {admin_email}', 'form-plant' ); ?></p>
 				</div>
 
 				<div class="fplant-form-group">
@@ -498,7 +508,7 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 						placeholder="<?php echo esc_attr( __( '[{form_title}] New Inquiry', 'form-plant' ) ); ?>"
 					>
 					<p class="description">
-						<?php esc_html_e( 'Available tags: {form_title}, {submission_id}, {site_name}', 'form-plant' ); ?>
+						<?php esc_html_e( 'Available tags: {form_title}, {submission_id}, {site_name}, {admin_email}', 'form-plant' ); ?>
 					</p>
 				</div>
 
@@ -513,7 +523,7 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 						echo esc_textarea( $fplant_form['email_admin']['body'] ?? $fplant_default_admin_body );
 					?></textarea>
 					<p class="description">
-						<?php esc_html_e( 'Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}', 'form-plant' ); ?>
+						<?php esc_html_e( 'Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}, {admin_email}', 'form-plant' ); ?>
 					</p>
 				</div>
 
@@ -614,7 +624,7 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 						placeholder="<?php echo esc_attr( __( 'Thank you for your inquiry', 'form-plant' ) ); ?>"
 					>
 					<p class="description">
-						<?php esc_html_e( 'Available tags: {form_title}, {field:field_name}, {site_name}', 'form-plant' ); ?>
+						<?php esc_html_e( 'Available tags: {form_title}, {field:field_name}, {site_name}, {admin_email}', 'form-plant' ); ?>
 					</p>
 				</div>
 
@@ -629,7 +639,7 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 						echo esc_textarea( $fplant_form['email_user']['body'] ?? $fplant_default_user_body );
 					?></textarea>
 					<p class="description">
-						<?php esc_html_e( 'Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}', 'form-plant' ); ?>
+						<?php esc_html_e( 'Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}, {admin_email}', 'form-plant' ); ?>
 					</p>
 				</div>
 

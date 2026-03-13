@@ -574,8 +574,14 @@ msgstr "メール本文を入力"
 msgid "Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}"
 msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {site_name}, {site_url}"
 
+msgid "Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}, {admin_email}"
+msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {site_name}, {site_url}, {admin_email}"
+
 msgid "Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}"
 msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {submission_id}, {submission_date}, {ip_address}"
+
+msgid "Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}, {admin_email}"
+msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {submission_id}, {submission_date}, {ip_address}, {admin_email}"
 
 msgid "Available tags: {confirmation_title}, {confirmation_message}, {all_fields}, {field:field_name}, {back_button}, {submit_button}"
 msgstr "使用可能なタグ: {confirmation_title}, {confirmation_message}, {all_fields}, {field:フィールド名}, {back_button}, {submit_button}"
@@ -583,8 +589,17 @@ msgstr "使用可能なタグ: {confirmation_title}, {confirmation_message}, {al
 msgid "Available tags: {form_title}, {field:field_name}, {site_name}"
 msgstr "使用可能なタグ: {form_title}, {field:フィールド名}, {site_name}"
 
+msgid "Available tags: {form_title}, {field:field_name}, {site_name}, {admin_email}"
+msgstr "使用可能なタグ: {form_title}, {field:フィールド名}, {site_name}, {admin_email}"
+
 msgid "Available tags: {form_title}, {submission_id}, {site_name}"
 msgstr "使用可能なタグ: {form_title}, {submission_id}, {site_name}"
+
+msgid "Available tags: {form_title}, {submission_id}, {site_name}, {admin_email}"
+msgstr "使用可能なタグ: {form_title}, {submission_id}, {site_name}, {admin_email}"
+
+msgid "Separate multiple addresses with commas. Available tag: {admin_email}"
+msgstr "複数のアドレスはカンマで区切ってください。使用可能なタグ: {admin_email}"
 
 # Email content
 msgid "Thank you for your inquiry."
@@ -927,6 +942,9 @@ msgid "Field Type Reference"
 msgstr "フィールドタイプリファレンス"
 
 # Shortcode
+msgid "Shortcode:"
+msgstr "ショートコード:"
+
 msgid "Shortcode"
 msgstr "ショートコード"
 
@@ -1341,4 +1359,53 @@ msgstr "無効なファイルパスです。"
 
 msgid "Failed to delete file."
 msgstr "ファイルの削除に失敗しました。"
+
+# Default form strings
+msgid "Contact Form"
+msgstr "お問い合わせフォーム"
+
+msgid "Name"
+msgstr "お名前"
+
+msgid "Thank you for your message. We will get back to you shortly."
+msgstr "お問い合わせいただきありがとうございます。折り返しご連絡いたします。"
+
+msgid "[{site_name}] New contact form submission"
+msgstr "[{site_name}] 新しいお問い合わせ"
+
+msgid ""
+"You have received a new message.\n"
+"\n"
+"Name: {your_name}\n"
+"Email: {email}\n"
+"Message:\n"
+"{message}"
+msgstr ""
+"新しいお問い合わせがありました。\n"
+"\n"
+"お名前: {your_name}\n"
+"メール: {email}\n"
+"メッセージ:\n"
+"{message}"
+
+msgid ""
+"Thank you for contacting us.\n"
+"\n"
+"We have received the following message:\n"
+"\n"
+"Name: {your_name}\n"
+"Message:\n"
+"{message}\n"
+"\n"
+"We will get back to you shortly."
+msgstr ""
+"お問い合わせいただきありがとうございます。\n"
+"\n"
+"以下の内容を受け付けました:\n"
+"\n"
+"お名前: {your_name}\n"
+"メッセージ:\n"
+"{message}\n"
+"\n"
+"折り返しご連絡いたします。"
 

@@ -180,6 +180,15 @@ class FPLANT_Admin {
 
 		if ( $fplant_form_id ) {
 			$fplant_form = FPLANT_Database::get_form( $fplant_form_id );
+		} else {
+			// New form — set default fields and basic settings for template rendering
+			$fplant_form = array(
+				'fields'   => FPLANT_Form_Plant::get_default_fields(),
+				'settings' => array(
+					'save_submission'  => 'full',
+					'use_confirmation' => true,
+				),
+			);
 		}
 
 		// Field manager
@@ -382,34 +391,13 @@ class FPLANT_Admin {
 			wp_send_json_error( array( 'message' => __( 'Permission denied', 'form-plant' ) ) );
 		}
 
-		$form_id   = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON data, sanitized after json_decode below
-		$form_data = isset( $_POST['form_data'] ) ? wp_unslash( $_POST['form_data'] ) : array();
-
-		// Handle if received as JSON string
-		if ( is_string( $form_data ) ) {
-			$form_data = json_decode( $form_data, true );
-
-			if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $form_data ) ) {
-				wp_send_json_error(
-					array(
-						'message' => __( 'Invalid form data format', 'form-plant' ) . ': ' . json_last_error_msg(),
-					)
-				);
-			}
+		$form_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
+		$html_allowed_keys = array( 'description', 'content', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_json_input().
+		$form_data = FPLANT_Form_Manager::sanitize_json_input( isset( $_POST['form_data'] ) ? wp_unslash( $_POST['form_data'] ) : '', $html_allowed_keys );
+		if ( null === $form_data ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid form data format', 'form-plant' ) ) );
 		}
-
-		// Data validation
-		if ( ! is_array( $form_data ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'Invalid form data format', 'form-plant' ),
-				)
-			);
-		}
-
-		// Sanitization is handled per-section in FPLANT_Form_Manager::update_form()
-		// with appropriate $html_allowed_keys for each data type.
 
 		$form_manager = new FPLANT_Form_Manager();
 

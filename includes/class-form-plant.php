@@ -128,6 +128,9 @@ class FPLANT_Form_Plant {
 	 * Initialize hooks
 	 */
 	private function init_hooks() {
+		// Load translations
+		add_action( 'init', array( $this, 'load_textdomain' ) );
+
 		// Register custom post types
 		add_action( 'init', array( $this, 'register_post_types' ) );
 
@@ -392,11 +395,11 @@ class FPLANT_Form_Plant {
 
 		// fplantFieldsConfig
 		$inline_js .= 'if (typeof window.fplantFieldsConfig === "undefined") { window.fplantFieldsConfig = {}; }' . "\n";
-		$inline_js .= 'window.fplantFieldsConfig[' . $fplant_form_id . '] = ' . wp_json_encode( $form['fields'], JSON_UNESCAPED_UNICODE ) . ";\n";
+		$inline_js .= 'window.fplantFieldsConfig[' . $fplant_form_id . '] = ' . wp_json_encode( $form['fields'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG ) . ";\n";
 
 		// fplantConfirmationTemplate
 		$inline_js .= 'if (typeof window.fplantConfirmationTemplate === "undefined") { window.fplantConfirmationTemplate = {}; }' . "\n";
-		$inline_js .= 'window.fplantConfirmationTemplate[' . $fplant_form_id . '] = ' . wp_json_encode( $form['settings']['confirmation_template'] ?? '', JSON_UNESCAPED_UNICODE ) . ";\n";
+		$inline_js .= 'window.fplantConfirmationTemplate[' . $fplant_form_id . '] = ' . wp_json_encode( $form['settings']['confirmation_template'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG ) . ";\n";
 
 		// fplantConfirmationButtons
 		$inline_js .= 'if (typeof window.fplantConfirmationButtons === "undefined") { window.fplantConfirmationButtons = {}; }' . "\n";
@@ -409,7 +412,7 @@ class FPLANT_Form_Plant {
 				'submit_class' => $form['settings']['confirmation_submit_class'] ?? '',
 				'submit_id'    => $form['settings']['confirmation_submit_id'] ?? '',
 			),
-			JSON_UNESCAPED_UNICODE
+			JSON_UNESCAPED_UNICODE | JSON_HEX_TAG
 		) . ";\n";
 
 		// fplantRecaptchaConfig
@@ -419,7 +422,8 @@ class FPLANT_Form_Plant {
 				'enabled' => ! empty( $form['settings']['recaptcha_enabled'] ),
 				'version' => $form['settings']['recaptcha_version'] ?? 'v3',
 				'siteKey' => get_option( 'fplant_recaptcha_site_key', '' ),
-			)
+			),
+			JSON_HEX_TAG
 		) . ";\n";
 
 		return $inline_js;
@@ -454,11 +458,23 @@ class FPLANT_Form_Plant {
 		// Get form data for form edit page
 		$form_data = array();
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only admin page URL params, not form submission
-		if ( isset( $_GET['page'] ) && 'fplant-form-new' === $_GET['page'] && isset( $_GET['id'] ) ) {
-			$post_id = absint( $_GET['id'] );
-			$post    = get_post( $post_id );
-			if ( $post && 'fplant_form' === $post->post_type ) {
-				$form_data = FPLANT_Database::get_form( $post_id );
+		if ( isset( $_GET['page'] ) && 'fplant-form-new' === $_GET['page'] ) {
+			if ( isset( $_GET['id'] ) ) {
+				// Existing form edit
+				$post_id = absint( $_GET['id'] );
+				$post    = get_post( $post_id );
+				if ( $post && 'fplant_form' === $post->post_type ) {
+					$form_data = FPLANT_Database::get_form( $post_id );
+				}
+			} else {
+				// New form — set default fields and basic settings
+				$form_data = array(
+					'fields'   => self::get_default_fields(),
+					'settings' => array(
+						'save_submission'  => 'full',
+						'use_confirmation' => true,
+					),
+				);
 			}
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
@@ -822,6 +838,113 @@ class FPLANT_Form_Plant {
 		update_option( 'fplant_version', FPLANT_VERSION );
 		update_option( 'fplant_db_version', '1.0.0' );
 		update_option( 'fplant_activated_time', time() );
+
+		// Create default form (only on first activation)
+		self::maybe_create_default_form();
+	}
+
+	/**
+	 * Get default form fields.
+	 *
+	 * Used for both activation default form and new form creation.
+	 *
+	 * @return array Default fields array.
+	 */
+	public static function get_default_fields() {
+		return array(
+			array(
+				'type'     => 'text',
+				'name'     => 'your_name',
+				'label'    => __( 'Name', 'form-plant' ),
+				'required' => true,
+			),
+			array(
+				'type'     => 'email',
+				'name'     => 'email',
+				'label'    => __( 'Email', 'form-plant' ),
+				'required' => true,
+			),
+			array(
+				'type'     => 'textarea',
+				'name'     => 'message',
+				'label'    => __( 'Message', 'form-plant' ),
+				'required' => false,
+			),
+		);
+	}
+
+	/**
+	 * Create default contact form if no forms exist.
+	 */
+	private static function maybe_create_default_form() {
+		// Skip if already created
+		if ( get_option( 'fplant_default_form_created' ) ) {
+			return;
+		}
+
+		// Skip if forms already exist
+		$existing = get_posts(
+			array(
+				'post_type'      => 'fplant_form',
+				'post_status'    => 'any',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+			)
+		);
+
+		if ( ! empty( $existing ) ) {
+			update_option( 'fplant_default_form_created', true );
+			return;
+		}
+
+		// Create default form
+		$form_id = wp_insert_post(
+			array(
+				'post_type'   => 'fplant_form',
+				'post_title'  => __( 'Contact Form', 'form-plant' ),
+				'post_status' => 'publish',
+			)
+		);
+
+		if ( is_wp_error( $form_id ) ) {
+			return;
+		}
+
+		// Fields
+		$default_fields = self::get_default_fields();
+
+		// Settings
+		$default_settings = array(
+			'save_submission'  => 'full',
+			'action_type'      => 'message',
+			'success_message'  => __( 'Thank you for your message. We will get back to you shortly.', 'form-plant' ),
+			'use_confirmation' => true,
+		);
+
+		// Admin email notification
+		$default_email_admin = array(
+			'enabled' => true,
+			'to'      => '{admin_email}',
+			'subject' => __( '[{site_name}] New contact form submission', 'form-plant' ),
+			'body'    => __( "You have received a new message.\n\nName: {your_name}\nEmail: {email}\nMessage:\n{message}", 'form-plant' ),
+		);
+
+		// Auto-reply (disabled by default)
+		$default_email_user = array(
+			'enabled'     => false,
+			'email_field' => 'email',
+			'subject'     => __( 'Thank you for your inquiry', 'form-plant' ),
+			'body'        => __( "Thank you for contacting us.\n\nWe have received the following message:\n\nName: {your_name}\nMessage:\n{message}\n\nWe will get back to you shortly.", 'form-plant' ),
+		);
+
+		// Save metadata
+		FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_FIELDS, $default_fields );
+		FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_SETTINGS, $default_settings );
+		FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_EMAIL_ADMIN, $default_email_admin );
+		FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_EMAIL_USER, $default_email_user );
+
+		// Mark as created
+		update_option( 'fplant_default_form_created', true );
 	}
 
 	/**
@@ -830,5 +953,23 @@ class FPLANT_Form_Plant {
 	public static function deactivate() {
 		// Flush permalink settings
 		flush_rewrite_rules();
+	}
+
+	/**
+	 * Load plugin text domain for translations.
+	 *
+	 * While WordPress.org automatically loads translations from
+	 * translate.wordpress.org since WP 4.6, bundled translations
+	 * serve as a fallback until community translations are available.
+	 *
+	 * TODO: Remove this once community translations are available on translate.wordpress.org.
+	 */
+	public function load_textdomain() {
+		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Temporary: bundled translations fallback until translate.wordpress.org translations are available.
+		load_plugin_textdomain(
+			'form-plant',
+			false,
+			dirname( FPLANT_PLUGIN_BASENAME ) . '/languages'
+		);
 	}
 }

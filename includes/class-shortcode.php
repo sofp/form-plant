@@ -25,8 +25,6 @@ class FPLANT_Shortcode {
 		add_shortcode( 'fplant_errors', array( $this, 'render_errors' ) );
 		add_shortcode( 'fplant_success', array( $this, 'render_success' ) );
 		add_shortcode( 'fplant_field_error', array( $this, 'render_field_error' ) );
-		add_shortcode( 'fplant_all_fields', array( $this, 'render_all_fields' ) );
-		add_shortcode( 'fplant_confirm_field', array( $this, 'render_confirm_field' ) );
 	}
 
 	/**
@@ -47,14 +45,14 @@ class FPLANT_Shortcode {
 		$form_id = absint( $atts['id'] );
 
 		if ( ! $form_id ) {
-			return '<p>' . __( 'Form ID is not specified', 'form-plant' ) . '</p>';
+			return '<p>' . esc_html__( 'Form ID is not specified', 'form-plant' ) . '</p>';
 		}
 
 		// Get form data
 		$form = FPLANT_Database::get_form( $form_id );
 
 		if ( ! $form ) {
-			return '<p>' . __( 'Form not found', 'form-plant' ) . '</p>';
+			return '<p>' . esc_html__( 'Form not found', 'form-plant' ) . '</p>';
 		}
 
 		// Load template

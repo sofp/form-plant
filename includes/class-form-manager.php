@@ -176,6 +176,30 @@ class FPLANT_Form_Manager {
 	}
 
 	/**
+	 * Decode JSON input and sanitize the result.
+	 *
+	 * Combines json_decode() with sanitize_array_recursive() to ensure
+	 * decoded data is always sanitized before use.
+	 *
+	 * @param mixed $raw              Raw input (JSON string or array).
+	 * @param array $html_allowed_keys Keys that allow HTML content.
+	 * @return array|null Sanitized array on success, null on failure.
+	 */
+	public static function sanitize_json_input( $raw, $html_allowed_keys = array() ) {
+		if ( is_array( $raw ) ) {
+			return self::sanitize_array_recursive( $raw, $html_allowed_keys );
+		}
+		if ( ! is_string( $raw ) || '' === $raw ) {
+			return null;
+		}
+		$decoded = json_decode( $raw, true );
+		if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $decoded ) ) {
+			return null;
+		}
+		return self::sanitize_array_recursive( $decoded, $html_allowed_keys );
+	}
+
+	/**
 	 * Delete form
 	 *
 	 * @param int  $form_id      Form ID
@@ -278,9 +302,10 @@ class FPLANT_Form_Manager {
 
 		// Save form data
 		if ( isset( $_POST['fplant_form_data'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON data, sanitized per field after json_decode in update_form
-			$form_data = json_decode( wp_unslash( $_POST['fplant_form_data'] ), true );
-			if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $form_data ) ) {
+			$html_allowed_keys = array( 'description', 'content', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_json_input().
+			$form_data = self::sanitize_json_input( wp_unslash( $_POST['fplant_form_data'] ), $html_allowed_keys );
+			if ( null === $form_data ) {
 				return;
 			}
 			$this->update_form( $post_id, $form_data );

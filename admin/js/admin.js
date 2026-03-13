@@ -51,6 +51,16 @@
 			$('.fplant-tab-content').removeClass('active');
 			$('#' + tabId).addClass('active');
 		});
+
+		// Restore active tab from URL parameter
+		var params = new URLSearchParams(window.location.search);
+		var activeTab = params.get('active_tab');
+		if (activeTab && /^[a-zA-Z0-9_-]+$/.test(activeTab)) {
+			var $tab = $('.fplant-tab[data-tab="' + activeTab + '"]');
+			if ($tab.length) {
+				$tab.trigger('click');
+			}
+		}
 	}
 
 	/**
@@ -875,14 +885,24 @@
 			},
 			success: function(response) {
 				if (response.success) {
+					// Remember current active tab
+					var activeTab = $('.fplant-tab.active').data('tab');
+
 					// Reload page on save success
 					if (response.data.form_id && !formId) {
 						// Redirect to edit page for new forms
-						window.location.href = fplantAdminData.editUrl + '&id=' + response.data.form_id + '&message=created';
+						var newUrl = fplantAdminData.editUrl + '&id=' + response.data.form_id + '&message=created';
+						if (activeTab) {
+							newUrl += '&active_tab=' + activeTab;
+						}
+						window.location.href = newUrl;
 					} else {
 						// Reload for existing form updates
 						var url = new URL(window.location.href);
 						url.searchParams.set('message', 'updated');
+						if (activeTab) {
+							url.searchParams.set('active_tab', activeTab);
+						}
 						window.location.href = url.toString();
 					}
 				} else {

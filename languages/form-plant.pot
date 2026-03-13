@@ -443,7 +443,7 @@ msgid "[{form_title}] New Inquiry"
 msgstr ""
 
 #: admin/views/form-edit.php:476
-msgid "Available tags: {form_title}, {submission_id}, {site_name}"
+msgid "Available tags: {form_title}, {submission_id}, {site_name}, {admin_email}"
 msgstr ""
 
 #: admin/views/form-edit.php:481
@@ -469,7 +469,7 @@ msgid "Submission ID:"
 msgstr ""
 
 #: admin/views/form-edit.php:491
-msgid "Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}"
+msgid "Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}, {admin_email}"
 msgstr ""
 
 #: admin/views/form-edit.php:496
@@ -519,7 +519,7 @@ msgid "Thank you for your inquiry"
 msgstr ""
 
 #: admin/views/form-edit.php:592
-msgid "Available tags: {form_title}, {field:field_name}, {site_name}"
+msgid "Available tags: {form_title}, {field:field_name}, {site_name}, {admin_email}"
 msgstr ""
 
 #: admin/views/form-edit.php:603
@@ -532,7 +532,11 @@ msgid "We have received the following information."
 msgstr ""
 
 #: admin/views/form-edit.php:607
-msgid "Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}"
+msgid "Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}, {admin_email}"
+msgstr ""
+
+#: admin/views/form-edit.php:469
+msgid "Separate multiple addresses with commas. Available tag: {admin_email}"
 msgstr ""
 
 #: admin/views/form-edit.php:650
@@ -1946,4 +1950,44 @@ msgstr ""
 #: templates/form-fields/file.php:50
 #, php-format
 msgid "Maximum file size: %sMB"
+msgstr ""
+
+# Default form strings
+#: includes/class-form-plant.php (activate)
+msgid "Contact Form"
+msgstr ""
+
+#: includes/class-form-plant.php (activate)
+msgid "Name"
+msgstr ""
+
+#: includes/class-form-plant.php (activate)
+msgid "Thank you for your message. We will get back to you shortly."
+msgstr ""
+
+#: includes/class-form-plant.php (activate)
+msgid "[{site_name}] New contact form submission"
+msgstr ""
+
+#: includes/class-form-plant.php (activate)
+msgid ""
+"You have received a new message.\n"
+"\n"
+"Name: {your_name}\n"
+"Email: {email}\n"
+"Message:\n"
+"{message}"
+msgstr ""
+
+#: includes/class-form-plant.php (activate)
+msgid ""
+"Thank you for contacting us.\n"
+"\n"
+"We have received the following message:\n"
+"\n"
+"Name: {your_name}\n"
+"Message:\n"
+"{message}\n"
+"\n"
+"We will get back to you shortly."
 msgstr ""

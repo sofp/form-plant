@@ -64,8 +64,9 @@ class FPLANT_Email_Handler {
 		// Filter: Data transformation before email send
 		$data = apply_filters( 'fplant_before_send_email_data', $data, $form, $submission_id, 'admin' );
 
-		// Recipient
-		$to = $this->parse_email_addresses( $email_settings['to'] );
+		// Recipient (replace tags like {admin_email} before parsing)
+		$to_raw = $this->replace_tags( $email_settings['to'], $data, $form, $submission_id );
+		$to     = $this->parse_email_addresses( $to_raw );
 
 		// Subject
 		$subject = ! empty( $email_settings['subject'] )
@@ -326,6 +327,7 @@ class FPLANT_Email_Handler {
 		$text = str_replace( '{user_agent}', isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '', $text );
 		$text = str_replace( '{site_name}', get_bloginfo( 'name' ), $text );
 		$text = str_replace( '{site_url}', home_url(), $text );
+		$text = str_replace( '{admin_email}', get_option( 'admin_email' ), $text );
 
 		return $text;
 	}
