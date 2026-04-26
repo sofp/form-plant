@@ -208,26 +208,50 @@ class FPLANT_Embed {
 		$settings = $form['settings'] ?? array();
 		$fields   = $form['fields'] ?? array();
 
-		// Custom CSS settings
-		$custom_css_mode     = $settings['custom_css_mode'] ?? 'none';
-		$load_default_css    = ( 'replace' !== $custom_css_mode );
-		$custom_css_file_url = $settings['custom_css_file_url'] ?? '';
-		$custom_css_inline   = $settings['custom_css_inline'] ?? '';
-
-		// Default CSS
-		if ( $load_default_css ) {
-			wp_enqueue_style( 'fplant-form', FPLANT_PLUGIN_URL . 'assets/css/form.css', array(), FPLANT_VERSION );
+		// Design CSS
+		$fplant_embed_design = $settings['design_type'] ?? 'simple1';
+		// Backward compatibility: 'default' maps to 'simple1'
+		if ( 'default' === $fplant_embed_design ) {
+			$fplant_embed_design = 'simple1';
 		}
 
-		// Custom CSS file
+		// simple1 uses form.css; simple2/normal use self-contained design CSS
+		$load_default_css = false;
+		if ( 'simple1' === $fplant_embed_design ) {
+			$load_default_css = true;
+			wp_enqueue_style( 'fplant-form', FPLANT_PLUGIN_URL . 'assets/css/form.css', array(), FPLANT_VERSION );
+		} elseif ( in_array( $fplant_embed_design, array( 'simple2', 'normal' ), true ) ) {
+			wp_enqueue_style(
+				'fplant-design-' . $fplant_embed_design,
+				FPLANT_PLUGIN_URL . 'assets/css/design-' . $fplant_embed_design . '.css',
+				array(),
+				FPLANT_VERSION
+			);
+		}
+
+		// Custom CSS files (multiple)
+		$custom_css_file_urls = array();
+		if ( ! empty( $settings['custom_css_file_urls'] ) && is_array( $settings['custom_css_file_urls'] ) ) {
+			$custom_css_file_urls = $settings['custom_css_file_urls'];
+		} elseif ( ! empty( $settings['custom_css_file_url'] ) ) {
+			// Backward compatibility: single URL to array
+			$custom_css_file_urls = array( $settings['custom_css_file_url'] );
+		}
+
 		$inline_css_handle = $load_default_css ? 'fplant-form' : '';
-		if ( 'none' !== $custom_css_mode && ! empty( $custom_css_file_url ) ) {
-			wp_enqueue_style( 'fplant-embed-custom-css', $custom_css_file_url, array(), FPLANT_VERSION );
-			$inline_css_handle = 'fplant-embed-custom-css';
+		$css_idx           = 0;
+		foreach ( $custom_css_file_urls as $css_url ) {
+			if ( ! empty( $css_url ) ) {
+				$handle = 'fplant-embed-custom-css-' . $css_idx;
+				wp_enqueue_style( $handle, $css_url, array(), FPLANT_VERSION );
+				$inline_css_handle = $handle;
+				$css_idx++;
+			}
 		}
 
 		// Custom CSS inline
-		if ( 'none' !== $custom_css_mode && ! empty( $custom_css_inline ) ) {
+		$custom_css_inline = $settings['custom_css_inline'] ?? '';
+		if ( ! empty( $custom_css_inline ) ) {
 			$plugin = FPLANT_Form_Plant::get_instance();
 			if ( empty( $inline_css_handle ) ) {
 				// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Intentionally no version for inline-only style
@@ -250,12 +274,26 @@ class FPLANT_Embed {
 		}
 		wp_add_inline_style( $base_handle, $embed_css );
 
-		// reCAPTCHA
-		$recaptcha_enabled  = ! empty( $settings['recaptcha_enabled'] );
-		$recaptcha_site_key = get_option( 'fplant_recaptcha_site_key', '' );
-		$recaptcha_version  = $settings['recaptcha_version'] ?? 'v3';
+		// CAPTCHA
+		$captcha_type       = $settings['captcha_type'] ?? 'none';
+		// Backward compatibility
+		if ( 'none' === $captcha_type && ! empty( $settings['recaptcha_enabled'] ) ) {
+			$captcha_type = 'recaptcha';
+		}
 
-		if ( $recaptcha_enabled && ! empty( $recaptcha_site_key ) ) {
+		$recaptcha_site_key = get_option( 'fplant_recaptcha_site_key', '' );
+		$turnstile_site_key = get_option( 'fplant_turnstile_site_key', '' );
+
+		// Site key が空の場合は type を none に落とす
+		if ( 'recaptcha' === $captcha_type && empty( $recaptcha_site_key ) ) {
+			$captcha_type = 'none';
+		}
+		if ( 'turnstile' === $captcha_type && empty( $turnstile_site_key ) ) {
+			$captcha_type = 'none';
+		}
+
+		// phpcs:disable PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent -- External CAPTCHA services, cannot be bundled locally
+		if ( 'recaptcha' === $captcha_type ) {
 			wp_enqueue_script(
 				'fplant-recaptcha',
 				'https://www.google.com/recaptcha/api.js?render=' . rawurlencode( $recaptcha_site_key ),
@@ -263,7 +301,16 @@ class FPLANT_Embed {
 				null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- External script, version managed by Google
 				array( 'in_footer' => false )
 			);
+		} elseif ( 'turnstile' === $captcha_type ) {
+			wp_enqueue_script(
+				'cloudflare-turnstile',
+				'https://challenges.cloudflare.com/turnstile/v0/api.js',
+				array(),
+				null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- External script, version managed by Cloudflare
+				array( 'in_footer' => true )
+			);
 		}
+		// phpcs:enable PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
 
 		// form.js
 		wp_enqueue_script( 'fplant-form', FPLANT_PLUGIN_URL . 'assets/js/form.js', array(), FPLANT_VERSION, true );
@@ -291,6 +338,8 @@ class FPLANT_Embed {
 					'requiredSelect'      => __( 'This field is required. Please make a selection.', 'form-plant' ),
 					'requiredFile'        => __( 'This field is required. Please select a file.', 'form-plant' ),
 					'requiredText'        => __( 'This field is required. Please enter a value.', 'form-plant' ),
+					/* translators: %s: sub-field label (e.g., Last Name, First Name) */
+					'requiredSubField'    => __( '%s is required', 'form-plant' ),
 					/* translators: %s: Maximum file size in megabytes */
 				'fileTooLarge'        => __( 'File size is too large. Please select a file under %sMB.', 'form-plant' ),
 					'imageRequired'       => __( 'Please select an image file.', 'form-plant' ),
@@ -305,18 +354,18 @@ class FPLANT_Embed {
 			)
 		);
 
-		// fplantRecaptchaConfig (inline script)
-		$recaptcha_config_js = 'var fplantRecaptchaConfig = {};'
-			. 'fplantRecaptchaConfig[' . (int) $form_id . '] = '
+		// fplantCaptchaConfig (inline script)
+		$captcha_config_js = 'if (typeof window.fplantCaptchaConfig === "undefined") { window.fplantCaptchaConfig = {}; }' . "\n"
+			. 'window.fplantCaptchaConfig[' . (int) $form_id . '] = '
 			. wp_json_encode(
 				array(
-					'enabled' => $recaptcha_enabled,
-					'version' => $recaptcha_version,
-					'siteKey' => $recaptcha_site_key,
+					'type'             => $captcha_type,
+					'recaptchaSiteKey' => $recaptcha_site_key,
+					'turnstileSiteKey' => $turnstile_site_key,
 				),
 				JSON_HEX_TAG
 			) . ';';
-		wp_add_inline_script( 'fplant-form', $recaptcha_config_js, 'before' );
+		wp_add_inline_script( 'fplant-form', $captcha_config_js, 'before' );
 
 		// fplantFieldsConfig (inline script)
 		$fields_config_js = 'if (typeof window.fplantFieldsConfig === "undefined") { window.fplantFieldsConfig = {}; }'

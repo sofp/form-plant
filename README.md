@@ -68,4 +68,4 @@ See [LICENSE.txt](LICENSE.txt) for details.
 ## Developer Information
 
 - **Author**: SOFPLANT
-- **Version**: 1.0.0
+- **Version**: 1.1.0

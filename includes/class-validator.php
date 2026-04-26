@@ -49,6 +49,87 @@ class FPLANT_Validator {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 					$file_input = isset( $_FILES[ $field_name ] ) ? $_FILES[ $field_name ] : null;
 					$is_empty   = empty( $file_input ) || empty( $file_input['name'] ) || UPLOAD_ERR_NO_FILE === intval( $file_input['error'] ?? UPLOAD_ERR_NO_FILE );
+				} elseif ( 'address' === $field['type'] ) {
+					// Check required sub-fields for address composite field individually
+					$addr_is_ja    = ( 0 === strpos( get_locale(), 'ja' ) );
+					$addr_required = $addr_is_ja
+						? array( 'postal_code', 'prefecture', 'city', 'street' )
+						: array( 'street', 'city', 'postal_code', 'country' );
+					$addr_labels   = isset( $field['address_labels'] ) ? $field['address_labels'] : array();
+					$addr_val_msgs = isset( $field['address_validation_messages'] ) ? $field['address_validation_messages'] : array();
+					$addr_has_error = false;
+					foreach ( $addr_required as $addr_sub ) {
+						$addr_key = $field_name . '_' . $addr_sub;
+						if ( empty( $data[ $addr_key ] ) ) {
+							$sub_label   = ! empty( $addr_labels[ $addr_sub ] ) ? $addr_labels[ $addr_sub ] : $addr_sub;
+							$sub_message = ! empty( $addr_val_msgs[ $addr_sub ] )
+								? $addr_val_msgs[ $addr_sub ]
+								: sprintf(
+									/* translators: %s: sub-field label */
+									__( '%s is required', 'form-plant' ),
+									$sub_label
+								);
+							$errors[ $field_name . '.' . $addr_sub ] = apply_filters(
+								'fplant_validation_required_message',
+								$sub_message,
+								$field,
+								'',
+								$data
+							);
+							$addr_has_error = true;
+						}
+					}
+					if ( $addr_has_error ) {
+						continue;
+					}
+					$is_empty = false;
+				} elseif ( in_array( $field['type'], array( 'name_parts', 'name_kana' ), true ) ) {
+					// Check required sub-fields for name composite field individually
+					$name_format = isset( $field['name_format'] ) ? $field['name_format'] : '2';
+					if ( '1' === $name_format ) {
+						$is_empty = empty( $value ) && '0' !== $value;
+					} else {
+						$default_labels = 'name_kana' === $field['type']
+							? array(
+								'family' => __( 'Last Name (Kana)', 'form-plant' ),
+								'given'  => __( 'First Name (Kana)', 'form-plant' ),
+								'middle' => __( 'Middle Name (Kana)', 'form-plant' ),
+							)
+							: array(
+								'family' => __( 'Last Name', 'form-plant' ),
+								'given'  => __( 'First Name', 'form-plant' ),
+								'middle' => __( 'Middle Name', 'form-plant' ),
+							);
+						$name_labels    = isset( $field['name_labels'] ) ? wp_parse_args( $field['name_labels'], $default_labels ) : $default_labels;
+						$name_val_msgs  = isset( $field['name_validation_messages'] ) ? $field['name_validation_messages'] : array();
+						$required_parts = array( 'family', 'given' );
+						$name_has_error = false;
+						foreach ( $required_parts as $part_key ) {
+							$part_data_key = $field_name . '_' . $part_key;
+							if ( empty( $data[ $part_data_key ] ) ) {
+								$sub_label   = ! empty( $name_labels[ $part_key ] ) ? $name_labels[ $part_key ] : $part_key;
+								$sub_message = ! empty( $name_val_msgs[ $part_key ] )
+									? $name_val_msgs[ $part_key ]
+									: sprintf(
+										/* translators: %s: sub-field label */
+										__( '%s is required', 'form-plant' ),
+										$sub_label
+									);
+								$errors[ $field_name . '.' . $part_key ] = apply_filters(
+									'fplant_validation_required_message',
+									$sub_message,
+									$field,
+									'',
+									$data
+								);
+								$name_has_error = true;
+							}
+						}
+						if ( $name_has_error ) {
+							continue;
+						}
+						$is_empty = false;
+					}
 				} else {
 					$is_empty = empty( $value ) && '0' !== $value;
 				}
@@ -89,7 +170,11 @@ class FPLANT_Validator {
 			// Validation by field type
 			$field_error = $this->validate_field_type( $field, $value );
 			if ( $field_error ) {
-				$errors[ $field_name ] = $field_error;
+				if ( is_array( $field_error ) && isset( $field_error['sub_key'] ) ) {
+					$errors[ $field_name . '.' . $field_error['sub_key'] ] = $field_error['message'];
+				} else {
+					$errors[ $field_name ] = $field_error;
+				}
 				continue;
 			}
 
@@ -185,6 +270,100 @@ class FPLANT_Validator {
 						$field['max']
 					);
 					return apply_filters( 'fplant_validation_message_number', $message, $field, $value, array( 'type' => 'max', 'max' => $field['max'] ) );
+				}
+				break;
+
+			case 'name_kana':
+				$kana_validation = isset( $field['kana_validation'] ) ? $field['kana_validation'] : 'katakana';
+				if ( 'none' !== $kana_validation && ! empty( $value ) ) {
+					if ( 'katakana' === $kana_validation ) {
+						$kana_pattern = '/^[\p{Katakana}\x{30FC}\s]+$/u';
+						$kana_default = sprintf(
+							/* translators: %s: field label */
+							__( '%s must be in katakana', 'form-plant' ),
+							$field['label']
+						);
+					} else {
+						$kana_pattern = '/^[\p{Hiragana}\x{30FC}\s]+$/u';
+						$kana_default = sprintf(
+							/* translators: %s: field label */
+							__( '%s must be in hiragana', 'form-plant' ),
+							$field['label']
+						);
+					}
+					if ( ! preg_match( $kana_pattern, $value ) ) {
+						$kana_message = ! empty( $field['kana_error_message'] )
+							? $field['kana_error_message']
+							: $kana_default;
+						return apply_filters( 'fplant_validation_message_name_kana', $kana_message, $field, $value );
+					}
+				}
+				break;
+
+			case 'password':
+				// Minimum length check
+				if ( ! empty( $field['password_min_length'] ) && mb_strlen( $value ) < intval( $field['password_min_length'] ) ) {
+					$message = sprintf(
+						/* translators: 1: field label, 2: minimum length */
+						__( '%1$s must be at least %2$s characters', 'form-plant' ),
+						$field['label'],
+						$field['password_min_length']
+					);
+					return apply_filters( 'fplant_validation_message_password', $message, $field, $value, array( 'type' => 'min_length' ) );
+				}
+
+				// Password strength check
+				if ( ! empty( $field['password_strength_meter'] ) && ! empty( $field['password_strength_level'] ) && 'none' !== $field['password_strength_level'] ) {
+					$score          = $this->estimate_password_strength( $value );
+					$required_score = $this->get_required_strength_score( $field['password_strength_level'] );
+					if ( $score < $required_score ) {
+						$level_label = $this->get_strength_level_label( $field['password_strength_level'] );
+						$message     = sprintf(
+							/* translators: 1: field label, 2: required strength level */
+							__( '%1$s does not meet the required strength level (%2$s)', 'form-plant' ),
+							$field['label'],
+							$level_label
+						);
+						return apply_filters( 'fplant_validation_message_password', $message, $field, $value, array( 'type' => 'strength' ) );
+					}
+				}
+				break;
+
+			case 'postal_code':
+				$is_ja = ( 0 === strpos( get_locale(), 'ja' ) );
+				if ( $is_ja ) {
+					$postal_clean = preg_replace( '/[^0-9]/', '', $value );
+					if ( 7 !== strlen( $postal_clean ) ) {
+						$message = sprintf(
+							/* translators: %s: field label */
+							__( '%s format is invalid', 'form-plant' ),
+							$field['label']
+						);
+						return apply_filters( 'fplant_validation_message_postal_code', $message, $field, $value, array( 'type' => 'format' ) );
+					}
+				}
+				break;
+
+			case 'address':
+				// Validate postal code sub-field for Japanese locale
+				if ( 0 === strpos( get_locale(), 'ja' ) && is_array( $value ) && ! empty( $value['postal_code'] ) ) {
+					$addr_postal_clean = preg_replace( '/[^0-9]/', '', $value['postal_code'] );
+					if ( 7 !== strlen( $addr_postal_clean ) ) {
+						$addr_labels   = isset( $field['address_labels'] ) ? $field['address_labels'] : array();
+						$addr_val_msgs = isset( $field['address_validation_messages'] ) ? $field['address_validation_messages'] : array();
+						$sub_label     = ! empty( $addr_labels['postal_code'] ) ? $addr_labels['postal_code'] : __( 'Postal Code', 'form-plant' );
+						$message       = ! empty( $addr_val_msgs['postal_code'] )
+							? $addr_val_msgs['postal_code']
+							: sprintf(
+								/* translators: %s: sub-field label */
+								__( '%s format is invalid', 'form-plant' ),
+								$sub_label
+							);
+						return array(
+							'sub_key' => 'postal_code',
+							'message' => apply_filters( 'fplant_validation_message_postal_code', $message, $field, $value, array( 'type' => 'format' ) ),
+						);
+					}
 				}
 				break;
 
@@ -336,6 +515,84 @@ class FPLANT_Validator {
 	}
 
 	/**
+	 * Check if email uses a disposable domain
+	 *
+	 * @param string $email Email address.
+	 * @return bool True if disposable.
+	 */
+	public function is_disposable_email( $email ) {
+		$domain = strtolower( substr( strrchr( $email, '@' ), 1 ) );
+		if ( empty( $domain ) ) {
+			return false;
+		}
+
+		// MX record check.
+		if ( ! checkdnsrr( $domain, 'MX' ) && ! checkdnsrr( $domain, 'A' ) ) {
+			return true; // No DNS record = invalid domain.
+		}
+
+		// Check against disposable domain list.
+		$list_file = FPLANT_PLUGIN_DIR . 'data/disposable-email-domains.txt';
+		if ( ! file_exists( $list_file ) ) {
+			return false;
+		}
+
+		// Cache (Transient, 1 hour).
+		$cache_key = 'fplant_disposable_domains';
+		$domains   = get_transient( $cache_key );
+		if ( false === $domains ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$content = file_get_contents( $list_file );
+			$domains = array_filter( array_map( 'trim', explode( "\n", strtolower( $content ) ) ) );
+			$domains = array_flip( $domains ); // Associative array for fast lookup.
+			set_transient( $cache_key, $domains, HOUR_IN_SECONDS );
+		}
+
+		return isset( $domains[ $domain ] );
+	}
+
+	/**
+	 * Check email against blocked domains
+	 *
+	 * @param string $email Email address.
+	 * @return bool True if blocked.
+	 */
+	public function is_blocked_email_domain( $email ) {
+		$blocked = get_option( 'fplant_blocked_email_domains', '' );
+		if ( empty( $blocked ) ) {
+			return false;
+		}
+
+		$domain          = strtolower( substr( strrchr( $email, '@' ), 1 ) );
+		$blocked_domains = array_filter( array_map( 'trim', explode( "\n", strtolower( $blocked ) ) ) );
+
+		return in_array( $domain, $blocked_domains, true );
+	}
+
+	/**
+	 * Check submission data for blocked keywords
+	 *
+	 * @param array $data Submission data.
+	 * @return bool True if blocked keyword found.
+	 */
+	public function contains_blocked_keywords( $data ) {
+		$blocked = get_option( 'fplant_blocked_keywords', '' );
+		if ( empty( $blocked ) ) {
+			return false;
+		}
+
+		$keywords = array_filter( array_map( 'trim', explode( "\n", strtolower( $blocked ) ) ) );
+		$text     = strtolower( implode( ' ', array_values( array_filter( $data, 'is_string' ) ) ) );
+
+		foreach ( $keywords as $keyword ) {
+			if ( ! empty( $keyword ) && false !== strpos( $text, $keyword ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Spam protection check
 	 *
 	 * @param array $form_data     Form data
@@ -344,8 +601,11 @@ class FPLANT_Validator {
 	 */
 	public function check_spam( $form_data, $spam_settings ) {
 		// Honeypot check
-		if ( ! empty( $spam_settings['honeypot'] ) && ! empty( $form_data['fplant_website_url'] ) ) {
-			return true; // Spam
+		if ( ! empty( $spam_settings['honeypot'] ) ) {
+			$honeypot_field_name = $spam_settings['honeypot_field_name'] ?? 'fplant_website_url';
+			if ( ! empty( $form_data[ $honeypot_field_name ] ) ) {
+				return true; // Spam
+			}
 		}
 
 		// IP address rate limiting
@@ -357,6 +617,21 @@ class FPLANT_Validator {
 
 			if ( $is_limited ) {
 				return true; // Spam
+			}
+		}
+
+		// Time-based check
+		if ( ! empty( $spam_settings['time_check'] ) ) {
+			$min_seconds = $spam_settings['time_check_seconds'] ?? 3;
+			$form_ts     = isset( $form_data['fplant_form_ts'] ) ? intval( $form_data['fplant_form_ts'] ) : 0;
+			if ( $form_ts > 0 ) {
+				$elapsed = time() - $form_ts;
+				if ( $elapsed < $min_seconds ) {
+					return true; // Spam - too fast
+				}
+			} else {
+				// No timestamp = JS not executed = likely a bot
+				return true;
 			}
 		}
 
@@ -372,6 +647,9 @@ class FPLANT_Validator {
 	 */
 	private function check_rate_limit( $minutes, $max_count ) {
 		$ip = $this->get_client_ip();
+		if ( empty( $ip ) ) {
+			return false; // Cannot identify client, skip rate limit (fail-open).
+		}
 		$transient_key = 'fplant_rate_limit_' . md5( $ip );
 
 		$submissions = get_transient( $transient_key );
@@ -409,22 +687,80 @@ class FPLANT_Validator {
 	 * @return string
 	 */
 	private function get_client_ip() {
-		$ip_keys = array(
-			'HTTP_CLIENT_IP',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_FORWARDED',
-			'HTTP_FORWARDED_FOR',
-			'HTTP_FORWARDED',
-			'REMOTE_ADDR',
-		);
-
-		foreach ( $ip_keys as $key ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Validated by filter_var, sanitized after validation
-			if ( isset( $_SERVER[ $key ] ) && filter_var( $_SERVER[ $key ], FILTER_VALIDATE_IP ) ) {
-				return sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
-			}
+		// Only use REMOTE_ADDR to prevent IP spoofing via forgeable headers
+		// (HTTP_CLIENT_IP, HTTP_X_FORWARDED_FOR, etc.).
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Validated by filter_var, sanitized after validation
+		if ( isset( $_SERVER['REMOTE_ADDR'] ) && filter_var( $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP ) ) {
+			return sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 		}
 
 		return '';
+	}
+
+	/**
+	 * Estimate password strength (server-side approximation)
+	 *
+	 * @param string $password Password to evaluate.
+	 * @return int Score 0-4.
+	 */
+	private function estimate_password_strength( $password ) {
+		$length = mb_strlen( $password );
+		$score  = 0;
+
+		if ( $length >= 8 ) {
+			++$score;
+		}
+		if ( $length >= 12 ) {
+			++$score;
+		}
+		if ( preg_match( '/[a-z]/', $password ) && preg_match( '/[A-Z]/', $password ) ) {
+			++$score;
+		}
+		if ( preg_match( '/[0-9]/', $password ) ) {
+			++$score;
+		}
+		if ( preg_match( '/[^a-zA-Z0-9]/', $password ) ) {
+			++$score;
+		}
+
+		return min( $score, 4 );
+	}
+
+	/**
+	 * Get required score from strength level setting
+	 *
+	 * @param string $level Strength level (weak, fair, strong).
+	 * @return int Required score.
+	 */
+	private function get_required_strength_score( $level ) {
+		switch ( $level ) {
+			case 'weak':
+				return 1;
+			case 'fair':
+				return 2;
+			case 'strong':
+				return 3;
+			default:
+				return 0;
+		}
+	}
+
+	/**
+	 * Get localized label for strength level
+	 *
+	 * @param string $level Strength level.
+	 * @return string Localized label.
+	 */
+	private function get_strength_level_label( $level ) {
+		switch ( $level ) {
+			case 'weak':
+				return __( 'Weak', 'form-plant' );
+			case 'fair':
+				return __( 'Fair', 'form-plant' );
+			case 'strong':
+				return __( 'Strong', 'form-plant' );
+			default:
+				return __( 'None', 'form-plant' );
+		}
 	}
 }

@@ -45,9 +45,15 @@ class FPLANT_Template_Loader {
 		'select',
 		'radio',
 		'checkbox',
+		'name_parts',
+		'name_kana',
+		'password',
 		'file',
 		'hidden',
 		'html',
+		'postal_code',
+		'prefecture',
+		'address',
 	);
 
 	/**
@@ -114,6 +120,12 @@ class FPLANT_Template_Loader {
 			return '';
 		}
 
+		// Try locale-specific template first (e.g., address-ja.php).
+		$locale_template = $this->locate_locale_template( 'form-fields/' . $field_type );
+		if ( ! empty( $locale_template ) ) {
+			return $locale_template;
+		}
+
 		return $this->locate_template( 'form-fields/' . $field_type . '.php' );
 	}
 
@@ -127,6 +139,12 @@ class FPLANT_Template_Loader {
 		// Validate field type.
 		if ( ! $this->is_valid_field_type( $field_type ) ) {
 			return '';
+		}
+
+		// Try locale-specific template first (e.g., address-ja.php).
+		$locale_template = $this->locate_locale_template( 'confirm-fields/' . $field_type );
+		if ( ! empty( $locale_template ) ) {
+			return $locale_template;
 		}
 
 		return $this->locate_template( 'confirm-fields/' . $field_type . '.php' );
@@ -163,6 +181,19 @@ class FPLANT_Template_Loader {
 		ob_start();
 		include $template;
 		return ob_get_clean();
+	}
+
+	/**
+	 * Locate a locale-specific template
+	 *
+	 * Checks for a template with a locale suffix (e.g., address-ja.php for ja locale).
+	 *
+	 * @param string $base_name Template base name without extension (e.g., 'form-fields/address').
+	 * @return string Template file path, or empty string if not found.
+	 */
+	private function locate_locale_template( $base_name ) {
+		$locale_prefix = substr( get_locale(), 0, 2 );
+		return $this->locate_template( $base_name . '-' . $locale_prefix . '.php' );
 	}
 
 	/**

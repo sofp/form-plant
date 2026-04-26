@@ -41,8 +41,9 @@ $fplant_start_year = $fplant_current_year - $fplant_year_start_offset;
 $fplant_end_year   = $fplant_current_year + $fplant_year_end_offset;
 ?>
 
-<div id="<?php echo esc_attr( $fplant_field_id ); ?>" class="<?php echo esc_attr( $fplant_field_class ); ?>">
+<div class="<?php echo esc_attr( $fplant_field_class ); ?>">
 	<select
+		id="<?php echo esc_attr( $fplant_field_id ); ?>"
 		name="<?php echo esc_attr( $fplant_field_name ); ?>[year]"
 		class="fplant-date-select-year"
 		data-field-name="<?php echo esc_attr( $fplant_field_name ); ?>"

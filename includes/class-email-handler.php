@@ -277,6 +277,17 @@ class FPLANT_Email_Handler {
 		if ( ! empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $field_name ) {
 				$value = isset( $data[ $field_name ] ) ? $data[ $field_name ] : '';
+
+				// Mask password field value in email
+				if ( ! empty( $form['fields'] ) && is_string( $value ) && ! empty( $value ) ) {
+					foreach ( $form['fields'] as $f ) {
+						if ( $f['name'] === $field_name && 'password' === $f['type'] && ! empty( $f['password_mask_email'] ) ) {
+							$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
+							break;
+						}
+					}
+				}
+
 				// Use filename only for file fields
 				if ( is_array( $value ) && isset( $value['filename'] ) ) {
 					$value = $value['filename'];
@@ -349,6 +360,11 @@ class FPLANT_Email_Handler {
 
 			$value = isset( $data[ $field['name'] ] ) ? $data[ $field['name'] ] : '';
 
+			// Mask password field value in email
+			if ( 'password' === $field['type'] && ! empty( $field['password_mask_email'] ) && ! empty( $value ) && is_string( $value ) ) {
+				$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
+			}
+
 			// Display filename only for file fields
 			if ( 'file' === $field['type'] && is_array( $value ) && isset( $value['filename'] ) ) {
 				$value = $value['filename'];
@@ -387,6 +403,11 @@ class FPLANT_Email_Handler {
 
 			$value = isset( $data[ $field['name'] ] ) ? $data[ $field['name'] ] : '';
 
+			// Mask password field value in email
+			if ( 'password' === $field['type'] && ! empty( $field['password_mask_email'] ) && ! empty( $value ) && is_string( $value ) ) {
+				$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
+			}
+
 			if ( is_array( $value ) ) {
 				$delimiter = isset( $field['delimiter'] ) ? $field['delimiter'] : ', ';
 				$value     = implode( $delimiter, $value );
@@ -422,6 +443,11 @@ class FPLANT_Email_Handler {
 			}
 
 			$value = isset( $data[ $field['name'] ] ) ? $data[ $field['name'] ] : '';
+
+			// Mask password field value in email
+			if ( 'password' === $field['type'] && ! empty( $field['password_mask_email'] ) && ! empty( $value ) && is_string( $value ) ) {
+				$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
+			}
 
 			if ( is_array( $value ) ) {
 				$delimiter = isset( $field['delimiter'] ) ? $field['delimiter'] : ', ';

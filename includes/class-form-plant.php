@@ -122,6 +122,9 @@ class FPLANT_Form_Plant {
 
 		// Embed
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-embed.php';
+
+		// Block editor integration
+		require_once FPLANT_PLUGIN_DIR . 'includes/class-block.php';
 	}
 
 	/**
@@ -169,6 +172,9 @@ class FPLANT_Form_Plant {
 
 		// Initialize embed
 		$this->embed = new FPLANT_Embed();
+
+		// Initialize block editor integration
+		new FPLANT_Block();
 	}
 
 	/**
@@ -239,16 +245,21 @@ class FPLANT_Form_Plant {
 		preg_match_all( '/\[fplant\s+id="?(\d+)"?\]/', $post->post_content, $matches );
 		$form_ids = array_unique( $matches[1] );
 
-		// Whether to load default CSS (if multiple forms, load if any needs default)
-		$load_default_css = true;
+		// Whether to load default CSS (form.css) — skip when all forms use 'none'
+		$load_default_css = false;
 
 		// Collect inline CSS to add later
 		$inline_css_queue = array();
 
-		// Collect per-form JS config and check reCAPTCHA need
-		$recaptcha_site_key = get_option( 'fplant_recaptcha_site_key' );
-		$needs_recaptcha    = false;
-		$form_inline_js     = '';
+		// Collect per-form JS config and check CAPTCHA need
+		$recaptcha_site_key    = get_option( 'fplant_recaptcha_site_key' );
+		$recaptcha_v2_site_key = get_option( 'fplant_recaptcha_v2_site_key' );
+		$turnstile_site_key    = get_option( 'fplant_turnstile_site_key' );
+		$needs_recaptcha       = false;
+		$needs_recaptcha_v2    = false;
+		$needs_turnstile       = false;
+		$needs_zxcvbn          = false;
+		$form_inline_js        = '';
 
 		foreach ( $form_ids as $form_id ) {
 			$form = FPLANT_Database::get_form( $form_id );
@@ -256,62 +267,86 @@ class FPLANT_Form_Plant {
 				continue;
 			}
 
-			// --- CSS handling ---
+			// --- Design CSS ---
 
-			$css_mode = isset( $form['settings']['custom_css_mode'] )
-				? $form['settings']['custom_css_mode']
-				: 'none';
-
-			// In replace mode, don't load default CSS (but consider other forms)
-			if ( 'replace' === $css_mode ) {
-				$load_default_css = false;
+			$fplant_design_type = $form['settings']['design_type'] ?? 'simple1';
+			// Backward compatibility: 'default' maps to 'simple1'
+			if ( 'default' === $fplant_design_type ) {
+				$fplant_design_type = 'simple1';
+			}
+			// simple1 uses form.css; simple2/normal use self-contained design CSS
+			if ( 'simple1' === $fplant_design_type ) {
+				$load_default_css = true;
+			} elseif ( in_array( $fplant_design_type, array( 'simple2', 'normal' ), true ) ) {
+				wp_enqueue_style(
+					'fplant-design-' . $fplant_design_type,
+					FPLANT_PLUGIN_URL . 'assets/css/design-' . $fplant_design_type . '.css',
+					array(),
+					FPLANT_VERSION
+				);
 			}
 
-			// Load custom CSS
-			if ( 'none' !== $css_mode ) {
-				$custom_css_url = isset( $form['settings']['custom_css_file_url'] )
-					? $form['settings']['custom_css_file_url']
-					: '';
+			// --- Custom CSS files ---
 
-				$custom_css_inline = isset( $form['settings']['custom_css_inline'] )
-					? $form['settings']['custom_css_inline']
-					: '';
+			$custom_css_file_urls = array();
+			if ( ! empty( $form['settings']['custom_css_file_urls'] ) && is_array( $form['settings']['custom_css_file_urls'] ) ) {
+				$custom_css_file_urls = $form['settings']['custom_css_file_urls'];
+			} elseif ( ! empty( $form['settings']['custom_css_file_url'] ) ) {
+				// Backward compatibility: single URL to array
+				$custom_css_file_urls = array( $form['settings']['custom_css_file_url'] );
+			}
 
-				$inline_handle = 'fplant-form'; // Default
-
-				// Load custom CSS file
-				if ( ! empty( $custom_css_url ) ) {
-					wp_enqueue_style(
-						'fplant-form-custom-' . $form_id,
-						$custom_css_url,
-						array(),
-						FPLANT_VERSION
-					);
-					$inline_handle = 'fplant-form-custom-' . $form_id;
-
-					// If custom CSS file exists, inline CSS can be added immediately
-					if ( ! empty( $custom_css_inline ) ) {
-						$sanitized_css = $this->sanitize_css( $custom_css_inline );
-						wp_add_inline_style( $inline_handle, $sanitized_css );
-					}
-				} elseif ( 'replace' === $css_mode && ! empty( $custom_css_inline ) ) {
-					// In replace mode with inline CSS only, register dummy style
-					// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Intentionally no version for inline-only style
-					wp_register_style( 'fplant-form-inline-' . $form_id, false );
-					wp_enqueue_style( 'fplant-form-inline-' . $form_id );
-					$inline_handle = 'fplant-form-inline-' . $form_id;
-					$sanitized_css = $this->sanitize_css( $custom_css_inline );
-					wp_add_inline_style( $inline_handle, $sanitized_css );
-				} elseif ( ! empty( $custom_css_inline ) ) {
-					// In append mode with inline CSS only, queue for later addition
-					$inline_css_queue[] = $this->sanitize_css( $custom_css_inline );
+			$css_file_index  = 0;
+			$inline_handle   = 'fplant-form';
+			foreach ( $custom_css_file_urls as $css_url ) {
+				if ( ! empty( $css_url ) ) {
+					$handle = 'fplant-form-custom-' . $form_id . '-' . $css_file_index;
+					wp_enqueue_style( $handle, $css_url, array(), FPLANT_VERSION );
+					$inline_handle = $handle;
+					$css_file_index++;
 				}
 			}
 
-			// --- reCAPTCHA check ---
+			// --- Inline CSS ---
 
-			if ( ! empty( $recaptcha_site_key ) && ! empty( $form['settings']['recaptcha_enabled'] ) ) {
+			$custom_css_inline = isset( $form['settings']['custom_css_inline'] )
+				? $form['settings']['custom_css_inline']
+				: '';
+
+			if ( ! empty( $custom_css_inline ) ) {
+				$sanitized_css = $this->sanitize_css( $custom_css_inline );
+				if ( $css_file_index > 0 ) {
+					wp_add_inline_style( $inline_handle, $sanitized_css );
+				} else {
+					$inline_css_queue[] = $sanitized_css;
+				}
+			}
+
+			// --- CAPTCHA check ---
+
+			$fplant_captcha_type = $form['settings']['captcha_type'] ?? 'none';
+			// Backward compatibility
+			if ( 'none' === $fplant_captcha_type && ! empty( $form['settings']['recaptcha_enabled'] ) ) {
+				$fplant_captcha_type = 'recaptcha';
+			}
+
+			if ( 'recaptcha_v2' === $fplant_captcha_type && ! empty( $recaptcha_v2_site_key ) ) {
+				$needs_recaptcha_v2 = true;
+			} elseif ( 'recaptcha' === $fplant_captcha_type && ! empty( $recaptcha_site_key ) ) {
 				$needs_recaptcha = true;
+			} elseif ( 'turnstile' === $fplant_captcha_type && ! empty( $turnstile_site_key ) ) {
+				$needs_turnstile = true;
+			}
+
+			// --- Password strength meter check ---
+
+			if ( ! $needs_zxcvbn && ! empty( $form['fields'] ) ) {
+				foreach ( $form['fields'] as $pw_field ) {
+					if ( 'password' === $pw_field['type'] && ! empty( $pw_field['password_strength_meter'] ) ) {
+						$needs_zxcvbn = true;
+						break;
+					}
+				}
 			}
 
 			// --- Per-form JS config ---
@@ -319,8 +354,8 @@ class FPLANT_Form_Plant {
 			$form_inline_js .= $this->generate_form_inline_js( $form );
 		}
 
-		// Load default CSS (when not in replace mode, or when no forms)
-		if ( $load_default_css || empty( $form_ids ) ) {
+		// Load default CSS (form.css) when at least one form uses a design type
+		if ( $load_default_css ) {
 			wp_enqueue_style(
 				'fplant-form',
 				FPLANT_PLUGIN_URL . 'assets/css/form.css',
@@ -332,11 +367,38 @@ class FPLANT_Form_Plant {
 			foreach ( $inline_css_queue as $inline_css ) {
 				wp_add_inline_style( 'fplant-form', $inline_css );
 			}
+		} elseif ( ! empty( $inline_css_queue ) ) {
+			// No default CSS but inline CSS exists — use dummy handle
+			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Intentionally no version for inline-only style
+			wp_register_style( 'fplant-form-inline', false );
+			wp_enqueue_style( 'fplant-form-inline' );
+			foreach ( $inline_css_queue as $inline_css ) {
+				wp_add_inline_style( 'fplant-form-inline', $inline_css );
+			}
+		}
+
+		// v2 and v3 api.js cannot be loaded simultaneously; v2 takes priority
+		if ( $needs_recaptcha_v2 ) {
+			$needs_recaptcha = false;
+		}
+
+		if ( $needs_recaptcha_v2 ) {
+			// External Google reCAPTCHA v2 script - version managed by Google, null is intentional
+			wp_enqueue_script( 'google-recaptcha-v2', 'https://www.google.com/recaptcha/api.js', array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion, PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent -- External CAPTCHA service, cannot be bundled locally
 		}
 
 		if ( $needs_recaptcha ) {
-			// External Google reCAPTCHA script - version managed by Google, null is intentional
-			wp_enqueue_script( 'google-recaptcha-v3', 'https://www.google.com/recaptcha/api.js?render=' . esc_attr( $recaptcha_site_key ), array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+			// External Google reCAPTCHA v3 script - version managed by Google, null is intentional
+			wp_enqueue_script( 'google-recaptcha-v3', 'https://www.google.com/recaptcha/api.js?render=' . esc_attr( $recaptcha_site_key ), array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion, PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent -- External CAPTCHA service, cannot be bundled locally
+		}
+
+		if ( $needs_turnstile ) {
+			// External Cloudflare Turnstile script - version managed by Cloudflare, null is intentional
+			wp_enqueue_script( 'cloudflare-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js', array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion, PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent -- External CAPTCHA service, cannot be bundled locally
+		}
+
+		if ( $needs_zxcvbn ) {
+			wp_enqueue_script( 'zxcvbn-async' );
 		}
 
 		// Scripts
@@ -362,16 +424,34 @@ class FPLANT_Form_Plant {
 					'requiredSelect'      => __( 'This field is required. Please make a selection.', 'form-plant' ),
 					'requiredFile'        => __( 'This field is required. Please select a file.', 'form-plant' ),
 					'requiredText'        => __( 'This field is required. Please enter a value.', 'form-plant' ),
+					/* translators: %s: sub-field label (e.g., Last Name, First Name) */
+					'requiredSubField'    => __( '%s is required', 'form-plant' ),
 					/* translators: %s: maximum file size in MB */
 					'fileTooLarge'        => __( 'File size is too large. Please select a file under %sMB.', 'form-plant' ),
 					'imageRequired'       => __( 'Please select an image file.', 'form-plant' ),
+					'kanaKatakanaOnly'    => __( 'Please enter in katakana.', 'form-plant' ),
+					'kanaHiraganaOnly'    => __( 'Please enter in hiragana.', 'form-plant' ),
 					'serverError'         => __( 'A server error occurred. Please try again.', 'form-plant' ),
 					'errorOccurred'       => __( 'An error occurred. Please try again.', 'form-plant' ),
 					'recaptchaError'      => __( 'reCAPTCHA verification failed. Please reload the page and try again.', 'form-plant' ),
+					'captchaError'        => __( 'CAPTCHA verification failed. Please reload the page and try again.', 'form-plant' ),
 					'confirmationTitle'   => __( 'Confirm Your Input', 'form-plant' ),
 					'confirmationMessage' => __( 'If the information below is correct, please click the "Submit" button.', 'form-plant' ),
 					'back'                => __( 'Back', 'form-plant' ),
 					'submitForm'          => __( 'Submit', 'form-plant' ),
+					/* translators: %s: minimum character count */
+					'passwordMinLength'   => __( 'Password must be at least %s characters', 'form-plant' ),
+					'passwordTooWeak'     => __( 'Password is not strong enough', 'form-plant' ),
+					'strengthVeryWeak'    => __( 'Very Weak', 'form-plant' ),
+					'strengthWeak'        => __( 'Weak', 'form-plant' ),
+					'strengthFair'        => __( 'Fair', 'form-plant' ),
+					'strengthStrong'      => __( 'Strong', 'form-plant' ),
+					'strengthVeryStrong'  => __( 'Very Strong', 'form-plant' ),
+					'showPassword'        => __( 'Show password', 'form-plant' ),
+					'hidePassword'        => __( 'Hide password', 'form-plant' ),
+					'searchingAddress'    => __( 'Searching...', 'form-plant' ),
+					'addressNotFound'     => __( 'Address not found for this postal code', 'form-plant' ),
+					'searchError'         => __( 'Address search failed. Please try again.', 'form-plant' ),
 				),
 			)
 		);
@@ -415,13 +495,35 @@ class FPLANT_Form_Plant {
 			JSON_UNESCAPED_UNICODE | JSON_HEX_TAG
 		) . ";\n";
 
-		// fplantRecaptchaConfig
-		$inline_js .= 'if (typeof window.fplantRecaptchaConfig === "undefined") { window.fplantRecaptchaConfig = {}; }' . "\n";
-		$inline_js .= 'window.fplantRecaptchaConfig[' . $fplant_form_id . '] = ' . wp_json_encode(
+		// fplantCaptchaConfig
+		$fplant_captcha_type = $form['settings']['captcha_type'] ?? 'none';
+		// Backward compatibility
+		if ( 'none' === $fplant_captcha_type && ! empty( $form['settings']['recaptcha_enabled'] ) ) {
+			$fplant_captcha_type = 'recaptcha';
+		}
+
+		$fplant_recaptcha_site_key    = get_option( 'fplant_recaptcha_site_key', '' );
+		$fplant_recaptcha_v2_site_key = get_option( 'fplant_recaptcha_v2_site_key', '' );
+		$fplant_turnstile_site_key    = get_option( 'fplant_turnstile_site_key', '' );
+
+		// Site key が空の場合は type を none に落とす
+		if ( 'recaptcha_v2' === $fplant_captcha_type && empty( $fplant_recaptcha_v2_site_key ) ) {
+			$fplant_captcha_type = 'none';
+		}
+		if ( 'recaptcha' === $fplant_captcha_type && empty( $fplant_recaptcha_site_key ) ) {
+			$fplant_captcha_type = 'none';
+		}
+		if ( 'turnstile' === $fplant_captcha_type && empty( $fplant_turnstile_site_key ) ) {
+			$fplant_captcha_type = 'none';
+		}
+
+		$inline_js .= 'if (typeof window.fplantCaptchaConfig === "undefined") { window.fplantCaptchaConfig = {}; }' . "\n";
+		$inline_js .= 'window.fplantCaptchaConfig[' . $fplant_form_id . '] = ' . wp_json_encode(
 			array(
-				'enabled' => ! empty( $form['settings']['recaptcha_enabled'] ),
-				'version' => $form['settings']['recaptcha_version'] ?? 'v3',
-				'siteKey' => get_option( 'fplant_recaptcha_site_key', '' ),
+				'type'                => $fplant_captcha_type,
+				'recaptchaSiteKey'    => $fplant_recaptcha_site_key,
+				'recaptchaV2SiteKey'  => $fplant_recaptcha_v2_site_key,
+				'turnstileSiteKey'    => $fplant_turnstile_site_key,
 			),
 			JSON_HEX_TAG
 		) . ";\n";
@@ -484,10 +586,20 @@ class FPLANT_Form_Plant {
 			'fplant-admin',
 			'fplantAdminData',
 			array(
-				'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'fplant_admin_nonce' ),
-				'formData' => $form_data,
-				'cssNonce' => wp_create_nonce( 'fplant_css_upload' ),
+				'ajaxUrl'            => admin_url( 'admin-ajax.php' ),
+				'nonce'              => wp_create_nonce( 'fplant_admin_nonce' ),
+				'formData'           => $form_data,
+				'cssNonce'           => wp_create_nonce( 'fplant_css_upload' ),
+				'pluginUrl'          => FPLANT_PLUGIN_URL,
+				'defaultPrefectures' => array_map(
+					function ( $pref ) {
+						return array(
+							'value' => $pref,
+							'label' => $pref,
+						);
+					},
+					FPLANT_Field_Manager::get_prefectures()
+				),
 				'editUrl'  => admin_url( 'admin.php?page=fplant-form-new' ),
 				'listUrl'  => admin_url( 'admin.php?page=fplant-forms' ),
 				'i18n'     => array(
@@ -521,6 +633,7 @@ class FPLANT_Form_Plant {
 					'noFieldsYet'           => __( 'No fields yet. Click "Add Field" button to add one.', 'form-plant' ),
 					'fieldNameLabel'        => __( 'Field name:', 'form-plant' ),
 					'cssFileRequired'       => __( 'Please select a CSS file (.css)', 'form-plant' ),
+					'cssFileLimit'          => __( 'Maximum 10 CSS files can be uploaded.', 'form-plant' ),
 					'currentFile'           => __( 'Current file:', 'form-plant' ),
 					'errorPrefix'           => __( 'Error:', 'form-plant' ),
 					'missingRequiredFields'        => __( 'The following required items are missing from the HTML template:', 'form-plant' ),
@@ -528,9 +641,39 @@ class FPLANT_Form_Plant {
 					'templateEmpty'                => __( 'HTML template is empty. Please add the required tags or uncheck "Use HTML template".', 'form-plant' ),
 					'confirmationTemplateEmpty'    => __( 'Confirmation HTML template is empty. Please add the required tags or uncheck "Use confirmation screen HTML template".', 'form-plant' ),
 					'confirmationSubmitRequired'   => __( 'Submit button [fplant_confirm_submit] is required in the confirmation template.', 'form-plant' ),
+					'confirmCloseModal'            => __( 'Changes have not been saved. Are you sure you want to close?', 'form-plant' ),
 				),
 			)
 		);
+
+		// Tools page
+		if ( 'form-plant_page_fplant-tools' === $hook ) {
+			wp_enqueue_script(
+				'fplant-admin-tools',
+				FPLANT_PLUGIN_URL . 'admin/js/admin-tools.js',
+				array( 'jquery' ),
+				FPLANT_VERSION,
+				true
+			);
+
+			wp_localize_script(
+				'fplant-admin-tools',
+				'fplantTools',
+				array(
+					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+					'nonce'   => wp_create_nonce( 'fplant_admin_nonce' ),
+					'i18n'    => array(
+						'exportSuccess' => __( 'Export completed.', 'form-plant' ),
+						'selectFile'    => __( 'Please select a file.', 'form-plant' ),
+						'invalidFile'   => __( 'Please select a JSON file.', 'form-plant' ),
+						'selectForm'    => __( 'Please select at least one form.', 'form-plant' ),
+						'confirmImport' => __( 'Import forms from this file?', 'form-plant' ),
+						'noForms'       => __( 'No forms found to export.', 'form-plant' ),
+						'errorOccurred' => __( 'An error occurred', 'form-plant' ),
+					),
+				)
+			);
+		}
 
 		// Submission list page
 		if ( 'form-plant_page_fplant-submissions' === $hook ) {
@@ -635,10 +778,9 @@ class FPLANT_Form_Plant {
 	 * @return array Modified upload directory array
 	 */
 	public function get_css_upload_dir_for_filter( $upload ) {
-		$dir_info = $this->get_css_upload_dir();
-
-		$upload['path']   = $dir_info['path'];
-		$upload['url']    = $dir_info['url'];
+		// Use $upload's basedir/baseurl directly to avoid recursive wp_upload_dir() call
+		$upload['path']   = $upload['basedir'] . '/fplant_uploads/assets';
+		$upload['url']    = $upload['baseurl'] . '/fplant_uploads/assets';
 		$upload['subdir'] = '/fplant_uploads/assets';
 
 		return $upload;
@@ -732,16 +874,36 @@ class FPLANT_Form_Plant {
 		// Use WordPress file upload handler
 		$upload_overrides = array(
 			'test_form'                => false,
-			'mimes'                    => array( 'css' => 'text/css' ),
 			'unique_filename_callback' => function ( $dir, $name, $ext ) use ( $filename ) {
 				return $filename;
 			},
 		);
 
+		// Temporarily allow .css uploads.
+		// wp_check_filetype_and_ext() rejects .css because finfo detects text/plain
+		// instead of text/css. We add both upload_mimes (allowed list) and
+		// wp_check_filetype_and_ext (real MIME override) filters.
+		// Extension and MIME type have already been validated above.
+		$allow_css_mime = function ( $mimes ) {
+			$mimes['css'] = 'text/css';
+			return $mimes;
+		};
+		$fix_css_filetype = function ( $data, $file_path, $filename, $mimes ) {
+			if ( '.css' === strtolower( substr( $filename, -4 ) ) ) {
+				$data['ext']  = 'css';
+				$data['type'] = 'text/css';
+			}
+			return $data;
+		};
+		add_filter( 'upload_mimes', $allow_css_mime );
+		add_filter( 'wp_check_filetype_and_ext', $fix_css_filetype, 10, 4 );
+
 		// Set custom upload directory
 		add_filter( 'upload_dir', array( $this, 'get_css_upload_dir_for_filter' ) );
 		$upload_result = wp_handle_upload( $file, $upload_overrides );
 		remove_filter( 'upload_dir', array( $this, 'get_css_upload_dir_for_filter' ) );
+		remove_filter( 'wp_check_filetype_and_ext', $fix_css_filetype, 10 );
+		remove_filter( 'upload_mimes', $allow_css_mime );
 
 		if ( isset( $upload_result['error'] ) ) {
 			wp_send_json_error(
@@ -853,10 +1015,11 @@ class FPLANT_Form_Plant {
 	public static function get_default_fields() {
 		return array(
 			array(
-				'type'     => 'text',
-				'name'     => 'your_name',
-				'label'    => __( 'Name', 'form-plant' ),
-				'required' => true,
+				'type'        => 'name_parts',
+				'name'        => 'your_name',
+				'label'       => __( 'Name', 'form-plant' ),
+				'required'    => true,
+				'name_format' => '2',
 			),
 			array(
 				'type'     => 'email',
@@ -962,7 +1125,10 @@ class FPLANT_Form_Plant {
 	 * translate.wordpress.org since WP 4.6, bundled translations
 	 * serve as a fallback until community translations are available.
 	 *
-	 * TODO: Remove this once community translations are available on translate.wordpress.org.
+	 * TODO: Remove this method and its init hook. GlotPress translations
+	 * are now available (94% approved). Also remove the .po/.mo files
+	 * from the SVN distribution (already excluded by sync-wporg-trunk.sh).
+	 * See: https://make.wordpress.org/core/2024/10/21/i18n-improvements-6-7/
 	 */
 	public function load_textdomain() {
 		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Temporary: bundled translations fallback until translate.wordpress.org translations are available.

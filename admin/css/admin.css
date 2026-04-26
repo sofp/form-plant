@@ -10,17 +10,14 @@
 	margin: 20px 0;
 }
 
-.fplant-page-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 30px;
-	padding-bottom: 15px;
-	border-bottom: 2px solid #c3c4c7;
+.fplant-admin-page > h1 {
+	margin: 0 0 10px;
 }
 
-.fplant-page-header h1 {
-	margin: 0;
+.fplant-admin-page > hr.wp-header-end {
+	margin: 15px 0 30px;
+	border: 0;
+	border-top: 2px solid #c3c4c7;
 }
 
 /* Buttons */
@@ -376,12 +373,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-	.fplant-page-header {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 15px;
-	}
-
 	.fplant-tabs {
 		flex-wrap: wrap;
 	}
@@ -591,4 +582,77 @@
 .fplant-confirmation-template-fields.fplant-disabled .fplant-insert-confirmation-tag {
 	opacity: 0.5;
 	pointer-events: none;
+}
+
+/* CSS file list */
+.fplant-css-file-list .fplant-css-file-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 5px;
+}
+
+.fplant-css-file-list .fplant-css-file-item code {
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-size: 12px;
+}
+
+/* ========================================
+   Form List - Column Styles
+   ======================================== */
+
+.wrap .wp-list-table .column-field_count {
+	width: 70px;
+	text-align: center;
+}
+
+.wrap .wp-list-table .column-field_names {
+	width: 220px;
+}
+
+.wrap .wp-list-table .column-layout,
+.wrap .wp-list-table .column-email_config {
+	width: 170px;
+}
+
+.wrap .wp-list-table .column-after_submit,
+.wrap .wp-list-table .column-save_data {
+	width: 110px;
+}
+
+.wrap .wp-list-table .column-embed {
+	width: 120px;
+}
+
+.wrap .wp-list-table .column-spam {
+	width: 200px;
+}
+
+/* ON/OFF badges */
+.fplant-badge {
+	display: inline-block;
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-size: 12px;
+	line-height: 1.4;
+	white-space: nowrap;
+}
+
+.fplant-badge-on {
+	background-color: #edfaef;
+	color: #00a32a;
+}
+
+.fplant-badge-off {
+	background-color: #f0f0f1;
+	color: #8c8f94;
+}
+
+/* Required marker */
+.fplant-required {
+	color: #d63638;
+	font-weight: bold;
+	margin-left: 1px;
 }

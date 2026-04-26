@@ -11,9 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <div class="wrap fplant-admin-page">
-	<div class="fplant-page-header">
-		<h1><?php esc_html_e( 'Submissions', 'form-plant' ); ?></h1>
-	</div>
+	<h1><?php esc_html_e( 'Submissions', 'form-plant' ); ?></h1>
+	<hr class="wp-header-end">
 
 	<div class="fplant-card">
 		<div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">

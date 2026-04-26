@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class FPLANT_Admin {
 
 	/**
+	 * Forms page hook suffix
+	 *
+	 * @var string
+	 */
+	private $forms_page_hook;
+
+	/**
 	 * Submissions page hook suffix
 	 *
 	 * @var string
@@ -30,6 +37,8 @@ class FPLANT_Admin {
 
 		// Register settings
 		add_action( 'admin_init', array( $this, 'register_recaptcha_settings' ) );
+		add_action( 'admin_init', array( $this, 'register_turnstile_settings' ) );
+		add_action( 'admin_init', array( $this, 'register_blocklist_settings' ) );
 
 		// Form list actions handling
 		add_action( 'admin_init', array( $this, 'handle_form_list_actions' ) );
@@ -44,11 +53,15 @@ class FPLANT_Admin {
 		add_action( 'wp_ajax_fplant_quick_edit_form', array( $this, 'ajax_quick_edit_form' ) );
 		add_action( 'wp_ajax_fplant_trash_form', array( $this, 'ajax_trash_form' ) );
 		add_action( 'wp_ajax_fplant_download_file', array( $this, 'ajax_download_file' ) );
+		add_action( 'wp_ajax_fplant_export_forms', array( $this, 'ajax_export_forms' ) );
+		add_action( 'wp_ajax_fplant_import_forms', array( $this, 'ajax_import_forms' ) );
 
 		// Screen Options save filter (also saves column settings)
 		add_filter( 'set-screen-option', array( $this, 'set_submissions_screen_options' ), 10, 3 );
+		add_filter( 'set-screen-option', array( $this, 'set_forms_screen_options' ), 10, 3 );
 		// WordPress 5.4.2+ compatibility
 		add_filter( 'set_screen_option_fplant_submissions_per_page', array( $this, 'set_per_page_option' ), 10, 3 );
+		add_filter( 'set_screen_option_fplant_forms_per_page', array( $this, 'set_per_page_option' ), 10, 3 );
 	}
 
 	/**
@@ -84,6 +97,77 @@ class FPLANT_Admin {
 				'default'           => 0.5,
 			)
 		);
+
+		// reCAPTCHA v2 settings
+		register_setting(
+			'fplant_recaptcha_settings',
+			'fplant_recaptcha_v2_site_key',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+
+		register_setting(
+			'fplant_recaptcha_settings',
+			'fplant_recaptcha_v2_secret_key',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+	}
+
+	/**
+	 * Register Cloudflare Turnstile settings
+	 */
+	public function register_turnstile_settings() {
+		register_setting(
+			'fplant_turnstile_settings',
+			'fplant_turnstile_site_key',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+
+		register_setting(
+			'fplant_turnstile_settings',
+			'fplant_turnstile_secret_key',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+	}
+
+	/**
+	 * Register blocklist settings
+	 */
+	public function register_blocklist_settings() {
+		register_setting(
+			'fplant_blocklist_settings',
+			'fplant_blocked_email_domains',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_textarea_field',
+				'default'           => '',
+			)
+		);
+
+		register_setting(
+			'fplant_blocklist_settings',
+			'fplant_blocked_keywords',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_textarea_field',
+				'default'           => '',
+			)
+		);
 	}
 
 	/**
@@ -102,7 +186,7 @@ class FPLANT_Admin {
 	 */
 	public function add_admin_menu() {
 		// Main menu
-		add_menu_page(
+		$this->forms_page_hook = add_menu_page(
 			__( 'Form Plant', 'form-plant' ),
 			__( 'Form Plant', 'form-plant' ),
 			'manage_options',
@@ -121,6 +205,9 @@ class FPLANT_Admin {
 			'fplant-forms',
 			array( $this, 'render_forms_page' )
 		);
+
+		// Register Screen Options for forms list
+		add_action( 'load-' . $this->forms_page_hook, array( $this, 'add_forms_screen_options' ) );
 
 		// Add new
 		add_submenu_page(
@@ -145,6 +232,16 @@ class FPLANT_Admin {
 		// Register Screen Options
 		add_action( 'load-' . $this->submissions_page_hook, array( $this, 'add_submissions_screen_options' ) );
 
+		// Tools
+		add_submenu_page(
+			'fplant-forms',
+			__( 'Tools', 'form-plant' ),
+			__( 'Tools', 'form-plant' ),
+			'manage_options',
+			'fplant-tools',
+			array( $this, 'render_tools_page' )
+		);
+
 		// Settings
 		add_submenu_page(
 			'fplant-forms',
@@ -163,7 +260,12 @@ class FPLANT_Admin {
 		// Load WP_List_Table
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-form-list-table.php';
 
-		$list_table = new FPLANT_Form_List_Table();
+		$user_id        = get_current_user_id();
+		$column_options = $this->get_forms_column_options( $user_id );
+		$per_page       = get_user_meta( $user_id, 'fplant_forms_per_page', true );
+		$per_page       = empty( $per_page ) || $per_page < 1 ? 20 : absint( $per_page );
+
+		$list_table = new FPLANT_Form_List_Table( $column_options, $per_page );
 		$list_table->prepare_items();
 
 		// Load view
@@ -257,6 +359,15 @@ class FPLANT_Admin {
 
 		// Load view
 		include FPLANT_PLUGIN_DIR . 'admin/views/submission-list.php';
+	}
+
+	/**
+	 * Render tools page
+	 */
+	public function render_tools_page() {
+		$fplant_form_manager = FPLANT_Form_Plant::get_instance()->form_manager;
+		$fplant_forms        = $fplant_form_manager->get_forms();
+		include FPLANT_PLUGIN_DIR . 'admin/views/tools.php';
 	}
 
 	/**
@@ -371,6 +482,124 @@ class FPLANT_Admin {
 		);
 
 		$saved = get_user_meta( $user_id, 'fplant_submissions_columns', true );
+
+		if ( empty( $saved ) || ! is_array( $saved ) ) {
+			return $defaults;
+		}
+
+		return array_merge( $defaults, $saved );
+	}
+
+	/**
+	 * Add Screen Options for forms list
+	 */
+	public function add_forms_screen_options() {
+		add_screen_option(
+			'per_page',
+			array(
+				'label'   => __( 'Number of items per page', 'form-plant' ),
+				'default' => 20,
+				'option'  => 'fplant_forms_per_page',
+			)
+		);
+
+		add_filter( 'screen_settings', array( $this, 'forms_screen_settings' ), 10, 2 );
+	}
+
+	/**
+	 * Save forms Screen Options values
+	 *
+	 * @param mixed  $status Save result
+	 * @param string $option Option name
+	 * @param mixed  $value  Setting value
+	 * @return mixed
+	 */
+	public function set_forms_screen_options( $status, $option, $value ) {
+		if ( 'fplant_forms_per_page' === $option ) {
+			$user_id     = get_current_user_id();
+			$column_keys = array( 'shortcode', 'field_count', 'field_names', 'layout', 'email_config', 'after_submit', 'save_data', 'embed', 'spam', 'author', 'submissions' );
+			$columns     = array();
+			// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified by WordPress core in options.php before set-screen-option filter
+			foreach ( $column_keys as $key ) {
+				$columns[ $key ] = isset( $_POST[ 'fplant_forms_col_' . $key ] );
+			}
+			// phpcs:enable WordPress.Security.NonceVerification.Missing
+			update_user_meta( $user_id, 'fplant_forms_columns', $columns );
+
+			return absint( $value );
+		}
+		return $status;
+	}
+
+	/**
+	 * Custom Screen Settings for forms list (column display options)
+	 *
+	 * @param string    $settings Existing settings HTML
+	 * @param WP_Screen $screen   Current screen
+	 * @return string
+	 */
+	public function forms_screen_settings( $settings, $screen ) {
+		if ( $screen->id !== $this->forms_page_hook ) {
+			return $settings;
+		}
+
+		$user_id = get_current_user_id();
+		$columns = $this->get_forms_column_options( $user_id );
+
+		$column_labels = array(
+			'shortcode'    => __( 'Shortcode', 'form-plant' ),
+			'field_count'  => __( 'Field Count', 'form-plant' ),
+			'field_names'  => __( 'Field Names', 'form-plant' ),
+			'layout'       => __( 'Layout', 'form-plant' ),
+			'email_config' => __( 'Email Settings', 'form-plant' ),
+			'after_submit' => __( 'After Submit Action', 'form-plant' ),
+			'save_data'    => __( 'Submission Data Settings', 'form-plant' ),
+			'submissions'  => __( 'Submissions', 'form-plant' ),
+			'embed'        => __( 'External Embed', 'form-plant' ),
+			'spam'         => __( 'Spam Protection', 'form-plant' ),
+			'author'       => __( 'Author', 'form-plant' ),
+		);
+
+		ob_start();
+		?>
+		<fieldset class="metabox-prefs">
+			<legend><?php esc_html_e( 'Columns', 'form-plant' ); ?></legend>
+			<?php foreach ( $column_labels as $key => $label ) : ?>
+				<label>
+					<input type="checkbox" name="fplant_forms_col_<?php echo esc_attr( $key ); ?>" value="1"
+						<?php checked( $columns[ $key ], true ); ?>>
+					<?php echo esc_html( $label ); ?>
+				</label>
+			<?php endforeach; ?>
+		</fieldset>
+		<?php
+		$custom_settings = ob_get_clean();
+
+		return $settings . $custom_settings;
+	}
+
+	/**
+	 * Get forms column display settings
+	 *
+	 * @param int $user_id User ID
+	 * @return array
+	 */
+	public function get_forms_column_options( $user_id ) {
+		$defaults = array(
+			'shortcode'    => true,
+			'field_count'  => false,
+			'field_names'  => true,
+			'layout'       => false,
+			'email_config' => true,
+			'after_submit' => false,
+			'save_data'    => false,
+			'submissions'  => true,
+			'embed'        => false,
+			'spam'         => true,
+			'author'       => true,
+		);
+
+		$saved = get_user_meta( $user_id, 'fplant_forms_columns', true );
 
 		if ( empty( $saved ) || ! is_array( $saved ) ) {
 			return $defaults;
@@ -647,6 +876,18 @@ class FPLANT_Admin {
 						<?php foreach ( $submission['data'] as $field_name => $value ) : ?>
 							<?php
 							$label = isset( $field_labels[ $field_name ] ) ? $field_labels[ $field_name ] : $field_name;
+
+							// Mask password fields in admin view
+							$field_def = null;
+							foreach ( $form['fields'] as $fld ) {
+								if ( $fld['name'] === $field_name ) {
+									$field_def = $fld;
+									break;
+								}
+							}
+							if ( $field_def && 'password' === $field_def['type'] && is_string( $value ) && '' !== $value ) {
+								$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
+							}
 
 							// Check if file field
 							if ( is_array( $value ) && isset( $value['url'] ) && isset( $value['filename'] ) ) :
@@ -1039,5 +1280,113 @@ class FPLANT_Admin {
 		}
 
 		wp_send_json_success( array( 'message' => __( 'Form updated', 'form-plant' ) ) );
+	}
+
+	/**
+	 * AJAX: Export form settings as JSON
+	 */
+	public function ajax_export_forms() {
+		check_ajax_referer( 'fplant_admin_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'form-plant' ) ) );
+		}
+
+		$form_manager = FPLANT_Form_Plant::get_instance()->form_manager;
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array of IDs, sanitized with absint below
+		$raw_ids  = isset( $_POST['form_ids'] ) ? wp_unslash( $_POST['form_ids'] ) : array();
+		$form_ids = array_map( 'absint', (array) $raw_ids );
+		$form_ids = array_filter( $form_ids );
+
+		if ( empty( $form_ids ) ) {
+			$forms = $form_manager->get_forms();
+		} else {
+			$forms = array();
+			foreach ( $form_ids as $form_id ) {
+				$form = FPLANT_Database::get_form( $form_id );
+				if ( $form ) {
+					$forms[] = $form;
+				}
+			}
+		}
+
+		$export_data = array(
+			'plugin'      => 'form-plant',
+			'version'     => FPLANT_VERSION,
+			'export_date' => current_time( 'c' ),
+			'forms'       => array(),
+		);
+
+		foreach ( $forms as $form ) {
+			$export_data['forms'][] = array(
+				'title'           => $form['title'],
+				'fields'          => $form['fields'],
+				'html_template'   => $form['html_template'],
+				'settings'        => $form['settings'],
+				'email_admin'     => $form['email_admin'],
+				'email_user'      => $form['email_user'],
+				'spam_protection' => $form['spam_protection'],
+				'acf_integration' => $form['acf_integration'],
+			);
+		}
+
+		wp_send_json_success( $export_data );
+	}
+
+	/**
+	 * AJAX: Import form settings from JSON
+	 */
+	public function ajax_import_forms() {
+		check_ajax_referer( 'fplant_admin_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'form-plant' ) ) );
+		}
+
+		if ( empty( $_FILES['import_file'] ) || empty( $_FILES['import_file']['tmp_name'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'No file selected.', 'form-plant' ) ) );
+		}
+
+		$tmp_file = sanitize_text_field( wp_unslash( $_FILES['import_file']['tmp_name'] ) );
+
+		if ( ! is_uploaded_file( $tmp_file ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid upload.', 'form-plant' ) ) );
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading uploaded temp file
+		$file_content = file_get_contents( $tmp_file );
+		$import_data  = json_decode( $file_content, true );
+
+		if ( ! $import_data || ! isset( $import_data['plugin'] ) || 'form-plant' !== $import_data['plugin'] ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid import file.', 'form-plant' ) ) );
+		}
+
+		if ( empty( $import_data['forms'] ) || ! is_array( $import_data['forms'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'No forms found in import file.', 'form-plant' ) ) );
+		}
+
+		$form_manager = FPLANT_Form_Plant::get_instance()->form_manager;
+		$imported     = 0;
+
+		foreach ( $import_data['forms'] as $form_data ) {
+			$title   = isset( $form_data['title'] ) ? sanitize_text_field( $form_data['title'] ) : 'Imported Form';
+			$form_id = $form_manager->create_form( $title );
+
+			if ( $form_id && ! is_wp_error( $form_id ) ) {
+				$form_manager->update_form( $form_id, $form_data );
+				++$imported;
+			}
+		}
+
+		wp_send_json_success(
+			array(
+				'message' => sprintf(
+					/* translators: %d: number of imported forms */
+					__( '%d form(s) imported successfully.', 'form-plant' ),
+					$imported
+				),
+			)
+		);
 	}
 }

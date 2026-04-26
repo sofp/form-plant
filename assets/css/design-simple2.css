@@ -1,8 +1,16 @@
 /**
- * Form Plant - Frontend CSS
+ * Form Plant - Design: Simple 2
+ *
+ * Horizontal layout (label left-aligned, input right).
+ * Uses CSS Grid for layout without HTML structure changes.
+ * Self-contained CSS — includes all base styles.
  *
  * @package Form_Plant
  */
+
+/* ========================================
+   Base Styles (shared across all designs)
+   ======================================== */
 
 /* Form wrapper */
 .fplant-form-wrapper {
@@ -347,35 +355,6 @@
 	background-color: #135e96;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-	.fplant-form {
-		padding: 15px;
-	}
-
-	.fplant-field,
-	.fplant-submit-button {
-		font-size: 14px;
-	}
-
-	.fplant-confirmation {
-		padding: 15px;
-	}
-
-	.fplant-confirmation-header h3 {
-		font-size: 20px;
-	}
-
-	.fplant-confirmation-footer {
-		flex-direction: column;
-	}
-
-	.fplant-back-button,
-	.fplant-confirm-submit-button {
-		width: 100%;
-	}
-}
-
 /* Date (dropdown) field */
 .fplant-field-date-select {
 	display: flex;
@@ -713,4 +692,279 @@
 /* Address — country dropdown */
 .fplant-address-country-input {
 	width: 100%;
+}
+
+/* ========================================
+   Simple 2 Design Overrides
+   ======================================== */
+
+/* Form */
+.fplant-form-wrapper .fplant-form {
+	padding: 20px;
+	background: #fff;
+}
+
+/* Field group - CSS Grid horizontal layout */
+.fplant-form-wrapper .fplant-field-group {
+	display: grid;
+	grid-template-columns: 30% 1fr;
+	gap: 0 16px;
+	align-items: start;
+	margin-bottom: 20px;
+}
+
+.fplant-form-wrapper .fplant-field-group > label {
+	grid-column: 1;
+	text-align: left;
+	padding-top: 10px;
+	font-weight: 600;
+	color: #333;
+	line-height: 1.4;
+}
+
+.fplant-form-wrapper .fplant-field-group > label .required {
+	color: #d63638;
+	margin-left: 3px;
+}
+
+/* Field */
+.fplant-form-wrapper .fplant-field {
+	grid-column: 2;
+	width: 100%;
+	padding: 10px 15px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 16px;
+	transition: border-color 0.2s;
+	box-sizing: border-box;
+}
+
+.fplant-form-wrapper .fplant-field:focus {
+	outline: none;
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+/* Textarea */
+.fplant-form-wrapper .fplant-field-textarea {
+	resize: vertical;
+	min-height: 100px;
+}
+
+/* Select box */
+.fplant-form-wrapper .fplant-field-select {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E');
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+	background-size: 12px;
+	padding-right: 35px;
+	appearance: none;
+	background-color: #fff;
+}
+
+/* Field error */
+.fplant-form-wrapper .fplant-field-error {
+	grid-column: 2;
+	margin-top: 5px;
+	color: #d63638;
+	font-size: 14px;
+}
+
+/* Composite fields in grid column 2 */
+.fplant-form-wrapper .fplant-field-group > .fplant-field-radio,
+.fplant-form-wrapper .fplant-field-group > .fplant-field-checkbox,
+.fplant-form-wrapper .fplant-field-group > .fplant-field-date-select,
+.fplant-form-wrapper .fplant-field-group > .fplant-field-name-parts,
+.fplant-form-wrapper .fplant-field-group > .fplant-field-name-kana,
+.fplant-form-wrapper .fplant-field-group > .fplant-field-postal-code,
+.fplant-form-wrapper .fplant-field-group > .fplant-field-address,
+.fplant-form-wrapper .fplant-field-group > .fplant-field-prefecture,
+.fplant-form-wrapper .fplant-field-group > .fplant-password-wrapper {
+	grid-column: 2;
+}
+
+/* Composite fields: remove border/padding that .fplant-field adds */
+.fplant-form-wrapper .fplant-field-radio,
+.fplant-form-wrapper .fplant-field-checkbox,
+.fplant-form-wrapper .fplant-field-date-select,
+.fplant-form-wrapper .fplant-field-name-parts,
+.fplant-form-wrapper .fplant-field-name-kana,
+.fplant-form-wrapper .fplant-field-postal-code,
+.fplant-form-wrapper .fplant-field-address,
+.fplant-form-wrapper .fplant-field-prefecture {
+	border: none;
+	padding: 0;
+	box-shadow: none;
+}
+
+/* Submit button */
+.fplant-form-wrapper .fplant-submit-wrapper {
+	margin-top: 30px;
+	text-align: center;
+}
+
+.fplant-form-wrapper .fplant-submit-button {
+	padding: 12px 30px;
+	background-color: #2271b1;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.fplant-form-wrapper .fplant-submit-button:hover {
+	background-color: #135e96;
+}
+
+/* === Confirmation screen (div-based, horizontal) === */
+
+.fplant-form-wrapper .fplant-confirmation {
+	padding: 20px;
+	background-color: #fff;
+	border: none;
+}
+
+.fplant-form-wrapper .fplant-confirmation-header {
+	margin-bottom: 20px;
+	padding-bottom: 15px;
+	border-bottom: 2px solid #f0f0f1;
+}
+
+.fplant-form-wrapper .fplant-confirmation-header h3 {
+	margin: 0 0 10px 0;
+	font-size: 24px;
+	color: #1d2327;
+}
+
+.fplant-form-wrapper .fplant-confirmation-header p {
+	margin: 0;
+	color: #646970;
+	font-size: 14px;
+}
+
+.fplant-form-wrapper .fplant-confirmation-body .fplant-field-group {
+	display: grid;
+	grid-template-columns: 30% 1fr;
+	gap: 0 16px;
+	align-items: start;
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.fplant-form-wrapper .fplant-confirmation-body .fplant-field-group:last-child {
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+.fplant-form-wrapper .fplant-confirmation-body .fplant-field-group label {
+	grid-column: 1;
+	text-align: left;
+	font-weight: 600;
+	color: #333;
+	padding-top: 10px;
+	line-height: 1.4;
+}
+
+.fplant-form-wrapper .fplant-field-value {
+	grid-column: 2;
+	padding: 10px 15px;
+	background-color: transparent;
+	border: none;
+	font-size: 16px;
+	color: #1d2327;
+	min-height: 42px;
+	word-break: break-word;
+	line-height: 1.5;
+}
+
+.fplant-form-wrapper .fplant-confirmation-footer {
+	display: flex;
+	gap: 10px;
+	margin-top: 30px;
+	justify-content: center;
+}
+
+.fplant-form-wrapper .fplant-back-button,
+.fplant-form-wrapper .fplant-confirm-submit-button {
+	padding: 12px 30px;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.fplant-form-wrapper .fplant-back-button {
+	background-color: #f6f7f7;
+	color: #2c3338;
+	border: 1px solid #c3c4c7;
+}
+
+.fplant-form-wrapper .fplant-back-button:hover {
+	background-color: #e8e9eb;
+	border-color: #8c8f94;
+}
+
+.fplant-form-wrapper .fplant-confirm-submit-button {
+	background-color: #2271b1;
+	color: #fff;
+}
+
+.fplant-form-wrapper .fplant-confirm-submit-button:hover {
+	background-color: #135e96;
+}
+
+/* Responsive - switch to vertical on mobile */
+@media (max-width: 768px) {
+	.fplant-form-wrapper .fplant-form {
+		padding: 15px;
+	}
+
+	.fplant-form-wrapper .fplant-field-group {
+		display: block;
+	}
+
+	.fplant-form-wrapper .fplant-field-group > label {
+		text-align: left;
+		padding-top: 0;
+		margin-bottom: 5px;
+		display: block;
+	}
+
+	.fplant-form-wrapper .fplant-field,
+	.fplant-form-wrapper .fplant-submit-button {
+		font-size: 14px;
+	}
+
+	.fplant-form-wrapper .fplant-submit-wrapper {
+		padding-left: 0;
+		text-align: center;
+	}
+
+	.fplant-form-wrapper .fplant-confirmation-body .fplant-field-group {
+		display: block;
+	}
+
+	.fplant-form-wrapper .fplant-confirmation-body .fplant-field-group label {
+		text-align: left;
+		padding-top: 0;
+		margin-bottom: 5px;
+		display: block;
+	}
+
+	.fplant-form-wrapper .fplant-confirmation-footer {
+		flex-direction: column;
+		padding-left: 0;
+	}
+
+	.fplant-form-wrapper .fplant-back-button,
+	.fplant-form-wrapper .fplant-confirm-submit-button {
+		width: 100%;
+	}
 }

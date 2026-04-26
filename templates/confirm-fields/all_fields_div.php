@@ -1,9 +1,9 @@
 <?php
 /**
- * Confirmation field template - All Fields
+ * Confirmation field template - All Fields (div-based)
  *
- * This template displays all fields in a table format with labels.
- * Used for default confirmation screen and [fplant_all_fields] shortcode.
+ * This template displays all fields using div-based layout (same structure as input form).
+ * Used for design type variations (simple1, simple2, normal) instead of table layout.
  *
  * @package Form_Plant
  * @var array $fields Form field definitions
@@ -17,7 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 ?>
-<table class="fplant-confirmation-table">
 <?php foreach ( $fields as $field ) :
 	// Skip hidden and html fields.
 	if ( in_array( $field['type'], array( 'hidden', 'html' ), true ) ) {
@@ -160,9 +159,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			break;
 	}
 	?>
-	<tr>
-		<th><?php echo esc_html( $field_label ); ?></th>
-		<td><?php echo $display_value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped above ?></td>
-	</tr>
+	<div class="fplant-field-group" data-field-name="<?php echo esc_attr( $field_name ); ?>">
+		<label><?php echo esc_html( $field_label ); ?></label>
+		<div class="fplant-field-value"><?php echo $display_value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped above ?></div>
+	</div>
 <?php endforeach; ?>
-</table>

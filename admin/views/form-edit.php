@@ -37,9 +37,8 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 ?>
 
 <div class="wrap fplant-admin-page">
-	<div class="fplant-page-header">
-		<h1><?php echo esc_html( $fplant_page_title ); ?></h1>
-	</div>
+	<h1><?php echo esc_html( $fplant_page_title ); ?></h1>
+	<hr class="wp-header-end">
 
 	<?php if ( 'updated' === $fplant_message ) : ?>
 	<div class="notice notice-success is-dismissible">
@@ -113,6 +112,9 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 			<button type="button" class="fplant-tab" data-tab="tab-settings">
 				<?php esc_html_e( 'Form Settings', 'form-plant' ); ?>
 			</button>
+			<button type="button" class="fplant-tab" data-tab="tab-spam">
+				<?php esc_html_e( 'Spam Protection', 'form-plant' ); ?>
+			</button>
 		</div>
 
 		<!-- Field Settings tab -->
@@ -164,6 +166,37 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				</div>
 
 				<div class="fplant-form-group">
+					<label><?php esc_html_e( 'Form Tag Settings', 'form-plant' ); ?></label>
+					<div style="display: flex; gap: 16px; flex-wrap: wrap;">
+						<div style="flex: 1; min-width: 200px;">
+							<label for="fplant-form-tag-class" style="font-weight: normal; font-size: 13px;">
+								<?php esc_html_e( 'CSS Class', 'form-plant' ); ?>
+							</label>
+							<input
+								type="text"
+								id="fplant-form-tag-class"
+								class="fplant-form-control"
+								value="<?php echo esc_attr( $fplant_form['settings']['form_tag_class'] ?? '' ); ?>"
+								placeholder="<?php esc_attr_e( 'e.g., my-form custom-form', 'form-plant' ); ?>"
+							>
+							<p class="description"><?php esc_html_e( 'Added to the default fplant-form class', 'form-plant' ); ?></p>
+						</div>
+						<div style="flex: 1; min-width: 200px;">
+							<label for="fplant-form-tag-id" style="font-weight: normal; font-size: 13px;">
+								<?php esc_html_e( 'ID', 'form-plant' ); ?>
+							</label>
+							<input
+								type="text"
+								id="fplant-form-tag-id"
+								class="fplant-form-control"
+								value="<?php echo esc_attr( $fplant_form['settings']['form_tag_id'] ?? '' ); ?>"
+								placeholder="<?php esc_attr_e( 'e.g., my-contact-form', 'form-plant' ); ?>"
+							>
+						</div>
+					</div>
+				</div>
+
+				<div class="fplant-form-group">
 					<label><?php esc_html_e( 'Submit Button Settings', 'form-plant' ); ?></label>
 					<div style="display: flex; align-items: center; gap: 10px;">
 						<span class="fplant-input-submit-preview">
@@ -174,6 +207,18 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 						</button>
 					</div>
 					<p class="description"><?php esc_html_e( 'Configure submit button text, CSS class, and ID', 'form-plant' ); ?></p>
+				</div>
+
+				<div class="fplant-form-group">
+					<label><?php esc_html_e( 'Required Mark', 'form-plant' ); ?></label>
+					<input
+						type="text"
+						class="fplant-setting-required-mark"
+						value="<?php echo esc_attr( $fplant_form['settings']['required_mark_text'] ?? '*' ); ?>"
+						placeholder="*"
+						style="width: 150px;"
+					>
+					<p class="description"><?php esc_html_e( 'Text displayed next to the label of required fields (e.g., *, Required)', 'form-plant' ); ?></p>
 				</div>
 			</div>
 
@@ -359,92 +404,91 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				</div>
 			</div>
 
-			<!-- Custom CSS Settings -->
+			<!-- Form Design Settings -->
 			<div class="fplant-card">
 				<div class="fplant-card-header">
-					<?php esc_html_e( 'Custom CSS Settings', 'form-plant' ); ?>
+					<?php esc_html_e( 'Form Design', 'form-plant' ); ?>
 				</div>
 
 				<div class="fplant-form-group">
-					<label><?php esc_html_e( 'CSS Mode', 'form-plant' ); ?></label>
-					<div class="fplant-radio">
-						<input
-							type="radio"
-							name="custom_css_mode"
-							value="none"
-							id="css-mode-none"
-							<?php checked( ( $fplant_form['settings']['custom_css_mode'] ?? 'none' ) === 'none' ); ?>
-						>
-						<label for="css-mode-none">
-							<?php esc_html_e( 'Use default CSS only', 'form-plant' ); ?>
-						</label>
+					<label><?php esc_html_e( 'Default CSS Settings', 'form-plant' ); ?></label>
+					<?php
+					$fplant_design_types = array(
+						'simple1' => __( 'Simple 1 (vertical)', 'form-plant' ),
+						'simple2' => __( 'Simple 2 (horizontal)', 'form-plant' ),
+						'normal'  => __( 'Normal (decorated)', 'form-plant' ),
+						'none'    => __( 'None', 'form-plant' ),
+					);
+					$fplant_current_design = $fplant_form['settings']['design_type'] ?? 'simple1';
+					if ( 'default' === $fplant_current_design ) {
+						$fplant_current_design = 'simple1';
+					}
+					foreach ( $fplant_design_types as $fplant_dt_value => $fplant_dt_label ) :
+						?>
+						<div class="fplant-radio" style="display: flex; align-items: center; gap: 8px;">
+							<input
+								type="radio"
+								name="design_type"
+								value="<?php echo esc_attr( $fplant_dt_value ); ?>"
+								id="design-type-<?php echo esc_attr( $fplant_dt_value ); ?>"
+								<?php checked( $fplant_current_design === $fplant_dt_value ); ?>
+							>
+							<label for="design-type-<?php echo esc_attr( $fplant_dt_value ); ?>">
+								<?php echo esc_html( $fplant_dt_label ); ?>
+							</label>
+							<?php if ( 'none' !== $fplant_dt_value ) : ?>
+								<a href="#" class="fplant-download-design-css" data-design-type="<?php echo esc_attr( $fplant_dt_value ); ?>" style="font-size: 12px;">
+									<?php esc_html_e( 'Download CSS', 'form-plant' ); ?>
+								</a>
+							<?php endif; ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
+
+				<hr style="border: 0; border-top: 1px solid #dcdcde; margin: 20px 0;">
+
+				<div class="fplant-form-group">
+					<label><?php esc_html_e( 'Custom CSS Settings', 'form-plant' ); ?></label>
+					<p class="description" style="margin-bottom: 10px;">
+						<?php esc_html_e( 'Upload your own CSS files to customize the form appearance.', 'form-plant' ); ?>
+					</p>
+					<div class="fplant-css-upload-wrapper" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+						<input type="file" class="fplant-css-file-input" accept=".css">
+						<button type="button" class="button fplant-css-upload-button" disabled>
+							<?php esc_html_e( 'Upload', 'form-plant' ); ?>
+						</button>
+						<span class="fplant-css-upload-status"></span>
 					</div>
-					<div class="fplant-radio">
-						<input
-							type="radio"
-							name="custom_css_mode"
-							value="append"
-							id="css-mode-append"
-							<?php checked( ( $fplant_form['settings']['custom_css_mode'] ?? 'none' ) === 'append' ); ?>
-						>
-						<label for="css-mode-append">
-							<?php esc_html_e( 'Append custom CSS (Default + Custom)', 'form-plant' ); ?>
-						</label>
-					</div>
-					<div class="fplant-radio">
-						<input
-							type="radio"
-							name="custom_css_mode"
-							value="replace"
-							id="css-mode-replace"
-							<?php checked( ( $fplant_form['settings']['custom_css_mode'] ?? 'none' ) === 'replace' ); ?>
-						>
-						<label for="css-mode-replace">
-							<?php esc_html_e( 'Replace with custom CSS (Do not load default)', 'form-plant' ); ?>
-						</label>
+					<div class="fplant-css-file-list" style="margin-top: 10px;">
+						<?php
+						$fplant_css_urls = array();
+						if ( ! empty( $fplant_form['settings']['custom_css_file_urls'] ) && is_array( $fplant_form['settings']['custom_css_file_urls'] ) ) {
+							$fplant_css_urls = $fplant_form['settings']['custom_css_file_urls'];
+						} elseif ( ! empty( $fplant_form['settings']['custom_css_file_url'] ) ) {
+							$fplant_css_urls = array( $fplant_form['settings']['custom_css_file_url'] );
+						}
+						foreach ( $fplant_css_urls as $fplant_css_url ) :
+							?>
+							<div class="fplant-css-file-item" data-url="<?php echo esc_attr( $fplant_css_url ); ?>">
+								<code><?php echo esc_html( basename( $fplant_css_url ) ); ?></code>
+								<button type="button" class="button button-small fplant-remove-css-file">
+									<?php esc_html_e( 'Delete', 'form-plant' ); ?>
+								</button>
+							</div>
+						<?php endforeach; ?>
 					</div>
 				</div>
 
-				<div class="fplant-custom-css-fields<?php echo ( $fplant_form['settings']['custom_css_mode'] ?? 'none' ) === 'none' ? ' fplant-disabled' : ''; ?>">
-					<div class="fplant-form-group">
-						<label><?php esc_html_e( 'CSS File', 'form-plant' ); ?></label>
-						<div class="fplant-css-upload-wrapper">
-							<input
-								type="file"
-								class="fplant-css-file-input"
-								accept=".css"
-								<?php echo ( $fplant_form['settings']['custom_css_mode'] ?? 'none' ) === 'none' ? 'disabled' : ''; ?>
-							>
-							<span class="fplant-css-upload-status"></span>
-						</div>
-						<?php if ( ! empty( $fplant_form['settings']['custom_css_file_url'] ) ) : ?>
-						<div class="fplant-css-current-file" style="margin-top: 10px;">
-							<strong><?php esc_html_e( 'Current file:', 'form-plant' ); ?></strong>
-							<code class="fplant-custom-css-file-url-display"><?php echo esc_html( basename( $fplant_form['settings']['custom_css_file_url'] ?? '' ) ); ?></code>
-							<button type="button" class="button button-small fplant-remove-css-file" <?php echo ( $fplant_form['settings']['custom_css_mode'] ?? 'none' ) === 'none' ? 'disabled' : ''; ?>>
-								<?php esc_html_e( 'Remove', 'form-plant' ); ?>
-							</button>
-						</div>
-						<?php endif; ?>
-						<input type="hidden" class="fplant-custom-css-file-url" value="<?php echo esc_attr( $fplant_form['settings']['custom_css_file_url'] ?? '' ); ?>">
-						<p class="description">
-							<?php esc_html_e( 'Please upload a CSS file (.css)', 'form-plant' ); ?>
-						</p>
-					</div>
+				<hr style="border: 0; border-top: 1px solid #dcdcde; margin: 20px 0;">
 
-					<div class="fplant-form-group">
-						<label><?php esc_html_e( 'Inline CSS', 'form-plant' ); ?></label>
-						<textarea
-							class="fplant-form-control fplant-custom-css-inline"
-							rows="10"
-							placeholder="<?php esc_attr_e( 'Enter custom CSS directly (can be used with file upload)', 'form-plant' ); ?>"
-							style="font-family: monospace; font-size: 13px;"
-							<?php echo ( $fplant_form['settings']['custom_css_mode'] ?? 'none' ) === 'none' ? 'readonly' : ''; ?>
-						><?php echo esc_textarea( $fplant_form['settings']['custom_css_inline'] ?? '' ); ?></textarea>
-						<p class="description">
-							<?php esc_html_e( 'When both CSS file and inline CSS are specified, they are loaded in order: File then Inline', 'form-plant' ); ?>
-						</p>
-					</div>
+				<div class="fplant-form-group">
+					<label><?php esc_html_e( 'Inline CSS', 'form-plant' ); ?></label>
+					<textarea
+						class="fplant-form-control fplant-custom-css-inline"
+						rows="10"
+						placeholder="<?php esc_attr_e( 'Enter custom CSS directly', 'form-plant' ); ?>"
+						style="font-family: monospace; font-size: 13px;"
+					><?php echo esc_textarea( $fplant_form['settings']['custom_css_inline'] ?? '' ); ?></textarea>
 				</div>
 			</div>
 		</div>
@@ -802,51 +846,6 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				</p>
 			</div>
 
-			<!-- reCAPTCHA Settings -->
-			<div class="fplant-card">
-				<div class="fplant-card-header">
-					<?php esc_html_e( 'reCAPTCHA Settings', 'form-plant' ); ?>
-				</div>
-
-				<?php
-				$fplant_recaptcha_site_key = get_option( 'fplant_recaptcha_site_key' );
-				$fplant_recaptcha_enabled  = ! empty( $fplant_form['settings']['recaptcha_enabled'] );
-				$fplant_recaptcha_version  = $fplant_form['settings']['recaptcha_version'] ?? 'v3';
-				?>
-
-				<?php if ( empty( $fplant_recaptcha_site_key ) ) : ?>
-					<p class="description" style="color: #d63638;">
-						<?php
-						printf(
-							/* translators: %s: settings page link */
-							esc_html__( 'To use reCAPTCHA, please first set up the API keys on the %s.', 'form-plant' ),
-							'<a href="' . esc_url( admin_url( 'admin.php?page=fplant-settings' ) ) . '">' . esc_html__( 'Settings page', 'form-plant' ) . '</a>'
-						);
-						?>
-					</p>
-				<?php else : ?>
-					<div class="fplant-checkbox">
-						<input
-							type="checkbox"
-							id="recaptcha-enabled"
-							class="fplant-setting-recaptcha-enabled"
-							<?php checked( $fplant_recaptcha_enabled ); ?>
-						>
-						<label for="recaptcha-enabled">
-							<?php esc_html_e( 'Enable reCAPTCHA', 'form-plant' ); ?>
-						</label>
-					</div>
-
-					<div class="fplant-recaptcha-settings<?php echo ! $fplant_recaptcha_enabled ? ' fplant-disabled' : ''; ?>" style="margin-top: 15px; margin-left: 25px;">
-						<p class="description">
-							<?php esc_html_e( 'Uses reCAPTCHA v3 (invisible/score-based) for automatic background verification.', 'form-plant' ); ?>
-						</p>
-						<!-- v3 fixed (hidden) -->
-						<input type="hidden" class="fplant-setting-recaptcha-version" value="v3">
-					</div>
-				<?php endif; ?>
-			</div>
-
 			<!-- URL Parameter Settings -->
 			<div class="fplant-card">
 				<div class="fplant-card-header">
@@ -978,6 +977,247 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				</div>
 			</div>
 		</div>
+
+		<!-- Spam Protection tab -->
+		<div id="tab-spam" class="fplant-tab-content">
+
+			<!-- CAPTCHA Settings -->
+			<div class="fplant-card">
+				<div class="fplant-card-header">
+					<?php esc_html_e( 'CAPTCHA Settings', 'form-plant' ); ?>
+				</div>
+
+				<?php
+				$fplant_recaptcha_site_key    = get_option( 'fplant_recaptcha_site_key' );
+				$fplant_recaptcha_v2_site_key = get_option( 'fplant_recaptcha_v2_site_key' );
+				$fplant_turnstile_site_key    = get_option( 'fplant_turnstile_site_key' );
+
+				// Determine captcha type with backward compatibility
+				$fplant_captcha_type = $fplant_form['settings']['captcha_type'] ?? 'none';
+				if ( 'none' === $fplant_captcha_type && ! empty( $fplant_form['settings']['recaptcha_enabled'] ) ) {
+					$fplant_captcha_type = 'recaptcha';
+				}
+				?>
+
+				<div class="fplant-form-group">
+					<div class="fplant-radio">
+						<input
+							type="radio"
+							id="captcha-type-none"
+							name="captcha_type"
+							class="fplant-setting-captcha-type"
+							value="none"
+							<?php checked( $fplant_captcha_type, 'none' ); ?>
+						>
+						<label for="captcha-type-none">
+							<?php esc_html_e( 'Do not use CAPTCHA', 'form-plant' ); ?>
+						</label>
+					</div>
+
+					<div class="fplant-radio">
+						<input
+							type="radio"
+							id="captcha-type-recaptcha-v2"
+							name="captcha_type"
+							class="fplant-setting-captcha-type"
+							value="recaptcha_v2"
+							<?php checked( $fplant_captcha_type, 'recaptcha_v2' ); ?>
+							<?php disabled( empty( $fplant_recaptcha_v2_site_key ) ); ?>
+						>
+						<label for="captcha-type-recaptcha-v2"<?php echo empty( $fplant_recaptcha_v2_site_key ) ? ' class="fplant-disabled"' : ''; ?>>
+							<?php esc_html_e( 'Google reCAPTCHA v2 (Checkbox)', 'form-plant' ); ?>
+						</label>
+					</div>
+
+					<div class="fplant-captcha-details fplant-captcha-details-recaptcha_v2" style="margin-left: 25px;<?php echo 'recaptcha_v2' !== $fplant_captcha_type ? ' display:none;' : ''; ?>">
+						<p class="description">
+							<?php esc_html_e( 'Users must check the "I\'m not a robot" checkbox before submitting.', 'form-plant' ); ?>
+						</p>
+					</div>
+
+					<div class="fplant-radio">
+						<input
+							type="radio"
+							id="captcha-type-recaptcha"
+							name="captcha_type"
+							class="fplant-setting-captcha-type"
+							value="recaptcha"
+							<?php checked( $fplant_captcha_type, 'recaptcha' ); ?>
+							<?php disabled( empty( $fplant_recaptcha_site_key ) ); ?>
+						>
+						<label for="captcha-type-recaptcha"<?php echo empty( $fplant_recaptcha_site_key ) ? ' class="fplant-disabled"' : ''; ?>>
+							<?php esc_html_e( 'Google reCAPTCHA v3', 'form-plant' ); ?>
+						</label>
+					</div>
+
+					<div class="fplant-captcha-details fplant-captcha-details-recaptcha" style="margin-left: 25px;<?php echo 'recaptcha' !== $fplant_captcha_type ? ' display:none;' : ''; ?>">
+						<p class="description">
+							<?php esc_html_e( 'Uses reCAPTCHA v3 (invisible/score-based) for automatic background verification.', 'form-plant' ); ?>
+						</p>
+					</div>
+
+					<div class="fplant-radio">
+						<input
+							type="radio"
+							id="captcha-type-turnstile"
+							name="captcha_type"
+							class="fplant-setting-captcha-type"
+							value="turnstile"
+							<?php checked( $fplant_captcha_type, 'turnstile' ); ?>
+							<?php disabled( empty( $fplant_turnstile_site_key ) ); ?>
+						>
+						<label for="captcha-type-turnstile"<?php echo empty( $fplant_turnstile_site_key ) ? ' class="fplant-disabled"' : ''; ?>>
+							<?php esc_html_e( 'Cloudflare Turnstile', 'form-plant' ); ?>
+						</label>
+					</div>
+
+					<div class="fplant-captcha-details fplant-captcha-details-turnstile" style="margin-left: 25px;<?php echo 'turnstile' !== $fplant_captcha_type ? ' display:none;' : ''; ?>">
+						<p class="description">
+							<?php esc_html_e( 'Uses Cloudflare Turnstile for automatic background verification.', 'form-plant' ); ?>
+						</p>
+					</div>
+				</div>
+
+				<?php if ( empty( $fplant_recaptcha_site_key ) && empty( $fplant_recaptcha_v2_site_key ) && empty( $fplant_turnstile_site_key ) ) : ?>
+					<p class="description" style="color: #d63638;">
+						<?php
+						printf(
+							/* translators: %s: settings page link */
+							esc_html__( 'To use CAPTCHA, please first set up the API keys on the %s.', 'form-plant' ),
+							'<a href="' . esc_url( admin_url( 'admin.php?page=fplant-settings' ) ) . '">' . esc_html__( 'Settings page', 'form-plant' ) . '</a>'
+						);
+						?>
+					</p>
+				<?php endif; ?>
+			</div>
+
+			<!-- Honeypot -->
+			<div class="fplant-card">
+				<div class="fplant-card-header">
+					<?php esc_html_e( 'Honeypot', 'form-plant' ); ?>
+				</div>
+
+				<div class="fplant-checkbox">
+					<input
+						type="checkbox"
+						id="spam-honeypot"
+						class="fplant-setting-spam-honeypot"
+						<?php checked( $fplant_form['settings']['spam_honeypot_enabled'] ?? true ); ?>
+					>
+					<label for="spam-honeypot">
+						<?php esc_html_e( 'Enable honeypot', 'form-plant' ); ?>
+					</label>
+				</div>
+				<p class="description" style="margin-top: 5px; margin-left: 25px;">
+					<?php esc_html_e( 'An invisible dummy field is used to detect bots.', 'form-plant' ); ?>
+				</p>
+
+				<div class="fplant-spam-honeypot-settings<?php echo ( isset( $fplant_form['settings']['spam_honeypot_enabled'] ) && ! $fplant_form['settings']['spam_honeypot_enabled'] ) ? ' fplant-disabled' : ''; ?>" style="margin-top: 15px; margin-left: 25px;">
+					<label for="spam-honeypot-field-name"><?php esc_html_e( 'Field name', 'form-plant' ); ?></label>
+					<input
+						type="text"
+						id="spam-honeypot-field-name"
+						class="fplant-setting-spam-honeypot-field-name regular-text"
+						value="<?php echo esc_attr( $fplant_form['settings']['spam_honeypot_field_name'] ?? 'fplant_website_url' ); ?>"
+						<?php echo ( isset( $fplant_form['settings']['spam_honeypot_enabled'] ) && ! $fplant_form['settings']['spam_honeypot_enabled'] ) ? ' readonly' : ''; ?>
+					>
+					<p class="description">
+						<?php esc_html_e( 'Change the field name if it conflicts with your form fields.', 'form-plant' ); ?>
+					</p>
+				</div>
+			</div>
+
+			<!-- Rate Limiting -->
+			<div class="fplant-card">
+				<div class="fplant-card-header">
+					<?php esc_html_e( 'Rate Limiting', 'form-plant' ); ?>
+				</div>
+
+				<div class="fplant-checkbox">
+					<input
+						type="checkbox"
+						id="spam-rate-limit"
+						class="fplant-setting-spam-rate-limit"
+						<?php checked( ! empty( $fplant_form['settings']['spam_rate_limit_enabled'] ) ); ?>
+					>
+					<label for="spam-rate-limit">
+						<?php esc_html_e( 'Enable rate limiting', 'form-plant' ); ?>
+					</label>
+				</div>
+
+				<div class="fplant-spam-rate-limit-settings<?php echo empty( $fplant_form['settings']['spam_rate_limit_enabled'] ) ? ' fplant-disabled' : ''; ?>" style="margin-top: 15px; margin-left: 25px;">
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %1$s: minutes input field, %2$s: count input field */
+							esc_html__( 'Block submissions exceeding %2$s times within %1$s minutes from the same IP address', 'form-plant' ),
+							'<input type="number" class="fplant-setting-spam-rate-limit-minutes small-text" min="1" max="60" value="' . esc_attr( $fplant_form['settings']['spam_rate_limit_minutes'] ?? 5 ) . '"' . ( empty( $fplant_form['settings']['spam_rate_limit_enabled'] ) ? ' readonly' : '' ) . '>',
+							'<input type="number" class="fplant-setting-spam-rate-limit-count small-text" min="1" max="50" value="' . esc_attr( $fplant_form['settings']['spam_rate_limit_count'] ?? 3 ) . '"' . ( empty( $fplant_form['settings']['spam_rate_limit_enabled'] ) ? ' readonly' : '' ) . '>'
+						);
+						?>
+					</p>
+				</div>
+			</div>
+
+			<!-- Submission Speed Check -->
+			<div class="fplant-card">
+				<div class="fplant-card-header">
+					<?php esc_html_e( 'Submission Speed Check', 'form-plant' ); ?>
+				</div>
+
+				<div class="fplant-checkbox">
+					<input
+						type="checkbox"
+						id="spam-time-check"
+						class="fplant-setting-spam-time-check"
+						<?php checked( ! empty( $fplant_form['settings']['spam_time_check_enabled'] ) ); ?>
+					>
+					<label for="spam-time-check">
+						<?php esc_html_e( 'Enable submission speed check', 'form-plant' ); ?>
+					</label>
+				</div>
+
+				<div class="fplant-spam-time-check-settings<?php echo empty( $fplant_form['settings']['spam_time_check_enabled'] ) ? ' fplant-disabled' : ''; ?>" style="margin-top: 15px; margin-left: 25px;">
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %s: seconds input field */
+							esc_html__( 'Block submissions faster than %s seconds after form display', 'form-plant' ),
+							'<input type="number" class="fplant-setting-spam-time-check-seconds small-text" min="1" max="30" value="' . esc_attr( $fplant_form['settings']['spam_time_check_seconds'] ?? 3 ) . '"' . ( empty( $fplant_form['settings']['spam_time_check_enabled'] ) ? ' readonly' : '' ) . '>'
+						);
+						?>
+					</p>
+					<p class="description" style="margin-top: 5px;">
+						<?php esc_html_e( 'Rejects submissions that are faster than human input speed.', 'form-plant' ); ?>
+					</p>
+				</div>
+			</div>
+
+			<!-- Email Address Verification -->
+			<div class="fplant-card">
+				<div class="fplant-card-header">
+					<?php esc_html_e( 'Email Address Verification', 'form-plant' ); ?>
+				</div>
+
+				<div class="fplant-checkbox">
+					<input
+						type="checkbox"
+						id="spam-disposable-email-block"
+						class="fplant-setting-spam-disposable-email-block"
+						<?php checked( ! empty( $fplant_form['settings']['spam_disposable_email_block'] ) ); ?>
+					>
+					<label for="spam-disposable-email-block">
+						<?php esc_html_e( 'Enable disposable email blocking', 'form-plant' ); ?>
+					</label>
+				</div>
+
+				<p class="description" style="margin-top: 10px; margin-left: 25px;">
+					<?php esc_html_e( 'Block disposable email addresses like tempmail.com', 'form-plant' ); ?>
+				</p>
+			</div>
+
+		</div>
+
 	</div>
 </div>
 
@@ -993,8 +1233,10 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 			<div class="fplant-form-group">
 				<label for="fplant-field-type"><?php esc_html_e( 'Field Type', 'form-plant' ); ?> <span class="required">*</span></label>
 				<select id="fplant-field-type" class="fplant-form-control">
-					<option value="text"><?php esc_html_e( 'Text', 'form-plant' ); ?></option>
+					<option value="name_parts"><?php esc_html_e( 'Name', 'form-plant' ); ?></option>
+					<option value="name_kana"><?php esc_html_e( 'Name (Kana)', 'form-plant' ); ?></option>
 					<option value="email"><?php esc_html_e( 'Email Address', 'form-plant' ); ?></option>
+					<option value="text"><?php esc_html_e( 'Text', 'form-plant' ); ?></option>
 					<option value="tel"><?php esc_html_e( 'Phone Number', 'form-plant' ); ?></option>
 					<option value="url"><?php esc_html_e( 'URL', 'form-plant' ); ?></option>
 					<option value="number"><?php esc_html_e( 'Number', 'form-plant' ); ?></option>
@@ -1005,7 +1247,11 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 					<option value="date"><?php esc_html_e( 'Date (Calendar)', 'form-plant' ); ?></option>
 					<option value="date_select"><?php esc_html_e( 'Date (Dropdown)', 'form-plant' ); ?></option>
 					<option value="time"><?php esc_html_e( 'Time', 'form-plant' ); ?></option>
+					<option value="password"><?php esc_html_e( 'Password', 'form-plant' ); ?></option>
 					<option value="file"><?php esc_html_e( 'File Upload', 'form-plant' ); ?></option>
+					<option value="postal_code"><?php esc_html_e( 'Postal Code', 'form-plant' ); ?></option>
+					<option value="prefecture"><?php esc_html_e( 'Prefecture', 'form-plant' ); ?></option>
+					<option value="address"><?php esc_html_e( 'Address', 'form-plant' ); ?></option>
 					<option value="hidden"><?php esc_html_e( 'Hidden', 'form-plant' ); ?></option>
 					<option value="html"><?php esc_html_e( 'HTML', 'form-plant' ); ?></option>
 				</select>
@@ -1160,12 +1406,367 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				</div>
 			</div>
 
+			<!-- Name Parts Settings (for name_parts) -->
+			<div id="fplant-field-name-parts-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Name Field Settings', 'form-plant' ); ?></label>
+				<div style="margin-top: 10px;">
+					<label for="fplant-field-name-format" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Number of Inputs', 'form-plant' ); ?></label>
+					<select id="fplant-field-name-format" class="fplant-form-control">
+						<option value="1"><?php esc_html_e( '1 input', 'form-plant' ); ?></option>
+						<option value="2" selected><?php esc_html_e( '2 inputs (First / Last)', 'form-plant' ); ?></option>
+						<option value="3"><?php esc_html_e( '3 inputs (First / Middle / Last)', 'form-plant' ); ?></option>
+					</select>
+				</div>
+				<?php
+				$fplant_name_part_labels = array(
+					'family' => __( 'Last Name', 'form-plant' ),
+					'given'  => __( 'First Name', 'form-plant' ),
+					'middle' => __( 'Middle Name', 'form-plant' ),
+				);
+				// Match frontend display order: ja = family, middle, given / other = given, middle, family.
+				$fplant_name_parts_order = ( 0 === strpos( get_locale(), 'ja' ) )
+					? array( 'family', 'middle', 'given' )
+					: array( 'given', 'middle', 'family' );
+				?>
+				<div id="fplant-name-sublabels" style="margin-top: 15px;">
+					<?php foreach ( $fplant_name_parts_order as $fplant_part ) : ?>
+					<div class="fplant-name-sublabel-row" data-part="<?php echo esc_attr( $fplant_part ); ?>" style="<?php echo 'middle' === $fplant_part ? 'display: none; ' : ''; ?>margin-bottom: 10px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px;">
+						<div class="fplant-name-part-heading" style="font-weight: 600; font-size: 12px; margin-bottom: 8px;"
+							<?php if ( 'family' === $fplant_part ) : ?>
+								data-label-default="<?php echo esc_attr( $fplant_name_part_labels['family'] ); ?>"
+								data-label-single="<?php esc_attr_e( 'Full Name', 'form-plant' ); ?>"
+							<?php endif; ?>
+						><?php echo esc_html( $fplant_name_part_labels[ $fplant_part ] ); ?></div>
+						<div style="display: flex; gap: 10px;">
+							<div style="flex: 1;">
+								<label for="fplant-field-name-label-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Sub-label', 'form-plant' ); ?></label>
+								<input type="text" id="fplant-field-name-label-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control">
+							</div>
+							<div style="flex: 1;">
+								<label for="fplant-field-name-placeholder-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Placeholder', 'form-plant' ); ?></label>
+								<input type="text" id="fplant-field-name-placeholder-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control">
+							</div>
+							<div style="flex: 1;">
+								<label for="fplant-field-name-validation-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Validation Message', 'form-plant' ); ?></label>
+								<input type="text" id="fplant-field-name-validation-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Default message used if blank', 'form-plant' ); ?>">
+							</div>
+						</div>
+					</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+
+			<!-- Name Kana Settings (for name_kana) -->
+			<div id="fplant-field-name-kana-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Kana Field Settings', 'form-plant' ); ?></label>
+				<div style="margin-top: 10px;">
+					<label for="fplant-field-kana-format" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Number of Inputs', 'form-plant' ); ?></label>
+					<select id="fplant-field-kana-format" class="fplant-form-control">
+						<option value="1"><?php esc_html_e( '1 input', 'form-plant' ); ?></option>
+						<option value="2" selected><?php esc_html_e( '2 inputs (First / Last)', 'form-plant' ); ?></option>
+						<option value="3"><?php esc_html_e( '3 inputs (First / Middle / Last)', 'form-plant' ); ?></option>
+					</select>
+				</div>
+				<?php
+				$fplant_kana_part_labels = array(
+					'family' => __( 'Last Name (Kana)', 'form-plant' ),
+					'given'  => __( 'First Name (Kana)', 'form-plant' ),
+					'middle' => __( 'Middle Name (Kana)', 'form-plant' ),
+				);
+				$fplant_kana_parts_order = ( 0 === strpos( get_locale(), 'ja' ) )
+					? array( 'family', 'middle', 'given' )
+					: array( 'given', 'middle', 'family' );
+				?>
+				<div id="fplant-kana-sublabels" style="margin-top: 15px;">
+					<?php foreach ( $fplant_kana_parts_order as $fplant_part ) : ?>
+					<div class="fplant-kana-sublabel-row" data-part="<?php echo esc_attr( $fplant_part ); ?>" style="<?php echo 'middle' === $fplant_part ? 'display: none; ' : ''; ?>margin-bottom: 10px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px;">
+						<div class="fplant-kana-part-heading" style="font-weight: 600; font-size: 12px; margin-bottom: 8px;"
+							<?php if ( 'family' === $fplant_part ) : ?>
+								data-label-default="<?php echo esc_attr( $fplant_kana_part_labels['family'] ); ?>"
+								data-label-single="<?php esc_attr_e( 'Full Name (Kana)', 'form-plant' ); ?>"
+							<?php endif; ?>
+						><?php echo esc_html( $fplant_kana_part_labels[ $fplant_part ] ); ?></div>
+						<div style="display: flex; gap: 10px;">
+							<div style="flex: 1;">
+								<label for="fplant-field-kana-label-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Sub-label', 'form-plant' ); ?></label>
+								<input type="text" id="fplant-field-kana-label-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control">
+							</div>
+							<div style="flex: 1;">
+								<label for="fplant-field-kana-placeholder-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Placeholder', 'form-plant' ); ?></label>
+								<input type="text" id="fplant-field-kana-placeholder-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control">
+							</div>
+							<div style="flex: 1;">
+								<label for="fplant-field-kana-validation-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Validation Message', 'form-plant' ); ?></label>
+								<input type="text" id="fplant-field-kana-validation-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Default message used if blank', 'form-plant' ); ?>">
+							</div>
+						</div>
+					</div>
+					<?php endforeach; ?>
+				</div>
+				<div style="margin-top: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px;">
+					<label style="font-weight: 600; font-size: 12px; margin-bottom: 8px; display: block;"><?php esc_html_e( 'Kana Validation', 'form-plant' ); ?></label>
+					<label style="font-weight: normal; margin-right: 15px;">
+						<input type="radio" name="fplant-field-kana-validation" value="katakana" checked>
+						<?php esc_html_e( 'Katakana only', 'form-plant' ); ?>
+					</label>
+					<label style="font-weight: normal; margin-right: 15px;">
+						<input type="radio" name="fplant-field-kana-validation" value="hiragana">
+						<?php esc_html_e( 'Hiragana only', 'form-plant' ); ?>
+					</label>
+					<label style="font-weight: normal;">
+						<input type="radio" name="fplant-field-kana-validation" value="none">
+						<?php esc_html_e( 'No validation', 'form-plant' ); ?>
+					</label>
+				</div>
+				<div id="fplant-field-kana-error-message-section" style="margin-top: 10px;">
+					<label for="fplant-field-kana-error-message" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Kana Validation Error Message', 'form-plant' ); ?></label>
+					<input type="text" id="fplant-field-kana-error-message" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Please enter in katakana.', 'form-plant' ); ?>">
+					<p class="description"><?php esc_html_e( 'Custom error message for kana validation (default message used if blank)', 'form-plant' ); ?></p>
+				</div>
+			</div>
+
+			<!-- Password Settings (for password) -->
+			<div id="fplant-field-password-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Password Field Settings', 'form-plant' ); ?></label>
+
+				<div style="margin-top: 10px;">
+					<label for="fplant-field-password-min-length" style="font-weight: normal; font-size: 12px;">
+						<?php esc_html_e( 'Minimum Character Length', 'form-plant' ); ?>
+					</label>
+					<input
+						type="number"
+						id="fplant-field-password-min-length"
+						class="fplant-form-control"
+						min="1"
+						max="100"
+						style="width: 100px;"
+					>
+					<p class="description">
+						<?php esc_html_e( 'Minimum number of characters required (leave blank for no limit)', 'form-plant' ); ?>
+					</p>
+				</div>
+
+				<div style="margin-top: 15px;">
+					<div class="fplant-checkbox">
+						<input type="checkbox" id="fplant-field-password-mask-email">
+						<label for="fplant-field-password-mask-email">
+							<?php esc_html_e( 'Mask value in email notifications', 'form-plant' ); ?>
+						</label>
+					</div>
+					<p class="description">
+						<?php esc_html_e( 'Replace the password value with masked characters in email notifications', 'form-plant' ); ?>
+					</p>
+				</div>
+
+				<div style="margin-top: 10px;">
+					<div class="fplant-checkbox">
+						<input type="checkbox" id="fplant-field-password-mask-save">
+						<label for="fplant-field-password-mask-save">
+							<?php esc_html_e( 'Mask value when saving data', 'form-plant' ); ?>
+						</label>
+					</div>
+					<p class="description">
+						<?php esc_html_e( 'Replace the password value with masked characters before saving to database (irreversible)', 'form-plant' ); ?>
+					</p>
+				</div>
+
+				<div style="margin-top: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px;">
+					<div class="fplant-checkbox">
+						<input type="checkbox" id="fplant-field-password-strength-meter">
+						<label for="fplant-field-password-strength-meter">
+							<?php esc_html_e( 'Show password strength meter', 'form-plant' ); ?>
+						</label>
+					</div>
+
+					<div id="fplant-field-password-strength-level-section" style="margin-top: 10px; display: none;">
+						<label style="font-weight: 600; font-size: 12px; display: block; margin-bottom: 8px;">
+							<?php esc_html_e( 'Required Strength Level', 'form-plant' ); ?>
+						</label>
+						<label style="font-weight: normal; margin-right: 15px;">
+							<input type="radio" name="fplant-field-password-strength-level" value="none" checked>
+							<?php esc_html_e( 'None', 'form-plant' ); ?>
+						</label>
+						<label style="font-weight: normal; margin-right: 15px;">
+							<input type="radio" name="fplant-field-password-strength-level" value="weak">
+							<?php esc_html_e( 'Weak', 'form-plant' ); ?>
+						</label>
+						<label style="font-weight: normal; margin-right: 15px;">
+							<input type="radio" name="fplant-field-password-strength-level" value="fair">
+							<?php esc_html_e( 'Fair', 'form-plant' ); ?>
+						</label>
+						<label style="font-weight: normal;">
+							<input type="radio" name="fplant-field-password-strength-level" value="strong">
+							<?php esc_html_e( 'Strong', 'form-plant' ); ?>
+						</label>
+						<p class="description">
+							<?php esc_html_e( 'Set the minimum password strength required for submission', 'form-plant' ); ?>
+						</p>
+					</div>
+				</div>
+			</div>
+
 			<!-- HTML Content Settings (for html) -->
 			<div id="fplant-field-html-section" class="fplant-form-group" style="display: none;">
 				<label for="fplant-field-html-content"><?php esc_html_e( 'HTML Content', 'form-plant' ); ?> <span class="required">*</span></label>
 				<?php // phpcs:ignore WordPress.WP.I18n.NoHtmlWrappedStrings -- Placeholder example text showing HTML format ?>
 				<textarea id="fplant-field-html-content" class="fplant-form-control" rows="8" placeholder="<?php esc_attr_e( '<p>Enter your HTML content here...</p>', 'form-plant' ); ?>"></textarea>
 				<p class="description"><?php esc_html_e( 'Enter the HTML content to display. This field is for display only and will not be submitted.', 'form-plant' ); ?></p>
+			</div>
+
+			<!-- Postal Code Settings -->
+			<div id="fplant-field-postal-code-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Postal Code Settings', 'form-plant' ); ?></label>
+				<div style="margin-top: 10px;">
+					<label for="fplant-field-postal-format" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Input Format', 'form-plant' ); ?></label>
+					<select id="fplant-field-postal-format" class="fplant-form-control">
+						<option value="single"><?php esc_html_e( 'Single input', 'form-plant' ); ?></option>
+						<option value="split"><?php esc_html_e( 'Split input (3 + 4 digits)', 'form-plant' ); ?></option>
+					</select>
+				</div>
+				<div style="margin-top: 10px;">
+					<label class="fplant-checkbox">
+						<input type="checkbox" id="fplant-field-postal-show-search-btn">
+						<?php esc_html_e( 'Show search button', 'form-plant' ); ?>
+					</label>
+					<p class="description"><?php esc_html_e( 'Display a search button next to the postal code input.', 'form-plant' ); ?></p>
+				</div>
+				<div style="margin-top: 10px;">
+					<label class="fplant-checkbox">
+						<input type="checkbox" id="fplant-field-postal-autofill">
+						<?php esc_html_e( 'Enable auto-fill from postal code', 'form-plant' ); ?>
+					</label>
+					<p class="description"><?php esc_html_e( 'Automatically fills address fields when a valid postal code is entered. Available for Japanese locale only.', 'form-plant' ); ?></p>
+				</div>
+				<div id="fplant-postal-autofill-targets" style="display: none; margin-top: 10px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px;">
+					<p class="description" style="margin-bottom: 10px;">
+						<?php esc_html_e( 'Field 1 only (text): all address info. Field 1 only (select): prefecture only. Fields 1+2: prefecture + remaining. Fields 1+2+3: prefecture, city, street.', 'form-plant' ); ?>
+					</p>
+					<div style="margin-bottom: 10px;">
+						<label for="fplant-field-postal-target-pref" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Auto-fill field 1', 'form-plant' ); ?></label>
+						<select id="fplant-field-postal-target-pref" class="fplant-form-control fplant-postal-target-select">
+							<option value=""><?php esc_html_e( '-- Not set --', 'form-plant' ); ?></option>
+						</select>
+					</div>
+					<div style="margin-bottom: 10px;">
+						<label for="fplant-field-postal-target-addr1" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Auto-fill field 2', 'form-plant' ); ?></label>
+						<select id="fplant-field-postal-target-addr1" class="fplant-form-control fplant-postal-target-select">
+							<option value=""><?php esc_html_e( '-- Not set --', 'form-plant' ); ?></option>
+						</select>
+					</div>
+					<div>
+						<label for="fplant-field-postal-target-addr2" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Auto-fill field 3', 'form-plant' ); ?></label>
+						<select id="fplant-field-postal-target-addr2" class="fplant-form-control fplant-postal-target-select">
+							<option value=""><?php esc_html_e( '-- Not set --', 'form-plant' ); ?></option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- Prefecture Settings -->
+			<div id="fplant-field-prefecture-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Prefecture Settings', 'form-plant' ); ?></label>
+				<div style="margin-top: 10px;">
+					<label for="fplant-field-pref-display-type" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Display Type', 'form-plant' ); ?></label>
+					<select id="fplant-field-pref-display-type" class="fplant-form-control">
+						<option value="select"><?php esc_html_e( 'Dropdown', 'form-plant' ); ?></option>
+						<option value="radio"><?php esc_html_e( 'Radio Button', 'form-plant' ); ?></option>
+						<option value="checkbox"><?php esc_html_e( 'Checkbox', 'form-plant' ); ?></option>
+					</select>
+				</div>
+				<div id="fplant-field-pref-layout-section" style="margin-top: 10px; display: none;">
+					<label style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Layout', 'form-plant' ); ?></label>
+					<div style="display: flex; gap: 20px;">
+						<label style="font-weight: normal;">
+							<input type="radio" name="fplant-field-pref-layout" value="vertical" checked>
+							<?php esc_html_e( 'Vertical', 'form-plant' ); ?>
+						</label>
+						<label style="font-weight: normal;">
+							<input type="radio" name="fplant-field-pref-layout" value="horizontal">
+							<?php esc_html_e( 'Horizontal', 'form-plant' ); ?>
+						</label>
+					</div>
+				</div>
+				<div style="margin-top: 10px;">
+					<label for="fplant-field-pref-options-textarea" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Options', 'form-plant' ); ?></label>
+					<textarea id="fplant-field-pref-options-textarea" class="fplant-form-control" rows="10"></textarea>
+					<p class="description"><?php esc_html_e( 'Enter one option per line. You can change the order or edit choices.', 'form-plant' ); ?></p>
+				</div>
+			</div>
+
+			<!-- Address Composite Settings -->
+			<div id="fplant-field-address-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Address Settings', 'form-plant' ); ?></label>
+				<div style="margin-top: 10px;">
+					<label for="fplant-field-address-postal-format" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Postal Code Format', 'form-plant' ); ?></label>
+					<select id="fplant-field-address-postal-format" class="fplant-form-control">
+						<option value="single"><?php esc_html_e( 'Single input', 'form-plant' ); ?></option>
+						<option value="split"><?php esc_html_e( 'Split input (3 + 4 digits)', 'form-plant' ); ?></option>
+					</select>
+					<p class="description"><?php esc_html_e( 'Japanese locale only.', 'form-plant' ); ?></p>
+				</div>
+				<div style="margin-top: 10px;">
+					<label class="fplant-checkbox">
+						<input type="checkbox" id="fplant-field-address-show-search-btn">
+						<?php esc_html_e( 'Show search button', 'form-plant' ); ?>
+					</label>
+					<p class="description"><?php esc_html_e( 'Display a search button next to the postal code input.', 'form-plant' ); ?></p>
+				</div>
+				<div style="margin-top: 10px;">
+					<label for="fplant-field-address-pref-type" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Prefecture Display Type', 'form-plant' ); ?></label>
+					<select id="fplant-field-address-pref-type" class="fplant-form-control">
+						<option value="select"><?php esc_html_e( 'Dropdown', 'form-plant' ); ?></option>
+						<option value="text"><?php esc_html_e( 'Text', 'form-plant' ); ?></option>
+					</select>
+					<p class="description"><?php esc_html_e( 'Japanese locale only.', 'form-plant' ); ?></p>
+				</div>
+				<div id="fplant-address-labels-section" style="margin-top: 15px;">
+					<label style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Sub-field Labels', 'form-plant' ); ?></label>
+					<?php
+					$fplant_addr_sub_fields_ja = array(
+						'postal_code' => __( 'Postal Code', 'form-plant' ),
+						'prefecture'  => __( 'Prefecture', 'form-plant' ),
+						'city'        => __( 'City', 'form-plant' ),
+						'street'      => __( 'Street Address', 'form-plant' ),
+						'building'    => __( 'Building / Apartment', 'form-plant' ),
+					);
+					$fplant_addr_sub_fields_intl = array(
+						'street'      => __( 'Street Address', 'form-plant' ),
+						'address2'    => __( 'Address Line 2', 'form-plant' ),
+						'city'        => __( 'City', 'form-plant' ),
+						'state'       => __( 'State / Province', 'form-plant' ),
+						'postal_code' => __( 'Postal Code', 'form-plant' ),
+						'country'     => __( 'Country', 'form-plant' ),
+					);
+					$fplant_addr_is_ja = ( 0 === strpos( get_locale(), 'ja' ) );
+					$fplant_addr_all_sub_fields = array_merge(
+						array_keys( $fplant_addr_sub_fields_ja ),
+						array_keys( $fplant_addr_sub_fields_intl )
+					);
+					$fplant_addr_all_sub_fields = array_unique( $fplant_addr_all_sub_fields );
+					$fplant_addr_all_labels = array_merge( $fplant_addr_sub_fields_ja, $fplant_addr_sub_fields_intl );
+					$fplant_addr_intl_only_keys = array_diff( array_keys( $fplant_addr_sub_fields_intl ), array_keys( $fplant_addr_sub_fields_ja ) );
+					foreach ( $fplant_addr_all_sub_fields as $fplant_sub_key ) :
+						$fplant_addr_row_hidden = $fplant_addr_is_ja && in_array( $fplant_sub_key, $fplant_addr_intl_only_keys, true );
+					?>
+					<div class="fplant-address-label-row" data-sub-key="<?php echo esc_attr( $fplant_sub_key ); ?>" style="margin-bottom: 8px; padding: 8px; border: 1px solid #e0e0e0; border-radius: 4px;<?php echo $fplant_addr_row_hidden ? ' display: none;' : ''; ?>">
+						<div style="font-weight: 600; font-size: 12px; margin-bottom: 6px;"><?php echo esc_html( $fplant_addr_all_labels[ $fplant_sub_key ] ); ?></div>
+						<div style="display: flex; gap: 10px;">
+							<div style="flex: 1;">
+								<label for="fplant-field-address-label-<?php echo esc_attr( $fplant_sub_key ); ?>" style="font-weight: normal; font-size: 11px;"><?php esc_html_e( 'Label', 'form-plant' ); ?></label>
+								<input type="text" id="fplant-field-address-label-<?php echo esc_attr( $fplant_sub_key ); ?>" class="fplant-form-control">
+							</div>
+							<div style="flex: 1;">
+								<label for="fplant-field-address-placeholder-<?php echo esc_attr( $fplant_sub_key ); ?>" style="font-weight: normal; font-size: 11px;"><?php esc_html_e( 'Placeholder', 'form-plant' ); ?></label>
+								<input type="text" id="fplant-field-address-placeholder-<?php echo esc_attr( $fplant_sub_key ); ?>" class="fplant-form-control">
+							</div>
+							<div style="flex: 1;">
+								<label for="fplant-field-address-validation-<?php echo esc_attr( $fplant_sub_key ); ?>" style="font-weight: normal; font-size: 11px;"><?php esc_html_e( 'Validation Message', 'form-plant' ); ?></label>
+								<input type="text" id="fplant-field-address-validation-<?php echo esc_attr( $fplant_sub_key ); ?>" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Default message used if blank', 'form-plant' ); ?>">
+							</div>
+						</div>
+					</div>
+					<?php endforeach; ?>
+				</div>
 			</div>
 
 			<!-- Default Value Settings -->

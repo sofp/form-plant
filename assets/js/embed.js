@@ -24,14 +24,49 @@
 		cssLoaded: false,
 
 		/**
-		 * Whether reCAPTCHA script has been loaded
+		 * Whether reCAPTCHA v3 script has been loaded
 		 */
 		recaptchaLoaded: false,
 
 		/**
-		 * reCAPTCHA configuration
+		 * reCAPTCHA v3 configuration
 		 */
 		recaptchaConfig: {},
+
+		/**
+		 * Whether reCAPTCHA v2 script has been loaded
+		 */
+		recaptchaV2Loaded: false,
+
+		/**
+		 * reCAPTCHA v2 configuration per form
+		 */
+		recaptchaV2Config: {},
+
+		/**
+		 * reCAPTCHA v2 widget IDs per form
+		 */
+		recaptchaV2WidgetIds: {},
+
+		/**
+		 * Whether zxcvbn script has been loaded
+		 */
+		zxcvbnLoaded: false,
+
+		/**
+		 * Whether Turnstile script has been loaded
+		 */
+		turnstileLoaded: false,
+
+		/**
+		 * Turnstile configuration per form
+		 */
+		turnstileConfig: {},
+
+		/**
+		 * Turnstile widget IDs per form
+		 */
+		turnstileWidgetIds: {},
 
 		/**
 		 * Render form
@@ -81,10 +116,27 @@
 				// Render form HTML
 				target.innerHTML = response.data.html;
 
-				// Save reCAPTCHA configuration
-				if (response.recaptcha && response.recaptcha.enabled) {
+				// Save CAPTCHA configuration
+				if (response.captcha) {
+					if (response.captcha.type === 'turnstile' && response.captcha.turnstileSiteKey) {
+						self.turnstileConfig[formId] = response.captcha;
+						self.loadTurnstile();
+					} else if (response.captcha.type === 'recaptcha_v2' && response.captcha.recaptchaV2SiteKey) {
+						self.recaptchaV2Config[formId] = {
+							enabled: true,
+							siteKey: response.captcha.recaptchaV2SiteKey
+						};
+						self.loadRecaptchaV2();
+					} else if (response.captcha.type === 'recaptcha' && response.captcha.recaptchaSiteKey) {
+						self.recaptchaConfig[formId] = {
+							enabled: true,
+							siteKey: response.captcha.recaptchaSiteKey
+						};
+						self.loadRecaptcha(response.captcha.recaptchaSiteKey);
+					}
+				} else if (response.recaptcha && response.recaptcha.enabled) {
+					// Backward compatibility
 					self.recaptchaConfig[formId] = response.recaptcha;
-					// Load reCAPTCHA script
 					self.loadRecaptcha(response.recaptcha.siteKey);
 				}
 
@@ -96,8 +148,39 @@
 					options: options
 				};
 
+				// Set timestamp for time-based spam check
+				var tsField = target.querySelector('.fplant-form-ts');
+				if (tsField) {
+					tsField.value = Math.floor(Date.now() / 1000);
+				}
+
 				// Set up event listeners
 				self.attachEventListeners(formId);
+
+				// Initialize password features
+				self.initPasswordToggles(formId);
+				self.initPasswordStrengthMeters(formId);
+
+				// Render reCAPTCHA v2 widget for non-confirmation forms (if script already loaded)
+				if (self.recaptchaV2Config[formId]) {
+					var formElV2 = target.querySelector('.fplant-form');
+					var useConfV2 = formElV2 ? formElV2.getAttribute('data-use-confirmation') === '1' : false;
+					if (!useConfV2 && typeof grecaptcha !== 'undefined') {
+						self.renderRecaptchaV2Widget(formId, formElV2);
+					}
+				}
+
+				// Render Turnstile widget for non-confirmation forms (if script already loaded)
+				if (self.turnstileConfig[formId]) {
+					var formEl = target.querySelector('.fplant-form');
+					var useConf = formEl ? formEl.getAttribute('data-use-confirmation') === '1' : false;
+					if (!useConf && typeof turnstile !== 'undefined') {
+						self.renderTurnstileWidget(formId, formEl);
+					}
+				}
+
+				// Dispatch init event
+				self.dispatchFplantEvent(formId, 'fplant:init', { formId: formId });
 			});
 		},
 
@@ -138,6 +221,337 @@
 			document.head.appendChild(script);
 
 			this.recaptchaLoaded = true;
+		},
+
+		/**
+		 * Load reCAPTCHA v2 script
+		 */
+		loadRecaptchaV2: function() {
+			if (this.recaptchaV2Loaded) {
+				return;
+			}
+
+			var self = this;
+			var script = document.createElement('script');
+			script.src = 'https://www.google.com/recaptcha/api.js?onload=fplantRecaptchaV2Ready&render=explicit';
+			script.async = true;
+			script.defer = true;
+			document.head.appendChild(script);
+
+			// Global callback for when reCAPTCHA v2 is ready
+			window.fplantRecaptchaV2Ready = function() {
+				self.onRecaptchaV2Ready();
+			};
+
+			this.recaptchaV2Loaded = true;
+		},
+
+		/**
+		 * Called when reCAPTCHA v2 script has loaded
+		 * Renders widgets for forms that need them (non-confirmation mode)
+		 */
+		onRecaptchaV2Ready: function() {
+			for (var formId in this.recaptchaV2Config) {
+				if (this.recaptchaV2Config.hasOwnProperty(formId) && this.forms[formId]) {
+					var form = this.forms[formId].target.querySelector('.fplant-form');
+					if (form) {
+						var useConfirmation = form.getAttribute('data-use-confirmation') === '1';
+						if (!useConfirmation && !this.recaptchaV2WidgetIds[formId]) {
+							this.renderRecaptchaV2Widget(formId, form);
+						}
+					}
+				}
+			}
+		},
+
+		/**
+		 * Render reCAPTCHA v2 widget inside a container
+		 *
+		 * @param {number} formId Form ID
+		 * @param {HTMLElement} parentElement The form or confirmation element
+		 */
+		renderRecaptchaV2Widget: function(formId, parentElement) {
+			if (typeof grecaptcha === 'undefined') {
+				return;
+			}
+
+			var config = this.recaptchaV2Config[formId];
+			if (!config || !config.siteKey) {
+				return;
+			}
+
+			// Remove existing widget if any
+			this.removeRecaptchaV2Widget(formId);
+
+			// Create container
+			var container = document.createElement('div');
+			container.className = 'fplant-recaptcha-v2-container';
+			container.style.marginBottom = '15px';
+
+			// Insert before submit button
+			var submitButton = parentElement.querySelector('.fplant-confirm-submit-button, .fplant-submit-button, button[type="submit"]');
+			var footer = parentElement.querySelector('.fplant-confirmation-footer');
+			if (footer) {
+				footer.parentNode.insertBefore(container, footer);
+			} else if (submitButton) {
+				submitButton.parentNode.insertBefore(container, submitButton);
+			} else {
+				parentElement.appendChild(container);
+			}
+
+			// Disable submit button until checkbox is checked
+			if (submitButton) {
+				submitButton.disabled = true;
+			}
+
+			var form = this.forms[formId].target.querySelector('.fplant-form');
+			this.recaptchaV2WidgetIds[formId] = grecaptcha.render(container, {
+				sitekey: config.siteKey,
+				callback: function(token) {
+					var tokenInput = form ? form.querySelector('.fplant-captcha-token') : null;
+					if (tokenInput) {
+						tokenInput.value = token;
+					}
+					if (submitButton) {
+						submitButton.disabled = false;
+					}
+				},
+				'expired-callback': function() {
+					var tokenInput = form ? form.querySelector('.fplant-captcha-token') : null;
+					if (tokenInput) {
+						tokenInput.value = '';
+					}
+					if (submitButton) {
+						submitButton.disabled = true;
+					}
+				}
+			});
+		},
+
+		/**
+		 * Remove existing reCAPTCHA v2 widget
+		 *
+		 * @param {number} formId Form ID
+		 */
+		removeRecaptchaV2Widget: function(formId) {
+			if (this.recaptchaV2WidgetIds[formId] != null && typeof grecaptcha !== 'undefined') {
+				try {
+					grecaptcha.reset(this.recaptchaV2WidgetIds[formId]);
+				} catch (e) {
+					// Widget may already be removed
+				}
+				delete this.recaptchaV2WidgetIds[formId];
+			}
+			// Remove container elements
+			var formInfo = this.forms[formId];
+			if (formInfo && formInfo.target) {
+				formInfo.target.querySelectorAll('.fplant-recaptcha-v2-container').forEach(function(el) { el.remove(); });
+			}
+			if (formInfo && formInfo.confirmation) {
+				formInfo.confirmation.querySelectorAll('.fplant-recaptcha-v2-container').forEach(function(el) { el.remove(); });
+			}
+		},
+
+		/**
+		 * Get reCAPTCHA v2 token
+		 *
+		 * @param {number} formId Form ID
+		 * @param {function} callback Callback(error, token)
+		 */
+		getRecaptchaV2Token: function(formId, callback) {
+			var config = this.recaptchaV2Config[formId];
+			if (!config || !config.siteKey) {
+				callback(null, null);
+				return;
+			}
+
+			if (typeof grecaptcha === 'undefined') {
+				callback(new Error('reCAPTCHA v2 is not loaded'), null);
+				return;
+			}
+
+			// Get token from already-rendered widget
+			if (this.recaptchaV2WidgetIds[formId] != null) {
+				var token = grecaptcha.getResponse(this.recaptchaV2WidgetIds[formId]);
+				if (token) {
+					callback(null, token);
+					return;
+				}
+			}
+
+			// Also check hidden token input
+			var formInfo = this.forms[formId];
+			var form = formInfo ? formInfo.target.querySelector('.fplant-form') : null;
+			if (form) {
+				var tokenInput = form.querySelector('.fplant-captcha-token');
+				if (tokenInput && tokenInput.value) {
+					callback(null, tokenInput.value);
+					return;
+				}
+			}
+
+			callback(new Error('Please complete the reCAPTCHA checkbox'), null);
+		},
+
+		/**
+		 * Load Turnstile script
+		 */
+		loadTurnstile: function() {
+			if (this.turnstileLoaded) {
+				return;
+			}
+
+			var self = this;
+			var script = document.createElement('script');
+			script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+			script.async = true;
+			script.defer = true;
+			script.onload = function() {
+				self.onTurnstileReady();
+			};
+			document.head.appendChild(script);
+
+			this.turnstileLoaded = true;
+		},
+
+		/**
+		 * Called when Turnstile script has loaded
+		 * Renders widgets for forms that need them (non-confirmation mode)
+		 */
+		onTurnstileReady: function() {
+			for (var formId in this.turnstileConfig) {
+				if (this.turnstileConfig.hasOwnProperty(formId) && this.forms[formId]) {
+					var form = this.forms[formId].target.querySelector('.fplant-form');
+					if (form) {
+						var useConfirmation = form.getAttribute('data-use-confirmation') === '1';
+						if (!useConfirmation && !this.turnstileWidgetIds[formId]) {
+							this.renderTurnstileWidget(formId, form);
+						}
+					}
+				}
+			}
+		},
+
+		/**
+		 * Render Turnstile widget inside a container
+		 *
+		 * @param {number} formId Form ID
+		 * @param {HTMLElement} parentElement The form or confirmation element
+		 */
+		renderTurnstileWidget: function(formId, parentElement) {
+			if (typeof turnstile === 'undefined') {
+				return;
+			}
+
+			var config = this.turnstileConfig[formId];
+			if (!config || !config.turnstileSiteKey) {
+				return;
+			}
+
+			// Remove existing widget if any
+			this.removeTurnstileWidget(formId);
+
+			// Create container for Turnstile widget
+			var container = document.createElement('div');
+			container.className = 'fplant-turnstile-container';
+			container.style.marginBottom = '15px';
+
+			// Insert before submit button
+			var submitButton = parentElement.querySelector('.fplant-confirm-submit-button, .fplant-submit-button, button[type="submit"]');
+			var footer = parentElement.querySelector('.fplant-confirmation-footer');
+			if (footer) {
+				footer.parentNode.insertBefore(container, footer);
+			} else if (submitButton) {
+				submitButton.parentNode.insertBefore(container, submitButton);
+			} else {
+				parentElement.appendChild(container);
+			}
+
+			this.turnstileWidgetIds[formId] = turnstile.render(container, {
+				sitekey: config.turnstileSiteKey
+			});
+		},
+
+		/**
+		 * Remove existing Turnstile widget
+		 *
+		 * @param {number} formId Form ID
+		 */
+		removeTurnstileWidget: function(formId) {
+			if (this.turnstileWidgetIds[formId] != null && typeof turnstile !== 'undefined') {
+				try {
+					turnstile.remove(this.turnstileWidgetIds[formId]);
+				} catch (e) {
+					// Widget may already be removed
+				}
+				this.turnstileWidgetIds[formId] = null;
+			}
+
+			var formInfo = this.forms[formId];
+			if (formInfo) {
+				formInfo.target.querySelectorAll('.fplant-turnstile-container').forEach(function(el) {
+					el.remove();
+				});
+			}
+		},
+
+		/**
+		 * Get Turnstile token from rendered widget
+		 *
+		 * @param {number} formId Form ID
+		 * @param {function} callback Callback(error, token)
+		 */
+		getTurnstileToken: function(formId, callback) {
+			var config = this.turnstileConfig[formId];
+			if (!config || !config.turnstileSiteKey) {
+				callback(null, null);
+				return;
+			}
+
+			if (typeof turnstile === 'undefined') {
+				callback(new Error('Cloudflare Turnstile not loaded'), null);
+				return;
+			}
+
+			// Get token from already-rendered widget
+			if (this.turnstileWidgetIds[formId] != null) {
+				var token = turnstile.getResponse(this.turnstileWidgetIds[formId]);
+				if (token) {
+					callback(null, token);
+					return;
+				}
+			}
+
+			// Fallback: render a hidden widget
+			var formInfo = this.forms[formId];
+			var form = formInfo ? formInfo.target.querySelector('.fplant-form') : null;
+			if (!form) {
+				callback(new Error('Form not found'), null);
+				return;
+			}
+
+			var container = document.createElement('div');
+			container.className = 'fplant-turnstile-container';
+			container.style.position = 'absolute';
+			container.style.left = '-9999px';
+			form.appendChild(container);
+
+			try {
+				turnstile.render(container, {
+					sitekey: config.turnstileSiteKey,
+					callback: function(token) {
+						container.remove();
+						callback(null, token);
+					},
+					'error-callback': function() {
+						container.remove();
+						callback(new Error('Turnstile verification failed'), null);
+					}
+				});
+			} catch (error) {
+				container.remove();
+				callback(error, null);
+			}
 		},
 
 		/**
@@ -278,9 +692,17 @@
 			// Check if confirmation screen is enabled
 			var useConfirmation = form.getAttribute('data-use-confirmation') === '1';
 
+			// Dispatch beforeSubmit event (cancelable)
+			if (!this.dispatchFplantEvent(formId, 'fplant:beforeSubmit', { formId: formId }, true)) {
+				return;
+			}
+
 			// Set to submitting state
 			submitButton.disabled = true;
 			submitButton.textContent = 'Submitting...';
+
+			// Dispatch loading event (loading started)
+			this.dispatchFplantEvent(formId, 'fplant:loading', { formId: formId, loading: true });
 
 			// Clear errors
 			this.clearErrors(formId);
@@ -301,6 +723,9 @@
 				self.postFormData(apiUrl, fd, function(error, response) {
 					submitButton.disabled = false;
 					submitButton.textContent = formInfo.formData.settings.input_submit_text || 'Confirm';
+
+					// Dispatch loading event (loading ended)
+					self.dispatchFplantEvent(formId, 'fplant:loading', { formId: formId, loading: false });
 
 					if (error) {
 						if (error.data && error.data.errors) {
@@ -366,6 +791,19 @@
 					self.handleFinalSubmit(formId);
 				});
 			}
+
+			// Render reCAPTCHA v2 widget on confirmation screen
+			if (self.recaptchaV2Config[formId]) {
+				self.renderRecaptchaV2Widget(formId, confirmation);
+			}
+
+			// Render Turnstile widget on confirmation screen
+			if (self.turnstileConfig[formId]) {
+				self.renderTurnstileWidget(formId, confirmation);
+			}
+
+			// Dispatch confirmationShow event
+			self.dispatchFplantEvent(formId, 'fplant:confirmationShow', { formId: formId });
 		},
 
 		/**
@@ -379,6 +817,16 @@
 
 			var form = formInfo.target.querySelector('.fplant-form');
 
+			// Remove reCAPTCHA v2 widget
+			if (this.recaptchaV2Config[formId]) {
+				this.removeRecaptchaV2Widget(formId);
+			}
+
+			// Remove Turnstile widget
+			if (this.turnstileConfig[formId]) {
+				this.removeTurnstileWidget(formId);
+			}
+
 			// Remove confirmation screen
 			if (formInfo.confirmation) {
 				formInfo.confirmation.remove();
@@ -387,6 +835,25 @@
 
 			// Show form
 			form.style.display = '';
+
+			// Re-render reCAPTCHA v2 widget on form (for non-confirmation retry)
+			if (this.recaptchaV2Config[formId]) {
+				var useConfirmationV2 = form.getAttribute('data-use-confirmation') === '1';
+				if (!useConfirmationV2) {
+					this.renderRecaptchaV2Widget(formId, form);
+				}
+			}
+
+			// Re-render Turnstile widget on form (for non-confirmation retry)
+			if (this.turnstileConfig[formId]) {
+				var useConfirmation = form.getAttribute('data-use-confirmation') === '1';
+				if (!useConfirmation) {
+					this.renderTurnstileWidget(formId, form);
+				}
+			}
+
+			// Dispatch confirmationHide event
+			this.dispatchFplantEvent(formId, 'fplant:confirmationHide', { formId: formId });
 		},
 
 		/**
@@ -412,6 +879,9 @@
 				submitButton.textContent = 'Submitting...';
 			}
 
+			// Dispatch loading event (loading started)
+			this.dispatchFplantEvent(formId, 'fplant:loading', { formId: formId, loading: true });
+
 			// Use saved form data
 			var data = formInfo.pendingData;
 			var files = formInfo.pendingFiles || {};
@@ -421,9 +891,20 @@
 				files = collected.files;
 			}
 
-			// Get reCAPTCHA token before submitting
-			this.getRecaptchaToken(formId, function(recaptchaError, recaptchaToken) {
-				if (recaptchaError) {
+			// Get CAPTCHA token before submitting
+			var getCaptchaToken;
+			if (self.turnstileConfig[formId]) {
+				getCaptchaToken = function(cb) { self.getTurnstileToken(formId, cb); };
+			} else if (self.recaptchaV2Config[formId]) {
+				getCaptchaToken = function(cb) { self.getRecaptchaV2Token(formId, cb); };
+			} else if (self.recaptchaConfig[formId]) {
+				getCaptchaToken = function(cb) { self.getRecaptchaToken(formId, cb); };
+			} else {
+				getCaptchaToken = function(cb) { cb(null, null); };
+			}
+
+			getCaptchaToken(function(captchaError, captchaToken) {
+				if (captchaError) {
 					if (confirmSubmitButton) {
 						confirmSubmitButton.disabled = false;
 						confirmSubmitButton.textContent = formInfo.formData.settings.input_submit_text || 'Submit';
@@ -431,7 +912,7 @@
 						submitButton.disabled = false;
 						submitButton.textContent = formInfo.formData.settings.input_submit_text || 'Submit';
 					}
-					self.showError(formId, 'reCAPTCHA verification failed. Please reload the page.');
+					self.showError(formId, 'CAPTCHA verification failed. Please reload the page.');
 					return;
 				}
 
@@ -440,9 +921,9 @@
 
 				var fd = self.buildFormData(formId, data, files);
 
-				// Add reCAPTCHA token if available
-				if (recaptchaToken) {
-					fd.append('recaptcha_token', recaptchaToken);
+				// Add CAPTCHA token if available
+				if (captchaToken) {
+					fd.append('captcha_token', captchaToken);
 				}
 
 				self.postFormData(apiUrl, fd, function(error, response) {
@@ -454,7 +935,13 @@
 						submitButton.textContent = formInfo.formData.settings.input_submit_text || 'Submit';
 					}
 
+					// Dispatch loading event (loading ended)
+					self.dispatchFplantEvent(formId, 'fplant:loading', { formId: formId, loading: false });
+
 					if (error) {
+						// Dispatch submitError event
+						self.dispatchFplantEvent(formId, 'fplant:submitError', { formId: formId, error: error });
+
 						// Hide confirmation screen and return to form
 						self.hideConfirmation(formId);
 
@@ -487,11 +974,17 @@
 							self.showSuccess(formId, response.message || 'Submission completed', false);
 						}
 
+						// Dispatch success event
+						self.dispatchFplantEvent(formId, 'fplant:success', { formId: formId, response: response });
+
 						// Call optional callback
 						if (formInfo.options.onSuccess) {
 							formInfo.options.onSuccess(response);
 						}
 					} else {
+						// Dispatch submitError event
+						self.dispatchFplantEvent(formId, 'fplant:submitError', { formId: formId, error: response });
+
 						self.showError(formId, response.message || 'An error occurred');
 					}
 				});
@@ -701,6 +1194,9 @@
 			if (firstError) {
 				firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
 			}
+
+			// Dispatch error event
+			this.dispatchFplantEvent(formId, 'fplant:error', { formId: formId, errors: errors });
 		},
 
 		/**
@@ -718,6 +1214,9 @@
 				errorBox.innerHTML = '<p>' + this.escapeHtml(message) + '</p>';
 				errorBox.style.display = 'block';
 			}
+
+			// Dispatch error event
+			this.dispatchFplantEvent(formId, 'fplant:error', { formId: formId, message: message });
 		},
 
 		/**
@@ -785,6 +1284,145 @@
 			var div = document.createElement('div');
 			div.appendChild(document.createTextNode(str));
 			return div.innerHTML;
+		},
+
+		/**
+		 * Initialize password toggle buttons
+		 *
+		 * @param {number} formId Form ID
+		 */
+		initPasswordToggles: function(formId) {
+			var formInfo = this.forms[formId];
+			if (!formInfo) return;
+
+			var toggles = formInfo.target.querySelectorAll('.fplant-password-toggle');
+			toggles.forEach(function(toggle) {
+				toggle.addEventListener('click', function() {
+					var wrapper = toggle.closest('.fplant-password-input-wrapper');
+					var input = wrapper ? wrapper.querySelector('input') : null;
+					if (!input) return;
+
+					var icon = toggle.querySelector('.dashicons');
+					if (input.type === 'password') {
+						input.type = 'text';
+						if (icon) {
+							icon.classList.remove('dashicons-visibility');
+							icon.classList.add('dashicons-hidden');
+						}
+						toggle.setAttribute('aria-label', 'Hide password');
+					} else {
+						input.type = 'password';
+						if (icon) {
+							icon.classList.remove('dashicons-hidden');
+							icon.classList.add('dashicons-visibility');
+						}
+						toggle.setAttribute('aria-label', 'Show password');
+					}
+				});
+			});
+		},
+
+		/**
+		 * Initialize password strength meters
+		 *
+		 * @param {number} formId Form ID
+		 */
+		initPasswordStrengthMeters: function(formId) {
+			var self = this;
+			var formInfo = this.forms[formId];
+			if (!formInfo) return;
+
+			var wrappers = formInfo.target.querySelectorAll('.fplant-password-wrapper[data-strength-meter="1"]');
+			if (!wrappers.length) return;
+
+			// Load zxcvbn script then initialize
+			this.loadZxcvbn(formInfo.siteUrl, function() {
+				wrappers.forEach(function(wrapper) {
+					var input = wrapper.querySelector('input');
+					var bar = wrapper.querySelector('.fplant-password-strength-bar');
+					var text = wrapper.querySelector('.fplant-password-strength-text');
+					if (!input || !bar || !text) return;
+
+					input.addEventListener('input', function() {
+						if (!input.value) {
+							bar.style.width = '0%';
+							bar.className = 'fplant-password-strength-bar';
+							text.textContent = '';
+							return;
+						}
+
+						if (typeof zxcvbn === 'undefined') return;
+
+						var result = zxcvbn(input.value);
+						var labels = ['Very Weak', 'Weak', 'Fair', 'Strong', 'Very Strong'];
+						var classes = ['very-weak', 'weak', 'fair', 'strong', 'very-strong'];
+						var widths = ['20%', '40%', '60%', '80%', '100%'];
+
+						bar.style.width = widths[result.score];
+						bar.className = 'fplant-password-strength-bar fplant-strength-' + classes[result.score];
+						text.textContent = labels[result.score];
+					});
+				});
+			});
+		},
+
+		/**
+		 * Dispatch custom event on the form element
+		 *
+		 * @param {number} formId Form ID
+		 * @param {string} eventName Event name
+		 * @param {object} detail Event detail
+		 * @param {boolean} cancelable Whether the event is cancelable
+		 * @return {boolean} Whether the event was not cancelled
+		 */
+		dispatchFplantEvent: function(formId, eventName, detail, cancelable) {
+			var formInfo = this.forms[formId];
+			if (!formInfo) return true;
+			var form = formInfo.target.querySelector('.fplant-form');
+			if (!form) return true;
+			var event = new CustomEvent(eventName, {
+				detail: detail || {},
+				bubbles: true,
+				cancelable: cancelable || false
+			});
+			return form.dispatchEvent(event);
+		},
+
+		/**
+		 * Load zxcvbn script from WordPress
+		 *
+		 * @param {string} siteUrl WordPress site URL
+		 * @param {function} callback Callback when loaded
+		 */
+		loadZxcvbn: function(siteUrl, callback) {
+			if (typeof zxcvbn !== 'undefined') {
+				callback();
+				return;
+			}
+
+			if (this.zxcvbnLoaded) {
+				// Already loading, wait for it
+				var checkInterval = setInterval(function() {
+					if (typeof zxcvbn !== 'undefined') {
+						clearInterval(checkInterval);
+						callback();
+					}
+				}, 100);
+				return;
+			}
+
+			this.zxcvbnLoaded = true;
+
+			var script = document.createElement('script');
+			script.src = siteUrl + '/wp-includes/js/zxcvbn.min.js';
+			script.async = true;
+			script.onload = function() {
+				callback();
+			};
+			script.onerror = function() {
+				console.error('FPlantEmbed: Failed to load zxcvbn');
+			};
+			document.head.appendChild(script);
 		}
 	};
 })();

@@ -86,6 +86,47 @@ class FPLANT_REST_API {
 				),
 			)
 		);
+
+		// Forms list (for block editor form selector)
+		register_rest_route(
+			$this->namespace,
+			'/forms',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_forms_list' ),
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+			)
+		);
+	}
+
+	/**
+	 * Get forms list (id and title only) for block editor selector
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function get_forms_list() {
+		$query = new WP_Query(
+			array(
+				'post_type'      => 'fplant_form',
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'no_found_rows'  => true,
+			)
+		);
+
+		$forms = array();
+		foreach ( $query->posts as $post ) {
+			$forms[] = array(
+				'id'    => $post->ID,
+				'title' => $post->post_title,
+			);
+		}
+
+		return rest_ensure_response( $forms );
 	}
 
 	/**
@@ -284,6 +325,24 @@ class FPLANT_REST_API {
 		// Generate form HTML
 		$html = $this->generate_embed_form_html( $form );
 
+		// Determine CAPTCHA type
+		$captcha_type          = $form['settings']['captcha_type'] ?? 'none';
+		if ( 'none' === $captcha_type && ! empty( $form['settings']['recaptcha_enabled'] ) ) {
+			$captcha_type = 'recaptcha';
+		}
+		$recaptcha_site_key    = get_option( 'fplant_recaptcha_site_key', '' );
+		$recaptcha_v2_site_key = get_option( 'fplant_recaptcha_v2_site_key', '' );
+		$turnstile_site_key    = get_option( 'fplant_turnstile_site_key', '' );
+		if ( 'recaptcha_v2' === $captcha_type && empty( $recaptcha_v2_site_key ) ) {
+			$captcha_type = 'none';
+		}
+		if ( 'recaptcha' === $captcha_type && empty( $recaptcha_site_key ) ) {
+			$captcha_type = 'none';
+		}
+		if ( 'turnstile' === $captcha_type && empty( $turnstile_site_key ) ) {
+			$captcha_type = 'none';
+		}
+
 		return rest_ensure_response(
 			array(
 				'success'   => true,
@@ -294,10 +353,17 @@ class FPLANT_REST_API {
 					'fields'   => $form['fields'],
 					'settings' => $form['settings'],
 				),
+				// Backward compatibility
 				'recaptcha' => array(
 					'enabled' => ! empty( $form['settings']['recaptcha_enabled'] ),
 					'version' => $form['settings']['recaptcha_version'] ?? 'v3',
-					'siteKey' => get_option( 'fplant_recaptcha_site_key', '' ),
+					'siteKey' => $recaptcha_site_key,
+				),
+				'captcha'   => array(
+					'type'                => $captcha_type,
+					'recaptchaSiteKey'    => $recaptcha_site_key,
+					'recaptchaV2SiteKey'  => $recaptcha_v2_site_key,
+					'turnstileSiteKey'    => $turnstile_site_key,
 				),
 			)
 		);
@@ -340,10 +406,14 @@ class FPLANT_REST_API {
 				<input type="hidden" name="fplant_form_id" value="<?php echo esc_attr( $form_id ); ?>">
 				<input type="hidden" name="fplant_embed_mode" value="1">
 
-				<div class="fplant-field-wrap fplant-field-url" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;overflow:hidden;">
-					<label for="fplant_field_url_<?php echo esc_attr( $form_id ); ?>">Website URL</label>
-					<input type="text" name="fplant_website_url" id="fplant_field_url_<?php echo esc_attr( $form_id ); ?>" value="" tabindex="-1" autocomplete="off">
-				</div>
+				<?php if ( ( $settings['spam_honeypot_enabled'] ?? true ) !== false ) : ?>
+					<?php $fplant_hp_name = $settings['spam_honeypot_field_name'] ?? 'fplant_website_url'; ?>
+					<div class="fplant-field-wrap fplant-field-url" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;overflow:hidden;">
+						<label for="fplant_field_url_<?php echo esc_attr( $form_id ); ?>">Website URL</label>
+						<input type="text" name="<?php echo esc_attr( $fplant_hp_name ); ?>" id="fplant_field_url_<?php echo esc_attr( $form_id ); ?>" value="" tabindex="-1" autocomplete="off">
+					</div>
+				<?php endif; ?>
+				<input type="hidden" name="fplant_form_ts" class="fplant-form-ts" value="">
 
 				<?php if ( ! empty( $form['html_template'] ) && ! empty( $settings['use_html_template'] ) ) : ?>
 					<?php
@@ -477,7 +547,9 @@ class FPLANT_REST_API {
 		}
 
 		// Honeypot check
-		if ( ! empty( $data['fplant_website_url'] ) ) {
+		$fplant_hp_enabled = ( $form['settings']['spam_honeypot_enabled'] ?? true ) !== false;
+		$fplant_hp_name    = $form['settings']['spam_honeypot_field_name'] ?? 'fplant_website_url';
+		if ( $fplant_hp_enabled && ! empty( $data[ $fplant_hp_name ] ) ) {
 			return new WP_Error(
 				'validation_failed',
 				__( 'Invalid request', 'form-plant' ),
@@ -594,21 +666,53 @@ class FPLANT_REST_API {
 			}
 		}
 
-		// Honeypot check
-		if ( ! empty( $data['fplant_website_url'] ) ) {
+		// Spam protection checks (honeypot + rate limit + time-based)
+		$validator     = new FPLANT_Validator();
+		$spam_settings = array(
+			'honeypot'            => ( $form['settings']['spam_honeypot_enabled'] ?? true ) !== false,
+			'honeypot_field_name' => $form['settings']['spam_honeypot_field_name'] ?? 'fplant_website_url',
+			'rate_limit'          => ! empty( $form['settings']['spam_rate_limit_enabled'] ),
+			'rate_limit_minutes'  => intval( $form['settings']['spam_rate_limit_minutes'] ?? 5 ),
+			'rate_limit_count'    => intval( $form['settings']['spam_rate_limit_count'] ?? 3 ),
+			'time_check'          => ! empty( $form['settings']['spam_time_check_enabled'] ),
+			'time_check_seconds'  => intval( $form['settings']['spam_time_check_seconds'] ?? 3 ),
+		);
+		$is_spam       = $validator->check_spam( $data, $spam_settings );
+		if ( $is_spam ) {
 			return new WP_Error(
-				'validation_failed',
-				__( 'Invalid request', 'form-plant' ),
+				'spam_blocked',
+				__( 'Submission was blocked. Please try again later.', 'form-plant' ),
 				array( 'status' => 400 )
 			);
 		}
 
-		// Verify reCAPTCHA
-		if ( ! empty( $form['settings']['recaptcha_enabled'] ) ) {
-			$recaptcha_token = $request->get_param( 'recaptcha_token' );
-			$recaptcha_result = $this->verify_recaptcha( $form, $recaptcha_token );
-			if ( is_wp_error( $recaptcha_result ) ) {
-				return $recaptcha_result;
+		// Blocked keywords check (global setting).
+		if ( $validator->contains_blocked_keywords( $data ) ) {
+			return new WP_Error(
+				'spam_blocked',
+				__( 'Submission was blocked. Please try again later.', 'form-plant' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Verify CAPTCHA
+		$fplant_captcha_type = $form['settings']['captcha_type'] ?? 'none';
+		// Backward compatibility: old forms only have recaptcha_enabled flag
+		if ( 'none' === $fplant_captcha_type && ! empty( $form['settings']['recaptcha_enabled'] ) ) {
+			$fplant_captcha_type = 'recaptcha';
+		}
+		if ( 'none' !== $fplant_captcha_type ) {
+			$captcha_token = $request->get_param( 'captcha_token' );
+			if ( empty( $captcha_token ) ) {
+				$captcha_token = $request->get_param( 'recaptcha_token' ); // Backward compatibility
+			}
+			if ( 'recaptcha' === $fplant_captcha_type || 'recaptcha_v2' === $fplant_captcha_type ) {
+				$captcha_result = $this->verify_recaptcha( $form, $captcha_token );
+			} elseif ( 'turnstile' === $fplant_captcha_type ) {
+				$captcha_result = $this->verify_turnstile( $form, $captcha_token );
+			}
+			if ( isset( $captcha_result ) && is_wp_error( $captcha_result ) ) {
+				return $captcha_result;
 			}
 		}
 
@@ -633,8 +737,57 @@ class FPLANT_REST_API {
 			}
 		}
 
-		// Remove honeypot data before processing
+		// Remove internal fields before processing
 		unset( $data['fplant_website_url'] );
+		$fplant_hp_field = $form['settings']['spam_honeypot_field_name'] ?? '';
+		if ( $fplant_hp_field && 'fplant_website_url' !== $fplant_hp_field ) {
+			unset( $data[ $fplant_hp_field ] );
+		}
+		unset( $data['fplant_form_ts'] );
+
+		// Disposable email blocking filter.
+		if ( ! empty( $form['settings']['spam_disposable_email_block'] ) ) {
+			add_filter(
+				'fplant_validate_field_type_email',
+				function ( $error, $field, $value ) {
+					if ( false !== $error ) {
+						return $error;
+					}
+					$validator = new FPLANT_Validator();
+					if ( $validator->is_disposable_email( $value ) ) {
+						return sprintf(
+							/* translators: %s: field label */
+							__( '%s: This email address cannot be used', 'form-plant' ),
+							$field['label']
+						);
+					}
+					return false;
+				},
+				10,
+				3
+			);
+		}
+
+		// Blocked email domain filter (global setting).
+		add_filter(
+			'fplant_validate_field_type_email',
+			function ( $error, $field, $value ) {
+				if ( false !== $error ) {
+					return $error;
+				}
+				$validator = new FPLANT_Validator();
+				if ( $validator->is_blocked_email_domain( $value ) ) {
+					return sprintf(
+						/* translators: %s: field label */
+						__( '%s: This email address cannot be used', 'form-plant' ),
+						$field['label']
+					);
+				}
+				return false;
+			},
+			11,
+			3
+		);
 
 		// Validation
 		$validator         = new FPLANT_Validator();
@@ -686,14 +839,21 @@ class FPLANT_REST_API {
 	}
 
 	/**
-	 * Verify reCAPTCHA
+	 * Verify reCAPTCHA (v2 and v3)
 	 *
 	 * @param array  $form  Form data.
 	 * @param string $token reCAPTCHA token.
 	 * @return true|WP_Error
 	 */
 	private function verify_recaptcha( $form, $token ) {
-		$secret_key = get_option( 'fplant_recaptcha_secret_key', '' );
+		$captcha_type = $form['settings']['captcha_type'] ?? 'recaptcha';
+
+		// Use appropriate secret key based on version
+		if ( 'recaptcha_v2' === $captcha_type ) {
+			$secret_key = get_option( 'fplant_recaptcha_v2_secret_key', '' );
+		} else {
+			$secret_key = get_option( 'fplant_recaptcha_secret_key', '' );
+		}
 
 		if ( empty( $secret_key ) ) {
 			// Skip if Secret Key is not set
@@ -740,8 +900,8 @@ class FPLANT_REST_API {
 			);
 		}
 
-		// Check v3 score
-		if ( isset( $result['score'] ) ) {
+		// Check v3 score (only for v3; v2 does not return score)
+		if ( 'recaptcha_v2' !== $captcha_type && isset( $result['score'] ) ) {
 			$threshold = floatval( get_option( 'fplant_recaptcha_v3_threshold', 0.5 ) );
 			if ( $result['score'] < $threshold ) {
 				return new WP_Error(
@@ -750,6 +910,64 @@ class FPLANT_REST_API {
 					array( 'status' => 400 )
 				);
 			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Verify Cloudflare Turnstile
+	 *
+	 * @param array  $form  Form data.
+	 * @param string $token Turnstile token.
+	 * @return true|WP_Error
+	 */
+	private function verify_turnstile( $form, $token ) {
+		$secret_key = get_option( 'fplant_turnstile_secret_key', '' );
+
+		if ( empty( $secret_key ) ) {
+			// Skip if Secret Key is not set
+			return true;
+		}
+
+		if ( empty( $token ) ) {
+			return new WP_Error(
+				'turnstile_missing',
+				__( 'Cloudflare Turnstile verification is required', 'form-plant' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Verify with Cloudflare Turnstile API
+		$response = wp_remote_post(
+			'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+			array(
+				'timeout' => 10,
+				'body'    => array(
+					'secret'   => $secret_key,
+					'response' => $token,
+					'remoteip' => $this->get_client_ip(),
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'turnstile_error',
+				__( 'An error occurred during Cloudflare Turnstile verification', 'form-plant' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$body   = wp_remote_retrieve_body( $response );
+		$result = json_decode( $body, true );
+
+		if ( empty( $result['success'] ) ) {
+			return new WP_Error(
+				'turnstile_failed',
+				__( 'Cloudflare Turnstile verification failed', 'form-plant' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		return true;

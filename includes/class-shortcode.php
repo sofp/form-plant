@@ -120,11 +120,21 @@ class FPLANT_Shortcode {
 	 * @return string
 	 */
 	public function render_submit( $atts ) {
+		// Get default values from form settings if available.
+		global $fplant_current_form;
+		$settings = isset( $fplant_current_form['settings'] ) ? $fplant_current_form['settings'] : array();
+
+		$default_text = isset( $settings['input_submit_text'] ) && '' !== $settings['input_submit_text']
+			? $settings['input_submit_text']
+			: __( 'Submit', 'form-plant' );
+		$default_class = isset( $settings['input_submit_class'] ) ? $settings['input_submit_class'] : '';
+		$default_id    = isset( $settings['input_submit_id'] ) ? $settings['input_submit_id'] : '';
+
 		$atts = shortcode_atts(
 			array(
-				'text'  => __( 'Submit', 'form-plant' ),
-				'class' => '',
-				'id'    => '',
+				'text'  => $default_text,
+				'class' => $default_class,
+				'id'    => $default_id,
 			),
 			$atts,
 			'fplant_submit'

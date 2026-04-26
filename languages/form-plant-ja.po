@@ -1,1378 +1,2236 @@
-# Japanese translation for Form Plant
-# Copyright (C) 2025 Form Plant
-# This file is distributed under the same license as the Form Plant package.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: Form Plant 1.0.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-31 00:00:00+0000\n"
-"PO-Revision-Date: 2026-01-31 00:00:00+0000\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-plant\n"
 "Last-Translator: \n"
 "Language-Team: Japanese\n"
-"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-03-21T04:38:30+00:00\n"
+"PO-Revision-Date: 2026-01-31 00:00:00+0000\n"
+"Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-# Post type labels
-msgid "Forms"
-msgstr "フォーム"
-
-msgid "Form"
-msgstr "フォーム"
-
-msgid "Add New"
-msgstr "新規追加"
-
-msgid "Add New Form"
-msgstr "新規フォーム追加"
-
-msgid "Edit Form"
-msgstr "フォーム編集"
-
-msgid "New Form"
-msgstr "新規フォーム"
-
-msgid "View Form"
-msgstr "フォーム表示"
-
-msgid "Search Forms"
-msgstr "フォーム検索"
-
-msgid "No forms found"
-msgstr "フォームが見つかりません"
-
-msgid "No forms found in Trash"
-msgstr "ゴミ箱にフォームが見つかりません"
-
-msgid "Form List"
-msgstr "フォーム一覧"
-
-msgid "Form Name"
-msgstr "フォーム名"
-
-# Status labels
-msgid "Published"
-msgstr "公開済み"
-
-msgid "Draft"
-msgstr "下書き"
-
-msgid "Pending Review"
-msgstr "レビュー待ち"
-
-msgid "Private"
-msgstr "非公開"
-
-msgid "Trash"
-msgstr "ゴミ箱"
-
-msgid "All"
-msgstr "すべて"
-
-msgid "All Forms"
-msgstr "すべてのフォーム"
-
-msgid "Publish"
-msgstr "公開"
-
-msgid "Update"
-msgstr "更新"
-
-# Actions
-msgid "Edit"
-msgstr "編集"
-
-msgid "Delete"
-msgstr "削除"
-
-msgid "Delete Permanently"
-msgstr "完全に削除"
-
-msgid "Move to Trash"
-msgstr "ゴミ箱に移動"
-
-msgid "Restore"
-msgstr "復元"
-
-msgid "Quick Edit"
-msgstr "クイック編集"
-
-msgid "Duplicate"
-msgstr "複製"
-
-msgid "Copy"
-msgstr "コピー"
-
-msgid "Save"
-msgstr "保存"
-
-msgid "Cancel"
-msgstr "キャンセル"
-
-msgid "Close"
-msgstr "閉じる"
-
-msgid "Remove"
-msgstr "削除"
-
-msgid "OK"
-msgstr "OK"
-
-msgid "Back"
-msgstr "戻る"
-
-msgid "Next"
-msgstr "次へ"
-
-msgid "Previous"
-msgstr "前へ"
-
-msgid "Actions"
-msgstr "操作"
-
-msgid "View"
-msgstr "表示"
-
-# Field types
-msgid "Text"
-msgstr "テキスト"
-
-msgid "Textarea"
-msgstr "テキストエリア"
-
-msgid "Email"
-msgstr "メール"
-
-msgid "Phone"
-msgstr "電話番号"
-
-msgid "Phone Number"
-msgstr "電話番号"
-
-msgid "Number"
-msgstr "数値"
-
-msgid "URL"
-msgstr "URL"
-
-msgid "Date"
-msgstr "日付"
-
-msgid "Time"
-msgstr "時間"
-
-msgid "Select"
-msgstr "セレクト"
-
-msgid "Checkbox"
-msgstr "チェックボックス"
-
-msgid "Radio"
-msgstr "ラジオボタン"
-
-msgid "File Upload"
-msgstr "ファイルアップロード"
-
-msgid "Hidden"
-msgstr "非表示"
-
-msgid "HTML"
-msgstr "HTML"
-
-# Field type descriptions
-msgid "Single line text input field"
-msgstr "一行テキスト入力フィールド"
-
-msgid "Multi-line text input field"
-msgstr "複数行テキスト入力フィールド"
-
-msgid "Email address input field"
-msgstr "メールアドレス入力フィールド"
-
-msgid "Phone number input field"
-msgstr "電話番号入力フィールド"
-
-msgid "Number input field"
-msgstr "数値入力フィールド"
-
-msgid "URL input field"
-msgstr "URL入力フィールド"
-
-msgid "Date picker field"
-msgstr "日付選択フィールド"
-
-msgid "Time picker field"
-msgstr "時間選択フィールド"
-
-msgid "Dropdown selection field"
-msgstr "ドロップダウン選択フィールド"
-
-msgid "Multiple selection field"
-msgstr "複数選択フィールド"
-
-msgid "Single selection field"
-msgstr "単一選択フィールド"
-
-msgid "File upload field"
-msgstr "ファイルアップロードフィールド"
-
-msgid "Hidden field not displayed on screen"
-msgstr "画面に表示されない非表示フィールド"
-
-msgid "Custom HTML content"
-msgstr "カスタムHTMLコンテンツ"
-
-# Field labels and settings
-msgid "Add Field"
-msgstr "フィールドを追加"
-
-msgid "+ Add Field"
-msgstr "+ フィールドを追加"
-
-msgid "Edit Field"
-msgstr "フィールドを編集"
-
-msgid "Field Settings"
-msgstr "フィールド設定"
-
-msgid "Field Label"
-msgstr "フィールドラベル"
-
-msgid "Field Name"
-msgstr "フィールド名"
-
-msgid "Field Type"
-msgstr "フィールドタイプ"
-
-msgid "Fields"
-msgstr "フィールド"
-
-msgid "Required Field"
-msgstr "必須フィールド"
-
-msgid "Placeholder"
-msgstr "プレースホルダー"
-
-msgid "Default Value"
-msgstr "デフォルト値"
-
-msgid "Options"
-msgstr "選択肢"
-
-msgid "+ Add Option"
-msgstr "+ 選択肢を追加"
-
-msgid "Value"
-msgstr "値"
-
-msgid "Label"
-msgstr "ラベル"
-
-msgid "Default value for the field"
-msgstr "フィールドのデフォルト値"
-
-msgid "Custom Class"
-msgstr "カスタムクラス"
-
-msgid "Custom ID"
-msgstr "カスタムID"
-
-msgid "CSS Class"
-msgstr "CSSクラス"
-
-msgid "CSS classes to add to the field (separate multiple with spaces)"
-msgstr "フィールドに追加するCSSクラス（複数の場合はスペースで区切る）"
-
-msgid "Set a custom ID for the field (auto-generated if blank)"
-msgstr "フィールドのカスタムIDを設定（空白の場合は自動生成）"
-
-msgid "Only alphanumeric characters and underscores allowed"
-msgstr "半角英数字とアンダースコアのみ使用可能"
-
-msgid "No fields yet. Click \"Add Field\" button to add one."
-msgstr "フィールドがまだありません。「フィールドを追加」ボタンをクリックして追加してください。"
-
-msgid "No fields yet. Click \"Add Field\" button to add fields."
-msgstr "フィールドがまだありません。「フィールドを追加」ボタンをクリックしてフィールドを追加してください。"
-
-# Validation messages
-msgid "%s is required"
-msgstr "%s は必須です"
-
-msgid "%s format is invalid"
-msgstr "%s の形式が無効です"
-
-msgid "%s must be a number"
-msgstr "%s は数値でなければなりません"
-
-msgid "%1$s must be at least %2$s"
-msgstr "%1$s は %2$s 以上でなければなりません"
-
-msgid "%1$s must be at most %2$s"
-msgstr "%1$s は %2$s 以下でなければなりません"
-
-msgid "%1$s must be at least %2$s characters"
-msgstr "%1$s は %2$s 文字以上でなければなりません"
-
-msgid "%1$s must be at most %2$s characters"
-msgstr "%1$s は %2$s 文字以下でなければなりません"
-
-msgid "%1$s file size must be %2$sMB or less"
-msgstr "%1$s のファイルサイズは %2$sMB 以下でなければなりません"
-
-msgid "%1$s only accepts %2$s files"
-msgstr "%1$s は %2$s ファイルのみ受け付けます"
-
-msgid "%s upload failed"
-msgstr "%s のアップロードに失敗しました"
-
-msgid "This field is required"
-msgstr "この項目は必須です"
-
-msgid "This field is required. Please enter a value."
-msgstr "この項目は必須です。値を入力してください。"
-
-msgid "This field is required. Please make a selection."
-msgstr "この項目は必須です。選択してください。"
-
-msgid "This field is required. Please select a file."
-msgstr "この項目は必須です。ファイルを選択してください。"
-
-msgid "This field is required. Please select at least one option."
-msgstr "この項目は必須です。少なくとも1つ選択してください。"
-
-msgid "Validation Message"
-msgstr "バリデーションメッセージ"
-
-msgid "Message to display when required field is empty (default message used if blank)"
-msgstr "必須フィールドが空の場合に表示するメッセージ（空白の場合はデフォルトメッセージを使用）"
-
-msgid "Validation successful"
-msgstr "バリデーション成功"
-
-# JavaScript i18n - Admin
-msgid "Field name can only contain alphanumeric characters and underscores"
-msgstr "フィールド名には半角英数字とアンダースコアのみ使用できます"
-
-msgid "Please enter a field name"
-msgstr "フィールド名を入力してください"
-
-msgid "Please enter a field label"
-msgstr "フィールドラベルを入力してください"
-
-msgid "This field name is already in use"
-msgstr "このフィールド名は既に使用されています"
-
-msgid "At least one option is required"
-msgstr "少なくとも1つの選択肢が必要です"
-
-msgid "Please add at least one option"
-msgstr "少なくとも1つの選択肢を追加してください"
-
-msgid "Are you sure you want to delete this field?"
-msgstr "このフィールドを削除してもよろしいですか？"
-
-msgid "Are you sure you want to delete this form?"
-msgstr "このフォームを削除してもよろしいですか？"
-
-msgid "Move this form to trash?"
-msgstr "このフォームをゴミ箱に移動しますか？"
-
-msgid "Delete this CSS file?"
-msgstr "このCSSファイルを削除しますか？"
-
-msgid "Copied!"
-msgstr "コピーしました！"
-
-msgid "Uploading..."
-msgstr "アップロード中..."
-
-msgid "Upload complete:"
-msgstr "アップロード完了："
-
-msgid "Upload failed"
-msgstr "アップロードに失敗しました"
-
-msgid "An error occurred"
-msgstr "エラーが発生しました"
-
-msgid "A network error occurred"
-msgstr "ネットワークエラーが発生しました"
-
-msgid "Delete failed"
-msgstr "削除に失敗しました"
-
-# JavaScript i18n - Frontend
-msgid "There are errors in your input"
-msgstr "入力内容にエラーがあります"
-
-msgid "File size is too large. Please select a file under %sMB."
-msgstr "ファイルサイズが大きすぎます。%sMB以下のファイルを選択してください。"
-
-msgid "Please select an image file."
-msgstr "画像ファイルを選択してください。"
-
-msgid "A server error occurred. Please try again."
-msgstr "サーバーエラーが発生しました。もう一度お試しください。"
-
-msgid "An error occurred. Please try again."
-msgstr "エラーが発生しました。もう一度お試しください。"
-
-msgid "Confirm Your Input"
-msgstr "入力内容の確認"
-
-msgid "If the information below is correct, please click the \"Submit\" button."
-msgstr "以下の内容でよろしければ「送信」ボタンをクリックしてください。"
-
-msgid "Submit"
-msgstr "送信"
-
-msgid "Submit Form"
-msgstr "送信する"
-
-msgid "Loading..."
-msgstr "読み込み中..."
-
-msgid "Sending..."
-msgstr "送信中..."
-
-# Confirmation screen
-msgid "Confirmation Screen Settings"
-msgstr "確認画面設定"
-
-msgid "Show confirmation screen before submission"
-msgstr "送信前に確認画面を表示する"
-
-msgid "Confirmation Screen Title"
-msgstr "確認画面タイトル"
-
-msgid "Confirmation Screen Description"
-msgstr "確認画面説明文"
-
-msgid "Confirmation Screen HTML Template"
-msgstr "確認画面HTMLテンプレート"
-
-msgid "Input Screen"
-msgstr "入力画面"
-
-msgid "Input Screen HTML Template"
-msgstr "入力画面HTMLテンプレート"
-
-msgid "Layout"
-msgstr "レイアウト"
-
-msgid "Use HTML template"
-msgstr "HTMLテンプレートを使用"
-
-msgid "Custom HTML template (default template will be used if empty)"
-msgstr "カスタムHTMLテンプレート（空の場合はデフォルトテンプレートを使用）"
-
-msgid "Enter HTML template (default layout will be used if empty)"
-msgstr "HTMLテンプレートを入力（空の場合はデフォルトレイアウトを使用）"
-
-# Buttons
-msgid "Submit Button Settings"
-msgstr "送信ボタン設定"
-
-msgid "Back Button Settings"
-msgstr "戻るボタン設定"
-
-msgid "Button Text"
-msgstr "ボタンテキスト"
-
-msgid "ID"
-msgstr "ID"
-
-msgid "Configure submit button text, CSS class, and ID"
-msgstr "送信ボタンのテキスト、CSSクラス、IDを設定"
-
-msgid "Configure back button text, CSS class, and ID"
-msgstr "戻るボタンのテキスト、CSSクラス、IDを設定"
-
-msgid "Added to the default fplant-submit-button class"
-msgstr "デフォルトの fplant-submit-button クラスに追加されます"
-
-msgid "Added to the default fplant-back-button class"
-msgstr "デフォルトの fplant-back-button クラスに追加されます"
-
-msgid "Added to the default fplant-confirm-submit-button class"
-msgstr "デフォルトの fplant-confirm-submit-button クラスに追加されます"
-
-msgid "Display submit button"
-msgstr "送信ボタンを表示"
-
-msgid "e.g., btn btn-primary"
-msgstr "例: btn btn-primary"
-
-msgid "e.g., btn btn-secondary"
-msgstr "例: btn btn-secondary"
-
-msgid "e.g., my-submit-button"
-msgstr "例: my-submit-button"
-
-msgid "e.g., my-back-button"
-msgstr "例: my-back-button"
-
-msgid "e.g., my-confirm-submit-button"
-msgstr "例: my-confirm-submit-button"
-
-msgid "e.g., my-class another-class"
-msgstr "例: my-class another-class"
-
-msgid "e.g., my-custom-field"
-msgstr "例: my-custom-field"
-
-# Email settings
-msgid "Email Settings"
-msgstr "メール設定"
-
-msgid "Admin Email Settings"
-msgstr "管理者メール設定"
-
-msgid "Auto-reply Email Settings"
-msgstr "自動返信メール設定"
-
-msgid "Send email notification to admin"
-msgstr "管理者にメール通知を送信"
-
-msgid "Send auto-reply email to user"
-msgstr "ユーザーに自動返信メールを送信"
-
-msgid "Recipient Email Address"
-msgstr "受信者メールアドレス"
-
-msgid "Sender Email Address"
-msgstr "送信者メールアドレス"
-
-msgid "Sender Name"
-msgstr "送信者名"
-
-msgid "Subject"
-msgstr "件名"
-
-msgid "Email Body"
-msgstr "本文"
-
-msgid "Email Address"
-msgstr "メールアドレス"
-
-msgid "Recipient Field"
-msgstr "受信者フィールド"
-
-msgid "Select an email type field"
-msgstr "メール型フィールドを選択"
-
-msgid "Separate multiple addresses with commas"
-msgstr "複数のアドレスはカンマで区切ってください"
-
-msgid "Enter email body"
-msgstr "メール本文を入力"
-
-msgid "Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}"
-msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {site_name}, {site_url}"
-
-msgid "Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}, {admin_email}"
-msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {site_name}, {site_url}, {admin_email}"
-
-msgid "Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}"
-msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {submission_id}, {submission_date}, {ip_address}"
-
-msgid "Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}, {admin_email}"
-msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {submission_id}, {submission_date}, {ip_address}, {admin_email}"
-
-msgid "Available tags: {confirmation_title}, {confirmation_message}, {all_fields}, {field:field_name}, {back_button}, {submit_button}"
-msgstr "使用可能なタグ: {confirmation_title}, {confirmation_message}, {all_fields}, {field:フィールド名}, {back_button}, {submit_button}"
-
-msgid "Available tags: {form_title}, {field:field_name}, {site_name}"
-msgstr "使用可能なタグ: {form_title}, {field:フィールド名}, {site_name}"
-
-msgid "Available tags: {form_title}, {field:field_name}, {site_name}, {admin_email}"
-msgstr "使用可能なタグ: {form_title}, {field:フィールド名}, {site_name}, {admin_email}"
-
-msgid "Available tags: {form_title}, {submission_id}, {site_name}"
-msgstr "使用可能なタグ: {form_title}, {submission_id}, {site_name}"
-
-msgid "Available tags: {form_title}, {submission_id}, {site_name}, {admin_email}"
-msgstr "使用可能なタグ: {form_title}, {submission_id}, {site_name}, {admin_email}"
-
-msgid "Separate multiple addresses with commas. Available tag: {admin_email}"
-msgstr "複数のアドレスはカンマで区切ってください。使用可能なタグ: {admin_email}"
-
-# Email content
-msgid "Thank you for your inquiry."
-msgstr "お問い合わせありがとうございます。"
-
-msgid "We have received the following:"
-msgstr "以下の内容を受け付けました："
-
-msgid "The following submission was received:"
-msgstr "以下のお問い合わせを受け付けました："
-
-msgid "[%s] New Inquiry"
-msgstr "[%s] 新しいお問い合わせ"
-
-msgid "Your inquiry has been received"
-msgstr "お問い合わせを受け付けました"
-
-# Completion settings
-msgid "Action After Submission"
-msgstr "送信後のアクション"
-
-msgid "Action Type"
-msgstr "アクションタイプ"
-
-msgid "Completion Page"
-msgstr "完了ページ"
-
-msgid "Completion Page HTML"
-msgstr "完了ページHTML"
-
-msgid "Message Only"
-msgstr "メッセージのみ"
-
-msgid "Success Message"
-msgstr "完了メッセージ"
-
-msgid "Redirect URL"
-msgstr "リダイレクトURL"
-
-msgid "Enter the HTML to display after submission. The form will be hidden and this HTML will be shown."
-msgstr "送信後に表示するHTMLを入力します。フォームは非表示になり、このHTMLが表示されます。"
-
-msgid "Enter the URL to redirect to after submission."
-msgstr "送信後にリダイレクトするURLを入力します。"
-
-msgid "Submission completed"
-msgstr "送信が完了しました"
-
-msgid "Submission completed successfully"
-msgstr "送信が正常に完了しました"
-
-# Submissions
-msgid "Submissions"
-msgstr "送信データ"
-
-msgid "Submission Details"
-msgstr "送信データ詳細"
-
-msgid "Submission Data"
-msgstr "送信データ"
-
-msgid "Submitted At"
-msgstr "送信日時"
-
-msgid "Submitted at: %s"
-msgstr "送信日時: %s"
-
-msgid "IP Address: %s"
-msgstr "IPアドレス: %s"
-
-msgid "IP Address"
-msgstr "IPアドレス"
-
-msgid "Referrer"
-msgstr "リファラー"
-
-msgid "User Agent"
-msgstr "ユーザーエージェント"
-
-msgid "Status"
-msgstr "ステータス"
-
-msgid "Author"
-msgstr "投稿者"
-
-msgid "Filter by Form"
-msgstr "フォームで絞り込み"
-
-msgid "No submissions yet."
-msgstr "送信データはまだありません。"
-
-msgid "Export CSV"
-msgstr "CSVエクスポート"
-
-msgid "Delete Selected"
-msgstr "選択項目を削除"
-
-msgid "Are you sure you want to delete this submission?"
-msgstr "この送信データを削除してもよろしいですか？"
-
-msgid "Are you sure you want to delete this permanently? This action cannot be undone."
-msgstr "これを完全に削除してもよろしいですか？この操作は取り消せません。"
-
-msgid "Are you sure you want to delete the selected"
-msgstr "選択した"
-
-msgid "submissions?"
-msgstr "件の送信データを削除してもよろしいですか？"
-
-msgid "Submission ID not specified"
-msgstr "送信IDが指定されていません"
-
-msgid "Submission not found"
-msgstr "送信データが見つかりません"
-
-msgid "Submission #%s"
-msgstr "送信 #%s"
-
-msgid "%1$d-%2$d of %3$d items"
-msgstr "%3$d件中 %1$d-%2$d件"
-
-# reCAPTCHA
-msgid "reCAPTCHA Settings"
-msgstr "reCAPTCHA設定"
-
-msgid "Enable reCAPTCHA"
-msgstr "reCAPTCHAを有効化"
-
-msgid "Site Key"
-msgstr "サイトキー"
-
-msgid "Secret Key"
-msgstr "シークレットキー"
-
-msgid "v3 Score Threshold"
-msgstr "v3スコア閾値"
-
-msgid "Enter your Google reCAPTCHA site key."
-msgstr "Google reCAPTCHAのサイトキーを入力してください。"
-
-msgid "Enter your Google reCAPTCHA secret key."
-msgstr "Google reCAPTCHAのシークレットキーを入力してください。"
-
-msgid "When using reCAPTCHA v3, submissions below this score will be flagged as spam (0.0-1.0, recommended: 0.5)"
-msgstr "reCAPTCHA v3使用時、このスコア未満の送信はスパムとして判定されます（0.0-1.0、推奨: 0.5）"
-
-msgid "Uses reCAPTCHA v3 (invisible/score-based) for automatic background verification."
-msgstr "reCAPTCHA v3（不可視/スコアベース）を使用してバックグラウンドで自動的に検証を行います。"
-
-msgid "You can get reCAPTCHA keys from %s."
-msgstr "reCAPTCHAキーは %s から取得できます。"
-
-msgid "To use reCAPTCHA, please first set up the API keys on the %s."
-msgstr "reCAPTCHAを使用するには、まず %s でAPIキーを設定してください。"
-
-msgid "reCAPTCHA verification failed"
-msgstr "reCAPTCHA認証に失敗しました"
-
-msgid "reCAPTCHA verification failed. Please reload the page and try again."
-msgstr "reCAPTCHA認証に失敗しました。ページを再読み込みしてもう一度お試しください。"
-
-msgid "reCAPTCHA verification is required"
-msgstr "reCAPTCHA認証が必要です"
-
-msgid "reCAPTCHA configuration is incomplete"
-msgstr "reCAPTCHAの設定が不完全です"
-
-msgid "An error occurred during reCAPTCHA verification"
-msgstr "reCAPTCHA認証中にエラーが発生しました"
-
-msgid "Failed to communicate with reCAPTCHA server"
-msgstr "reCAPTCHAサーバーとの通信に失敗しました"
-
-# Spam
-msgid "Suspected spam detected"
-msgstr "スパムの疑いを検出しました"
-
-msgid "Submission was blocked due to suspected spam activity"
-msgstr "スパム活動の疑いがあるため送信がブロックされました"
-
-# CSS settings
-msgid "Custom CSS Settings"
-msgstr "カスタムCSS設定"
-
-msgid "CSS Mode"
-msgstr "CSSモード"
-
-msgid "CSS File"
-msgstr "CSSファイル"
-
-msgid "Inline CSS"
-msgstr "インラインCSS"
-
-msgid "Use default CSS only"
-msgstr "デフォルトCSSのみを使用"
-
-msgid "Append custom CSS (Default + Custom)"
-msgstr "カスタムCSSを追加（デフォルト＋カスタム）"
-
-msgid "Replace with custom CSS (Do not load default)"
-msgstr "カスタムCSSで置き換え（デフォルトを読み込まない）"
-
-msgid "Current file:"
-msgstr "現在のファイル:"
-
-msgid "Please select a CSS file (.css)"
-msgstr "CSSファイル（.css）を選択してください"
-
-msgid "Please upload a CSS file (.css)"
-msgstr "CSSファイル（.css）をアップロードしてください"
-
-msgid "Enter custom CSS directly (can be used with file upload)"
-msgstr "カスタムCSSを直接入力（ファイルアップロードと併用可能）"
-
-msgid "When both CSS file and inline CSS are specified, they are loaded in order: File then Inline"
-msgstr "CSSファイルとインラインCSSの両方を指定した場合、ファイル→インラインの順で読み込まれます"
-
-# File upload settings
-msgid "File Upload Settings"
-msgstr "ファイルアップロード設定"
-
-msgid "Maximum File Size (MB)"
-msgstr "最大ファイルサイズ (MB)"
-
-msgid "Maximum file size: %sMB"
-msgstr "最大ファイルサイズ: %sMB"
-
-msgid "Specify the maximum file size in MB (Default: 2MB)"
-msgstr "最大ファイルサイズをMBで指定（デフォルト: 2MB）"
-
-# Date settings
-msgid "Date (Calendar)"
-msgstr "日付（カレンダー）"
-
-msgid "Date (Dropdown)"
-msgstr "日付（プルダウン）"
-
-msgid "Year"
-msgstr "年"
-
-msgid "Month"
-msgstr "月"
-
-msgid "Day"
-msgstr "日"
-
-msgid "Year Range Settings"
-msgstr "年の範囲設定"
-
-msgid "Start Year (Past)"
-msgstr "開始年（過去）"
-
-msgid "End Year (Future)"
-msgstr "終了年（未来）"
-
-msgid "How many years in the past"
-msgstr "何年前まで"
-
-msgid "How many years in the future"
-msgstr "何年後まで"
-
-# Radio Button
-msgid "Radio Button"
-msgstr "ラジオボタン"
-
-# Select Box
-msgid "Select Box"
-msgstr "セレクトボックス"
-
-msgid "Please select"
-msgstr "選択してください"
-
-# External usage
-msgid "External Usage"
-msgstr "外部利用"
-
-msgid "Embed Code"
-msgstr "埋め込みコード"
-
-msgid "Allow JavaScript embedding"
-msgstr "JavaScript埋め込みを許可"
-
-msgid "Allow iframe embedding"
-msgstr "iframe埋め込みを許可"
-
-msgid "Allowed Site URLs (multiple allowed)"
-msgstr "許可するサイトURL（複数可）"
-
-msgid "Enter one URL per line. Only these sites will be allowed for JS embedding (CORS control)."
-msgstr "1行に1つのURLを入力してください。これらのサイトのみJS埋め込みが許可されます（CORS制御）。"
-
-msgid "Enter one URL per line. Only these sites will be allowed to embed via iframe."
-msgstr "1行に1つのURLを入力してください。これらのサイトのみiframe埋め込みが許可されます。"
-
-msgid "Settings for embedding this form on external sites."
-msgstr "このフォームを外部サイトに埋め込むための設定です。"
-
-msgid "JS embedding is not allowed for this form"
-msgstr "このフォームではJavaScript埋め込みが許可されていません"
-
-msgid "Iframe embedding is not allowed for this form"
-msgstr "このフォームではiframe埋め込みが許可されていません"
-
-msgid "Embedding from this domain is not allowed"
-msgstr "このドメインからの埋め込みは許可されていません"
-
-msgid "Submissions from this domain are not allowed"
-msgstr "このドメインからの送信は許可されていません"
-
-# Settings page
-msgid "Settings"
-msgstr "設定"
-
-msgid "Settings page"
-msgstr "設定ページ"
-
-msgid "Form Plant Settings"
-msgstr "Form Plant 設定"
-
-msgid "Save Settings"
-msgstr "設定を保存"
-
-# Documentation
-msgid "Documentation"
-msgstr "ドキュメント"
-
-msgid "Developer Documentation"
-msgstr "開発者ドキュメント"
-
-msgid "Getting Started Guide"
-msgstr "使い方ガイド"
-
-msgid "For more information on how to use Form Plant, please refer to the following documentation."
-msgstr "Form Plantの使い方について詳しくは、以下のドキュメントをご覧ください。"
-
-msgid "Shortcode Reference"
-msgstr "ショートコードリファレンス"
-
-msgid "Field Type Reference"
-msgstr "フィールドタイプリファレンス"
-
-# Shortcode
-msgid "Shortcode:"
-msgstr "ショートコード:"
-
-msgid "Shortcode"
-msgstr "ショートコード"
-
-msgid "Available Shortcodes"
-msgstr "利用可能なショートコード"
-
-# Tags
-msgid "Basic Tags"
-msgstr "基本タグ"
-
-msgid "Field Tags"
-msgstr "フィールドタグ"
-
-msgid "Error Message Tags"
-msgstr "エラーメッセージタグ"
-
-msgid "Specific tags will be displayed here when you add fields."
-msgstr "フィールドを追加すると、ここに固有のタグが表示されます。"
-
-msgid "Error message display area"
-msgstr "エラーメッセージ表示エリア"
-
-msgid "Success message display area"
-msgstr "完了メッセージ表示エリア"
-
-# Version info
-msgid "Version Information"
-msgstr "バージョン情報"
-
-msgid "Version"
-msgstr "バージョン"
-
-msgid "PHP Version"
-msgstr "PHPバージョン"
-
-msgid "WordPress Version"
-msgstr "WordPressバージョン"
-
-# Plugin name
+#. Plugin Name of the plugin
+#: form-plant.php
+#: includes/class-admin.php:190
+#: includes/class-admin.php:191
+#: blocks/form-block/index.js:141
+#: blocks/form-block/index.js:156
+#: blocks/form-block/index.js:182
 msgid "Form Plant"
 msgstr "Form Plant"
 
-# Error messages
-msgid "Error:"
-msgstr "エラー:"
+#. Plugin URI of the plugin
+#: form-plant.php
+msgid "https://www.sofplant.com/form-plant/"
+msgstr ""
 
-msgid " error"
-msgstr " エラー"
+#. Description of the plugin
+#: form-plant.php
+msgid "A versatile form plugin with easy modal-based setup and flexible customization options."
+msgstr ""
 
-msgid "Form not found"
-msgstr "フォームが見つかりません"
+#. Author of the plugin
+#: form-plant.php
+msgid "SOFPLANT"
+msgstr ""
 
-msgid "Form ID is not specified"
-msgstr "フォームIDが指定されていません"
+#. Author URI of the plugin
+#: form-plant.php
+msgid "https://www.sofplant.com"
+msgstr ""
 
-msgid "Form ID not specified"
-msgstr "フォームIDが未指定です"
+#: admin/views/form-edit.php:17
+#: includes/class-admin.php:649
+#: includes/class-form-plant.php:207
+msgid "New Form"
+msgstr "新規フォーム"
 
-msgid "Field name is not specified"
-msgstr "フィールド名が指定されていません"
+#: admin/views/form-edit.php:17
+#: includes/class-form-plant.php:206
+msgid "Edit Form"
+msgstr "フォーム編集"
 
-msgid "Field type is not specified"
-msgstr "フィールドタイプが指定されていません"
-
-msgid "Unsupported field type"
-msgstr "サポートされていないフィールドタイプ"
-
-msgid "Invalid request"
-msgstr "無効なリクエスト"
-
-msgid "Invalid form data format"
-msgstr "フォームデータの形式が無効です"
-
-msgid "Invalid filename"
-msgstr "無効なファイル名"
-
-msgid "Permission denied"
-msgstr "権限がありません"
-
-msgid "No data specified for deletion"
-msgstr "削除するデータが指定されていません"
-
-msgid "Submission processing failed"
-msgstr "送信処理に失敗しました"
-
-msgid "Failed to save data"
-msgstr "データの保存に失敗しました"
-
-msgid "Failed to save form"
-msgstr "フォームの保存に失敗しました"
-
-msgid "Failed to create form"
-msgstr "フォームの作成に失敗しました"
-
-msgid "Failed to delete form"
-msgstr "フォームの削除に失敗しました"
-
-msgid "Failed to delete data"
-msgstr "データの削除に失敗しました"
-
-msgid "Failed to duplicate form"
-msgstr "フォームの複製に失敗しました"
-
-msgid "Failed to move form"
-msgstr "フォームの移動に失敗しました"
-
-msgid "Failed to upload %s"
-msgstr "%s のアップロードに失敗しました"
-
-msgid "Failed to create upload directory"
-msgstr "アップロードディレクトリの作成に失敗しました"
-
-msgid "Warning: Could not create the upload directory. Please check the server permissions for wp-content/uploads."
-msgstr "警告: アップロードディレクトリを作成できませんでした。wp-content/uploads のサーバー権限を確認してください。"
-
-msgid "This file type cannot be uploaded"
-msgstr "このファイルタイプはアップロードできません"
-
-msgid "Dismiss this notice"
-msgstr "この通知を閉じる"
-
-# Success messages
-msgid "Form saved"
-msgstr "フォームを保存しました"
-
-msgid "Form created"
-msgstr "フォームを作成しました"
-
-msgid "Form updated"
-msgstr "フォームを更新しました"
-
-msgid "Form deleted"
-msgstr "フォームを削除しました"
-
-msgid "Form duplicated"
-msgstr "フォームを複製しました"
-
-msgid "Form duplicated."
-msgstr "フォームを複製しました。"
-
-msgid "Form moved to trash"
-msgstr "フォームをゴミ箱に移動しました"
-
-msgid "Form created."
-msgstr "フォームを作成しました。"
-
+#: admin/views/form-edit.php:45
 msgid "Form updated."
 msgstr "フォームを更新しました。"
 
-msgid "No forms found."
-msgstr "フォームが見つかりません。"
+#: admin/views/form-edit.php:49
+msgid "Form created."
+msgstr "フォームを作成しました。"
 
-msgid "No forms found in Trash."
-msgstr "ゴミ箱にフォームがありません。"
+#: admin/views/form-edit.php:55
+msgid "Warning: Could not create the upload directory. Please check the server permissions for wp-content/uploads."
+msgstr "警告: アップロードディレクトリを作成できませんでした。 wp-content/uploads のサーバー権限を確認してください。"
 
-# Data saving options
-msgid "Save submission data including input data"
-msgstr "入力データを含む送信データを保存"
-
-msgid "Save only submission record (do not save input data)"
-msgstr "送信記録のみ保存（入力データは保存しない）"
-
-msgid "Do not save anything"
-msgstr "何も保存しない"
-
-msgid "When \"Save only submission record\" is selected, only metadata such as submission date and IP address will be recorded, and input content will not be saved."
-msgstr "「送信記録のみ保存」を選択した場合、送信日時やIPアドレスなどのメタデータのみが記録され、入力内容は保存されません。"
-
-msgid "Input data was not saved (metadata only setting)"
-msgstr "入力データは保存されていません（メタデータのみ設定）"
-
-# Title
-msgid "Title"
-msgstr "タイトル"
-
-msgid "(No Title)"
-msgstr "（タイトルなし）"
-
+#: admin/views/form-edit.php:64
 msgid "Enter form title"
 msgstr "フォームタイトルを入力"
 
-msgid "Your Name"
-msgstr "お名前"
+#: admin/views/form-edit.php:74
+#: includes/class-form-list-table.php:124
+#: includes/class-form-list-table.php:777
+msgid "Published"
+msgstr "公開済み"
 
-# Form Settings
+#: admin/views/form-edit.php:75
+#: includes/class-form-list-table.php:125
+#: includes/class-form-list-table.php:354
+#: includes/class-form-list-table.php:778
+msgid "Private"
+msgstr "非公開"
+
+#: admin/views/form-edit.php:76
+#: includes/class-form-list-table.php:126
+#: includes/class-form-list-table.php:355
+#: includes/class-form-list-table.php:779
+msgid "Draft"
+msgstr "下書き"
+
+#: admin/views/form-edit.php:77
+#: includes/class-form-list-table.php:127
+#: includes/class-form-list-table.php:356
+#: includes/class-form-list-table.php:780
+msgid "Pending Review"
+msgstr "レビュー待ち"
+
+#: admin/views/form-edit.php:81
+#: includes/class-form-list-table.php:197
+#: includes/class-form-list-table.php:414
+msgid "Move to Trash"
+msgstr "ゴミ箱に移動"
+
+#: admin/views/form-edit.php:87
+msgid "Publish"
+msgstr "公開"
+
+#: admin/views/form-edit.php:87
+#: includes/class-form-list-table.php:787
+msgid "Update"
+msgstr "更新"
+
+#: admin/views/form-edit.php:94
+msgid "Shortcode:"
+msgstr "ショートコード:"
+
+#: admin/views/form-edit.php:97
+#: admin/views/form-edit.php:921
+#: admin/views/form-edit.php:971
+#: includes/class-form-list-table.php:433
+msgid "Copy"
+msgstr "コピー"
+
+#: admin/views/form-edit.php:104
+msgid "Field Settings"
+msgstr "フィールド設定"
+
+#: admin/views/form-edit.php:107
+#: admin/views/form-edit.php:1308
+#: admin/views/form-edit.php:1677
+#: includes/class-admin.php:553
+#: includes/class-form-list-table.php:75
+msgid "Layout"
+msgstr "レイアウト"
+
+#: admin/views/form-edit.php:110
+#: includes/class-admin.php:554
+#: includes/class-form-list-table.php:76
+msgid "Email Settings"
+msgstr "メール設定"
+
+#: admin/views/form-edit.php:113
 msgid "Form Settings"
 msgstr "フォーム設定"
 
-# Tag inserter
+#: admin/views/form-edit.php:116
+#: includes/class-admin.php:559
+#: includes/class-form-list-table.php:81
+msgid "Spam Protection"
+msgstr "スパム対策"
+
+#: admin/views/form-edit.php:124
+msgid "Fields"
+msgstr "フィールド"
+
+#: admin/views/form-edit.php:128
+msgid "+ Add Field"
+msgstr "+ フィールドを追加"
+
+#: admin/views/form-edit.php:144
+#: admin/views/form-edit.php:206
+#: admin/views/form-edit.php:386
+#: admin/views/form-edit.php:399
+#: includes/class-form-list-table.php:391
+#: includes/class-form-plant.php:611
+msgid "Edit"
+msgstr "編集"
+
+#: admin/views/form-edit.php:147
+#: admin/views/form-edit.php:475
+#: admin/views/submission-list.php:163
+#: includes/class-form-plant.php:610
+msgid "Delete"
+msgstr "削除"
+
+#: admin/views/form-edit.php:154
+msgid "No fields yet. Click \"Add Field\" button to add fields."
+msgstr "フィールドがまだありません。「フィールドを追加」ボタンをクリックしてフィールドを追加してください。"
+
+#: admin/views/form-edit.php:165
+msgid "Input Screen"
+msgstr "入力画面"
+
+#: admin/views/form-edit.php:169
+msgid "Form Tag Settings"
+msgstr "フォームタグ設定"
+
+#: admin/views/form-edit.php:182
+msgid "Added to the default fplant-form class"
+msgstr "デフォルトの fplant-form クラスに追加されます"
+
+#: admin/views/form-edit.php:180
+msgid "e.g., my-form custom-form"
+msgstr "例: my-form custom-form"
+
+#: admin/views/form-edit.php:193
+msgid "e.g., my-contact-form"
+msgstr "例: my-contact-form"
+
+#: admin/views/form-edit.php:200
+#: admin/views/form-edit.php:393
+#: admin/views/form-edit.php:1790
+#: admin/views/form-edit.php:1882
+msgid "Submit Button Settings"
+msgstr "送信ボタン設定"
+
+#: admin/views/form-edit.php:203
+#: admin/views/form-edit.php:350
+#: admin/views/form-edit.php:1800
+#: includes/class-embed.php:352
+#: includes/class-field-manager.php:597
+#: includes/class-field-manager.php:735
+#: includes/class-form-plant.php:441
+#: includes/class-form-plant.php:629
+#: includes/class-rest-api.php:457
+#: includes/class-shortcode.php:129
+#: includes/class-submission-manager.php:1189
+#: includes/class-submission-manager.php:1349
+#: templates/embed.php:136
+#: templates/form-wrapper.php:79
+msgid "Submit"
+msgstr "送信"
+
+#: admin/views/form-edit.php:209
+#: admin/views/form-edit.php:402
+msgid "Configure submit button text, CSS class, and ID"
+msgstr "送信ボタンのテキスト、 CSS クラス、 ID を設定"
+
+#: admin/views/form-edit.php:227
+msgid "Input Screen HTML Template"
+msgstr "入力画面 HTML テンプレート"
+
+#: admin/views/form-edit.php:238
+msgid "Use HTML template"
+msgstr "HTML テンプレートを使用"
+
+#: admin/views/form-edit.php:244
+#: admin/views/form-edit.php:341
+msgid "Available Shortcodes"
+msgstr "利用可能なショートコード"
+
+#: admin/views/form-edit.php:247
+#: admin/views/form-edit.php:344
 msgid "-- Select tag --"
 msgstr "-- タグを選択 --"
 
+#: admin/views/form-edit.php:248
+#: admin/views/form-edit.php:345
+msgid "Basic Tags"
+msgstr "基本タグ"
+
+#: admin/views/form-edit.php:249
+#: admin/views/form-edit.php:350
+#: includes/class-form-plant.php:640
 msgid "Submit button"
 msgstr "送信ボタン"
 
+#: admin/views/form-edit.php:250
 msgid "Error display area"
 msgstr "エラー表示エリア"
 
+#: admin/views/form-edit.php:251
 msgid "Success display area"
 msgstr "成功表示エリア"
 
+#: admin/views/form-edit.php:254
+msgid "Field Tags"
+msgstr "フィールドタグ"
+
+#: admin/views/form-edit.php:254
+msgid "Required"
+msgstr "必須"
+
+#: admin/views/form-edit.php:260
+msgid "Error Message Tags"
+msgstr "エラーメッセージタグ"
+
+#: admin/views/form-edit.php:262
+msgid " error"
+msgstr " エラー"
+
+#: admin/views/form-edit.php:268
+#: admin/views/form-edit.php:361
 msgid "Insert"
 msgstr "挿入"
 
+#: admin/views/form-edit.php:272
 msgid "Field tags will be available after adding fields."
 msgstr "フィールドを追加するとフィールドタグが利用可能になります。"
 
-msgid "The following required items are missing from the HTML template:"
-msgstr "以下の必須項目がHTMLテンプレートに含まれていません："
-
+#: admin/views/form-edit.php:274
 msgid "* Required fields (*) and submit button must be included in the template."
 msgstr "※ 必須のフィールド（*）と送信ボタンは必ず設定してください。"
 
-msgid "HTML template is empty. Please add the required tags or uncheck \"Use HTML template\"."
-msgstr "HTMLテンプレートが空です。必要なタグを追加するか、「HTMLテンプレートを使用」のチェックを外してください。"
+#: admin/views/form-edit.php:280
+msgid "Enter HTML template (default layout will be used if empty)"
+msgstr "HTML テンプレートを入力（空の場合はデフォルトレイアウトを使用）"
 
-# Confirmation template tags
+#: admin/views/form-edit.php:289
+msgid "Confirmation Screen Settings"
+msgstr "確認画面設定"
+
+#: admin/views/form-edit.php:300
+msgid "Show confirmation screen before submission"
+msgstr "送信前に確認画面を表示する"
+
+#: admin/views/form-edit.php:306
+msgid "Confirmation Screen Title"
+msgstr "確認画面タイトル"
+
+#: admin/views/form-edit.php:310
+#: admin/views/form-edit.php:311
+#: includes/class-embed.php:349
+#: includes/class-form-plant.php:438
+#: templates/form-wrapper.php:33
+msgid "Confirm Your Input"
+msgstr "入力内容の確認"
+
+#: admin/views/form-edit.php:317
+msgid "Confirmation Screen Description"
+msgstr "確認画面説明文"
+
+#: admin/views/form-edit.php:321
+#: admin/views/form-edit.php:323
+#: includes/class-embed.php:350
+#: includes/class-form-plant.php:439
+#: templates/form-wrapper.php:34
+msgid "If the information below is correct, please click the \"Submit\" button."
+msgstr "以下の内容でよろしければ「送信」ボタンをクリックしてください。"
+
+#: admin/views/form-edit.php:335
 msgid "Use confirmation screen HTML template"
-msgstr "確認画面HTMLテンプレートを使用"
+msgstr "確認画面 HTML テンプレートを使用"
 
-msgid "Field Value Tags"
-msgstr "フィールド値タグ"
+#: admin/views/form-edit.php:346
+#: includes/class-form-list-table.php:767
+msgid "Title"
+msgstr "タイトル"
 
-msgid "All fields table"
-msgstr "全フィールド一覧"
-
-msgid "Back button"
-msgstr "戻るボタン"
-
+#: admin/views/form-edit.php:347
+#: includes/class-form-list-table.php:559
+#: includes/class-form-plant.php:1033
 msgid "Message"
 msgstr "メッセージ"
 
-msgid "* Submit button must be included in the template."
-msgstr "※ 送信ボタンはテンプレートに必ず含めてください。"
+#: admin/views/form-edit.php:348
+msgid "All fields table"
+msgstr "全フィールド一覧"
 
+#: admin/views/form-edit.php:349
+#: admin/views/form-edit.php:383
+#: admin/views/form-edit.php:1846
+#: includes/class-embed.php:351
+#: includes/class-field-manager.php:592
+#: includes/class-field-manager.php:730
+#: includes/class-form-plant.php:440
+#: includes/class-form-plant.php:488
+#: includes/class-form-plant.php:630
+#: includes/class-submission-manager.php:1184
+#: includes/class-submission-manager.php:1344
+msgid "Back"
+msgstr "戻る"
+
+#: admin/views/form-edit.php:349
+msgid "Back button"
+msgstr "戻るボタン"
+
+#: admin/views/form-edit.php:353
+msgid "Field Value Tags"
+msgstr "フィールド値タグ"
+
+#: admin/views/form-edit.php:365
 msgid "Field value tags will be available after adding fields."
 msgstr "フィールドを追加するとフィールド値タグが利用可能になります。"
 
-msgid "Confirmation HTML template is empty. Please add the required tags or uncheck \"Use confirmation screen HTML template\"."
-msgstr "確認画面HTMLテンプレートが空です。必要なタグを追加するか、「確認画面HTMLテンプレートを使用」のチェックを外してください。"
+#: admin/views/form-edit.php:367
+msgid "* Submit button must be included in the template."
+msgstr "※ 送信ボタンはテンプレートに必ず含めてください。"
 
-msgid "Submit button [fplant_confirm_submit] is required in the confirmation template."
-msgstr "送信ボタン [fplant_confirm_submit] は確認画面テンプレートに必須です。"
+#: admin/views/form-edit.php:373
+msgid "Custom HTML template (default template will be used if empty)"
+msgstr "カスタム HTML テンプレート（空の場合はデフォルトテンプレートを使用）"
 
-# URL Parameter Settings
-msgid "URL Parameter Settings"
-msgstr "URLパラメータ設定"
+#: admin/views/form-edit.php:380
+#: admin/views/form-edit.php:1836
+msgid "Back Button Settings"
+msgstr "戻るボタン設定"
 
-msgid "Allow initial values from URL parameters"
-msgstr "URLパラメータからの初期値設定を許可"
+#: admin/views/form-edit.php:389
+msgid "Configure back button text, CSS class, and ID"
+msgstr "戻るボタンのテキスト、 CSS クラス、 ID を設定"
 
-msgid "When enabled, field values can be set via URL parameters (e.g., ?field_name=value)"
-msgstr "有効にすると、URLパラメータでフィールドの初期値を設定できます（例: ?field_name=value）"
+#: admin/views/form-edit.php:396
+#: admin/views/form-edit.php:1892
+#: includes/class-form-plant.php:491
+#: includes/class-form-plant.php:631
+msgid "Submit Form"
+msgstr "送信する"
 
-msgid "* Set {field_name} as the default value for each field."
-msgstr "※ 各フィールドのデフォルト値に{フィールド名}を入れてください。"
+#: admin/views/form-edit.php:451
+msgid "Custom CSS Settings"
+msgstr "カスタム CSS 設定"
 
-# Submission filters
-msgid "Start Date"
-msgstr "開始日"
+#: includes/class-form-plant.php:637
+msgid "Current file:"
+msgstr "現在のファイル:"
 
-msgid "End Date"
-msgstr "終了日"
+#: admin/views/form-edit.php:485
+msgid "Inline CSS"
+msgstr "インライン CSS"
 
-msgid "Search"
-msgstr "検索"
+#: admin/views/form-edit.php:500
+msgid "Admin Email Settings"
+msgstr "管理者メール設定"
 
-msgid "Search in submission data..."
-msgstr "送信データを検索..."
+#: admin/views/form-edit.php:511
+msgid "Send email notification to admin"
+msgstr "管理者にメール通知を送信"
 
-msgid "File"
-msgstr "ファイル"
+#: admin/views/form-edit.php:516
+msgid "Recipient Email Address"
+msgstr "受信者メールアドレス"
 
-msgid "Contains file attachment"
-msgstr "添付ファイルあり"
+#: admin/views/form-edit.php:523
+msgid "Separate multiple addresses with commas. Available tag: {admin_email}"
+msgstr "複数のアドレスはカンマで区切ってください。使用可能なタグ: {admin_email}"
 
-msgid "Please select items to delete"
-msgstr "削除する項目を選択してください"
+#: admin/views/form-edit.php:527
+#: admin/views/form-edit.php:643
+msgid "Sender Name"
+msgstr "送信者名"
 
-# File download
-msgid "Security check failed"
-msgstr "セキュリティチェックに失敗しました"
+#: admin/views/form-edit.php:537
+#: admin/views/form-edit.php:653
+msgid "Sender Email Address"
+msgstr "送信者メールアドレス"
 
-msgid "Invalid parameters"
-msgstr "無効なパラメータです"
+#: admin/views/form-edit.php:547
+#: admin/views/form-edit.php:663
+msgid "Subject"
+msgstr "件名"
 
-msgid "Field not found"
-msgstr "フィールドが見つかりません"
-
-msgid "Access denied"
-msgstr "アクセスが拒否されました"
-
-# Text field settings
-msgid "Text Field Settings"
-msgstr "テキストフィールド設定"
-
-msgid "Size"
-msgstr "サイズ"
-
-msgid "Max Length"
-msgstr "最大文字数"
-
-msgid "Display width of the input field (number of characters)"
-msgstr "入力フィールドの表示幅（文字数）"
-
-msgid "Maximum number of characters allowed"
-msgstr "入力可能な最大文字数"
-
-# Email CC/BCC/Reply-To settings
-msgid "CC"
-msgstr "CC"
-
-msgid "BCC"
-msgstr "BCC"
-
-msgid "Reply-To"
-msgstr "返信先（Reply-To）"
-
-msgid "Reply destination when the recipient replies to this email"
-msgstr "受信者がこのメールに返信する際の宛先"
-
-# Options textarea (ACF-style)
-msgid "Enter one option per line. Use \"value:label\" format to set different value and label. If no colon, the text becomes both value and label."
-msgstr "1行に1つの選択肢を入力してください。「値:ラベル」形式で値とラベルを別々に設定できます。コロンがない場合は、入力したテキストが値とラベルの両方になります。"
-
-# Screen Options
-msgid "Number of items per page"
-msgstr "ページ毎の表示件数"
-
-msgid "Columns"
-msgstr "カラム"
-
-# Form list notification messages
-msgid "%d form moved to Trash."
-msgid_plural "%d forms moved to Trash."
-msgstr[0] "%d件のフォームをゴミ箱に移動しました。"
-
-msgid "%d form restored."
-msgid_plural "%d forms restored."
-msgstr[0] "%d件のフォームを復元しました。"
-
-msgid "%d form permanently deleted."
-msgid_plural "%d forms permanently deleted."
-msgstr[0] "%d件のフォームを完全に削除しました。"
-
-# Layout settings (checkbox/radio)
-msgid "Vertical"
-msgstr "縦並び"
-
-msgid "Horizontal"
-msgstr "横並び"
-
-msgid "Choose how options are displayed"
-msgstr "選択肢の表示方法を選択してください"
-
-# Delimiter settings (checkbox)
-msgid "Delimiter"
-msgstr "区切り文字"
-
-msgid "Separator used when displaying multiple selected values in confirmation screen and emails"
-msgstr "確認画面やメールで複数の選択値を表示する際の区切り文字"
-
-# Email default content
+#: admin/views/form-edit.php:551
+#: admin/views/form-edit.php:552
 msgid "[{form_title}] New Inquiry"
 msgstr "[{form_title}] お問い合わせ"
 
+#: admin/views/form-edit.php:555
+msgid "Available tags: {form_title}, {submission_id}, {site_name}, {admin_email}"
+msgstr "使用可能なタグ: {form_title}, {submission_id}, {site_name}, {admin_email}"
+
+#: admin/views/form-edit.php:560
+#: admin/views/form-edit.php:676
+msgid "Email Body"
+msgstr "本文"
+
+#: admin/views/form-edit.php:564
+#: admin/views/form-edit.php:680
+msgid "Enter email body"
+msgstr "メール本文を入力"
+
+#: admin/views/form-edit.php:566
 msgid "You have received a new inquiry."
 msgstr "お問い合わせがありました。"
 
+#: admin/views/form-edit.php:566
 msgid "Submission Date:"
 msgstr "送信日時:"
 
+#: admin/views/form-edit.php:566
 msgid "Submission ID:"
-msgstr "送信ID:"
+msgstr "送信 ID:"
 
+#: admin/views/form-edit.php:570
+msgid "Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}, {admin_email}"
+msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {submission_id}, {submission_date}, {ip_address}, {admin_email}"
+
+#: admin/views/form-edit.php:575
+#: admin/views/form-edit.php:691
+msgid "CC"
+msgstr "CC"
+
+#: admin/views/form-edit.php:582
+#: admin/views/form-edit.php:593
+#: admin/views/form-edit.php:698
+#: admin/views/form-edit.php:709
+msgid "Separate multiple addresses with commas"
+msgstr "複数のアドレスはカンマで区切ってください"
+
+#: admin/views/form-edit.php:586
+#: admin/views/form-edit.php:702
+msgid "BCC"
+msgstr "BCC"
+
+#: admin/views/form-edit.php:597
+#: admin/views/form-edit.php:713
+msgid "Reply-To"
+msgstr "返信先（ Reply-To ）"
+
+#: admin/views/form-edit.php:604
+#: admin/views/form-edit.php:720
+msgid "Reply destination when the recipient replies to this email"
+msgstr "受信者がこのメールに返信する際の宛先"
+
+#: admin/views/form-edit.php:610
+msgid "Auto-reply Email Settings"
+msgstr "自動返信メール設定"
+
+#: admin/views/form-edit.php:621
+msgid "Send auto-reply email to user"
+msgstr "ユーザーに自動返信メールを送信"
+
+#: admin/views/form-edit.php:626
+msgid "Recipient Field"
+msgstr "受信者フィールド"
+
+#: admin/views/form-edit.php:628
+#: templates/form-fields/address-ja.php:130
+#: templates/form-fields/address.php:129
+#: templates/form-fields/prefecture.php:34
+#: templates/form-fields/select.php:30
+msgid "Please select"
+msgstr "選択してください"
+
+#: admin/views/form-edit.php:639
+msgid "Select an email type field"
+msgstr "メール型フィールドを選択"
+
+#: admin/views/form-edit.php:667
+#: admin/views/form-edit.php:668
+#: includes/class-form-plant.php:1099
 msgid "Thank you for your inquiry"
 msgstr "お問い合わせありがとうございます"
 
+#: admin/views/form-edit.php:671
+msgid "Available tags: {form_title}, {field:field_name}, {site_name}, {admin_email}"
+msgstr "使用可能なタグ: {form_title}, {field:フィールド名}, {site_name}, {admin_email}"
+
+#: admin/views/form-edit.php:682
+#: includes/class-email-handler.php:437
+msgid "Thank you for your inquiry."
+msgstr "お問い合わせありがとうございます。"
+
+#: admin/views/form-edit.php:682
 msgid "We have received the following information."
 msgstr "以下の内容を受け付けました。"
 
-# CSS upload/delete messages
+#: admin/views/form-edit.php:686
+msgid "Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}, {admin_email}"
+msgstr "使用可能なタグ: {all_fields}, {field:フィールド名}, {site_name}, {site_url}, {admin_email}"
+
+#: admin/views/form-edit.php:729
+msgid "Action After Submission"
+msgstr "送信後のアクション"
+
+#: admin/views/form-edit.php:733
+msgid "Action Type"
+msgstr "アクションタイプ"
+
+#: admin/views/form-edit.php:736
+msgid "Message Only"
+msgstr "メッセージのみ"
+
+#: admin/views/form-edit.php:739
+msgid "Completion Page"
+msgstr "完了ページ"
+
+#: admin/views/form-edit.php:742
+#: admin/views/form-edit.php:768
+msgid "Redirect URL"
+msgstr "リダイレクト URL"
+
+#: admin/views/form-edit.php:748
+msgid "Success Message"
+msgstr "完了メッセージ"
+
+#: admin/views/form-edit.php:752
+msgid "Submission completed successfully"
+msgstr "送信が正常に完了しました"
+
+#: admin/views/form-edit.php:757
+msgid "Completion Page HTML"
+msgstr "完了ページ HTML"
+
+#: admin/views/form-edit.php:763
+msgid "Enter the HTML to display after submission. The form will be hidden and this HTML will be shown."
+msgstr "送信後に表示する HTML を入力します。フォームは非表示になり、この HTML が表示されます。"
+
+#: admin/views/form-edit.php:776
+msgid "Enter the URL to redirect to after submission."
+msgstr "送信後にリダイレクトする URL を入力します。"
+
+#: admin/views/form-edit.php:783
+#: includes/class-admin.php:861
+msgid "Submission Data"
+msgstr "送信データ"
+
+#: admin/views/form-edit.php:812
+msgid "Do not save anything"
+msgstr "何も保存しない"
+
+#: admin/views/form-edit.php:826
+msgid "Save only submission record (do not save input data)"
+msgstr "送信記録のみ保存（入力データは保存しない）"
+
+#: admin/views/form-edit.php:840
+msgid "Save submission data including input data"
+msgstr "入力データを含む送信データを保存"
+
+#: admin/views/form-edit.php:845
+msgid "When \"Save only submission record\" is selected, only metadata such as submission date and IP address will be recorded, and input content will not be saved."
+msgstr "「送信記録のみ保存」を選択した場合、送信日時や IP アドレスなどのメタデータのみが記録され、入力内容は保存されません。"
+
+#: admin/views/form-edit.php:852
+msgid "URL Parameter Settings"
+msgstr "URL パラメータ設定"
+
+#: admin/views/form-edit.php:863
+msgid "Allow initial values from URL parameters"
+msgstr "URL パラメータからの初期値設定を許可"
+
+#: admin/views/form-edit.php:867
+msgid "When enabled, field values can be set via URL parameters (e.g., ?field_name=value)"
+msgstr "有効にすると、 URL パラメータでフィールドの初期値を設定できます（例: ?field_name=value ）"
+
+#: admin/views/form-edit.php:870
+msgid "* Set {field_name} as the default value for each field."
+msgstr "※ 各フィールドのデフォルト値に {フィールド名} を入れてください。"
+
+#: admin/views/form-edit.php:877
+msgid "External Usage"
+msgstr "外部利用"
+
+#: admin/views/form-edit.php:881
+msgid "Settings for embedding this form on external sites."
+msgstr "このフォームを外部サイトに埋め込むための設定です。"
+
+#: admin/views/form-edit.php:894
+msgid "Allow iframe embedding"
+msgstr "iframe 埋め込みを許可"
+
+#: admin/views/form-edit.php:900
+#: admin/views/form-edit.php:947
+msgid "Allowed Site URLs (multiple allowed)"
+msgstr "許可するサイト URL （複数可）"
+
+#: admin/views/form-edit.php:907
+msgid "Enter one URL per line. Only these sites will be allowed to embed via iframe."
+msgstr "1 行に1 つの URL を入力してください。これらのサイトのみ iframe 埋め込みが許可されます。"
+
+#: admin/views/form-edit.php:912
+#: admin/views/form-edit.php:959
+msgid "Embed Code"
+msgstr "埋め込みコード"
+
+#: admin/views/form-edit.php:941
+msgid "Allow JavaScript embedding"
+msgstr "JavaScript 埋め込みを許可"
+
+#: admin/views/form-edit.php:954
+msgid "Enter one URL per line. Only these sites will be allowed for JS embedding (CORS control)."
+msgstr "1 行に1 つの URL を入力してください。これらのサイトのみ JS 埋め込みが許可されます（ CORS 制御）。"
+
+#: admin/views/form-edit.php:987
+msgid "CAPTCHA Settings"
+msgstr "CAPTCHA 設定"
+
+#: admin/views/form-edit.php:1013
+msgid "Do not use CAPTCHA"
+msgstr "CAPTCHA を使用しない"
+
+#: admin/views/form-edit.php:1028
+msgid "Google reCAPTCHA v2 (Checkbox)"
+msgstr "Google reCAPTCHA v2 (チェックボックス)"
+
+#: admin/views/form-edit.php:1034
+msgid "Users must check the \"I'm not a robot\" checkbox before submitting."
+msgstr "送信前に「私はロボットではありません」チェックボックスにチェックする必要があります。"
+
+#: admin/views/form-edit.php:1049
+msgid "Google reCAPTCHA v3"
+msgstr "Google reCAPTCHA v3"
+
+#: admin/views/form-edit.php:1055
+msgid "Uses reCAPTCHA v3 (invisible/score-based) for automatic background verification."
+msgstr "reCAPTCHA v3 （不可視/スコアベース）を使用してバックグラウンドで自動的に検証を行います。"
+
+#: admin/views/form-edit.php:1070
+msgid "Cloudflare Turnstile"
+msgstr "Cloudflare Turnstile"
+
+#: admin/views/form-edit.php:1076
+msgid "Uses Cloudflare Turnstile for automatic background verification."
+msgstr "Cloudflare Turnstile を使用してバックグラウンドで自動的に検証を行います。"
+
+#. translators: %s: settings page link
+#: admin/views/form-edit.php:1086
+#, php-format
+msgid "To use CAPTCHA, please first set up the API keys on the %s."
+msgstr "CAPTCHA を使用するには、まず %s で API キーを設定してください。"
+
+#: admin/views/form-edit.php:1087
+msgid "Settings page"
+msgstr "設定ページ"
+
+#: admin/views/form-edit.php:1097
+#: includes/class-form-list-table.php:631
+msgid "Honeypot"
+msgstr "ハニーポット"
+
+#: admin/views/form-edit.php:1108
+msgid "Enable honeypot"
+msgstr "ハニーポットを有効にする"
+
+#: admin/views/form-edit.php:1112
+msgid "An invisible dummy field is used to detect bots."
+msgstr "非表示のダミーフィールドを使用してボットを検出します。"
+
+#: admin/views/form-edit.php:1116
+msgid "Field name"
+msgstr "フィールド名"
+
+#: admin/views/form-edit.php:1125
+msgid "Change the field name if it conflicts with your form fields."
+msgstr "フォームのフィールドと名前が競合する場合に変更してください。"
+
+#: admin/views/form-edit.php:1133
+msgid "Rate Limiting"
+msgstr "レート制限"
+
+#: admin/views/form-edit.php:1144
+msgid "Enable rate limiting"
+msgstr "レート制限を有効にする"
+
+#. translators: %1$s: minutes input field, %2$s: count input field
+#: admin/views/form-edit.php:1153
+#, php-format
+msgid "Block submissions exceeding %2$s times within %1$s minutes from the same IP address"
+msgstr "同一 IP アドレスから %1$s 分以内に %2$s 回を超える送信をブロック"
+
+#: admin/views/form-edit.php:1165
+msgid "Submission Speed Check"
+msgstr "送信速度チェック"
+
+#: admin/views/form-edit.php:1176
+msgid "Enable submission speed check"
+msgstr "送信速度チェックを有効にする"
+
+#. translators: %s: seconds input field
+#: admin/views/form-edit.php:1185
+#, php-format
+msgid "Block submissions faster than %s seconds after form display"
+msgstr "フォーム表示後 %s 秒未満の送信をブロック"
+
+#: admin/views/form-edit.php:1191
+msgid "Rejects submissions that are faster than human input speed."
+msgstr "人間の入力速度より速い送信を拒否します。"
+
+#: admin/views/form-edit.php:1199
+#: includes/class-form-list-table.php:653
+msgid "Email Address Verification"
+msgstr "メールアドレス検証"
+
+#: admin/views/form-edit.php:1210
+msgid "Enable disposable email blocking"
+msgstr "使い捨てメールアドレスのブロックを有効にする"
+
+#: admin/views/form-edit.php:1215
+msgid "Block disposable email addresses like tempmail.com"
+msgstr "tempmail.com のような使い捨てメールアドレスをブロックします"
+
+#: admin/views/form-edit.php:1228
+#: includes/class-form-plant.php:607
+msgid "Add Field"
+msgstr "フィールドを追加"
+
+#: admin/views/form-edit.php:1234
+msgid "Field Type"
+msgstr "フィールドタイプ"
+
+#: admin/views/form-edit.php:1236
+#: includes/class-field-manager.php:115
+#: includes/class-form-plant.php:1020
+msgid "Name"
+msgstr "氏名"
+
+#: admin/views/form-edit.php:1237
+#: includes/class-field-manager.php:120
+msgid "Name (Kana)"
+msgstr "フリガナ"
+
+#: admin/views/form-edit.php:1238
+msgid "Email Address"
+msgstr "メールアドレス"
+
+#: admin/views/form-edit.php:1239
+#: admin/views/form-edit.php:1718
+#: includes/class-field-manager.php:60
+msgid "Text"
+msgstr "テキスト"
+
+#: admin/views/form-edit.php:1240
+msgid "Phone Number"
+msgstr "電話番号"
+
+#: admin/views/form-edit.php:1241
+#: includes/class-field-manager.php:80
+msgid "URL"
+msgstr "URL"
+
+#: admin/views/form-edit.php:1242
+#: includes/class-field-manager.php:85
+msgid "Number"
+msgstr "数値"
+
+#: admin/views/form-edit.php:1243
+#: includes/class-field-manager.php:65
+msgid "Textarea"
+msgstr "テキストエリア"
+
+#: admin/views/form-edit.php:1244
+msgid "Select Box"
+msgstr "セレクトボックス"
+
+#: admin/views/form-edit.php:1245
+#: admin/views/form-edit.php:1672
+msgid "Radio Button"
+msgstr "ラジオボタン"
+
+#: admin/views/form-edit.php:1246
+#: admin/views/form-edit.php:1673
+#: includes/class-field-manager.php:110
+msgid "Checkbox"
+msgstr "チェックボックス"
+
+#: admin/views/form-edit.php:1247
+msgid "Date (Calendar)"
+msgstr "日付（カレンダー）"
+
+#: admin/views/form-edit.php:1248
+msgid "Date (Dropdown)"
+msgstr "日付（プルダウン）"
+
+#: admin/views/form-edit.php:1249
+#: includes/class-field-manager.php:95
+msgid "Time"
+msgstr "時間"
+
+#: admin/views/form-edit.php:1251
+#: includes/class-field-manager.php:130
+msgid "File Upload"
+msgstr "ファイルアップロード"
+
+#: admin/views/form-edit.php:1255
+#: includes/class-field-manager.php:135
+msgid "Hidden"
+msgstr "非表示"
+
+#: admin/views/form-edit.php:1256
+#: includes/class-field-manager.php:140
+msgid "HTML"
+msgstr "HTML"
+
+#: admin/views/form-edit.php:1261
+msgid "Field Name"
+msgstr "フィールド名"
+
+#: admin/views/form-edit.php:1263
+msgid "Only alphanumeric characters and underscores allowed"
+msgstr "半角英数字とアンダースコアのみ使用可能"
+
+#: admin/views/form-edit.php:1267
+msgid "Field Label"
+msgstr "フィールドラベル"
+
+#: admin/views/form-edit.php:1268
+msgid "Your Name"
+msgstr "お名前"
+
+#: admin/views/form-edit.php:1272
+#: admin/views/form-edit.php:1446
+#: admin/views/form-edit.php:1495
+#: admin/views/form-edit.php:1759
+msgid "Placeholder"
+msgstr "プレースホルダー"
+
+#: admin/views/form-edit.php:1278
+msgid "Required Field"
+msgstr "必須フィールド"
+
+#: admin/views/form-edit.php:1282
+#: admin/views/form-edit.php:1450
+#: admin/views/form-edit.php:1499
+#: admin/views/form-edit.php:1763
+msgid "Validation Message"
+msgstr "バリデーションメッセージ"
+
+#: admin/views/form-edit.php:1283
+#: includes/class-embed.php:340
+#: includes/class-form-plant.php:426
+msgid "This field is required. Please enter a value."
+msgstr "この項目は必須です。値を入力してください。"
+
+#: admin/views/form-edit.php:1284
+msgid "Message to display when required field is empty (default message used if blank)"
+msgstr "必須フィールドが空の場合に表示するメッセージ（空白の場合はデフォルトメッセージを使用）"
+
+#: admin/views/form-edit.php:1288
+msgid "Custom ID"
+msgstr "カスタム ID"
+
+#: admin/views/form-edit.php:1289
+msgid "e.g., my-custom-field"
+msgstr "例: my-custom-field"
+
+#: admin/views/form-edit.php:1290
+msgid "Set a custom ID for the field (auto-generated if blank)"
+msgstr "フィールドのカスタム ID を設定（空白の場合は自動生成）"
+
+#: admin/views/form-edit.php:1294
+msgid "Custom Class"
+msgstr "カスタムクラス"
+
+#: admin/views/form-edit.php:1295
+msgid "e.g., my-class another-class"
+msgstr "例: my-class another-class"
+
+#: admin/views/form-edit.php:1296
+msgid "CSS classes to add to the field (separate multiple with spaces)"
+msgstr "フィールドに追加する CSS クラス（複数の場合はスペースで区切る）"
+
+#: admin/views/form-edit.php:1301
+#: admin/views/form-edit.php:1690
+msgid "Options"
+msgstr "選択肢"
+
+#: admin/views/form-edit.php:1302
+msgid ""
+"value1:Label 1\n"
+"value2:Label 2\n"
+"value3"
+msgstr ""
+
+#: admin/views/form-edit.php:1303
+msgid "Enter one option per line. Use \"value:label\" format to set different value and label. If no colon, the text becomes both value and label."
+msgstr "1 行に1 つの選択肢を入力してください。「値:ラベル」形式で値とラベルを別々に設定できます。コロンがない場合は、入力したテキストが値とラベルの両方になります。"
+
+#: admin/views/form-edit.php:1312
+#: admin/views/form-edit.php:1681
+msgid "Vertical"
+msgstr "縦並び"
+
+#: admin/views/form-edit.php:1316
+#: admin/views/form-edit.php:1685
+msgid "Horizontal"
+msgstr "横並び"
+
+#: admin/views/form-edit.php:1319
+msgid "Choose how options are displayed"
+msgstr "選択肢の表示方法を選択してください"
+
+#: admin/views/form-edit.php:1324
+msgid "Delimiter"
+msgstr "区切り文字"
+
+#: admin/views/form-edit.php:1326
+msgid "Separator used when displaying multiple selected values in confirmation screen and emails"
+msgstr "確認画面やメールで複数の選択値を表示する際の区切り文字"
+
+#: admin/views/form-edit.php:1331
+msgid "Year Range Settings"
+msgstr "年の範囲設定"
+
+#: admin/views/form-edit.php:1334
+msgid "Start Year (Past)"
+msgstr "開始年（過去）"
+
+#: admin/views/form-edit.php:1343
+msgid "How many years in the past"
+msgstr "何年前まで"
+
+#: admin/views/form-edit.php:1346
+msgid "End Year (Future)"
+msgstr "終了年（未来）"
+
+#: admin/views/form-edit.php:1355
+msgid "How many years in the future"
+msgstr "何年後まで"
+
+#: admin/views/form-edit.php:1362
+msgid "File Upload Settings"
+msgstr "ファイルアップロード設定"
+
+#: admin/views/form-edit.php:1364
+msgid "Maximum File Size (MB)"
+msgstr "最大ファイルサイズ (MB)"
+
+#: admin/views/form-edit.php:1374
+msgid "Specify the maximum file size in MB (Default: 2MB)"
+msgstr "最大ファイルサイズを MB で指定（デフォルト: 2MB ）"
+
+#: admin/views/form-edit.php:1380
+msgid "Text Field Settings"
+msgstr "テキストフィールド設定"
+
+#: admin/views/form-edit.php:1383
+msgid "Size"
+msgstr "サイズ"
+
+#: admin/views/form-edit.php:1392
+msgid "Display width of the input field (number of characters)"
+msgstr "入力フィールドの表示幅（文字数）"
+
+#: admin/views/form-edit.php:1395
+msgid "Max Length"
+msgstr "最大文字数"
+
+#: admin/views/form-edit.php:1404
+msgid "Maximum number of characters allowed"
+msgstr "入力可能な最大文字数"
+
+#: admin/views/form-edit.php:1411
+msgid "Name Field Settings"
+msgstr "氏名フィールド設定"
+
+#: admin/views/form-edit.php:1413
+#: admin/views/form-edit.php:1463
+msgid "Number of Inputs"
+msgstr "入力欄の数"
+
+#: admin/views/form-edit.php:1415
+#: admin/views/form-edit.php:1465
+msgid "1 input"
+msgstr "1 つ"
+
+#: admin/views/form-edit.php:1416
+#: admin/views/form-edit.php:1466
+msgid "2 inputs (First / Last)"
+msgstr "2 つ (姓・名)"
+
+#: admin/views/form-edit.php:1417
+#: admin/views/form-edit.php:1467
+msgid "3 inputs (First / Middle / Last)"
+msgstr "3 つ (姓・ミドルネーム・名)"
+
+#: admin/views/form-edit.php:1422
+#: includes/class-field-manager.php:231
+#: includes/class-validator.php:99
+msgid "Last Name"
+msgstr "姓"
+
+#: admin/views/form-edit.php:1423
+#: includes/class-field-manager.php:232
+#: includes/class-validator.php:100
+msgid "First Name"
+msgstr "名"
+
+#: admin/views/form-edit.php:1424
+#: includes/class-field-manager.php:233
+#: includes/class-validator.php:101
+msgid "Middle Name"
+msgstr "ミドルネーム"
+
+#: admin/views/form-edit.php:1437
+msgid "Full Name"
+msgstr "氏名"
+
+#: admin/views/form-edit.php:1442
+#: admin/views/form-edit.php:1491
+msgid "Sub-label"
+msgstr "サブラベル"
+
+#: admin/views/form-edit.php:1461
+msgid "Kana Field Settings"
+msgstr "フリガナフィールド設定"
+
+#: admin/views/form-edit.php:1472
+#: includes/class-field-manager.php:245
+#: includes/class-validator.php:94
+msgid "Last Name (Kana)"
+msgstr "姓 (カナ)"
+
+#: admin/views/form-edit.php:1473
+#: includes/class-field-manager.php:246
+#: includes/class-validator.php:95
+msgid "First Name (Kana)"
+msgstr "名 (カナ)"
+
+#: admin/views/form-edit.php:1474
+#: includes/class-field-manager.php:247
+#: includes/class-validator.php:96
+msgid "Middle Name (Kana)"
+msgstr "ミドルネーム (カナ)"
+
+#: admin/views/form-edit.php:1486
+msgid "Full Name (Kana)"
+msgstr "フリガナ"
+
+#: admin/views/form-edit.php:1507
+msgid "Kana Validation"
+msgstr "カナバリデーション"
+
+#: admin/views/form-edit.php:1510
+msgid "Katakana only"
+msgstr "カタカナのみ"
+
+#: admin/views/form-edit.php:1514
+msgid "Hiragana only"
+msgstr "ひらがなのみ"
+
+#: admin/views/form-edit.php:1518
+msgid "No validation"
+msgstr "チェックしない"
+
+#: admin/views/form-edit.php:1522
+msgid "Kana Validation Error Message"
+msgstr "カナバリデーションエラーメッセージ"
+
+#: admin/views/form-edit.php:1523
+#: includes/class-form-plant.php:432
+msgid "Please enter in katakana."
+msgstr "カタカナで入力してください。"
+
+#: admin/views/form-edit.php:1524
+msgid "Custom error message for kana validation (default message used if blank)"
+msgstr "カナバリデーションのカスタムエラーメッセージ (空欄の場合はデフォルトメッセージを使用)"
+
+#: admin/views/form-edit.php:1610
+msgid "HTML Content"
+msgstr "HTML コンテンツ"
+
+#: admin/views/form-edit.php:1612
+msgid "<p>Enter your HTML content here...</p>"
+msgstr "<p>HTML コンテンツをここに入力してください...</p>"
+
+#: admin/views/form-edit.php:1613
+msgid "Enter the HTML content to display. This field is for display only and will not be submitted."
+msgstr "表示する HTML コンテンツを入力してください。このフィールドは表示専用で、送信データには含まれません。"
+
+#: admin/views/form-edit.php:1774
+msgid "Default Value"
+msgstr "デフォルト値"
+
+#: admin/views/form-edit.php:1776
+msgid "Default value for the field"
+msgstr "フィールドのデフォルト値"
+
+#: admin/views/form-edit.php:1780
+#: admin/views/form-edit.php:1826
+#: admin/views/form-edit.php:1872
+#: admin/views/form-edit.php:1918
+#: includes/class-form-list-table.php:786
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: admin/views/form-edit.php:1781
+msgid "Save"
+msgstr "保存"
+
+#: admin/views/form-edit.php:1795
+#: admin/views/form-edit.php:1841
+#: admin/views/form-edit.php:1887
+msgid "Button Text"
+msgstr "ボタンテキスト"
+
+#: admin/views/form-edit.php:173
+#: admin/views/form-edit.php:1804
+#: admin/views/form-edit.php:1850
+#: admin/views/form-edit.php:1896
+msgid "CSS Class"
+msgstr "CSS クラス"
+
+#: admin/views/form-edit.php:1810
+#: admin/views/form-edit.php:1902
+msgid "e.g., btn btn-primary"
+msgstr "例: btn btn-primary"
+
+#: admin/views/form-edit.php:1812
+msgid "Added to the default fplant-submit-button class"
+msgstr "デフォルトの fplant-submit-button クラスに追加されます"
+
+#: admin/views/form-edit.php:186
+#: admin/views/form-edit.php:1815
+#: admin/views/form-edit.php:1861
+#: admin/views/form-edit.php:1907
+#: admin/views/submission-list.php:98
+#: includes/class-admin.php:832
+msgid "ID"
+msgstr "ID"
+
+#: admin/views/form-edit.php:1821
+msgid "e.g., my-submit-button"
+msgstr "例: my-submit-button"
+
+#: admin/views/form-edit.php:1827
+#: admin/views/form-edit.php:1873
+#: admin/views/form-edit.php:1919
+msgid "OK"
+msgstr "OK"
+
+#: admin/views/form-edit.php:1856
+msgid "e.g., btn btn-secondary"
+msgstr "例: btn btn-secondary"
+
+#: admin/views/form-edit.php:1858
+msgid "Added to the default fplant-back-button class"
+msgstr "デフォルトの fplant-back-button クラスに追加されます"
+
+#: admin/views/form-edit.php:1867
+msgid "e.g., my-back-button"
+msgstr "例: my-back-button"
+
+#: admin/views/form-edit.php:1904
+msgid "Added to the default fplant-confirm-submit-button class"
+msgstr "デフォルトの fplant-confirm-submit-button クラスに追加されます"
+
+#: admin/views/form-edit.php:1913
+msgid "e.g., my-confirm-submit-button"
+msgstr "例: my-confirm-submit-button"
+
+#: admin/views/form-list.php:14
+#: includes/class-admin.php:202
+#: includes/class-admin.php:203
+msgid "Form List"
+msgstr "フォーム一覧"
+
+#: admin/views/form-list.php:17
+#: includes/class-form-plant.php:205
+msgid "Add New Form"
+msgstr "新規フォーム追加"
+
+#. translators: %d: number of forms
+#: admin/views/form-list.php:39
+#, php-format
+msgid "%d form moved to Trash."
+msgid_plural "%d forms moved to Trash."
+msgstr[0] "%d 件のフォームをゴミ箱に移動しました。"
+
+#. translators: %d: number of forms
+#: admin/views/form-list.php:52
+#, php-format
+msgid "%d form restored."
+msgid_plural "%d forms restored."
+msgstr[0] "%d 件のフォームを復元しました。"
+
+#. translators: %d: number of forms
+#: admin/views/form-list.php:65
+#, php-format
+msgid "%d form permanently deleted."
+msgid_plural "%d forms permanently deleted."
+msgstr[0] "%d 件のフォームを完全に削除しました。"
+
+#: admin/views/form-list.php:73
+msgid "Form duplicated."
+msgstr "フォームを複製しました。"
+
+#: admin/views/form-list.php:90
+#: includes/class-form-plant.php:209
+msgid "Search Forms"
+msgstr "フォーム検索"
+
+#: admin/views/settings.php:14
+msgid "Form Plant Settings"
+msgstr "Form Plant 設定"
+
+#: admin/views/settings.php:21
+msgid "Version Information"
+msgstr "バージョン情報"
+
+#: admin/views/settings.php:26
+msgid "Version"
+msgstr "バージョン"
+
+#: admin/views/settings.php:30
+msgid "PHP Version"
+msgstr "PHP バージョン"
+
+#: admin/views/settings.php:34
+msgid "WordPress Version"
+msgstr "WordPress バージョン"
+
+#: admin/views/settings.php:42
+msgid "reCAPTCHA Settings"
+msgstr "reCAPTCHA 設定"
+
+#: admin/views/settings.php:48
+msgid "reCAPTCHA v2 (Checkbox)"
+msgstr "reCAPTCHA v2 (チェックボックス)"
+
+#: admin/views/settings.php:53
+#: admin/views/settings.php:91
+#: admin/views/settings.php:170
+msgid "Site Key"
+msgstr "サイトキー"
+
+#: admin/views/settings.php:69
+#: admin/views/settings.php:107
+#: admin/views/settings.php:189
+msgid "Secret Key"
+msgstr "シークレットキー"
+
+#: admin/views/settings.php:86
+msgid "reCAPTCHA v3 (Score-based)"
+msgstr "reCAPTCHA v3 (スコアベース)"
+
+#: admin/views/settings.php:123
+msgid "v3 Score Threshold"
+msgstr "v3 スコア閾値"
+
+#: admin/views/settings.php:138
+msgid "When using reCAPTCHA v3, submissions below this score will be flagged as spam (0.0-1.0, recommended: 0.5)"
+msgstr "reCAPTCHA v3 使用時、このスコア未満の送信はスパムとして判定されます（0.0-1.0 、推奨: 0.5 ）"
+
+#. translators: %s: Google reCAPTCHA admin URL
+#: admin/views/settings.php:148
+#, php-format
+msgid "You can get reCAPTCHA keys from %s."
+msgstr "reCAPTCHA キーは %s から取得できます。"
+
+#: admin/views/settings.php:154
+#: admin/views/settings.php:217
+#: admin/views/settings.php:278
+msgid "Save Settings"
+msgstr "設定を保存"
+
+#: admin/views/settings.php:160
+msgid "Cloudflare Turnstile Settings"
+msgstr "Cloudflare Turnstile 設定"
+
+#: admin/views/settings.php:182
+msgid "Enter your Cloudflare Turnstile site key."
+msgstr "Cloudflare Turnstile のサイトキーを入力してください。"
+
+#: admin/views/settings.php:201
+msgid "Enter your Cloudflare Turnstile secret key."
+msgstr "Cloudflare Turnstile のシークレットキーを入力してください。"
+
+#. translators: %s: Cloudflare Dashboard URL
+#: admin/views/settings.php:211
+#, php-format
+msgid "You can get Turnstile keys from %s."
+msgstr "Turnstile キーは %s から取得できます。"
+
+#: admin/views/settings.php:223
+msgid "Blocklist Settings"
+msgstr "ブロックリスト設定"
+
+#. translators: %s: GitHub repository URL
+#: admin/views/settings.php:230
+#, php-format
+msgid "This plugin includes a built-in list of disposable email domains. The list is based on %s (CC0 1.0 / Public Domain). Form submissions using email addresses from these domains are automatically blocked. Use the fields below to add additional domains or keywords to block."
+msgstr "このプラグインには使い捨てメールドメインのリストが組み込まれています。リストは %s (CC0 1.0 / パブリックドメイン) に基づいています。これらのドメインのメールアドレスが入力された場合には自動的にブロックされます。追加で必要な場合は以下に設定してください。"
+
+#: admin/views/settings.php:243
+msgid "Blocked Email Domains (one per line)"
+msgstr "ブロックするメールドメイン (1 行に 1 つ)"
+
+#: admin/views/settings.php:254
+msgid "e.g., tempmail.com, throwaway.email"
+msgstr "例: tempmail.com, throwaway.email"
+
+#: admin/views/settings.php:261
+msgid "Blocked Keywords (one per line)"
+msgstr "ブロックするキーワード (1 行に 1 つ)"
+
+#: admin/views/settings.php:272
+msgid "Submissions containing these keywords will be blocked."
+msgstr "これらのキーワードを含む送信がブロックされます。"
+
+#: admin/views/submission-list.php:14
+#: includes/class-admin.php:225
+#: includes/class-admin.php:226
+#: includes/class-admin.php:557
+#: includes/class-form-list-table.php:79
+msgid "Submissions"
+msgstr "送信データ"
+
+#: admin/views/submission-list.php:20
+msgid "Filter by Form"
+msgstr "フォームで絞り込み"
+
+#: admin/views/submission-list.php:22
+msgid "All Forms"
+msgstr "すべてのフォーム"
+
+#: admin/views/submission-list.php:31
+msgid "Start Date"
+msgstr "開始日"
+
+#: admin/views/submission-list.php:35
+msgid "End Date"
+msgstr "終了日"
+
+#: admin/views/submission-list.php:39
+#: admin/views/submission-list.php:43
+msgid "Search"
+msgstr "検索"
+
+#: admin/views/submission-list.php:40
+msgid "Search in submission data..."
+msgstr "送信データを検索..."
+
+#: admin/views/submission-list.php:64
+msgid "Export CSV"
+msgstr "CSV エクスポート"
+
+#: admin/views/submission-list.php:67
+msgid "Delete Selected"
+msgstr "選択項目を削除"
+
+#: admin/views/submission-list.php:74
+msgid "No submissions yet."
+msgstr "送信データはまだありません。"
+
+#. translators: 1: first item number, 2: last item number, 3: total items
+#: admin/views/submission-list.php:84
+#, php-format
+msgid "%1$d-%2$d of %3$d items"
+msgstr "%3$d 件中 %1$d-%2$d 件"
+
+#: admin/views/submission-list.php:99
+#: includes/class-admin.php:836
+#: includes/class-form-plant.php:203
+#: templates/embed.php:39
+#: blocks/form-block/index.js:119
+#: blocks/form-block/index.js:186
+msgid "Form"
+msgstr "フォーム"
+
+#: admin/views/submission-list.php:101
+#: includes/class-admin.php:458
+msgid "File"
+msgstr "ファイル"
+
+#: admin/views/submission-list.php:103
+#: includes/class-field-manager.php:90
+#: includes/class-form-list-table.php:91
+msgid "Date"
+msgstr "日付"
+
+#: admin/views/submission-list.php:105
+#: includes/class-admin.php:463
+#: includes/class-admin.php:844
+msgid "IP Address"
+msgstr "IP アドレス"
+
+#: admin/views/submission-list.php:107
+msgid "Actions"
+msgstr "操作"
+
+#: admin/views/submission-list.php:148
+msgid "Contains file attachment"
+msgstr "添付ファイルあり"
+
+#: admin/views/submission-list.php:160
+msgid "View"
+msgstr "表示"
+
+#: admin/views/submission-list.php:192
+#: admin/views/submission-list.php:194
+msgid "Previous"
+msgstr "前へ"
+
+#: admin/views/submission-list.php:225
+#: admin/views/submission-list.php:227
+msgid "Next"
+msgstr "次へ"
+
+#: admin/views/submission-list.php:238
+msgid "Submission Details"
+msgstr "送信データ詳細"
+
+#: admin/views/submission-list.php:242
+#: includes/class-form-plant.php:701
+msgid "Loading..."
+msgstr "読み込み中..."
+
+#: admin/views/submission-list.php:245
+msgid "Close"
+msgstr "閉じる"
+
+#: includes/class-admin.php:215
+#: includes/class-admin.php:216
+#: includes/class-form-plant.php:204
+msgid "Add New"
+msgstr "新規追加"
+
+#: includes/class-admin.php:248
+#: includes/class-admin.php:249
+msgid "Settings"
+msgstr "設定"
+
+#: includes/class-admin.php:389
+#: includes/class-admin.php:500
+msgid "Number of items per page"
+msgstr "ページ毎の表示件数"
+
+#: includes/class-admin.php:454
+#: includes/class-admin.php:566
+msgid "Columns"
+msgstr "カラム"
+
+#: includes/class-admin.php:550
+#: includes/class-form-list-table.php:72
+msgid "Shortcode"
+msgstr "ショートコード"
+
+#: includes/class-admin.php:551
+#: includes/class-form-list-table.php:73
+msgid "Field Count"
+msgstr "フィールド数"
+
+#: includes/class-admin.php:552
+#: includes/class-form-list-table.php:74
+msgid "Field Names"
+msgstr "フィールド名"
+
+#: includes/class-admin.php:555
+#: includes/class-form-list-table.php:77
+msgid "After Submit Action"
+msgstr "送信後アクション"
+
+#: includes/class-admin.php:556
+#: includes/class-form-list-table.php:78
+msgid "Submission Data Settings"
+msgstr "送信データ設定"
+
+#: includes/class-admin.php:558
+#: includes/class-form-list-table.php:80
+msgid "External Embed"
+msgstr "外部利用"
+
+#: includes/class-admin.php:560
+#: includes/class-form-list-table.php:82
+msgid "Author"
+msgstr "投稿者"
+
+#: includes/class-admin.php:620
+#: includes/class-admin.php:674
+#: includes/class-admin.php:702
+#: includes/class-admin.php:729
+#: includes/class-admin.php:762
+#: includes/class-admin.php:789
+#: includes/class-admin.php:969
+#: includes/class-admin.php:1018
+#: includes/class-admin.php:1251
+msgid "Permission denied"
+msgstr "権限がありません"
+
+#: includes/class-admin.php:628
+msgid "Invalid form data format"
+msgstr "フォームデータの形式が無効です"
+
+#: includes/class-admin.php:640
+msgid "Form saved"
+msgstr "フォームを保存しました"
+
+#: includes/class-admin.php:645
+msgid "Failed to save form"
+msgstr "フォームの保存に失敗しました"
+
+#: includes/class-admin.php:655
+msgid "Form created"
+msgstr "フォームを作成しました"
+
+#: includes/class-admin.php:660
+msgid "Failed to create form"
+msgstr "フォームの作成に失敗しました"
+
+#: includes/class-admin.php:680
+#: includes/class-admin.php:708
+#: includes/class-admin.php:735
+#: includes/class-admin.php:1259
+msgid "Form ID not specified"
+msgstr "フォーム ID が未指定です"
+
+#: includes/class-admin.php:687
+msgid "Form deleted"
+msgstr "フォームを削除しました"
+
+#: includes/class-admin.php:689
+msgid "Failed to delete form"
+msgstr "フォームの削除に失敗しました"
+
+#: includes/class-admin.php:714
+msgid "Form moved to trash"
+msgstr "フォームをゴミ箱に移動しました"
+
+#: includes/class-admin.php:716
+msgid "Failed to move form"
+msgstr "フォームの移動に失敗しました"
+
+#: includes/class-admin.php:744
+msgid "Form duplicated"
+msgstr "フォームを複製しました"
+
+#: includes/class-admin.php:749
+msgid "Failed to duplicate form"
+msgstr "フォームの複製に失敗しました"
+
+#: includes/class-admin.php:795
+msgid "Submission ID not specified"
+msgstr "送信 ID が指定されていません"
+
+#: includes/class-admin.php:802
+#: includes/class-admin.php:1032
+msgid "Submission not found"
+msgstr "送信データが見つかりません"
+
+#: includes/class-admin.php:809
+#: includes/class-embed.php:64
+#: includes/class-rest-api.php:286
+#: includes/class-rest-api.php:510
+#: includes/class-rest-api.php:630
+#: includes/class-shortcode.php:55
+#: includes/class-submission-manager.php:51
+#: includes/class-submission-manager.php:348
+msgid "Form not found"
+msgstr "フォームが見つかりません"
+
+#: includes/class-admin.php:840
+msgid "Submitted At"
+msgstr "送信日時"
+
+#: includes/class-admin.php:848
+msgid "User Agent"
+msgstr "ユーザーエージェント"
+
+#: includes/class-admin.php:853
+msgid "Referrer"
+msgstr "リファラー"
+
+#: includes/class-admin.php:864
+msgid "Input data was not saved (metadata only setting)"
+msgstr "入力データは保存されていません（メタデータのみ設定）"
+
+#: includes/class-admin.php:976
+msgid "No data specified for deletion"
+msgstr "削除するデータが指定されていません"
+
+#. translators: %d: number of deleted submissions
+#: includes/class-admin.php:996
+#, php-format
+msgid "%d submission deleted"
+msgid_plural "%d submissions deleted"
+msgstr[0] "%d 件の送信データを削除しました"
+
+#: includes/class-admin.php:1003
+msgid "Failed to delete data"
+msgstr "データの削除に失敗しました"
+
+#: includes/class-admin.php:1013
+msgid "Security check failed"
+msgstr "セキュリティチェックに失敗しました"
+
+#: includes/class-admin.php:1026
+msgid "Invalid parameters"
+msgstr "無効なパラメータです"
+
+#: includes/class-admin.php:1037
+msgid "Field not found"
+msgstr "フィールドが見つかりません"
+
+#: includes/class-admin.php:1042
+#: includes/class-admin.php:1061
+msgid "File not found"
+msgstr "ファイルが見つかりません"
+
+#: includes/class-admin.php:1056
+msgid "Access denied"
+msgstr "アクセスが拒否されました"
+
+#: includes/class-admin.php:1143
+#: includes/class-admin.php:1152
+#: includes/class-admin.php:1161
+#: includes/class-admin.php:1171
+#: includes/class-rest-api.php:492
+#: includes/class-rest-api.php:555
+#: includes/class-rest-api.php:612
+#: includes/class-submission-manager.php:173
+#: includes/class-submission-manager.php:196
+#: includes/class-submission-manager.php:329
+#: includes/class-submission-manager.php:359
+msgid "Invalid request"
+msgstr "無効なリクエスト"
+
+#: includes/class-admin.php:1282
+msgid "Form updated"
+msgstr "フォームを更新しました"
+
+#. translators: %s: form title
+#: includes/class-email-handler.php:76
+#, php-format
+msgid "[%s] New Inquiry"
+msgstr "[%s] 新しいお問い合わせ"
+
+#: includes/class-email-handler.php:192
+msgid "Your inquiry has been received"
+msgstr "お問い合わせを受け付けました"
+
+#: includes/class-email-handler.php:397
+msgid "The following submission was received:"
+msgstr "以下のお問い合わせを受け付けました："
+
+#. translators: %s: submission date and time
+#: includes/class-email-handler.php:422
+#, php-format
+msgid "Submitted at: %s"
+msgstr "送信日時: %s"
+
+#. translators: %s: IP address
+#: includes/class-email-handler.php:424
+#, php-format
+msgid "IP Address: %s"
+msgstr "IP アドレス: %s"
+
+#: includes/class-email-handler.php:438
+msgid "We have received the following:"
+msgstr "以下の内容を受け付けました："
+
+#: includes/class-embed.php:70
+msgid "Iframe embedding is not allowed for this form"
+msgstr "このフォームでは iframe 埋め込みが許可されていません"
+
+#: includes/class-embed.php:81
+#: includes/class-rest-api.php:319
+msgid "Embedding from this domain is not allowed"
+msgstr "このドメインからの埋め込みは許可されていません"
+
+#: includes/class-embed.php:188
+msgid "エラー"
+msgstr "エラー"
+
+#: includes/class-embed.php:335
+#: includes/class-form-plant.php:421
+#: includes/class-rest-api.php:567
+#: includes/class-rest-api.php:799
+#: includes/class-submission-manager.php:68
+#: includes/class-submission-manager.php:431
+msgid "There are errors in your input"
+msgstr "入力内容にエラーがあります"
+
+#: includes/class-embed.php:336
+#: includes/class-form-plant.php:422
+msgid "This field is required. Please select at least one option."
+msgstr "この項目は必須です。少なくとも1 つ選択してください。"
+
+#: includes/class-embed.php:337
+#: includes/class-embed.php:338
+#: includes/class-form-plant.php:423
+#: includes/class-form-plant.php:424
+msgid "This field is required. Please make a selection."
+msgstr "この項目は必須です。選択してください。"
+
+#: includes/class-embed.php:339
+#: includes/class-form-plant.php:425
+msgid "This field is required. Please select a file."
+msgstr "この項目は必須です。ファイルを選択してください。"
+
+#. translators: %s: Maximum file size in megabytes
+#. translators: %s: maximum file size in MB
+#: includes/class-embed.php:344
+#: includes/class-form-plant.php:430
+#, php-format
+msgid "File size is too large. Please select a file under %sMB."
+msgstr "ファイルサイズが大きすぎます。%sMB 以下のファイルを選択してください。"
+
+#: includes/class-embed.php:345
+#: includes/class-form-plant.php:431
+msgid "Please select an image file."
+msgstr "画像ファイルを選択してください。"
+
+#: includes/class-embed.php:346
+#: includes/class-form-plant.php:434
+msgid "A server error occurred. Please try again."
+msgstr "サーバーエラーが発生しました。もう一度お試しください。"
+
+#: includes/class-embed.php:347
+#: includes/class-form-plant.php:435
+msgid "An error occurred. Please try again."
+msgstr "エラーが発生しました。もう一度お試しください。"
+
+#: includes/class-embed.php:348
+#: includes/class-form-plant.php:436
+msgid "reCAPTCHA verification failed. Please reload the page and try again."
+msgstr "reCAPTCHA 認証に失敗しました。ページを再読み込みしてもう一度お試しください。"
+
+#: includes/class-field-manager.php:62
+msgid "Single line text input field"
+msgstr "一行テキスト入力フィールド"
+
+#: includes/class-field-manager.php:67
+msgid "Multi-line text input field"
+msgstr "複数行テキスト入力フィールド"
+
+#: includes/class-field-manager.php:70
+#: includes/class-form-plant.php:1027
+msgid "Email"
+msgstr "メール"
+
+#: includes/class-field-manager.php:72
+msgid "Email address input field"
+msgstr "メールアドレス入力フィールド"
+
+#: includes/class-field-manager.php:75
+msgid "Phone"
+msgstr "電話番号"
+
+#: includes/class-field-manager.php:77
+msgid "Phone number input field"
+msgstr "電話番号入力フィールド"
+
+#: includes/class-field-manager.php:82
+msgid "URL input field"
+msgstr "URL 入力フィールド"
+
+#: includes/class-field-manager.php:87
+msgid "Number input field"
+msgstr "数値入力フィールド"
+
+#: includes/class-field-manager.php:92
+msgid "Date picker field"
+msgstr "日付選択フィールド"
+
+#: includes/class-field-manager.php:97
+msgid "Time picker field"
+msgstr "時間選択フィールド"
+
+#: includes/class-field-manager.php:100
+msgid "Select"
+msgstr "セレクト"
+
+#: includes/class-field-manager.php:102
+msgid "Dropdown selection field"
+msgstr "ドロップダウン選択フィールド"
+
+#: includes/class-field-manager.php:105
+msgid "Radio"
+msgstr "ラジオボタン"
+
+#: includes/class-field-manager.php:107
+msgid "Single selection field"
+msgstr "単一選択フィールド"
+
+#: includes/class-field-manager.php:112
+msgid "Multiple selection field"
+msgstr "複数選択フィールド"
+
+#: includes/class-field-manager.php:117
+msgid "Name input field with multiple parts"
+msgstr "複数パートの氏名入力フィールド"
+
+#: includes/class-field-manager.php:122
+msgid "Kana name input field with multiple parts"
+msgstr "カナ名入力フィールド (複数パーツ)"
+
+#: includes/class-field-manager.php:132
+msgid "File upload field"
+msgstr "ファイルアップロードフィールド"
+
+#: includes/class-field-manager.php:137
+msgid "Hidden field not displayed on screen"
+msgstr "画面に表示されない非表示フィールド"
+
+#: includes/class-field-manager.php:142
+msgid "Custom HTML content"
+msgstr "カスタム HTML コンテンツ"
+
+#: includes/class-field-manager.php:340
+msgid "Field type is not specified"
+msgstr "フィールドタイプが指定されていません"
+
+#: includes/class-field-manager.php:344
+msgid "Field name is not specified"
+msgstr "フィールド名が指定されていません"
+
+#: includes/class-field-manager.php:348
+#: includes/class-form-plant.php:614
+msgid "Field name can only contain alphanumeric characters and underscores"
+msgstr "フィールド名には半角英数字とアンダースコアのみ使用できます"
+
+#: includes/class-field-manager.php:352
+msgid "Unsupported field type"
+msgstr "サポートされていないフィールドタイプ"
+
+#: includes/class-field-manager.php:586
+#: includes/class-field-manager.php:629
+#: includes/class-submission-manager.php:1178
+#: includes/class-submission-manager.php:1223
+msgid "Please confirm your input"
+msgstr "入力内容をご確認ください"
+
+#: includes/class-field-manager.php:589
+#: includes/class-field-manager.php:635
+#: includes/class-submission-manager.php:1181
+#: includes/class-submission-manager.php:1229
+msgid "Please review your input below and click submit to complete."
+msgstr "以下の内容をご確認のうえ、送信ボタンを押してください。"
+
+#: includes/class-form-list-table.php:68
+msgid "Form Name"
+msgstr "フォーム名"
+
+#: includes/class-form-list-table.php:123
+msgid "All"
+msgstr "すべて"
+
+#: includes/class-form-list-table.php:128
+#: includes/class-form-list-table.php:357
+msgid "Trash"
+msgstr "ゴミ箱"
+
+#: includes/class-form-list-table.php:191
+#: includes/class-form-list-table.php:375
+msgid "Restore"
+msgstr "復元"
+
+#: includes/class-form-list-table.php:192
+#: includes/class-form-list-table.php:384
+msgid "Delete Permanently"
+msgstr "完全に削除"
+
+#: includes/class-form-list-table.php:347
+msgid "(No Title)"
+msgstr "（タイトルなし）"
+
+#: includes/class-form-list-table.php:383
+msgid "Are you sure you want to delete this permanently? This action cannot be undone."
+msgstr "これを完全に削除してもよろしいですか？この操作は取り消せません。"
+
+#: includes/class-form-list-table.php:398
+#: includes/class-form-list-table.php:764
+msgid "Quick Edit"
+msgstr "クイック編集"
+
+#: includes/class-form-list-table.php:406
+msgid "Duplicate"
+msgstr "複製"
+
+#. translators: %d: number of remaining fields
+#: includes/class-form-list-table.php:484
+#, php-format
+msgid "and %d more..."
+msgstr "他 %d 件..."
+
+#: includes/class-form-list-table.php:508
+msgid "HTML Template"
+msgstr "HTML テンプレート"
+
+#: includes/class-form-list-table.php:511
+msgid "Confirmation"
+msgstr "確認画面"
+
+#: includes/class-form-list-table.php:514
+msgid "Confirmation HTML"
+msgstr "確認画面 HTML"
+
+#: includes/class-form-list-table.php:535
+msgid "Admin Notification"
+msgstr "管理者通知"
+
+#: includes/class-form-list-table.php:538
+msgid "Auto Reply"
+msgstr "自動返信"
+
+#: includes/class-form-list-table.php:560
+msgid "Redirect"
+msgstr "リダイレクト"
+
+#: includes/class-form-list-table.php:561
+msgid "Custom Page"
+msgstr "カスタムページ"
+
+#: admin/views/form-edit.php:420
+#: admin/views/form-edit.php:1587
+#: includes/class-form-list-table.php:582
+#: includes/class-validator.php:763
+msgid "None"
+msgstr "なし"
+
+#: includes/class-form-list-table.php:583
+msgid "Metadata Only"
+msgstr "メタデータのみ"
+
+#: includes/class-form-list-table.php:584
+msgid "Full"
+msgstr "すべて"
+
+#: includes/class-form-list-table.php:645
+msgid "Rate Limit"
+msgstr "レート制限"
+
+#: includes/class-form-list-table.php:649
+msgid "Time Check"
+msgstr "時間チェック"
+
+#: includes/class-form-list-table.php:744
+msgid "No forms found in Trash."
+msgstr "ゴミ箱にフォームがありません。"
+
+#: admin/views/tools.php:45
+#: includes/class-form-list-table.php:746
+msgid "No forms found."
+msgstr "フォームが見つかりません。"
+
+#: includes/class-form-list-table.php:775
+msgid "Status"
+msgstr "ステータス"
+
+#: includes/class-form-plant.php:202
+msgid "Forms"
+msgstr "フォーム"
+
+#: includes/class-form-plant.php:208
+msgid "View Form"
+msgstr "フォーム表示"
+
+#: includes/class-form-plant.php:210
+msgid "No forms found"
+msgstr "フォームが見つかりません"
+
+#: includes/class-form-plant.php:211
+msgid "No forms found in Trash"
+msgstr "ゴミ箱にフォームが見つかりません"
+
+#: includes/class-form-plant.php:433
+msgid "Please enter in hiragana."
+msgstr "ひらがなで入力してください。"
+
+#: includes/class-form-plant.php:437
+msgid "CAPTCHA verification failed. Please reload the page and try again."
+msgstr "CAPTCHA 認証に失敗しました。ページを再読み込みしてもう一度お試しください。"
+
+#: includes/class-form-plant.php:606
+msgid "Edit Field"
+msgstr "フィールドを編集"
+
+#: includes/class-form-plant.php:608
+msgid "Value"
+msgstr "値"
+
+#: admin/views/form-edit.php:1755
+#: includes/class-form-plant.php:609
+msgid "Label"
+msgstr "ラベル"
+
+#: includes/class-form-plant.php:612
+msgid "At least one option is required"
+msgstr "少なくとも1 つの選択肢が必要です"
+
+#: includes/class-form-plant.php:613
+msgid "Please enter a field name"
+msgstr "フィールド名を入力してください"
+
+#: includes/class-form-plant.php:615
+msgid "Please enter a field label"
+msgstr "フィールドラベルを入力してください"
+
+#: includes/class-form-plant.php:616
+msgid "This field name is already in use"
+msgstr "このフィールド名は既に使用されています"
+
+#: includes/class-form-plant.php:617
+msgid "Please add at least one option"
+msgstr "少なくとも1 つの選択肢を追加してください"
+
+#: includes/class-form-plant.php:618
+msgid "Are you sure you want to delete this field?"
+msgstr "このフィールドを削除してもよろしいですか？"
+
+#: includes/class-form-plant.php:619
+msgid "Are you sure you want to delete this form?"
+msgstr "このフォームを削除してもよろしいですか？"
+
+#: includes/class-form-plant.php:620
+msgid "Move this form to trash?"
+msgstr "このフォームをゴミ箱に移動しますか？"
+
+#: includes/class-form-plant.php:621
+msgid "Delete this CSS file?"
+msgstr "この CSS ファイルを削除しますか？"
+
+#: includes/class-form-plant.php:622
+msgid "Copied!"
+msgstr "コピーしました！"
+
+#: includes/class-form-plant.php:623
+msgid "Uploading..."
+msgstr "アップロード中..."
+
+#: includes/class-form-plant.php:624
+msgid "Upload complete:"
+msgstr "アップロード完了："
+
+#: includes/class-form-plant.php:625
+#: includes/class-form-plant.php:672
+#: includes/class-form-plant.php:700
+msgid "An error occurred"
+msgstr "エラーが発生しました"
+
+#: includes/class-form-plant.php:626
+msgid "A network error occurred"
+msgstr "ネットワークエラーが発生しました"
+
+#: includes/class-form-plant.php:627
+msgid "Upload failed"
+msgstr "アップロードに失敗しました"
+
+#: includes/class-form-plant.php:628
+#: includes/class-form-plant.php:699
+msgid "Delete failed"
+msgstr "削除に失敗しました"
+
+#: includes/class-form-plant.php:632
+msgid "Dismiss this notice"
+msgstr "この通知を閉じる"
+
+#: includes/class-form-plant.php:633
+msgid "No fields yet. Click \"Add Field\" button to add one."
+msgstr "フィールドがまだありません。「フィールドを追加」ボタンをクリックして追加してください。"
+
+#: includes/class-form-plant.php:634
+msgid "Field name:"
+msgstr "フィールド名:"
+
+#: includes/class-form-plant.php:635
+msgid "Please select a CSS file (.css)"
+msgstr "CSS ファイル（.css ）を選択してください"
+
+#: includes/class-form-plant.php:638
+msgid "Error:"
+msgstr "エラー:"
+
+#: includes/class-form-plant.php:639
+msgid "The following required items are missing from the HTML template:"
+msgstr "以下の必須項目が HTML テンプレートに含まれていません："
+
+#: includes/class-form-plant.php:641
+msgid "HTML template is empty. Please add the required tags or uncheck \"Use HTML template\"."
+msgstr "HTML テンプレートが空です。必要なタグを追加するか、「 HTML テンプレートを使用」のチェックを外してください。"
+
+#: includes/class-form-plant.php:642
+msgid "Confirmation HTML template is empty. Please add the required tags or uncheck \"Use confirmation screen HTML template\"."
+msgstr "確認画面 HTML テンプレートが空です。必要なタグを追加するか、「確認画面 HTML テンプレートを使用」のチェックを外してください。"
+
+#: includes/class-form-plant.php:643
+msgid "Submit button [fplant_confirm_submit] is required in the confirmation template."
+msgstr "送信ボタン [fplant_confirm_submit] は確認画面テンプレートに必須です。"
+
+#: includes/class-form-plant.php:695
+msgid "Are you sure you want to delete this submission?"
+msgstr "この送信データを削除してもよろしいですか？"
+
+#: includes/class-form-plant.php:696
+msgid "Please select items to delete"
+msgstr "削除する項目を選択してください"
+
+#: includes/class-form-plant.php:697
+msgid "Are you sure you want to delete the selected"
+msgstr "選択した"
+
+#: includes/class-form-plant.php:698
+msgid "submissions?"
+msgstr "件の送信データを削除してもよろしいですか？"
+
+#: includes/class-admin.php:1292
+#: includes/class-admin.php:1344
+#: includes/class-form-plant.php:826
+#: includes/class-form-plant.php:930
 msgid "Permission denied."
 msgstr "権限がありません。"
 
+#: includes/class-form-plant.php:831
+#: includes/class-form-plant.php:935
 msgid "Invalid nonce."
 msgstr "不正なリクエストです。"
 
+#: includes/class-form-plant.php:837
 msgid "No file uploaded."
 msgstr "ファイルがアップロードされていません。"
 
+#: includes/class-form-plant.php:846
 msgid "Only .css files are allowed."
-msgstr ".cssファイルのみ許可されています。"
+msgstr ".css ファイルのみ許可されています。"
 
+#: includes/class-form-plant.php:856
+#: includes/class-form-plant.php:955
 msgid "Invalid file type."
 msgstr "無効なファイルタイプです。"
 
+#: includes/class-form-plant.php:861
 msgid "Failed to create upload directory."
 msgstr "アップロードディレクトリの作成に失敗しました。"
 
+#: includes/class-form-plant.php:911
+msgid "Failed to upload custom CSS file"
+msgstr "カスタム CSS ファイルのアップロードに失敗しました"
+
+#: includes/class-form-plant.php:941
 msgid "No file specified."
 msgstr "ファイルが指定されていません。"
 
+#: includes/class-form-plant.php:950
 msgid "Invalid filename."
 msgstr "無効なファイル名です。"
 
+#: includes/class-form-plant.php:963
+#: includes/class-form-plant.php:982
 msgid "File deleted."
 msgstr "ファイルを削除しました。"
 
+#: includes/class-form-plant.php:973
 msgid "Invalid file path."
 msgstr "無効なファイルパスです。"
 
+#: includes/class-form-plant.php:979
 msgid "Failed to delete file."
 msgstr "ファイルの削除に失敗しました。"
 
-# Default form strings
+#: includes/class-form-plant.php:1067
 msgid "Contact Form"
 msgstr "お問い合わせフォーム"
 
-msgid "Name"
-msgstr "お名前"
-
+#: includes/class-form-plant.php:1083
 msgid "Thank you for your message. We will get back to you shortly."
 msgstr "お問い合わせいただきありがとうございます。折り返しご連絡いたします。"
 
+#: includes/class-form-plant.php:1091
 msgid "[{site_name}] New contact form submission"
 msgstr "[{site_name}] 新しいお問い合わせ"
 
+#: includes/class-form-plant.php:1092
 msgid ""
 "You have received a new message.\n"
 "\n"
@@ -1388,6 +2246,7 @@ msgstr ""
 "メッセージ:\n"
 "{message}"
 
+#: includes/class-form-plant.php:1100
 msgid ""
 "Thank you for contacting us.\n"
 "\n"
@@ -1409,3 +2268,1519 @@ msgstr ""
 "\n"
 "折り返しご連絡いたします。"
 
+#: includes/class-rest-api.php:295
+#: includes/class-rest-api.php:519
+#: includes/class-rest-api.php:639
+msgid "JS embedding is not allowed for this form"
+msgstr "このフォームでは JavaScript 埋め込みが許可されていません"
+
+#: includes/class-rest-api.php:500
+#: includes/class-rest-api.php:620
+#: includes/class-submission-manager.php:183
+#: includes/class-submission-manager.php:339
+msgid "Invalid data format"
+msgstr "無効なデータ形式です"
+
+#: includes/class-rest-api.php:543
+#: includes/class-rest-api.php:663
+msgid "Submissions from this domain are not allowed"
+msgstr "このドメインからの送信は許可されていません"
+
+#: includes/class-rest-api.php:684
+#: includes/class-rest-api.php:693
+#: includes/class-submission-manager.php:257
+#: includes/class-submission-manager.php:266
+msgid "Submission was blocked. Please try again later."
+msgstr "送信がブロックされました。しばらくしてから再度お試しください。"
+
+#. translators: %s: field label
+#: includes/class-rest-api.php:760
+#: includes/class-rest-api.php:782
+#: includes/class-submission-manager.php:212
+#: includes/class-submission-manager.php:234
+#: includes/class-submission-manager.php:376
+#: includes/class-submission-manager.php:398
+#, php-format
+msgid "%s: This email address cannot be used"
+msgstr "%s: このメールアドレスは使用できません"
+
+#: includes/class-rest-api.php:811
+msgid "Submission processing failed"
+msgstr "送信処理に失敗しました"
+
+#: includes/class-rest-api.php:824
+#: includes/class-submission-manager.php:143
+msgid "Submission completed"
+msgstr "送信が完了しました"
+
+#: includes/class-rest-api.php:866
+msgid "reCAPTCHA verification is required"
+msgstr "reCAPTCHA 認証が必要です"
+
+#: includes/class-rest-api.php:887
+msgid "An error occurred during reCAPTCHA verification"
+msgstr "reCAPTCHA 認証中にエラーが発生しました"
+
+#: includes/class-rest-api.php:898
+#: includes/class-submission-manager.php:754
+#: includes/class-submission-manager.php:777
+msgid "reCAPTCHA verification failed"
+msgstr "reCAPTCHA 認証に失敗しました"
+
+#: includes/class-rest-api.php:909
+msgid "Submission was blocked due to suspected spam activity"
+msgstr "スパム活動の疑いがあるため送信がブロックされました"
+
+#: includes/class-rest-api.php:936
+msgid "Cloudflare Turnstile verification is required"
+msgstr "Cloudflare Turnstile 認証が必要です"
+
+#: includes/class-rest-api.php:957
+msgid "An error occurred during Cloudflare Turnstile verification"
+msgstr "Cloudflare Turnstile 認証中にエラーが発生しました"
+
+#: includes/class-rest-api.php:968
+#: includes/class-submission-manager.php:809
+msgid "Cloudflare Turnstile verification failed"
+msgstr "Cloudflare Turnstile 認証に失敗しました"
+
+#: includes/class-shortcode.php:48
+msgid "Form ID is not specified"
+msgstr "フォーム ID が指定されていません"
+
+#: includes/class-submission-manager.php:121
+msgid "Failed to save data"
+msgstr "データの保存に失敗しました"
+
+#: includes/class-submission-manager.php:442
+msgid "Validation successful"
+msgstr "バリデーション成功"
+
+#: includes/class-submission-manager.php:713
+msgid "Invalid CAPTCHA type"
+msgstr "無効な CAPTCHA タイプです"
+
+#: includes/class-submission-manager.php:748
+msgid "reCAPTCHA configuration is incomplete"
+msgstr "reCAPTCHA の設定が不完全です"
+
+#: includes/class-submission-manager.php:771
+msgid "Failed to communicate with reCAPTCHA server"
+msgstr "reCAPTCHA サーバーとの通信に失敗しました"
+
+#: includes/class-submission-manager.php:786
+msgid "Suspected spam detected"
+msgstr "スパムの疑いを検出しました"
+
+#: includes/class-submission-manager.php:803
+msgid "Cloudflare Turnstile configuration is incomplete"
+msgstr "Cloudflare Turnstile の設定が不完全です"
+
+#: includes/class-submission-manager.php:826
+msgid "Failed to communicate with Cloudflare Turnstile server"
+msgstr "Cloudflare Turnstile サーバーとの通信に失敗しました"
+
+#. translators: %s: error code from Cloudflare Turnstile
+#: includes/class-submission-manager.php:837
+#, php-format
+msgid "Cloudflare Turnstile verification failed: %s"
+msgstr "Cloudflare Turnstile 認証に失敗しました: %s"
+
+#. translators: %s: field name
+#: includes/class-submission-manager.php:952
+#: includes/class-submission-manager.php:1048
+#: includes/class-submission-manager.php:1453
+#, php-format
+msgid "Failed to upload %s"
+msgstr "%s のアップロードに失敗しました"
+
+#: includes/class-submission-manager.php:968
+#: includes/class-submission-manager.php:1016
+msgid "This file type cannot be uploaded"
+msgstr "このファイルタイプはアップロードできません"
+
+#: includes/class-submission-manager.php:977
+msgid "Invalid filename"
+msgstr "無効なファイル名"
+
+#: includes/class-submission-manager.php:1100
+msgid "Failed to create upload directory"
+msgstr "アップロードディレクトリの作成に失敗しました"
+
+#. translators: 1: field label, 2: max file size
+#: includes/class-submission-manager.php:1466
+#: includes/class-validator.php:493
+#, php-format
+msgid "%1$s file size must be %2$sMB or less"
+msgstr "%1$s のファイルサイズは %2$sMB 以下でなければなりません"
+
+#. translators: 1: field label, 2: allowed file types
+#: includes/class-submission-manager.php:1484
+#: includes/class-validator.php:507
+#, php-format
+msgid "%1$s only accepts %2$s files"
+msgstr "%1$s は %2$s ファイルのみ受け付けます"
+
+#. translators: %s: sub-field label (e.g., Last Name, First Name)
+#. translators: %s: sub-field label
+#. translators: %s: field label
+#: includes/class-embed.php:342
+#: includes/class-form-plant.php:428
+#: includes/class-validator.php:69
+#: includes/class-validator.php:115
+#: includes/class-validator.php:140
+#, php-format
+msgid "%s is required"
+msgstr "%s は必須です"
+
+#. translators: %s: field label
+#. translators: %s: sub-field label
+#: includes/class-validator.php:212
+#: includes/class-validator.php:223
+#: includes/class-validator.php:236
+#: includes/class-validator.php:339
+#: includes/class-validator.php:359
+#: includes/class-validator.php:438
+#, php-format
+msgid "%s format is invalid"
+msgstr "%s の形式が無効です"
+
+#. translators: %s: field label
+#: includes/class-validator.php:247
+#, php-format
+msgid "%s must be a number"
+msgstr "%s は数値でなければなりません"
+
+#. translators: 1: field label, 2: minimum value
+#: includes/class-validator.php:257
+#, php-format
+msgid "%1$s must be at least %2$s"
+msgstr "%1$s は %2$s 以上でなければなりません"
+
+#. translators: 1: field label, 2: maximum value
+#: includes/class-validator.php:268
+#, php-format
+msgid "%1$s must be at most %2$s"
+msgstr "%1$s は %2$s 以下でなければなりません"
+
+#. translators: %s: field label
+#: includes/class-validator.php:283
+#, php-format
+msgid "%s must be in katakana"
+msgstr "%s はカタカナで入力してください"
+
+#. translators: %s: field label
+#: includes/class-validator.php:290
+#, php-format
+msgid "%s must be in hiragana"
+msgstr "%s はひらがなで入力してください"
+
+#. translators: 1: field label, 2: minimum length
+#: includes/class-validator.php:308
+#: includes/class-validator.php:413
+#, php-format
+msgid "%1$s must be at least %2$s characters"
+msgstr "%1$s は %2$s 文字以上でなければなりません"
+
+#. translators: 1: field label, 2: maximum length
+#: includes/class-validator.php:424
+#, php-format
+msgid "%1$s must be at most %2$s characters"
+msgstr "%1$s は %2$s 文字以下でなければなりません"
+
+#. translators: %s: field label
+#: includes/class-validator.php:480
+#, php-format
+msgid "%s upload failed"
+msgstr "%s のアップロードに失敗しました"
+
+#: templates/form-fields/date_select.php:51
+msgid "Year"
+msgstr "年"
+
+#: templates/form-fields/date_select.php:65
+msgid "Month"
+msgstr "月"
+
+#: templates/form-fields/date_select.php:79
+msgid "Day"
+msgstr "日"
+
+#. translators: %s: maximum file size in MB
+#: templates/form-fields/file.php:50
+#, php-format
+msgid "Maximum file size: %sMB"
+msgstr "最大ファイルサイズ: %sMB"
+
+#: admin/views/form-edit.php:1250
+#: includes/class-field-manager.php:125
+msgid "Password"
+msgstr "パスワード"
+
+#: includes/class-field-manager.php:127
+msgid "Password input field"
+msgstr "パスワード入力フィールド"
+
+#. translators: %s: minimum character count
+#: includes/class-form-plant.php:443
+#, php-format
+msgid "Password must be at least %s characters"
+msgstr "パスワードは %s 文字以上で入力してください"
+
+#: includes/class-form-plant.php:444
+msgid "Password is not strong enough"
+msgstr "パスワードの強度が不十分です"
+
+#: includes/class-form-plant.php:445
+msgid "Very Weak"
+msgstr "非常に脆弱"
+
+#: admin/views/form-edit.php:1591
+#: includes/class-form-plant.php:446
+#: includes/class-validator.php:757
+msgid "Weak"
+msgstr "脆弱"
+
+#: admin/views/form-edit.php:1595
+#: includes/class-form-plant.php:447
+#: includes/class-validator.php:759
+msgid "Fair"
+msgstr "普通"
+
+#: admin/views/form-edit.php:1599
+#: includes/class-form-plant.php:448
+#: includes/class-validator.php:761
+msgid "Strong"
+msgstr "強力"
+
+#: includes/class-form-plant.php:449
+msgid "Very Strong"
+msgstr "非常に強力"
+
+#: includes/class-form-plant.php:450
+#: templates/form-fields/password.php:48
+msgid "Show password"
+msgstr "パスワードを表示"
+
+#: includes/class-form-plant.php:451
+msgid "Hide password"
+msgstr "パスワードを非表示"
+
+#. translators: 1: field label, 2: required strength level
+#: includes/class-validator.php:323
+#, php-format
+msgid "%1$s does not meet the required strength level (%2$s)"
+msgstr "%1$s が要求される強度レベル (%2$s) を満たしていません"
+
+#: admin/views/form-edit.php:1530
+msgid "Password Field Settings"
+msgstr "パスワードフィールド設定"
+
+#: admin/views/form-edit.php:1534
+msgid "Minimum Character Length"
+msgstr "最小文字数"
+
+#: admin/views/form-edit.php:1545
+msgid "Minimum number of characters required (leave blank for no limit)"
+msgstr "必要な最小文字数 (空欄で制限なし)"
+
+#: admin/views/form-edit.php:1553
+msgid "Mask value in email notifications"
+msgstr "メール通知で入力値を伏せる"
+
+#: admin/views/form-edit.php:1557
+msgid "Replace the password value with masked characters in email notifications"
+msgstr "メール通知でパスワードの値をマスク文字に置き換えます"
+
+#: admin/views/form-edit.php:1565
+msgid "Mask value when saving data"
+msgstr "データ保存時に入力値を伏せる"
+
+#: admin/views/form-edit.php:1569
+msgid "Replace the password value with masked characters before saving to database (irreversible)"
+msgstr "データベース保存前にパスワードの値をマスク文字に置き換えます (元に戻せません)"
+
+#: admin/views/form-edit.php:1577
+msgid "Show password strength meter"
+msgstr "パスワード強度メーターを表示"
+
+#: admin/views/form-edit.php:1583
+msgid "Required Strength Level"
+msgstr "要求する強度レベル"
+
+#: admin/views/form-edit.php:1602
+msgid "Set the minimum password strength required for submission"
+msgstr "送信に必要な最小パスワード強度を設定します"
+
+#: admin/views/tools.php:14
+#: includes/class-admin.php:238
+#: includes/class-admin.php:239
+msgid "Tools"
+msgstr "ツール"
+
+#: admin/views/tools.php:19
+#: admin/views/tools.php:53
+msgid "Export"
+msgstr "エクスポート"
+
+#: admin/views/tools.php:60
+#: admin/views/tools.php:74
+msgid "Import"
+msgstr "インポート"
+
+#: admin/views/tools.php:23
+msgid "Export form settings as a JSON file."
+msgstr "フォーム設定を JSON ファイルとしてエクスポートします。"
+
+#: admin/views/tools.php:64
+msgid "Import form settings from a JSON file."
+msgstr "JSON ファイルからフォーム設定をインポートします。"
+
+#: admin/views/tools.php:28
+msgid "All forms"
+msgstr "すべてのフォーム"
+
+#: admin/views/tools.php:32
+msgid "Selected forms"
+msgstr "選択したフォーム"
+
+#: admin/views/tools.php:65
+msgid "Imported forms are always created as new forms."
+msgstr "インポートされたフォームは常に新規フォームとして作成されます。"
+
+#: includes/class-form-plant.php:666
+msgid "Export completed."
+msgstr "エクスポートが完了しました。"
+
+#. translators: %d: number of imported forms
+#: includes/class-admin.php:1386
+#, php-format
+msgid "%d form(s) imported successfully."
+msgstr "%d 件のフォームをインポートしました。"
+
+#: includes/class-admin.php:1348
+msgid "No file selected."
+msgstr "ファイルが選択されていません。"
+
+#: includes/class-admin.php:1362
+msgid "Invalid import file."
+msgstr "無効なインポートファイルです。"
+
+#: includes/class-admin.php:1366
+msgid "No forms found in import file."
+msgstr "インポートファイルにフォームが見つかりません。"
+
+#: includes/class-form-plant.php:667
+msgid "Please select a file."
+msgstr "ファイルを選択してください。"
+
+#: includes/class-form-plant.php:668
+msgid "Please select a JSON file."
+msgstr "JSON ファイルを選択してください。"
+
+#: includes/class-form-plant.php:669
+msgid "Please select at least one form."
+msgstr "1 つ以上のフォームを選択してください。"
+
+#: includes/class-form-plant.php:670
+msgid "Import forms from this file?"
+msgstr "このファイルからフォームをインポートしますか ?"
+
+#: includes/class-form-plant.php:671
+msgid "No forms found to export."
+msgstr "エクスポートするフォームがありません。"
+
+#: admin/views/form-edit.php:1252
+#: admin/views/form-edit.php:1726
+#: admin/views/form-edit.php:1737
+#: includes/class-field-manager.php:145
+#: includes/class-field-manager.php:298
+#: includes/class-validator.php:354
+#: templates/form-fields/address-ja.php:55
+#: templates/form-fields/address.php:54
+msgid "Postal Code"
+msgstr "郵便番号"
+
+#: includes/class-field-manager.php:147
+msgid "Postal code input field with auto-fill support"
+msgstr "自動入力対応の郵便番号入力フィールド"
+
+#: admin/views/form-edit.php:1253
+#: admin/views/form-edit.php:1727
+#: includes/class-field-manager.php:150
+#: includes/class-field-manager.php:299
+#: templates/form-fields/address-ja.php:56
+msgid "Prefecture"
+msgstr "都道府県"
+
+#: includes/class-field-manager.php:152
+msgid "Japanese prefecture selection field"
+msgstr "日本の都道府県選択フィールド"
+
+#: admin/views/form-edit.php:1254
+#: includes/class-field-manager.php:155
+msgid "Address"
+msgstr "住所"
+
+#: includes/class-field-manager.php:157
+msgid "Address input field with multiple parts"
+msgstr "複数パーツに分かれた住所入力フィールド"
+
+#: admin/views/form-edit.php:1728
+#: admin/views/form-edit.php:1735
+#: includes/class-field-manager.php:300
+#: templates/form-fields/address-ja.php:57
+#: templates/form-fields/address.php:55
+msgid "City"
+msgstr "市区町村"
+
+#: admin/views/form-edit.php:1729
+#: admin/views/form-edit.php:1733
+#: includes/class-field-manager.php:301
+#: templates/form-fields/address-ja.php:58
+#: templates/form-fields/address.php:56
+msgid "Street Address"
+msgstr "番地"
+
+#: admin/views/form-edit.php:1730
+#: includes/class-field-manager.php:302
+#: templates/form-fields/address-ja.php:59
+msgid "Building / Apartment"
+msgstr "建物名"
+
+#: admin/views/form-edit.php:1738
+#: includes/class-field-manager.php:303
+#: templates/form-fields/address.php:57
+msgid "Country"
+msgstr "国"
+
+#: admin/views/form-edit.php:1736
+#: includes/class-field-manager.php:304
+#: templates/form-fields/address.php:58
+msgid "State / Province"
+msgstr "都道府県 / 州"
+
+#: admin/views/form-edit.php:1734
+#: includes/class-field-manager.php:305
+#: templates/form-fields/address.php:59
+msgid "Address Line 2"
+msgstr "住所 2"
+
+#: templates/form-fields/address-ja.php:94
+#: templates/form-fields/address-ja.php:110
+#: templates/form-fields/postal_code.php:93
+#: templates/form-fields/postal_code.php:124
+msgid "Search Address"
+msgstr "住所を検索"
+
+#: includes/class-form-plant.php:452
+msgid "Searching..."
+msgstr "検索中..."
+
+#: includes/class-form-plant.php:453
+msgid "Address not found for this postal code"
+msgstr "この郵便番号に該当する住所が見つかりません"
+
+#: includes/class-form-plant.php:454
+msgid "Address search failed. Please try again."
+msgstr "住所検索に失敗しました。もう一度お試しください。"
+
+#: admin/views/form-edit.php:1618
+msgid "Postal Code Settings"
+msgstr "郵便番号設定"
+
+#: admin/views/form-edit.php:1620
+msgid "Input Format"
+msgstr "入力形式"
+
+#: admin/views/form-edit.php:1622
+#: admin/views/form-edit.php:1702
+msgid "Single input"
+msgstr "1 枠入力"
+
+#: admin/views/form-edit.php:1623
+#: admin/views/form-edit.php:1703
+msgid "Split input (3 + 4 digits)"
+msgstr "2 枠入力 (3 桁 + 4 桁)"
+
+#: admin/views/form-edit.php:1636
+msgid "Enable auto-fill from postal code"
+msgstr "郵便番号から住所を自動入力する"
+
+#: admin/views/form-edit.php:1638
+msgid "Automatically fills address fields when a valid postal code is entered. Available for Japanese locale only."
+msgstr "有効な郵便番号が入力されると、住所フィールドに自動入力します。日本語ロケールでのみ利用可能です。"
+
+#: admin/views/form-edit.php:1645
+msgid "Auto-fill field 1"
+msgstr "住所自動入力フィールド 1"
+
+#: admin/views/form-edit.php:1651
+msgid "Auto-fill field 2"
+msgstr "住所自動入力フィールド 2"
+
+#: admin/views/form-edit.php:1657
+msgid "Auto-fill field 3"
+msgstr "住所自動入力フィールド 3"
+
+#: admin/views/form-edit.php:1642
+msgid "Field 1 only (text): all address info. Field 1 only (select): prefecture only. Fields 1+2: prefecture + remaining. Fields 1+2+3: prefecture, city, street."
+msgstr "フィールド 1 のみ (テキスト): 全住所情報。フィールド 1 のみ (選択式): 都道府県のみ。フィールド 1+2: 都道府県 + 残り全情報。フィールド 1+2+3: 都道府県、市区町村、町域。"
+
+#: admin/views/form-edit.php:1647
+#: admin/views/form-edit.php:1653
+#: admin/views/form-edit.php:1659
+msgid "-- Not set --"
+msgstr "-- 未設定 --"
+
+#: admin/views/form-edit.php:1667
+msgid "Prefecture Settings"
+msgstr "都道府県設定"
+
+#: admin/views/form-edit.php:1669
+msgid "Display Type"
+msgstr "表示タイプ"
+
+#: admin/views/form-edit.php:1671
+#: admin/views/form-edit.php:1717
+msgid "Dropdown"
+msgstr "ドロップダウン"
+
+#: admin/views/form-edit.php:1698
+msgid "Address Settings"
+msgstr "住所設定"
+
+#: admin/views/form-edit.php:1700
+msgid "Postal Code Format"
+msgstr "郵便番号の形式"
+
+#: admin/views/form-edit.php:1715
+msgid "Prefecture Display Type"
+msgstr "都道府県の表示タイプ"
+
+#: admin/views/form-edit.php:1705
+#: admin/views/form-edit.php:1720
+msgid "Japanese locale only."
+msgstr "日本語ロケールでのみ有効です。"
+
+#: admin/views/form-edit.php:1629
+#: admin/views/form-edit.php:1710
+msgid "Show search button"
+msgstr "検索ボタンを表示"
+
+#: admin/views/form-edit.php:1631
+#: admin/views/form-edit.php:1712
+msgid "Display a search button next to the postal code input."
+msgstr "郵便番号入力の横に検索ボタンを表示します。"
+
+#: admin/views/form-edit.php:1692
+msgid "Enter one option per line. You can change the order or edit choices."
+msgstr "1 行に 1 つの選択肢を入力してください。順序や選択肢を変更できます。"
+
+#: admin/views/form-edit.php:1723
+msgid "Sub-field Labels"
+msgstr "サブフィールドのラベル"
+
+#: admin/views/form-edit.php:1451
+#: admin/views/form-edit.php:1500
+#: admin/views/form-edit.php:1764
+msgid "Default message used if blank"
+msgstr "空欄の場合はデフォルトメッセージを使用"
+
+#: includes/class-form-plant.php:644
+msgid "Changes have not been saved. Are you sure you want to close?"
+msgstr "変更が保存されていません。閉じてもよろしいですか ?"
+
+#: admin/views/form-edit.php:213
+msgid "Required Mark"
+msgstr "必須マーク"
+
+#: admin/views/form-edit.php:221
+msgid "Text displayed next to the label of required fields (e.g., *, Required)"
+msgstr "必須項目のラベル横に表示するテキスト (例: *, 必須)"
+
+#: admin/views/form-edit.php:417
+msgid "Simple 1 (vertical)"
+msgstr "シンプル 1 (縦配置)"
+
+#: admin/views/form-edit.php:418
+msgid "Simple 2 (horizontal)"
+msgstr "シンプル 2 (横並び)"
+
+#: admin/views/form-edit.php:419
+msgid "Normal (decorated)"
+msgstr "ノーマル (装飾あり)"
+
+#: admin/views/form-edit.php:441
+msgid "Download CSS"
+msgstr "CSS をダウンロード"
+
+#: admin/views/form-edit.php:410
+msgid "Form Design"
+msgstr "フォームデザイン"
+
+#: admin/views/form-edit.php:414
+msgid "Default CSS Settings"
+msgstr "デフォルト CSS 設定"
+
+#: admin/views/form-edit.php:453
+msgid "Upload your own CSS files to customize the form appearance."
+msgstr "独自に CSS を利用する場合、アップロードしてください。"
+
+#: admin/views/form-edit.php:489
+msgid "Enter custom CSS directly"
+msgstr "カスタム CSS を直接入力"
+
+#: admin/views/form-edit.php:458
+msgid "Upload"
+msgstr "アップロード"
+
+#: includes/class-form-plant.php:636
+msgid "Maximum 10 CSS files can be uploaded."
+msgstr "CSS ファイルは最大 10 件までアップロードできます。"
+
+#: blocks/form-block/index.js:85
+msgid "— Select a form —"
+msgstr "— フォームを選択 —"
+
+#: blocks/form-block/index.js:117
+msgid "Form settings"
+msgstr "フォーム設定"
+
+#: blocks/form-block/index.js:172
+msgid "Select a form to embed."
+msgstr "埋め込むフォームを選択してください。"
+
+#: blocks/form-block/index.js:157
+msgid "No forms have been created yet."
+msgstr "まだフォームが作成されていません。"
+
+#: blocks/form-block/index.js:162
+msgid "Create a form"
+msgstr "フォームを作成"
+
+#: blocks/form-block/index.js:77
+msgid "Failed to load forms."
+msgstr "フォーム一覧の読み込みに失敗しました。"
+
+#: includes/class-admin.php:1354
+msgid "Invalid upload."
+msgstr ""
+
+#: includes/class-field-manager.php:790
+msgid "Afghanistan"
+msgstr ""
+
+#: includes/class-field-manager.php:791
+msgid "Albania"
+msgstr ""
+
+#: includes/class-field-manager.php:792
+msgid "Algeria"
+msgstr ""
+
+#: includes/class-field-manager.php:793
+msgid "Andorra"
+msgstr ""
+
+#: includes/class-field-manager.php:794
+msgid "Angola"
+msgstr ""
+
+#: includes/class-field-manager.php:795
+msgid "Antigua and Barbuda"
+msgstr ""
+
+#: includes/class-field-manager.php:796
+msgid "Argentina"
+msgstr ""
+
+#: includes/class-field-manager.php:797
+msgid "Armenia"
+msgstr ""
+
+#: includes/class-field-manager.php:798
+msgid "Australia"
+msgstr ""
+
+#: includes/class-field-manager.php:799
+msgid "Austria"
+msgstr ""
+
+#: includes/class-field-manager.php:800
+msgid "Azerbaijan"
+msgstr ""
+
+#: includes/class-field-manager.php:801
+msgid "Bahamas"
+msgstr ""
+
+#: includes/class-field-manager.php:802
+msgid "Bahrain"
+msgstr ""
+
+#: includes/class-field-manager.php:803
+msgid "Bangladesh"
+msgstr ""
+
+#: includes/class-field-manager.php:804
+msgid "Barbados"
+msgstr ""
+
+#: includes/class-field-manager.php:805
+msgid "Belarus"
+msgstr ""
+
+#: includes/class-field-manager.php:806
+msgid "Belgium"
+msgstr ""
+
+#: includes/class-field-manager.php:807
+msgid "Belize"
+msgstr ""
+
+#: includes/class-field-manager.php:808
+msgid "Benin"
+msgstr ""
+
+#: includes/class-field-manager.php:809
+msgid "Bhutan"
+msgstr ""
+
+#: includes/class-field-manager.php:810
+msgid "Bolivia"
+msgstr ""
+
+#: includes/class-field-manager.php:811
+msgid "Bosnia and Herzegovina"
+msgstr ""
+
+#: includes/class-field-manager.php:812
+msgid "Botswana"
+msgstr ""
+
+#: includes/class-field-manager.php:813
+msgid "Brazil"
+msgstr ""
+
+#: includes/class-field-manager.php:814
+msgid "Brunei"
+msgstr ""
+
+#: includes/class-field-manager.php:815
+msgid "Bulgaria"
+msgstr ""
+
+#: includes/class-field-manager.php:816
+msgid "Burkina Faso"
+msgstr ""
+
+#: includes/class-field-manager.php:817
+msgid "Burundi"
+msgstr ""
+
+#: includes/class-field-manager.php:818
+msgid "Cabo Verde"
+msgstr ""
+
+#: includes/class-field-manager.php:819
+msgid "Cambodia"
+msgstr ""
+
+#: includes/class-field-manager.php:820
+msgid "Cameroon"
+msgstr ""
+
+#: includes/class-field-manager.php:821
+msgid "Canada"
+msgstr ""
+
+#: includes/class-field-manager.php:822
+msgid "Central African Republic"
+msgstr ""
+
+#: includes/class-field-manager.php:823
+msgid "Chad"
+msgstr ""
+
+#: includes/class-field-manager.php:824
+msgid "Chile"
+msgstr ""
+
+#: includes/class-field-manager.php:825
+msgid "China"
+msgstr ""
+
+#: includes/class-field-manager.php:826
+msgid "Colombia"
+msgstr ""
+
+#: includes/class-field-manager.php:827
+msgid "Comoros"
+msgstr ""
+
+#: includes/class-field-manager.php:828
+msgid "Congo"
+msgstr ""
+
+#: includes/class-field-manager.php:829
+msgid "Congo (Democratic Republic)"
+msgstr ""
+
+#: includes/class-field-manager.php:830
+msgid "Costa Rica"
+msgstr ""
+
+#: includes/class-field-manager.php:831
+msgid "Côte d'Ivoire"
+msgstr ""
+
+#: includes/class-field-manager.php:832
+msgid "Croatia"
+msgstr ""
+
+#: includes/class-field-manager.php:833
+msgid "Cuba"
+msgstr ""
+
+#: includes/class-field-manager.php:834
+msgid "Cyprus"
+msgstr ""
+
+#: includes/class-field-manager.php:835
+msgid "Czech Republic"
+msgstr ""
+
+#: includes/class-field-manager.php:836
+msgid "Denmark"
+msgstr ""
+
+#: includes/class-field-manager.php:837
+msgid "Djibouti"
+msgstr ""
+
+#: includes/class-field-manager.php:838
+msgid "Dominica"
+msgstr ""
+
+#: includes/class-field-manager.php:839
+msgid "Dominican Republic"
+msgstr ""
+
+#: includes/class-field-manager.php:840
+msgid "Ecuador"
+msgstr ""
+
+#: includes/class-field-manager.php:841
+msgid "Egypt"
+msgstr ""
+
+#: includes/class-field-manager.php:842
+msgid "El Salvador"
+msgstr ""
+
+#: includes/class-field-manager.php:843
+msgid "Equatorial Guinea"
+msgstr ""
+
+#: includes/class-field-manager.php:844
+msgid "Eritrea"
+msgstr ""
+
+#: includes/class-field-manager.php:845
+msgid "Estonia"
+msgstr ""
+
+#: includes/class-field-manager.php:846
+msgid "Eswatini"
+msgstr ""
+
+#: includes/class-field-manager.php:847
+msgid "Ethiopia"
+msgstr ""
+
+#: includes/class-field-manager.php:848
+msgid "Fiji"
+msgstr ""
+
+#: includes/class-field-manager.php:849
+msgid "Finland"
+msgstr ""
+
+#: includes/class-field-manager.php:850
+msgid "France"
+msgstr ""
+
+#: includes/class-field-manager.php:851
+msgid "Gabon"
+msgstr ""
+
+#: includes/class-field-manager.php:852
+msgid "Gambia"
+msgstr ""
+
+#: includes/class-field-manager.php:853
+msgid "Georgia"
+msgstr ""
+
+#: includes/class-field-manager.php:854
+msgid "Germany"
+msgstr ""
+
+#: includes/class-field-manager.php:855
+msgid "Ghana"
+msgstr ""
+
+#: includes/class-field-manager.php:856
+msgid "Greece"
+msgstr ""
+
+#: includes/class-field-manager.php:857
+msgid "Grenada"
+msgstr ""
+
+#: includes/class-field-manager.php:858
+msgid "Guatemala"
+msgstr ""
+
+#: includes/class-field-manager.php:859
+msgid "Guinea"
+msgstr ""
+
+#: includes/class-field-manager.php:860
+msgid "Guinea-Bissau"
+msgstr ""
+
+#: includes/class-field-manager.php:861
+msgid "Guyana"
+msgstr ""
+
+#: includes/class-field-manager.php:862
+msgid "Haiti"
+msgstr ""
+
+#: includes/class-field-manager.php:863
+msgid "Honduras"
+msgstr ""
+
+#: includes/class-field-manager.php:864
+msgid "Hungary"
+msgstr ""
+
+#: includes/class-field-manager.php:865
+msgid "Iceland"
+msgstr ""
+
+#: includes/class-field-manager.php:866
+msgid "India"
+msgstr ""
+
+#: includes/class-field-manager.php:867
+msgid "Indonesia"
+msgstr ""
+
+#: includes/class-field-manager.php:868
+msgid "Iran"
+msgstr ""
+
+#: includes/class-field-manager.php:869
+msgid "Iraq"
+msgstr ""
+
+#: includes/class-field-manager.php:870
+msgid "Ireland"
+msgstr ""
+
+#: includes/class-field-manager.php:871
+msgid "Israel"
+msgstr ""
+
+#: includes/class-field-manager.php:872
+msgid "Italy"
+msgstr ""
+
+#: includes/class-field-manager.php:873
+msgid "Jamaica"
+msgstr ""
+
+#: includes/class-field-manager.php:874
+msgid "Japan"
+msgstr ""
+
+#: includes/class-field-manager.php:875
+msgid "Jordan"
+msgstr ""
+
+#: includes/class-field-manager.php:876
+msgid "Kazakhstan"
+msgstr ""
+
+#: includes/class-field-manager.php:877
+msgid "Kenya"
+msgstr ""
+
+#: includes/class-field-manager.php:878
+msgid "Kiribati"
+msgstr ""
+
+#: includes/class-field-manager.php:879
+msgid "Korea (North)"
+msgstr ""
+
+#: includes/class-field-manager.php:880
+msgid "Korea (South)"
+msgstr ""
+
+#: includes/class-field-manager.php:881
+msgid "Kuwait"
+msgstr ""
+
+#: includes/class-field-manager.php:882
+msgid "Kyrgyzstan"
+msgstr ""
+
+#: includes/class-field-manager.php:883
+msgid "Laos"
+msgstr ""
+
+#: includes/class-field-manager.php:884
+msgid "Latvia"
+msgstr ""
+
+#: includes/class-field-manager.php:885
+msgid "Lebanon"
+msgstr ""
+
+#: includes/class-field-manager.php:886
+msgid "Lesotho"
+msgstr ""
+
+#: includes/class-field-manager.php:887
+msgid "Liberia"
+msgstr ""
+
+#: includes/class-field-manager.php:888
+msgid "Libya"
+msgstr ""
+
+#: includes/class-field-manager.php:889
+msgid "Liechtenstein"
+msgstr ""
+
+#: includes/class-field-manager.php:890
+msgid "Lithuania"
+msgstr ""
+
+#: includes/class-field-manager.php:891
+msgid "Luxembourg"
+msgstr ""
+
+#: includes/class-field-manager.php:892
+msgid "Madagascar"
+msgstr ""
+
+#: includes/class-field-manager.php:893
+msgid "Malawi"
+msgstr ""
+
+#: includes/class-field-manager.php:894
+msgid "Malaysia"
+msgstr ""
+
+#: includes/class-field-manager.php:895
+msgid "Maldives"
+msgstr ""
+
+#: includes/class-field-manager.php:896
+msgid "Mali"
+msgstr ""
+
+#: includes/class-field-manager.php:897
+msgid "Malta"
+msgstr ""
+
+#: includes/class-field-manager.php:898
+msgid "Marshall Islands"
+msgstr ""
+
+#: includes/class-field-manager.php:899
+msgid "Mauritania"
+msgstr ""
+
+#: includes/class-field-manager.php:900
+msgid "Mauritius"
+msgstr ""
+
+#: includes/class-field-manager.php:901
+msgid "Mexico"
+msgstr ""
+
+#: includes/class-field-manager.php:902
+msgid "Micronesia"
+msgstr ""
+
+#: includes/class-field-manager.php:903
+msgid "Moldova"
+msgstr ""
+
+#: includes/class-field-manager.php:904
+msgid "Monaco"
+msgstr ""
+
+#: includes/class-field-manager.php:905
+msgid "Mongolia"
+msgstr ""
+
+#: includes/class-field-manager.php:906
+msgid "Montenegro"
+msgstr ""
+
+#: includes/class-field-manager.php:907
+msgid "Morocco"
+msgstr ""
+
+#: includes/class-field-manager.php:908
+msgid "Mozambique"
+msgstr ""
+
+#: includes/class-field-manager.php:909
+msgid "Myanmar"
+msgstr ""
+
+#: includes/class-field-manager.php:910
+msgid "Namibia"
+msgstr ""
+
+#: includes/class-field-manager.php:911
+msgid "Nauru"
+msgstr ""
+
+#: includes/class-field-manager.php:912
+msgid "Nepal"
+msgstr ""
+
+#: includes/class-field-manager.php:913
+msgid "Netherlands"
+msgstr ""
+
+#: includes/class-field-manager.php:914
+msgid "New Zealand"
+msgstr ""
+
+#: includes/class-field-manager.php:915
+msgid "Nicaragua"
+msgstr ""
+
+#: includes/class-field-manager.php:916
+msgid "Niger"
+msgstr ""
+
+#: includes/class-field-manager.php:917
+msgid "Nigeria"
+msgstr ""
+
+#: includes/class-field-manager.php:918
+msgid "North Macedonia"
+msgstr ""
+
+#: includes/class-field-manager.php:919
+msgid "Norway"
+msgstr ""
+
+#: includes/class-field-manager.php:920
+msgid "Oman"
+msgstr ""
+
+#: includes/class-field-manager.php:921
+msgid "Pakistan"
+msgstr ""
+
+#: includes/class-field-manager.php:922
+msgid "Palau"
+msgstr ""
+
+#: includes/class-field-manager.php:923
+msgid "Panama"
+msgstr ""
+
+#: includes/class-field-manager.php:924
+msgid "Papua New Guinea"
+msgstr ""
+
+#: includes/class-field-manager.php:925
+msgid "Paraguay"
+msgstr ""
+
+#: includes/class-field-manager.php:926
+msgid "Peru"
+msgstr ""
+
+#: includes/class-field-manager.php:927
+msgid "Philippines"
+msgstr ""
+
+#: includes/class-field-manager.php:928
+msgid "Poland"
+msgstr ""
+
+#: includes/class-field-manager.php:929
+msgid "Portugal"
+msgstr ""
+
+#: includes/class-field-manager.php:930
+msgid "Qatar"
+msgstr ""
+
+#: includes/class-field-manager.php:931
+msgid "Romania"
+msgstr ""
+
+#: includes/class-field-manager.php:932
+msgid "Russia"
+msgstr ""
+
+#: includes/class-field-manager.php:933
+msgid "Rwanda"
+msgstr ""
+
+#: includes/class-field-manager.php:934
+msgid "Saint Kitts and Nevis"
+msgstr ""
+
+#: includes/class-field-manager.php:935
+msgid "Saint Lucia"
+msgstr ""
+
+#: includes/class-field-manager.php:936
+msgid "Saint Vincent and the Grenadines"
+msgstr ""
+
+#: includes/class-field-manager.php:937
+msgid "Samoa"
+msgstr ""
+
+#: includes/class-field-manager.php:938
+msgid "San Marino"
+msgstr ""
+
+#: includes/class-field-manager.php:939
+msgid "Sao Tome and Principe"
+msgstr ""
+
+#: includes/class-field-manager.php:940
+msgid "Saudi Arabia"
+msgstr ""
+
+#: includes/class-field-manager.php:941
+msgid "Senegal"
+msgstr ""
+
+#: includes/class-field-manager.php:942
+msgid "Serbia"
+msgstr ""
+
+#: includes/class-field-manager.php:943
+msgid "Seychelles"
+msgstr ""
+
+#: includes/class-field-manager.php:944
+msgid "Sierra Leone"
+msgstr ""
+
+#: includes/class-field-manager.php:945
+msgid "Singapore"
+msgstr ""
+
+#: includes/class-field-manager.php:946
+msgid "Slovakia"
+msgstr ""
+
+#: includes/class-field-manager.php:947
+msgid "Slovenia"
+msgstr ""
+
+#: includes/class-field-manager.php:948
+msgid "Solomon Islands"
+msgstr ""
+
+#: includes/class-field-manager.php:949
+msgid "Somalia"
+msgstr ""
+
+#: includes/class-field-manager.php:950
+msgid "South Africa"
+msgstr ""
+
+#: includes/class-field-manager.php:951
+msgid "South Sudan"
+msgstr ""
+
+#: includes/class-field-manager.php:952
+msgid "Spain"
+msgstr ""
+
+#: includes/class-field-manager.php:953
+msgid "Sri Lanka"
+msgstr ""
+
+#: includes/class-field-manager.php:954
+msgid "Sudan"
+msgstr ""
+
+#: includes/class-field-manager.php:955
+msgid "Suriname"
+msgstr ""
+
+#: includes/class-field-manager.php:956
+msgid "Sweden"
+msgstr ""
+
+#: includes/class-field-manager.php:957
+msgid "Switzerland"
+msgstr ""
+
+#: includes/class-field-manager.php:958
+msgid "Syria"
+msgstr ""
+
+#: includes/class-field-manager.php:959
+msgid "Taiwan"
+msgstr ""
+
+#: includes/class-field-manager.php:960
+msgid "Tajikistan"
+msgstr ""
+
+#: includes/class-field-manager.php:961
+msgid "Tanzania"
+msgstr ""
+
+#: includes/class-field-manager.php:962
+msgid "Thailand"
+msgstr ""
+
+#: includes/class-field-manager.php:963
+msgid "Timor-Leste"
+msgstr ""
+
+#: includes/class-field-manager.php:964
+msgid "Togo"
+msgstr ""
+
+#: includes/class-field-manager.php:965
+msgid "Tonga"
+msgstr ""
+
+#: includes/class-field-manager.php:966
+msgid "Trinidad and Tobago"
+msgstr ""
+
+#: includes/class-field-manager.php:967
+msgid "Tunisia"
+msgstr ""
+
+#: includes/class-field-manager.php:968
+msgid "Turkey"
+msgstr ""
+
+#: includes/class-field-manager.php:969
+msgid "Turkmenistan"
+msgstr ""
+
+#: includes/class-field-manager.php:970
+msgid "Tuvalu"
+msgstr ""
+
+#: includes/class-field-manager.php:971
+msgid "Uganda"
+msgstr ""
+
+#: includes/class-field-manager.php:972
+msgid "Ukraine"
+msgstr ""
+
+#: includes/class-field-manager.php:973
+msgid "United Arab Emirates"
+msgstr ""
+
+#: includes/class-field-manager.php:974
+msgid "United Kingdom"
+msgstr ""
+
+#: includes/class-field-manager.php:975
+msgid "United States"
+msgstr ""
+
+#: includes/class-field-manager.php:976
+msgid "Uruguay"
+msgstr ""
+
+#: includes/class-field-manager.php:977
+msgid "Uzbekistan"
+msgstr ""
+
+#: includes/class-field-manager.php:978
+msgid "Vanuatu"
+msgstr ""
+
+#: includes/class-field-manager.php:979
+msgid "Vatican City"
+msgstr ""
+
+#: includes/class-field-manager.php:980
+msgid "Venezuela"
+msgstr ""
+
+#: includes/class-field-manager.php:981
+msgid "Vietnam"
+msgstr ""
+
+#: includes/class-field-manager.php:982
+msgid "Yemen"
+msgstr ""
+
+#: includes/class-field-manager.php:983
+msgid "Zambia"
+msgstr ""
+
+#: includes/class-field-manager.php:984
+msgid "Zimbabwe"
+msgstr ""
+
+#: blocks/form-block/index.js:128
+msgid "Edit this form"
+msgstr ""
+
+#: blocks/form-block/index.js:171
+msgid "Form selected."
+msgstr ""
+
+#: blocks/form-block/block.json
+msgctxt "block title"
+msgid "Form Plant"
+msgstr ""
+
+#: blocks/form-block/block.json
+msgctxt "block description"
+msgid "作成済みのフォームを選択して埋め込みます。"
+msgstr ""
+
+#: blocks/form-block/block.json
+msgctxt "block keyword"
+msgid "form"
+msgstr ""
+
+#: blocks/form-block/block.json
+msgctxt "block keyword"
+msgid "contact"
+msgstr ""
+
+#: blocks/form-block/block.json
+msgctxt "block keyword"
+msgid "form plant"
+msgstr ""
+
+#: blocks/form-block/block.json
+msgctxt "block keyword"
+msgid "フォーム"
+msgstr ""

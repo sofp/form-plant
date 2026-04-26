@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "form-plant/form",
+	"title": "Form Plant",
+	"category": "widgets",
+	"description": "作成済みのフォームを選択して埋め込みます。",
+	"keywords": ["form", "contact", "form plant", "フォーム"],
+	"textdomain": "form-plant",
+	"attributes": {
+		"formId": {
+			"type": "number",
+			"default": 0
+		}
+	},
+	"supports": {
+		"html": false,
+		"customClassName": false,
+		"align": ["wide", "full"]
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./editor.css"
+}

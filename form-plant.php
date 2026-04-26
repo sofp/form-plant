@@ -3,7 +3,7 @@
  * Plugin Name: Form Plant
  * Plugin URI: https://www.sofplant.com/form-plant/
  * Description: A versatile form plugin with easy modal-based setup and flexible customization options.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: SOFPLANT
  * Author URI: https://www.sofplant.com
  * License: GPL v2 or later
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'FPLANT_VERSION', '1.0.0' );
+define( 'FPLANT_VERSION', '1.1.0' );
 define( 'FPLANT_PLUGIN_FILE', __FILE__ );
 define( 'FPLANT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'FPLANT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -160,4 +160,28 @@ function fplant_get_allowed_form_html() {
 	);
 
 	return array_merge( $allowed, $form_tags );
+}
+
+/**
+ * Replace template values in HTML template.
+ *
+ * Replaces {{key}} placeholders with values provided via the 'fplant_template_values' filter.
+ * Values are automatically escaped with esc_html() for security.
+ *
+ * @param string $html    HTML template string.
+ * @param int    $form_id Form ID.
+ * @return string HTML with template values replaced.
+ */
+function fplant_replace_template_values( $html, $form_id ) {
+	$values = apply_filters( 'fplant_template_values', array(), $form_id );
+
+	if ( empty( $values ) ) {
+		return $html;
+	}
+
+	foreach ( $values as $key => $value ) {
+		$html = str_replace( '{{' . $key . '}}', esc_html( $value ), $html );
+	}
+
+	return $html;
 }

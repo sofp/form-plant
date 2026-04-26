@@ -25,8 +25,8 @@
 			'<button type="button" class="notice-dismiss"><span class="screen-reader-text">' + fplantAdminData.i18n.dismissNotice + '</span></button>' +
 			'</div>');
 
-		// Insert after .fplant-page-header
-		$('.fplant-page-header').first().after(notice);
+		// Insert after .wp-header-end
+		$('.wp-header-end').first().after(notice);
 
 		// Dismiss button handler
 		notice.find('.notice-dismiss').on('click', function() {
@@ -131,6 +131,126 @@
 		// Set HTML content
 		$('#fplant-field-html-content').val(field && field.content ? field.content : '');
 
+		// Set name parts settings
+		$('#fplant-field-name-format').val(field && field.name_format ? field.name_format : '2');
+		if (field && field.name_labels) {
+			$('#fplant-field-name-label-family').val(field.name_labels.family || '');
+			$('#fplant-field-name-label-given').val(field.name_labels.given || '');
+			$('#fplant-field-name-label-middle').val(field.name_labels.middle || '');
+		} else {
+			$('#fplant-field-name-label-family').val('');
+			$('#fplant-field-name-label-given').val('');
+			$('#fplant-field-name-label-middle').val('');
+		}
+		if (field && field.name_placeholders) {
+			$('#fplant-field-name-placeholder-family').val(field.name_placeholders.family || '');
+			$('#fplant-field-name-placeholder-given').val(field.name_placeholders.given || '');
+			$('#fplant-field-name-placeholder-middle').val(field.name_placeholders.middle || '');
+		} else {
+			$('#fplant-field-name-placeholder-family').val('');
+			$('#fplant-field-name-placeholder-given').val('');
+			$('#fplant-field-name-placeholder-middle').val('');
+		}
+		if (field && field.name_validation_messages) {
+			$('#fplant-field-name-validation-family').val(field.name_validation_messages.family || '');
+			$('#fplant-field-name-validation-given').val(field.name_validation_messages.given || '');
+			$('#fplant-field-name-validation-middle').val(field.name_validation_messages.middle || '');
+		} else {
+			$('#fplant-field-name-validation-family').val('');
+			$('#fplant-field-name-validation-given').val('');
+			$('#fplant-field-name-validation-middle').val('');
+		}
+		updateNameFormatVisibility($('#fplant-field-name-format').val());
+
+		// Set name kana settings
+		$('#fplant-field-kana-format').val(field && field.name_format ? field.name_format : '2');
+		if (field && field.name_labels) {
+			$('#fplant-field-kana-label-family').val(field.name_labels.family || '');
+			$('#fplant-field-kana-label-given').val(field.name_labels.given || '');
+			$('#fplant-field-kana-label-middle').val(field.name_labels.middle || '');
+		} else {
+			$('#fplant-field-kana-label-family').val('');
+			$('#fplant-field-kana-label-given').val('');
+			$('#fplant-field-kana-label-middle').val('');
+		}
+		if (field && field.name_placeholders) {
+			$('#fplant-field-kana-placeholder-family').val(field.name_placeholders.family || '');
+			$('#fplant-field-kana-placeholder-given').val(field.name_placeholders.given || '');
+			$('#fplant-field-kana-placeholder-middle').val(field.name_placeholders.middle || '');
+		} else {
+			$('#fplant-field-kana-placeholder-family').val('');
+			$('#fplant-field-kana-placeholder-given').val('');
+			$('#fplant-field-kana-placeholder-middle').val('');
+		}
+		if (field && field.name_validation_messages) {
+			$('#fplant-field-kana-validation-family').val(field.name_validation_messages.family || '');
+			$('#fplant-field-kana-validation-given').val(field.name_validation_messages.given || '');
+			$('#fplant-field-kana-validation-middle').val(field.name_validation_messages.middle || '');
+		} else {
+			$('#fplant-field-kana-validation-family').val('');
+			$('#fplant-field-kana-validation-given').val('');
+			$('#fplant-field-kana-validation-middle').val('');
+		}
+		// Set kana validation
+		var kanaValidation = field && field.kana_validation ? field.kana_validation : 'katakana';
+		$('input[name="fplant-field-kana-validation"][value="' + kanaValidation + '"]').prop('checked', true);
+		$('#fplant-field-kana-error-message').val(field && field.kana_error_message ? field.kana_error_message : '');
+		updateNameKanaFormatVisibility($('#fplant-field-kana-format').val());
+		updateKanaValidationVisibility(kanaValidation);
+
+		// Set password settings
+		$('#fplant-field-password-min-length').val(field && field.password_min_length ? field.password_min_length : '');
+		$('#fplant-field-password-mask-email').prop('checked', field ? !!field.password_mask_email : false);
+		$('#fplant-field-password-mask-save').prop('checked', field ? !!field.password_mask_save : false);
+		$('#fplant-field-password-strength-meter').prop('checked', field ? !!field.password_strength_meter : false);
+		var strengthLevel = field && field.password_strength_level ? field.password_strength_level : 'none';
+		$('input[name="fplant-field-password-strength-level"][value="' + strengthLevel + '"]').prop('checked', true);
+		if (field && field.password_strength_meter) {
+			$('#fplant-field-password-strength-level-section').show();
+		} else {
+			$('#fplant-field-password-strength-level-section').hide();
+		}
+
+		// Set postal code settings
+		$('#fplant-field-postal-format').val(field && field.postal_format ? field.postal_format : 'single');
+		$('#fplant-field-postal-show-search-btn').prop('checked', field ? !!field.postal_show_search_btn : false);
+		$('#fplant-field-postal-autofill').prop('checked', field ? !!field.postal_autofill : false);
+		updatePostalAutofillVisibility();
+		if (field && field.postal_autofill) {
+			populatePostalTargetSelects(field);
+		}
+
+		// Set prefecture settings
+		$('#fplant-field-pref-display-type').val(field && field.pref_display_type ? field.pref_display_type : 'select');
+		var prefLayout = field && field.layout ? field.layout : 'vertical';
+		$('input[name="fplant-field-pref-layout"][value="' + prefLayout + '"]').prop('checked', true);
+		updatePrefLayoutVisibility();
+		if (field && field.options && field.options.length > 0) {
+			renderPrefectureOptionsList(field.options);
+		} else {
+			// Set default prefectures
+			renderPrefectureOptionsList(fplantAdminData.defaultPrefectures || []);
+		}
+
+		// Set address settings
+		$('#fplant-field-address-postal-format').val(field && field.postal_format ? field.postal_format : 'single');
+		$('#fplant-field-address-show-search-btn').prop('checked', field ? !!field.postal_show_search_btn : false);
+		$('#fplant-field-address-pref-type').val(field && field.pref_display_type ? field.pref_display_type : 'select');
+		if (field && field.address_labels) {
+			$('.fplant-address-label-row').each(function() {
+				var subKey = $(this).data('sub-key');
+				$(this).find('input[id$="-label-' + subKey + '"]').val(field.address_labels[subKey] || '');
+				$(this).find('input[id$="-placeholder-' + subKey + '"]').val(
+					field.address_placeholders ? field.address_placeholders[subKey] || '' : ''
+				);
+				$(this).find('input[id$="-validation-' + subKey + '"]').val(
+					field.address_validation_messages ? field.address_validation_messages[subKey] || '' : ''
+				);
+			});
+		} else {
+			$('.fplant-address-label-row input').val('');
+		}
+
 		// Show/hide options area
 		updateOptionsVisibility($('#fplant-field-type').val());
 
@@ -205,8 +325,51 @@
 			$('#fplant-field-html-section').hide();
 		}
 
-		// Default value setting (show for all types except file and html)
-		if (fieldType !== 'file' && fieldType !== 'html') {
+		// Name parts settings visibility
+		if (fieldType === 'name_parts') {
+			$('#fplant-field-name-parts-section').show();
+		} else {
+			$('#fplant-field-name-parts-section').hide();
+		}
+
+		// Name kana settings visibility
+		if (fieldType === 'name_kana') {
+			$('#fplant-field-name-kana-section').show();
+		} else {
+			$('#fplant-field-name-kana-section').hide();
+		}
+
+		// Password settings visibility
+		if (fieldType === 'password') {
+			$('#fplant-field-password-section').show();
+		} else {
+			$('#fplant-field-password-section').hide();
+		}
+
+		// Postal code settings visibility
+		if (fieldType === 'postal_code') {
+			$('#fplant-field-postal-code-section').show();
+		} else {
+			$('#fplant-field-postal-code-section').hide();
+		}
+
+		// Prefecture settings visibility
+		if (fieldType === 'prefecture') {
+			$('#fplant-field-prefecture-section').show();
+		} else {
+			$('#fplant-field-prefecture-section').hide();
+		}
+
+		// Address composite settings visibility
+		if (fieldType === 'address') {
+			$('#fplant-field-address-section').show();
+		} else {
+			$('#fplant-field-address-section').hide();
+		}
+
+		// Default value setting (show for all types except file, html, name_parts, name_kana, password, address, postal_code, prefecture)
+		const noDefaultTypes = ['file', 'html', 'name_parts', 'name_kana', 'password', 'address', 'postal_code', 'prefecture'];
+		if (!noDefaultTypes.includes(fieldType)) {
 			$('#fplant-field-default-value-section').show();
 		} else {
 			$('#fplant-field-default-value-section').hide();
@@ -228,13 +391,74 @@
 			$validationGroup.show();
 		}
 
-		// Placeholder is only for text input types and select
-		const hasPlaceholder = ['text', 'email', 'tel', 'url', 'number', 'textarea', 'select'].includes(fieldType);
+		// Placeholder is only for text input types and select (name_parts/address have own per-part placeholders)
+		const hasPlaceholder = ['text', 'email', 'tel', 'url', 'number', 'textarea', 'select', 'password', 'postal_code'].includes(fieldType);
 		const $placeholderGroup = $('#fplant-field-placeholder').closest('.fplant-form-group');
 		if (hasPlaceholder) {
 			$placeholderGroup.show();
 		} else {
 			$placeholderGroup.hide();
+		}
+	}
+
+	/**
+	 * Toggle visibility of name parts sublabel rows based on format
+	 */
+	function updateNameFormatVisibility(format) {
+		var $familyHeading = $('.fplant-name-sublabel-row[data-part="family"] .fplant-name-part-heading');
+
+		if (format === '1') {
+			$('.fplant-name-sublabel-row[data-part="family"]').show();
+			$('.fplant-name-sublabel-row[data-part="given"]').hide();
+			$('.fplant-name-sublabel-row[data-part="middle"]').hide();
+			$familyHeading.text($familyHeading.data('label-single'));
+		} else if (format === '3') {
+			$('.fplant-name-sublabel-row[data-part="family"]').show();
+			$('.fplant-name-sublabel-row[data-part="given"]').show();
+			$('.fplant-name-sublabel-row[data-part="middle"]').show();
+			$familyHeading.text($familyHeading.data('label-default'));
+		} else {
+			// Default: 2 parts
+			$('.fplant-name-sublabel-row[data-part="family"]').show();
+			$('.fplant-name-sublabel-row[data-part="given"]').show();
+			$('.fplant-name-sublabel-row[data-part="middle"]').hide();
+			$familyHeading.text($familyHeading.data('label-default'));
+		}
+	}
+
+	/**
+	 * Toggle visibility of name kana sublabel rows based on format
+	 */
+	function updateNameKanaFormatVisibility(format) {
+		var $familyHeading = $('.fplant-kana-sublabel-row[data-part="family"] .fplant-kana-part-heading');
+
+		if (format === '1') {
+			$('.fplant-kana-sublabel-row[data-part="family"]').show();
+			$('.fplant-kana-sublabel-row[data-part="given"]').hide();
+			$('.fplant-kana-sublabel-row[data-part="middle"]').hide();
+			$familyHeading.text($familyHeading.data('label-single'));
+		} else if (format === '3') {
+			$('.fplant-kana-sublabel-row[data-part="family"]').show();
+			$('.fplant-kana-sublabel-row[data-part="given"]').show();
+			$('.fplant-kana-sublabel-row[data-part="middle"]').show();
+			$familyHeading.text($familyHeading.data('label-default'));
+		} else {
+			// Default: 2 parts
+			$('.fplant-kana-sublabel-row[data-part="family"]').show();
+			$('.fplant-kana-sublabel-row[data-part="given"]').show();
+			$('.fplant-kana-sublabel-row[data-part="middle"]').hide();
+			$familyHeading.text($familyHeading.data('label-default'));
+		}
+	}
+
+	/**
+	 * Toggle visibility of kana error message section based on validation type
+	 */
+	function updateKanaValidationVisibility(validation) {
+		if (validation === 'none') {
+			$('#fplant-field-kana-error-message-section').hide();
+		} else {
+			$('#fplant-field-kana-error-message-section').show();
 		}
 	}
 
@@ -303,6 +527,47 @@
 	}
 
 	/**
+	 * Render prefecture options into the prefecture textarea
+	 */
+	function renderPrefectureOptionsList(options) {
+		var $textarea = $('#fplant-field-pref-options-textarea');
+		if (options.length === 0) {
+			$textarea.val('');
+			return;
+		}
+		var lines = options.map(function(option) {
+			if (option.value === option.label) {
+				return option.value;
+			}
+			return option.value + ':' + option.label;
+		});
+		$textarea.val(lines.join('\n'));
+	}
+
+	/**
+	 * Parse prefecture options from textarea
+	 */
+	function parsePrefectureOptionsFromTextarea() {
+		var text = $('#fplant-field-pref-options-textarea').val();
+		var lines = text.split('\n');
+		var options = [];
+		lines.forEach(function(line) {
+			var trimmed = line.trim();
+			if (trimmed === '') return;
+			var colonIndex = trimmed.indexOf(':');
+			if (colonIndex > 0) {
+				options.push({
+					value: trimmed.substring(0, colonIndex).trim(),
+					label: trimmed.substring(colonIndex + 1).trim() || trimmed.substring(0, colonIndex).trim()
+				});
+			} else {
+				options.push({ value: trimmed, label: trimmed });
+			}
+		});
+		return options;
+	}
+
+	/**
 	 * HTML escape
 	 */
 	function escapeHtml(text) {
@@ -319,6 +584,97 @@
 		$(document).on('change', '#fplant-field-type', function() {
 			updateOptionsVisibility($(this).val());
 		});
+
+		$(document).on('change', '#fplant-field-name-format', function() {
+			updateNameFormatVisibility($(this).val());
+		});
+
+		$(document).on('change', '#fplant-field-kana-format', function() {
+			updateNameKanaFormatVisibility($(this).val());
+		});
+
+		$(document).on('change', 'input[name="fplant-field-kana-validation"]', function() {
+			updateKanaValidationVisibility($(this).val());
+		});
+
+		$(document).on('change', '#fplant-field-password-strength-meter', function() {
+			if ($(this).is(':checked')) {
+				$('#fplant-field-password-strength-level-section').show();
+			} else {
+				$('#fplant-field-password-strength-level-section').hide();
+			}
+		});
+
+		// Prefecture display type change — show/hide layout option
+		$(document).on('change', '#fplant-field-pref-display-type', function() {
+			updatePrefLayoutVisibility();
+		});
+
+		// Postal code autofill checkbox toggle
+		$(document).on('change', '#fplant-field-postal-autofill', function() {
+			updatePostalAutofillVisibility();
+		});
+	}
+
+	/**
+	 * Toggle postal code autofill targets visibility
+	 */
+	function updatePrefLayoutVisibility() {
+		var type = $('#fplant-field-pref-display-type').val();
+		if (type === 'radio' || type === 'checkbox') {
+			$('#fplant-field-pref-layout-section').show();
+		} else {
+			$('#fplant-field-pref-layout-section').hide();
+		}
+	}
+
+	function updatePostalAutofillVisibility() {
+		if ($('#fplant-field-postal-autofill').is(':checked')) {
+			$('#fplant-postal-autofill-targets').show();
+			populatePostalTargetSelects();
+		} else {
+			$('#fplant-postal-autofill-targets').hide();
+		}
+	}
+
+	/**
+	 * Populate postal code autofill target field selects
+	 */
+	function populatePostalTargetSelects(currentField) {
+		var currentFieldName = $('#fplant-field-name').val();
+		var $selects = $('.fplant-postal-target-select');
+
+		$selects.each(function() {
+			var $select = $(this);
+			var currentVal = $select.val();
+			$select.find('option:not(:first)').remove();
+
+			formFields.forEach(function(f) {
+				if (f.name !== currentFieldName) {
+					$select.append(
+						$('<option>').val(f.name).text(f.label ? f.label + ' (' + f.name + ')' : f.name)
+					);
+				}
+			});
+
+			// Restore selected value
+			if (currentVal) {
+				$select.val(currentVal);
+			}
+		});
+
+		// Set saved target values when editing
+		if (currentField) {
+			if (currentField.postal_target_pref) {
+				$('#fplant-field-postal-target-pref').val(currentField.postal_target_pref);
+			}
+			if (currentField.postal_target_addr1) {
+				$('#fplant-field-postal-target-addr1').val(currentField.postal_target_addr1);
+			}
+			if (currentField.postal_target_addr2) {
+				$('#fplant-field-postal-target-addr2').val(currentField.postal_target_addr2);
+			}
+		}
 	}
 
 	/**
@@ -446,6 +802,97 @@
 				if (!field.label) {
 					field.label = field.name;
 				}
+			}
+
+			// For name parts types
+			if (fieldType === 'name_parts') {
+				field.name_format = $('#fplant-field-name-format').val() || '2';
+				field.name_labels = {
+					family: $('#fplant-field-name-label-family').val().trim(),
+					given: $('#fplant-field-name-label-given').val().trim(),
+					middle: $('#fplant-field-name-label-middle').val().trim()
+				};
+				field.name_placeholders = {
+					family: $('#fplant-field-name-placeholder-family').val().trim(),
+					given: $('#fplant-field-name-placeholder-given').val().trim(),
+					middle: $('#fplant-field-name-placeholder-middle').val().trim()
+				};
+				field.name_validation_messages = {
+					family: $('#fplant-field-name-validation-family').val().trim(),
+					given: $('#fplant-field-name-validation-given').val().trim(),
+					middle: $('#fplant-field-name-validation-middle').val().trim()
+				};
+			}
+
+			// For name kana types
+			if (fieldType === 'name_kana') {
+				field.name_format = $('#fplant-field-kana-format').val() || '2';
+				field.name_labels = {
+					family: $('#fplant-field-kana-label-family').val().trim(),
+					given: $('#fplant-field-kana-label-given').val().trim(),
+					middle: $('#fplant-field-kana-label-middle').val().trim()
+				};
+				field.name_placeholders = {
+					family: $('#fplant-field-kana-placeholder-family').val().trim(),
+					given: $('#fplant-field-kana-placeholder-given').val().trim(),
+					middle: $('#fplant-field-kana-placeholder-middle').val().trim()
+				};
+				field.name_validation_messages = {
+					family: $('#fplant-field-kana-validation-family').val().trim(),
+					given: $('#fplant-field-kana-validation-given').val().trim(),
+					middle: $('#fplant-field-kana-validation-middle').val().trim()
+				};
+				field.kana_validation = $('input[name="fplant-field-kana-validation"]:checked').val() || 'katakana';
+				field.kana_error_message = $('#fplant-field-kana-error-message').val().trim();
+			}
+
+			// For password types
+			if (fieldType === 'password') {
+				const minLength = $('#fplant-field-password-min-length').val();
+				if (minLength) {
+					field.password_min_length = parseInt(minLength);
+				}
+				field.password_mask_email = $('#fplant-field-password-mask-email').is(':checked');
+				field.password_mask_save = $('#fplant-field-password-mask-save').is(':checked');
+				field.password_strength_meter = $('#fplant-field-password-strength-meter').is(':checked');
+				field.password_strength_level = $('input[name="fplant-field-password-strength-level"]:checked').val() || 'none';
+			}
+
+			// For postal code type
+			if (fieldType === 'postal_code') {
+				field.postal_format = $('#fplant-field-postal-format').val() || 'single';
+				field.postal_show_search_btn = $('#fplant-field-postal-show-search-btn').is(':checked');
+				field.postal_autofill = $('#fplant-field-postal-autofill').is(':checked');
+				if (field.postal_autofill) {
+					field.postal_target_pref = $('#fplant-field-postal-target-pref').val() || '';
+					field.postal_target_addr1 = $('#fplant-field-postal-target-addr1').val() || '';
+					field.postal_target_addr2 = $('#fplant-field-postal-target-addr2').val() || '';
+				}
+			}
+
+			// For prefecture type
+			if (fieldType === 'prefecture') {
+				field.pref_display_type = $('#fplant-field-pref-display-type').val() || 'select';
+				if (field.pref_display_type === 'radio' || field.pref_display_type === 'checkbox') {
+					field.layout = $('input[name="fplant-field-pref-layout"]:checked').val() || 'vertical';
+				}
+				field.options = parsePrefectureOptionsFromTextarea();
+			}
+
+			// For address type
+			if (fieldType === 'address') {
+				field.postal_format = $('#fplant-field-address-postal-format').val() || 'single';
+				field.postal_show_search_btn = $('#fplant-field-address-show-search-btn').is(':checked');
+				field.pref_display_type = $('#fplant-field-address-pref-type').val() || 'select';
+				field.address_labels = {};
+				field.address_placeholders = {};
+				field.address_validation_messages = {};
+				$('.fplant-address-label-row').each(function() {
+					var subKey = $(this).data('sub-key');
+					field.address_labels[subKey] = $(this).find('input[id$="-label-' + subKey + '"]').val().trim();
+					field.address_placeholders[subKey] = $(this).find('input[id$="-placeholder-' + subKey + '"]').val().trim();
+					field.address_validation_messages[subKey] = $(this).find('input[id$="-validation-' + subKey + '"]').val().trim();
+				});
 			}
 
 			// For types that need options
@@ -669,14 +1116,27 @@
 		// Close modal
 		$(document).on('click', '.fplant-modal-close, .fplant-modal', function(e) {
 			if (e.target === this) {
-				$(this).closest('.fplant-modal').removeClass('active');
+				var $modal = $(this).closest('.fplant-modal');
+				// Confirm before closing field edit modal
+				if ($modal.attr('id') === 'fplant-field-modal') {
+					if (!confirm(fplantAdminData.i18n.confirmCloseModal)) {
+						return;
+					}
+				}
+				$modal.removeClass('active');
 			}
 		});
 
 		// Close modal with ESC key
 		$(document).on('keyup', function(e) {
 			if (e.key === 'Escape') {
-				$('.fplant-modal').removeClass('active');
+				var $modal = $('.fplant-modal.active');
+				if ($modal.length && $modal.attr('id') === 'fplant-field-modal') {
+					if (!confirm(fplantAdminData.i18n.confirmCloseModal)) {
+						return;
+					}
+				}
+				$modal.removeClass('active');
 			}
 		});
 	}
@@ -744,15 +1204,48 @@
 			}
 		});
 
-		// reCAPTCHA settings toggle
-		$('.fplant-setting-recaptcha-enabled').on('change', function() {
-			const $settings = $('.fplant-recaptcha-settings');
+		// CAPTCHA type selection toggle
+		$('.fplant-setting-captcha-type').on('change', function() {
+			var selectedType = $(this).val();
+			$('.fplant-captcha-details').hide();
+			if (selectedType !== 'none') {
+				$('.fplant-captcha-details-' + selectedType).show();
+			}
+		});
+
+		// Honeypot toggle
+		$('.fplant-setting-spam-honeypot').on('change', function() {
+			const $settings = $('.fplant-spam-honeypot-settings');
 			if ($(this).is(':checked')) {
 				$settings.removeClass('fplant-disabled');
-				$settings.find('input[type="radio"]').prop('disabled', false);
+				$settings.find('input[type="text"]').prop('readonly', false);
 			} else {
 				$settings.addClass('fplant-disabled');
-				$settings.find('input[type="radio"]').prop('disabled', true);
+				$settings.find('input[type="text"]').prop('readonly', true);
+			}
+		});
+
+		// Rate limit toggle
+		$('.fplant-setting-spam-rate-limit').on('change', function() {
+			const $settings = $('.fplant-spam-rate-limit-settings');
+			if ($(this).is(':checked')) {
+				$settings.removeClass('fplant-disabled');
+				$settings.find('input[type="number"]').prop('readonly', false);
+			} else {
+				$settings.addClass('fplant-disabled');
+				$settings.find('input[type="number"]').prop('readonly', true);
+			}
+		});
+
+		// Time check toggle
+		$('.fplant-setting-spam-time-check').on('change', function() {
+			const $settings = $('.fplant-spam-time-check-settings');
+			if ($(this).is(':checked')) {
+				$settings.removeClass('fplant-disabled');
+				$settings.find('input[type="number"]').prop('readonly', false);
+			} else {
+				$settings.addClass('fplant-disabled');
+				$settings.find('input[type="number"]').prop('readonly', true);
 			}
 		});
 
@@ -791,6 +1284,20 @@
 	}
 
 	/**
+	 * Get custom CSS file URLs from the file list
+	 */
+	function getCustomCssFileUrls() {
+		var urls = [];
+		$('.fplant-css-file-list .fplant-css-file-item').each(function() {
+			var url = $(this).data('url');
+			if (url) {
+				urls.push(url);
+			}
+		});
+		return urls;
+	}
+
+	/**
 	 * Save form to database
 	 */
 	function saveFormToDatabase() {
@@ -818,6 +1325,8 @@
 				input_submit_text: $('#fplant-input-submit-text').val(),
 				input_submit_class: $('#fplant-input-submit-class').val(),
 				input_submit_id: $('#fplant-input-submit-id').val(),
+				form_tag_class: $('#fplant-form-tag-class').val(),
+				form_tag_id: $('#fplant-form-tag-id').val(),
 				use_confirmation: $('.fplant-setting-use-confirmation').is(':checked'),
 				confirmation_title: $('.fplant-setting-confirmation-title').val(),
 				confirmation_message: $('.fplant-setting-confirmation-message').val(),
@@ -834,17 +1343,27 @@
 				success_page_html: $('.fplant-setting-success-page-html').val(),
 				redirect_url: $('.fplant-setting-redirect-url').val(),
 				save_submission: $('.fplant-setting-save-submission:checked').val() || 'none',
-				custom_css_mode: $('input[name="custom_css_mode"]:checked').val() || 'none',
-				custom_css_file_url: $('.fplant-custom-css-file-url').val() || '',
+				required_mark_text: $('.fplant-setting-required-mark').val() || '*',
+				design_type: $('input[name="design_type"]:checked').val() || 'simple1',
+				custom_css_file_urls: getCustomCssFileUrls(),
 				custom_css_inline: $('.fplant-custom-css-inline').val() || '',
 				// Embed settings
 				embed_iframe_enabled: $('.fplant-setting-embed-iframe-enabled').is(':checked'),
 				embed_iframe_allowed_urls: parseUrls($('.fplant-setting-embed-iframe-allowed-urls').val()),
 				embed_js_enabled: $('.fplant-setting-embed-js-enabled').is(':checked'),
 				embed_js_allowed_urls: parseUrls($('.fplant-setting-embed-js-allowed-urls').val()),
-				// reCAPTCHA settings
-				recaptcha_enabled: $('.fplant-setting-recaptcha-enabled').is(':checked'),
-				recaptcha_version: $('input[name="recaptcha_version"]:checked').val() || 'v3',
+				// CAPTCHA settings
+				captcha_type: $('input[name="captcha_type"]:checked').val() || 'none',
+				// Spam protection settings
+				spam_honeypot_enabled: $('.fplant-setting-spam-honeypot').is(':checked'),
+				spam_honeypot_field_name: $('.fplant-setting-spam-honeypot-field-name').val() || 'fplant_website_url',
+				spam_rate_limit_enabled: $('.fplant-setting-spam-rate-limit').is(':checked'),
+				spam_rate_limit_minutes: parseInt($('.fplant-setting-spam-rate-limit-minutes').val()) || 5,
+				spam_rate_limit_count: parseInt($('.fplant-setting-spam-rate-limit-count').val()) || 3,
+				spam_time_check_enabled: $('.fplant-setting-spam-time-check').is(':checked'),
+				spam_time_check_seconds: parseInt($('.fplant-setting-spam-time-check-seconds').val()) || 3,
+				// Disposable email blocking
+				spam_disposable_email_block: $('.fplant-setting-spam-disposable-email-block').is(':checked'),
 				// URL parameter settings
 				allow_url_params: $('.fplant-setting-allow-url-params').is(':checked')
 			},
@@ -1277,33 +1796,48 @@
 	}
 
 	/**
-	 * Custom CSS settings toggle
+	 * Design CSS download handler
 	 */
-	function initCustomCssToggle() {
-		$('input[name="custom_css_mode"]').on('change', function() {
-			var mode = $(this).val();
-			var $fields = $('.fplant-custom-css-fields');
-
-			if (mode === 'none') {
-				$fields.addClass('fplant-disabled');
-				$fields.find('textarea').prop('readonly', true);
-				$fields.find('button').prop('disabled', true);
-			} else {
-				$fields.removeClass('fplant-disabled');
-				$fields.find('textarea').prop('readonly', false);
-				$fields.find('button').prop('disabled', false);
+	function initDesignCssDownload() {
+		$(document).on('click', '.fplant-download-design-css', function(e) {
+			e.preventDefault();
+			var designType = $(this).data('design-type');
+			if (designType && fplantAdminData.pluginUrl) {
+				// simple1 uses form.css; others use design-{type}.css
+				var url, filename;
+				if (designType === 'simple1') {
+					url = fplantAdminData.pluginUrl + 'assets/css/form.css';
+					filename = 'form.css';
+				} else {
+					url = fplantAdminData.pluginUrl + 'assets/css/design-' + designType + '.css';
+					filename = 'design-' + designType + '.css';
+				}
+				var a = document.createElement('a');
+				a.href = url;
+				a.download = filename;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
 			}
 		});
 	}
 
 	/**
-	 * Custom CSS file uploader (dedicated directory method)
+	 * Custom CSS file uploader (multiple files)
 	 */
 	function initCustomCssFileUploader() {
-		// Upload on file selection
-		$('.fplant-css-file-input').on('change', function() {
-			var $input = $(this);
-			var file = this.files[0];
+		// Enable/disable upload button on file selection
+		$(document).on('change', '.fplant-css-file-input', function() {
+			var $btn = $(this).closest('.fplant-css-upload-wrapper').find('.fplant-css-upload-button');
+			$btn.prop('disabled', !this.files.length);
+		});
+
+		// Upload on button click
+		$(document).on('click', '.fplant-css-upload-button', function() {
+			var $btn = $(this);
+			var $wrapper = $btn.closest('.fplant-css-upload-wrapper');
+			var $input = $wrapper.find('.fplant-css-file-input');
+			var file = $input[0].files[0];
 
 			if (!file) {
 				return;
@@ -1313,11 +1847,21 @@
 			if (!file.name.endsWith('.css')) {
 				alert(fplantAdminData.i18n.cssFileRequired);
 				$input.val('');
+				$btn.prop('disabled', true);
 				return;
 			}
 
-			var $status = $input.siblings('.fplant-css-upload-status');
+			// Check file limit
+			if ($('.fplant-css-file-list .fplant-css-file-item').length >= 10) {
+				alert(fplantAdminData.i18n.cssFileLimit);
+				$input.val('');
+				$btn.prop('disabled', true);
+				return;
+			}
+
+			var $status = $wrapper.find('.fplant-css-upload-status');
 			$status.text(fplantAdminData.i18n.uploading);
+			$btn.prop('disabled', true);
 
 			// Get form ID
 			var formId = 0;
@@ -1342,36 +1886,35 @@
 				contentType: false,
 				success: function(response) {
 					if (response.success) {
-						$('.fplant-custom-css-file-url').val(response.data.url);
 						$status.text(fplantAdminData.i18n.uploadComplete + ' ' + response.data.filename);
 
-						// Update current file display
-						var $currentFile = $('.fplant-css-current-file');
-						if ($currentFile.length === 0) {
-							$currentFile = $('<div class="fplant-css-current-file" style="margin-top: 10px;"><strong>' + fplantAdminData.i18n.currentFile + '</strong> <code class="fplant-custom-css-file-url-display"></code> <button type="button" class="button button-small fplant-remove-css-file">' + fplantAdminData.i18n.delete + '</button></div>');
-							$input.closest('.fplant-form-group').find('.fplant-css-upload-wrapper').after($currentFile);
-							// Re-bind delete button event
-							$currentFile.find('.fplant-remove-css-file').on('click', handleCssDelete);
-						}
-						$currentFile.find('.fplant-custom-css-file-url-display').text(response.data.filename);
-						$currentFile.show();
+						// Add to file list
+						var $fileItem = $('<div class="fplant-css-file-item"></div>');
+						$fileItem.attr('data-url', response.data.url);
+						$fileItem.append('<code>' + $('<span>').text(response.data.filename).html() + '</code>');
+						$fileItem.append(' <button type="button" class="button button-small fplant-remove-css-file">' + fplantAdminData.i18n.delete + '</button>');
+						$('.fplant-css-file-list').append($fileItem);
 					} else {
 						$status.text(fplantAdminData.i18n.errorPrefix + ' ' + (response.data.message || fplantAdminData.i18n.uploadFailed));
 					}
 					$input.val('');
+					$btn.prop('disabled', true);
 				},
 				error: function() {
 					$status.text(fplantAdminData.i18n.errorPrefix + ' ' + fplantAdminData.i18n.networkError);
 					$input.val('');
+					$btn.prop('disabled', true);
 				}
 			});
 		});
 
-		// File delete button
-		function handleCssDelete(e) {
+		// File delete button (event delegation)
+		$(document).on('click', '.fplant-remove-css-file', function(e) {
 			e.preventDefault();
 
-			var fileUrl = $('.fplant-custom-css-file-url').val();
+			var $item = $(this).closest('.fplant-css-file-item');
+			var fileUrl = $item.data('url');
+
 			if (!fileUrl) {
 				return;
 			}
@@ -1390,8 +1933,7 @@
 				},
 				success: function(response) {
 					if (response.success) {
-						$('.fplant-custom-css-file-url').val('');
-						$('.fplant-css-current-file').hide();
+						$item.remove();
 						$('.fplant-css-upload-status').text('');
 					} else {
 						alert(fplantAdminData.i18n.errorPrefix + ' ' + (response.data.message || fplantAdminData.i18n.deleteFailed));
@@ -1401,9 +1943,7 @@
 					alert(fplantAdminData.i18n.networkError);
 				}
 			});
-		}
-
-		$('.fplant-remove-css-file').on('click', handleCssDelete);
+		});
 	}
 
 	/**
@@ -1523,8 +2063,8 @@
 		initConfirmationTagInserter();
 		initInputSubmitModal();
 		initConfirmationButtonModals();
-		initCustomCssToggle();
 		initCustomCssFileUploader();
+		initDesignCssDownload();
 		initEmbedSettings();
 		initQuickEdit();
 

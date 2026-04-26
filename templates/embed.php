@@ -40,8 +40,27 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 	<?php wp_head(); ?>
 </head>
 <body>
-	<div class="fplant-form-wrapper" data-form-id="<?php echo esc_attr( $form_id ); ?>">
-		<form class="fplant-form" method="post" enctype="multipart/form-data" data-form-id="<?php echo esc_attr( $form_id ); ?>" data-use-confirmation="<?php echo esc_attr( $use_confirmation ? '1' : '0' ); ?>">
+	<?php
+	$fplant_embed_wrapper_class = 'fplant-form-wrapper';
+	?>
+	<div class="<?php echo esc_attr( $fplant_embed_wrapper_class ); ?>" data-form-id="<?php echo esc_attr( $form_id ); ?>">
+		<?php
+		$fplant_embed_form_class = 'fplant-form';
+		if ( ! empty( $settings['form_tag_class'] ) ) {
+			$fplant_embed_form_class .= ' ' . $settings['form_tag_class'];
+		}
+		$fplant_embed_form_tag_id = $settings['form_tag_id'] ?? '';
+		?>
+		<form
+			class="<?php echo esc_attr( $fplant_embed_form_class ); ?>"
+			<?php if ( ! empty( $fplant_embed_form_tag_id ) ) : ?>
+				id="<?php echo esc_attr( $fplant_embed_form_tag_id ); ?>"
+			<?php endif; ?>
+			method="post"
+			enctype="multipart/form-data"
+			data-form-id="<?php echo esc_attr( $form_id ); ?>"
+			data-use-confirmation="<?php echo esc_attr( $use_confirmation ? '1' : '0' ); ?>"
+		>
 			<!-- Messages must be inside form for form.js to find them -->
 			<div class="fplant-messages">
 				<div class="fplant-errors" data-show-field-errors="false" style="display: none;"></div>
@@ -52,10 +71,26 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 			<input type="hidden" name="fplant_embed_nonce" value="<?php echo esc_attr( $nonce ); ?>">
 			<input type="hidden" name="fplant_embed_mode" value="1">
 
-			<div class="fplant-field-wrap fplant-field-url" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;overflow:hidden;">
-				<label for="fplant_field_url_<?php echo esc_attr( $form_id ); ?>">Website URL</label>
-				<input type="text" name="fplant_website_url" id="fplant_field_url_<?php echo esc_attr( $form_id ); ?>" value="" tabindex="-1" autocomplete="off">
-			</div>
+			<?php if ( ( $settings['spam_honeypot_enabled'] ?? true ) !== false ) : ?>
+				<?php $fplant_hp_name = $settings['spam_honeypot_field_name'] ?? 'fplant_website_url'; ?>
+				<div class="fplant-field-wrap fplant-field-url" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;overflow:hidden;">
+					<label for="fplant_field_url_<?php echo esc_attr( $form_id ); ?>">Website URL</label>
+					<input type="text" name="<?php echo esc_attr( $fplant_hp_name ); ?>" id="fplant_field_url_<?php echo esc_attr( $form_id ); ?>" value="" tabindex="-1" autocomplete="off">
+				</div>
+			<?php endif; ?>
+
+			<?php
+			// CAPTCHA token
+			$fplant_embed_captcha_type = $settings['captcha_type'] ?? 'none';
+			if ( 'none' === $fplant_embed_captcha_type && ! empty( $settings['recaptcha_enabled'] ) ) {
+				$fplant_embed_captcha_type = 'recaptcha';
+			}
+			if ( 'none' !== $fplant_embed_captcha_type ) :
+				?>
+				<input type="hidden" name="fplant_captcha_token" class="fplant-captcha-token" value="">
+				<?php
+			endif;
+			?>
 
 			<?php if ( ! empty( $form['html_template'] ) && ! empty( $settings['use_html_template'] ) ) : ?>
 				<?php
@@ -81,7 +116,7 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 							<label for="fplant-field-<?php echo esc_attr( $field_name ); ?>">
 								<?php echo esc_html( $field['label'] ); ?>
 								<?php if ( ! empty( $field['required'] ) ) : ?>
-									<span class="required">*</span>
+									<span class="required"><?php echo esc_html( $settings['required_mark_text'] ?? '*' ); ?></span>
 								<?php endif; ?>
 							</label>
 						<?php endif; ?>

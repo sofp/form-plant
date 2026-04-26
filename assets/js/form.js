@@ -7,6 +7,31 @@
 (function() {
 	'use strict';
 
+	// Global API for custom validators
+	window.fplant = window.fplant || {};
+	window.fplant.validators = window.fplant.validators || {};
+	window.fplant.addValidator = function(fieldName, callback) {
+		if (typeof fieldName !== 'string' || typeof callback !== 'function') {
+			return;
+		}
+		if (!this.validators[fieldName]) {
+			this.validators[fieldName] = [];
+		}
+		this.validators[fieldName].push(callback);
+	};
+	window.fplant.removeValidator = function(fieldName, callback) {
+		if (!this.validators[fieldName]) {
+			return;
+		}
+		if (callback) {
+			this.validators[fieldName] = this.validators[fieldName].filter(function(v) {
+				return v !== callback;
+			});
+		} else {
+			delete this.validators[fieldName];
+		}
+	};
+
 	/**
 	 * Form handler
 	 */
@@ -17,15 +42,23 @@
 			this.useConfirmation = form.dataset.useConfirmation === 'true' || form.dataset.useConfirmation === '1';
 			this.isConfirmationStep = false;
 			this.confirmation = null;
-			// reCAPTCHA settings
-			this.recaptchaConfig = window.fplantRecaptchaConfig && window.fplantRecaptchaConfig[this.formId]
-				? window.fplantRecaptchaConfig[this.formId]
-				: { enabled: false };
+			// i18n messages
+			this.i18n = (window.fplantData && window.fplantData.i18n) ? window.fplantData.i18n : {};
+			// CAPTCHA settings
+			this.captchaConfig = window.fplantCaptchaConfig && window.fplantCaptchaConfig[this.formId]
+				? window.fplantCaptchaConfig[this.formId]
+				: { type: 'none' };
+			// Backward compatibility
+			if (!this.captchaConfig.type && this.captchaConfig.enabled) {
+				this.captchaConfig.type = 'recaptcha';
+			}
 			this.init();
 		}
 
 		init() {
 			this.form.addEventListener('submit', this.handleSubmit.bind(this));
+			this.turnstileWidgetId = null;
+			this.recaptchaV2WidgetId = null;
 
 			// Real-time validation (on blur)
 			this.form.addEventListener('blur', (e) => {
@@ -42,6 +75,71 @@
 				if (e.target.matches('.fplant-date-select-year, .fplant-date-select-month, .fplant-date-select-day')) {
 					this.handleDateSelectChange(e);
 				}
+			});
+
+			// Combine values when name parts input changes
+			this.form.addEventListener('input', (e) => {
+				if (e.target.matches('.fplant-name-input')) {
+					this.handleNamePartsChange(e);
+				}
+				// Combine postal code split values
+				if (e.target.matches('.fplant-postal-code-part1, .fplant-postal-code-part2')) {
+					this.handlePostalCodeSplitChange(e);
+				}
+			});
+
+			// Postal code search button
+			this.form.addEventListener('click', (e) => {
+				if (e.target.matches('.fplant-postal-code-search')) {
+					this.handlePostalCodeSearch(e);
+				}
+			});
+
+			// Auto-search when 7 digits entered
+			this.form.addEventListener('input', (e) => {
+				if (e.target.matches('.fplant-postal-code-full')) {
+					this.handlePostalCodeAutoSearch(e);
+				}
+				if (e.target.matches('.fplant-postal-code-part2')) {
+					this.handlePostalCodeSplitAutoSearch(e);
+				}
+			});
+
+			// Auto-focus from part1 to part2
+			this.form.addEventListener('input', (e) => {
+				if (e.target.matches('.fplant-postal-code-part1') && e.target.value.length >= 3) {
+					const container = e.target.closest('.fplant-postal-code-split');
+					if (container) {
+						const part2 = container.querySelector('.fplant-postal-code-part2');
+						if (part2) part2.focus();
+					}
+				}
+			});
+
+			// Set timestamp for time-based spam check
+			const tsField = this.form.querySelector('.fplant-form-ts');
+			if (tsField) {
+				tsField.value = Math.floor(Date.now() / 1000);
+			}
+
+			// Render reCAPTCHA v2 widget on page load (when no confirmation screen)
+			if (this.captchaConfig.type === 'recaptcha_v2' && !this.useConfirmation) {
+				this.renderRecaptchaV2Widget(this.form);
+			}
+
+			// Render Turnstile widget on page load (when no confirmation screen)
+			if (this.captchaConfig.type === 'turnstile' && !this.useConfirmation) {
+				this.renderTurnstileWidget(this.form);
+			}
+
+			// Initialize password features
+			this.initPasswordToggles();
+			this.initPasswordStrengthMeters();
+
+			// Dispatch init event
+			this.dispatchFplantEvent('fplant:init', {
+				formId: this.formId,
+				form: this.form
 			});
 		}
 
@@ -101,6 +199,252 @@
 			this.validateField(fieldName);
 		}
 
+		handleNamePartsChange(e) {
+			const input = e.target;
+			const nameGroup = input.closest('.fplant-field-name-parts, .fplant-field-name-kana');
+			if (!nameGroup) return;
+
+			const fieldGroup = nameGroup.closest('.fplant-field-group');
+			const fieldName = fieldGroup ? fieldGroup.dataset.fieldName : null;
+			if (!fieldName) return;
+
+			const hiddenInput = nameGroup.querySelector('.fplant-name-parts-value');
+			if (!hiddenInput) return;
+
+			// Collect values in DOM order
+			const inputs = nameGroup.querySelectorAll('.fplant-name-input');
+			const parts = [];
+			inputs.forEach(inp => {
+				const val = inp.value.trim();
+				if (val) {
+					parts.push(val);
+				}
+			});
+
+			hiddenInput.value = parts.join(' ');
+
+			// Validation
+			this.validateField(fieldName);
+		}
+
+		/**
+		 * Handle postal code split input change — combine part1+part2 into hidden field
+		 */
+		handlePostalCodeSplitChange(e) {
+			const input = e.target;
+			const container = input.closest('.fplant-postal-code-split');
+			if (!container) return;
+
+			const wrapper = container.closest('.fplant-field-postal-code, .fplant-address-postal-code');
+			if (!wrapper) return;
+
+			const part1 = container.querySelector('.fplant-postal-code-part1');
+			const part2 = container.querySelector('.fplant-postal-code-part2');
+			const hidden = wrapper.querySelector('.fplant-postal-code-value, .fplant-address-postal-code-value');
+			if (!hidden) return;
+
+			const v1 = (part1 ? part1.value : '').replace(/[^0-9]/g, '');
+			const v2 = (part2 ? part2.value : '').replace(/[^0-9]/g, '');
+
+			if (v1 && v2) {
+				hidden.value = v1 + '-' + v2;
+			} else if (v1) {
+				hidden.value = v1;
+			} else {
+				hidden.value = '';
+			}
+		}
+
+		/**
+		 * Handle postal code search button click
+		 */
+		handlePostalCodeSearch(e) {
+			const button = e.target;
+			const wrapper = button.closest('.fplant-field-postal-code, .fplant-address-postal-code');
+			if (!wrapper) return;
+
+			this.searchPostalCode(wrapper);
+		}
+
+		/**
+		 * Auto-search when single input reaches 7 digits
+		 */
+		handlePostalCodeAutoSearch(e) {
+			const input = e.target;
+			const clean = input.value.replace(/[^0-9]/g, '');
+			if (clean.length === 7) {
+				const wrapper = input.closest('.fplant-field-postal-code, .fplant-address-postal-code');
+				if (wrapper) {
+					this.searchPostalCode(wrapper);
+				}
+			}
+		}
+
+		/**
+		 * Auto-search when split part2 reaches 4 digits
+		 */
+		handlePostalCodeSplitAutoSearch(e) {
+			const input = e.target;
+			if (input.value.length === 4) {
+				const container = input.closest('.fplant-postal-code-split');
+				const part1 = container ? container.querySelector('.fplant-postal-code-part1') : null;
+				if (part1 && part1.value.length === 3) {
+					const wrapper = container.closest('.fplant-field-postal-code, .fplant-address-postal-code');
+					if (wrapper) {
+						this.searchPostalCode(wrapper);
+					}
+				}
+			}
+		}
+
+		/**
+		 * Search address by postal code using zipcloud API
+		 */
+		searchPostalCode(wrapper) {
+			// Get postal code value
+			let zipcode = '';
+			const fullInput = wrapper.querySelector('.fplant-postal-code-full, .fplant-address-postal-code-value');
+			const splitContainer = wrapper.querySelector('.fplant-postal-code-split');
+
+			if (splitContainer) {
+				const part1 = splitContainer.querySelector('.fplant-postal-code-part1');
+				const part2 = splitContainer.querySelector('.fplant-postal-code-part2');
+				zipcode = (part1 ? part1.value : '') + (part2 ? part2.value : '');
+			} else if (fullInput) {
+				zipcode = fullInput.value;
+			}
+
+			zipcode = zipcode.replace(/[^0-9]/g, '');
+			if (zipcode.length !== 7) return;
+
+			const msgEl = wrapper.querySelector('.fplant-postal-code-message');
+			const searchBtn = wrapper.querySelector('.fplant-postal-code-search');
+
+			if (searchBtn) searchBtn.disabled = true;
+			if (msgEl) {
+				msgEl.textContent = this.i18n.searchingAddress || 'Searching...';
+				msgEl.style.display = 'inline';
+				msgEl.className = 'fplant-postal-code-message';
+			}
+
+			fetch('https://zipcloud.ibsnet.co.jp/api/search?zipcode=' + zipcode)
+				.then(res => res.json())
+				.then(data => {
+					if (searchBtn) searchBtn.disabled = false;
+
+					if (data.results && data.results.length > 0) {
+						const result = data.results[0];
+						this.fillAddressFromPostalCode(wrapper, result);
+						if (msgEl) msgEl.style.display = 'none';
+					} else {
+						if (msgEl) {
+							msgEl.textContent = this.i18n.addressNotFound || 'Address not found';
+							msgEl.className = 'fplant-postal-code-message fplant-postal-code-error';
+						}
+					}
+				})
+				.catch(() => {
+					if (searchBtn) searchBtn.disabled = false;
+					if (msgEl) {
+						msgEl.textContent = this.i18n.searchError || 'Search failed';
+						msgEl.className = 'fplant-postal-code-message fplant-postal-code-error';
+					}
+				});
+		}
+
+		/**
+		 * Fill address fields from postal code search result
+		 */
+		fillAddressFromPostalCode(wrapper, result) {
+			// Check if this is inside an address composite field
+			const addressField = wrapper.closest('.fplant-field-address');
+
+			if (addressField) {
+				// Address composite field — fill sub-fields directly
+				const prefInput = addressField.querySelector('.fplant-address-prefecture-input');
+				if (prefInput) {
+					prefInput.value = result.address1;
+				}
+				const cityInput = addressField.querySelector('.fplant-address-city-input');
+				if (cityInput) cityInput.value = result.address2;
+
+				const streetInput = addressField.querySelector('.fplant-address-street-input');
+				if (streetInput && result.address3) streetInput.value = result.address3;
+			} else {
+				// Standalone postal_code field — fill linked fields via data attributes
+				const fieldEl = wrapper.closest('.fplant-field-postal-code');
+				if (!fieldEl) return;
+
+				const targetsAttr = fieldEl.getAttribute('data-autofill-targets');
+				if (!targetsAttr) return;
+
+				let targets;
+				try {
+					targets = JSON.parse(targetsAttr);
+				} catch (e) {
+					return;
+				}
+
+				// Find the form container
+				const formEl = fieldEl.closest('form') || fieldEl.closest('.fplant-form');
+				if (!formEl) return;
+
+				const hasPref  = !!targets.pref;
+				const hasAddr1 = !!targets.addr1;
+				const hasAddr2 = !!targets.addr2;
+
+				if (hasPref && !hasAddr1 && !hasAddr2) {
+					// Field 1 only
+					const prefField = formEl.querySelector('[name="' + targets.pref + '"]');
+					if (!prefField) {
+						// Try radio buttons — select type, prefecture only
+						const prefRadio = formEl.querySelector('[name="' + targets.pref + '"][value="' + result.address1 + '"]');
+						if (prefRadio) prefRadio.checked = true;
+					} else if (prefField.tagName === 'SELECT') {
+						// Select type — prefecture only
+						prefField.value = result.address1;
+					} else if (prefField.tagName === 'INPUT' && (prefField.type === 'text' || prefField.type === 'search' || !prefField.type)) {
+						// Text input — all address info combined
+						const parts = [result.address1, result.address2, result.address3].filter(Boolean);
+						prefField.value = parts.join('');
+					}
+				} else if (hasPref && hasAddr1 && !hasAddr2) {
+					// Fields 1+2: field1 = prefecture, field2 = city + street
+					this.fillTargetField(formEl, targets.pref, result.address1);
+					const remaining = [result.address2, result.address3].filter(Boolean).join('');
+					const addr1Field = formEl.querySelector('[name="' + targets.addr1 + '"]');
+					if (addr1Field) addr1Field.value = remaining;
+				} else if (hasPref && hasAddr1 && hasAddr2) {
+					// All 3 fields: field1 = prefecture, field2 = city, field3 = street
+					this.fillTargetField(formEl, targets.pref, result.address1);
+					const addr1Field = formEl.querySelector('[name="' + targets.addr1 + '"]');
+					if (addr1Field) addr1Field.value = result.address2;
+					if (result.address3) {
+						const addr2Field = formEl.querySelector('[name="' + targets.addr2 + '"]');
+						if (addr2Field) addr2Field.value = result.address3;
+					}
+				}
+			}
+		}
+
+		/**
+		 * Fill a target field by name — handles select, radio, and text inputs
+		 */
+		fillTargetField(formEl, fieldName, value) {
+			const field = formEl.querySelector('[name="' + fieldName + '"]');
+			if (field) {
+				if (field.tagName === 'SELECT') {
+					field.value = value;
+				} else {
+					field.value = value;
+				}
+			} else {
+				// Try radio buttons
+				const radio = formEl.querySelector('[name="' + fieldName + '"][value="' + value + '"]');
+				if (radio) radio.checked = true;
+			}
+		}
+
 		handleSubmit(e) {
 			e.preventDefault();
 
@@ -114,6 +458,14 @@
 
 			// Run client-side validation
 			if (!this.validateForm()) {
+				return false;
+			}
+
+			// Dispatch beforeSubmit event (cancelable)
+			if (!this.dispatchFplantEvent('fplant:beforeSubmit', {
+				formId: this.formId,
+				formData: this.getFormData()
+			}, true)) {
 				return false;
 			}
 
@@ -171,6 +523,167 @@
 			return isValid;
 		}
 
+		validateAddressField(fieldName, group, addressField, isRequired) {
+			let hasError = false;
+
+			if (isRequired) {
+				const locale = addressField.dataset.addressLocale;
+				const requiredSubs = locale === 'ja'
+					? ['postal_code', 'prefecture', 'city', 'street']
+					: ['street', 'city', 'postal_code', 'country'];
+
+				const formId = this.form.dataset.formId;
+				const fieldsConfig = window.fplantFieldsConfig && window.fplantFieldsConfig[formId];
+				const fieldConfig = fieldsConfig && fieldsConfig.find(f => f.name === fieldName);
+				const addrValMsgs = fieldConfig && fieldConfig.address_validation_messages || {};
+				const addrLabels = fieldConfig && fieldConfig.address_labels || {};
+
+				requiredSubs.forEach(subKey => {
+					let subValue = '';
+					if (subKey === 'postal_code') {
+						const postalInput = addressField.querySelector('.fplant-address-postal-code-value');
+						subValue = postalInput ? postalInput.value : '';
+					} else if (subKey === 'prefecture') {
+						const prefSelect = addressField.querySelector('[name="' + fieldName + '[prefecture]"]');
+						if (prefSelect) {
+							if (prefSelect.tagName === 'SELECT') {
+								subValue = prefSelect.value;
+							} else {
+								// Radio/checkbox
+								const checked = addressField.querySelector('[name="' + fieldName + '[prefecture]"]:checked, [name="' + fieldName + '[prefecture][]"]:checked');
+								subValue = checked ? checked.value : '';
+							}
+						}
+					} else {
+						const input = addressField.querySelector('[name="' + fieldName + '[' + subKey + ']"]');
+						subValue = input ? input.value : '';
+					}
+
+					if (!subValue || subValue.trim() === '') {
+						hasError = true;
+						const subLabel = addrLabels[subKey] || subKey;
+						const subMsg = addrValMsgs[subKey] || fplantData.i18n.requiredText;
+						const subErrorEl = this.form.querySelector('[data-field-error="' + fieldName + '.' + subKey + '"]');
+						if (subErrorEl) {
+							subErrorEl.textContent = subMsg;
+							subErrorEl.style.display = 'block';
+						}
+					}
+				});
+			}
+
+			// Postal code format check (Japanese locale)
+			if (!hasError && addressField.dataset.addressLocale === 'ja') {
+				const postalInput = addressField.querySelector('.fplant-address-postal-code-value');
+				if (postalInput && postalInput.value) {
+					const cleaned = postalInput.value.replace(/[^0-9]/g, '');
+					if (cleaned.length !== 7) {
+						hasError = true;
+						const formId = this.form.dataset.formId;
+						const fieldsConfig = window.fplantFieldsConfig && window.fplantFieldsConfig[formId];
+						const fieldConfig = fieldsConfig && fieldsConfig.find(f => f.name === fieldName);
+						const addrValMsgs = fieldConfig && fieldConfig.address_validation_messages || {};
+						const subMsg = addrValMsgs['postal_code'] || fplantData.i18n.invalidPostalCode || fplantData.i18n.requiredText;
+						const subErrorEl = this.form.querySelector('[data-field-error="' + fieldName + '.postal_code"]');
+						if (subErrorEl) {
+							subErrorEl.textContent = subMsg;
+							subErrorEl.style.display = 'block';
+						}
+					}
+				}
+			}
+
+			if (hasError) {
+				group.classList.add('fplant-field-has-error');
+			}
+			return !hasError;
+		}
+
+		validateNamePartsField(fieldName, group, nameGroup, isRequired) {
+			let hasError = false;
+
+			if (isRequired) {
+				const formId = this.form.dataset.formId;
+				const fieldsConfig = window.fplantFieldsConfig && window.fplantFieldsConfig[formId];
+				const fieldConfig = fieldsConfig && fieldsConfig.find(f => f.name === fieldName);
+				const nameFormat = fieldConfig && fieldConfig.name_format || '2';
+				const nameLabels = fieldConfig && fieldConfig.name_labels || {};
+				const nameValMsgs = fieldConfig && fieldConfig.name_validation_messages || {};
+
+				// Format '1' (single input) is handled by normal validation
+				if (nameFormat === '1') {
+					return true;
+				}
+
+				const requiredParts = ['family', 'given'];
+
+				requiredParts.forEach(partKey => {
+					const input = nameGroup.querySelector('.fplant-name-part-' + partKey);
+					const subValue = input ? input.value.trim() : '';
+
+					if (!subValue) {
+						hasError = true;
+						// Use custom validation message if set, otherwise generate from label
+						let subMsg;
+						if (nameValMsgs[partKey]) {
+							subMsg = nameValMsgs[partKey];
+						} else {
+							const namePartDiv = input && input.closest('.fplant-name-part');
+							const sublabelEl = namePartDiv && namePartDiv.querySelector('.fplant-name-sublabel');
+							const subLabel = (sublabelEl && sublabelEl.textContent.trim()) || nameLabels[partKey] || partKey;
+							subMsg = fplantData.i18n.requiredSubField
+								? fplantData.i18n.requiredSubField.replace('%s', subLabel)
+								: fplantData.i18n.requiredText;
+						}
+						const subErrorEl = this.form.querySelector(
+							'[data-field-error="' + fieldName + '.' + partKey + '"]'
+						);
+						if (subErrorEl) {
+							subErrorEl.textContent = subMsg;
+							subErrorEl.style.display = 'block';
+						}
+					}
+				});
+			}
+
+			// Kana validation (for name_kana fields)
+			if (!hasError) {
+				const kanaValidation = nameGroup.dataset.kanaValidation;
+				if (kanaValidation && kanaValidation !== 'none') {
+					const kanaInputs = nameGroup.querySelectorAll('.fplant-name-input');
+					let kanaPattern;
+					if (kanaValidation === 'katakana') {
+						kanaPattern = /^[\u30A0-\u30FF\u30FC\s]*$/;
+					} else if (kanaValidation === 'hiragana') {
+						kanaPattern = /^[\u3040-\u309F\u30FC\s]*$/;
+					}
+					if (kanaPattern) {
+						for (const kInput of kanaInputs) {
+							if (kInput.value.trim() && !kanaPattern.test(kInput.value.trim())) {
+								hasError = true;
+								const customKanaMsg = nameGroup.dataset.kanaErrorMessage;
+								const errorMessage = customKanaMsg ||
+									(kanaValidation === 'katakana'
+										? fplantData.i18n.kanaKatakanaOnly
+										: fplantData.i18n.kanaHiraganaOnly);
+								const errorContainer = group.querySelector('.fplant-field-error:not(.fplant-name-sub-error)');
+								if (errorContainer) {
+									errorContainer.textContent = errorMessage;
+									errorContainer.style.display = 'block';
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			if (hasError) {
+				group.classList.add('fplant-field-has-error');
+			}
+			return !hasError;
+		}
+
 		validateField(fieldName) {
 			const group = this.form.querySelector('.fplant-field-group[data-field-name="' + fieldName + '"]');
 			if (!group) return true;
@@ -190,10 +703,28 @@
 				el.style.display = 'none';
 				el.textContent = '';
 			});
+			// Clear address sub-field errors
+			group.querySelectorAll('.fplant-address-sub-error').forEach(el => {
+				el.style.display = 'none';
+				el.textContent = '';
+			});
+			// Clear name-parts sub-field errors
+			group.querySelectorAll('.fplant-name-sub-error').forEach(el => {
+				el.style.display = 'none';
+				el.textContent = '';
+			});
 			group.classList.remove('fplant-field-has-error');
 
-			if (!isRequired) {
-				return true;
+			// Address composite field validation
+			const addressField = group.querySelector('.fplant-field-address');
+			if (addressField) {
+				return this.validateAddressField(fieldName, group, addressField, isRequired);
+			}
+
+			// Name parts / name kana composite field validation
+			const nameGroup = group.querySelector('.fplant-field-name-parts, .fplant-field-name-kana');
+			if (nameGroup && nameGroup.querySelector('.fplant-name-parts-value')) {
+				return this.validateNamePartsField(fieldName, group, nameGroup, isRequired);
 			}
 
 			// Get fields
@@ -206,65 +737,185 @@
 			let value = null;
 			let errorMessage = null;
 
-			// Get custom validation message
-			const customMessage = this.getCustomValidationMessage(fieldName);
+			// Required field validation
+			if (isRequired) {
+				// Get custom validation message
+				const customMessage = this.getCustomValidationMessage(fieldName);
 
-			// Validate based on field type
-			if (fieldType === 'checkbox') {
-				// Checkbox: at least one checked
-				let checked = 0;
-				fields.forEach((field) => {
-					if (field.checked) {
-						checked++;
+				// Validate based on field type
+				if (fieldType === 'checkbox') {
+					// Checkbox: at least one checked
+					let checked = 0;
+					fields.forEach((field) => {
+						if (field.checked) {
+							checked++;
+						}
+					});
+					if (checked === 0) {
+						errorMessage = customMessage || fplantData.i18n.requiredCheckbox;
 					}
-				});
-				if (checked === 0) {
-					errorMessage = customMessage || fplantData.i18n.requiredCheckbox;
-				}
-			} else if (fieldType === 'radio') {
-				// Radio button: one selected
-				let checked = 0;
-				fields.forEach((field) => {
-					if (field.checked) {
-						checked++;
+				} else if (fieldType === 'radio') {
+					// Radio button: one selected
+					let checked = 0;
+					fields.forEach((field) => {
+						if (field.checked) {
+							checked++;
+						}
+					});
+					if (checked === 0) {
+						errorMessage = customMessage || fplantData.i18n.requiredRadio;
 					}
-				});
-				if (checked === 0) {
-					errorMessage = customMessage || fplantData.i18n.requiredRadio;
-				}
-			} else if (fieldType === 'select' || fieldType === 'SELECT') {
-				// Select box
-				value = firstField.value;
-				if (!value || value === '') {
-					errorMessage = customMessage || fplantData.i18n.requiredSelect;
-				}
-			} else if (fieldType === 'file') {
-				// File upload
-				const file = firstField.files && firstField.files[0];
-				if (!file) {
-					errorMessage = customMessage || fplantData.i18n.requiredFile;
+				} else if (fieldType === 'select' || fieldType === 'SELECT') {
+					// Select box
+					value = firstField.value;
+					if (!value || value === '') {
+						errorMessage = customMessage || fplantData.i18n.requiredSelect;
+					}
+				} else if (fieldType === 'file') {
+					// File upload
+					const file = firstField.files && firstField.files[0];
+					if (!file) {
+						errorMessage = customMessage || fplantData.i18n.requiredFile;
+					} else {
+						// File size check
+						const maxSize = parseInt(firstField.dataset.maxSize) || 2097152; // Default 2MB
+						if (file.size > maxSize) {
+							const maxSizeMB = (maxSize / 1048576).toFixed(1);
+							errorMessage = fplantData.i18n.fileTooLarge.replace('%s', maxSizeMB);
+						}
+
+						// File type check
+						const accept = firstField.getAttribute('accept');
+						if (accept && accept.indexOf('image/*') !== -1) {
+							// If image only
+							if (!file.type.startsWith('image/')) {
+								errorMessage = fplantData.i18n.imageRequired;
+							}
+						}
+					}
 				} else {
-					// File size check
-					const maxSize = parseInt(firstField.dataset.maxSize) || 2097152; // Default 2MB
+					// Text fields
+					value = firstField.value;
+					if (!value || value.trim() === '') {
+						errorMessage = customMessage || fplantData.i18n.requiredText;
+					}
+				}
+			}
+
+			// File size/type validation for non-required file fields
+			if (!errorMessage && !isRequired && fieldType === 'file') {
+				const file = firstField.files && firstField.files[0];
+				if (file) {
+					const maxSize = parseInt(firstField.dataset.maxSize) || 2097152;
 					if (file.size > maxSize) {
 						const maxSizeMB = (maxSize / 1048576).toFixed(1);
 						errorMessage = fplantData.i18n.fileTooLarge.replace('%s', maxSizeMB);
 					}
-
-					// File type check
-					const accept = firstField.getAttribute('accept');
-					if (accept && accept.indexOf('image/*') !== -1) {
-						// If image only
-						if (!file.type.startsWith('image/')) {
-							errorMessage = fplantData.i18n.imageRequired;
+					if (!errorMessage) {
+						const accept = firstField.getAttribute('accept');
+						if (accept && accept.indexOf('image/*') !== -1) {
+							if (!file.type.startsWith('image/')) {
+								errorMessage = fplantData.i18n.imageRequired;
+							}
 						}
 					}
 				}
-			} else {
-				// Text fields
-				value = firstField.value;
-				if (!value || value.trim() === '') {
-					errorMessage = customMessage || fplantData.i18n.requiredText;
+			}
+
+			// Kana validation (name_kana type)
+			if (!errorMessage) {
+				const kanaGroup = group.querySelector('.fplant-field-name-kana');
+				if (kanaGroup) {
+					const kanaValidation = kanaGroup.dataset.kanaValidation;
+					if (kanaValidation && kanaValidation !== 'none') {
+						const kanaInputs = kanaGroup.querySelectorAll('.fplant-name-input');
+						let kanaPattern;
+						if (kanaValidation === 'katakana') {
+							kanaPattern = /^[\u30A0-\u30FF\u30FC\s]*$/;
+						} else if (kanaValidation === 'hiragana') {
+							kanaPattern = /^[\u3040-\u309F\u30FC\s]*$/;
+						}
+						if (kanaPattern) {
+							for (const kInput of kanaInputs) {
+								if (kInput.value.trim() && !kanaPattern.test(kInput.value.trim())) {
+									const customKanaMsg = kanaGroup.dataset.kanaErrorMessage;
+									errorMessage = customKanaMsg ||
+										(kanaValidation === 'katakana'
+											? fplantData.i18n.kanaKatakanaOnly
+											: fplantData.i18n.kanaHiraganaOnly);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			// Password validation
+			if (!errorMessage) {
+				const passwordWrapper = group.querySelector('.fplant-password-wrapper');
+				if (passwordWrapper) {
+					const passwordInput = passwordWrapper.querySelector('input[type="password"], input[type="text"]');
+					if (passwordInput && passwordInput.value) {
+						// Minimum length check
+						const minLength = parseInt(passwordInput.getAttribute('minlength'));
+						if (minLength && passwordInput.value.length < minLength) {
+							errorMessage = fplantData.i18n.passwordMinLength
+								? fplantData.i18n.passwordMinLength.replace('%s', minLength)
+								: 'Password must be at least ' + minLength + ' characters';
+						}
+
+						// Strength level check
+						if (!errorMessage) {
+							const strengthLevel = passwordWrapper.dataset.strengthLevel;
+							if (strengthLevel && strengthLevel !== 'none' && typeof zxcvbn !== 'undefined') {
+								const result = zxcvbn(passwordInput.value);
+								const requiredScore = { 'weak': 1, 'fair': 2, 'strong': 3 }[strengthLevel] || 0;
+								if (result.score < requiredScore) {
+									errorMessage = fplantData.i18n.passwordTooWeak || 'Password is not strong enough';
+								}
+							}
+						}
+					}
+				}
+			}
+
+			// Run custom validators (callback API)
+			if (!errorMessage && window.fplant && window.fplant.validators) {
+				const validators = window.fplant.validators[fieldName];
+				if (validators && validators.length > 0) {
+					const currentValue = this.getFieldValue(fieldName, fields, fieldType);
+					for (const validator of validators) {
+						try {
+							const result = validator(currentValue, fieldName, this.getFormData());
+							if (typeof result === 'string' && result.length > 0) {
+								errorMessage = result;
+								break;
+							}
+						} catch (e) {
+							// Silently ignore validator errors
+						}
+					}
+				}
+			}
+
+			// Dispatch validateField event (cancelable)
+			if (!errorMessage) {
+				const currentValue = this.getFieldValue(fieldName, fields, fieldType);
+				const eventDetail = {
+					fieldName: fieldName,
+					value: currentValue,
+					field: fields[0],
+					group: group,
+					errorMessage: null
+				};
+				const event = new CustomEvent('fplant:validateField', {
+					detail: eventDetail,
+					bubbles: true,
+					cancelable: true
+				});
+				if (!this.form.dispatchEvent(event)) {
+					errorMessage = eventDetail.errorMessage || fplantData.i18n.requiredText;
 				}
 			}
 
@@ -371,6 +1022,15 @@
 					group.classList.add('fplant-field-has-error');
 				}
 
+				// For dot-separated keys (e.g. address.postal_code), also mark parent group
+				if (!group && fieldName.indexOf('.') !== -1) {
+					const parentName = fieldName.split('.')[0];
+					const parentGroup = this.form.querySelector('.fplant-field-group[data-field-name="' + parentName + '"]');
+					if (parentGroup) {
+						parentGroup.classList.add('fplant-field-has-error');
+					}
+				}
+
 				// New method: elements with data-field-error attribute
 				const standaloneErrors = this.form.querySelectorAll('[data-field-error="' + fieldName + '"]');
 				if (standaloneErrors.length) {
@@ -444,16 +1104,45 @@
 				});
 			}
 
+			// Render reCAPTCHA v2 widget on confirmation screen
+			if (this.captchaConfig.type === 'recaptcha_v2') {
+				this.renderRecaptchaV2Widget(this.confirmation);
+			}
+
+			// Render Turnstile widget on confirmation screen
+			if (this.captchaConfig.type === 'turnstile') {
+				this.renderTurnstileWidget(this.confirmation);
+			}
+
 			// Scroll to top
 			this.scrollToMessage(this.confirmation);
+
+			// Dispatch confirmationShow event
+			this.dispatchFplantEvent('fplant:confirmationShow', {
+				formId: this.formId,
+				confirmationEl: this.confirmation
+			});
 		}
 
 		hideConfirmation() {
+			// Remove reCAPTCHA v2 widget before removing confirmation
+			if (this.captchaConfig.type === 'recaptcha_v2') {
+				this.removeRecaptchaV2Widget();
+			}
+			// Remove Turnstile widget before removing confirmation
+			if (this.captchaConfig.type === 'turnstile') {
+				this.removeTurnstileWidget();
+			}
 			if (this.confirmation) {
 				this.confirmation.remove();
 				this.confirmation = null;
 			}
 			this.form.style.display = '';
+
+			// Dispatch confirmationHide event
+			this.dispatchFplantEvent('fplant:confirmationHide', {
+				formId: this.formId
+			});
 		}
 
 		async submitForm() {
@@ -463,19 +1152,39 @@
 			// Set loading state
 			this.setLoading(true);
 
-			// Get reCAPTCHA v3 token
-			let recaptchaToken = '';
-			if (this.recaptchaConfig.enabled && this.recaptchaConfig.version === 'v3') {
+			// Get CAPTCHA token
+			let captchaToken = '';
+			if (this.captchaConfig.type === 'recaptcha_v2') {
+				// v2: token is already set by the widget callback
+				const tokenInput = this.form.querySelector('.fplant-captcha-token');
+				captchaToken = tokenInput ? tokenInput.value : '';
+				if (!captchaToken) {
+					this.setLoading(false);
+					this.showErrors(fplantData.i18n.captchaError || fplantData.i18n.recaptchaError);
+					return;
+				}
+			} else if (this.captchaConfig.type === 'recaptcha') {
 				try {
-					recaptchaToken = await this.getRecaptchaV3Token();
-					// Set token in hidden field
-					const tokenInput = this.form.querySelector('.fplant-recaptcha-token');
+					captchaToken = await this.getRecaptchaV3Token();
+					const tokenInput = this.form.querySelector('.fplant-captcha-token');
 					if (tokenInput) {
-						tokenInput.value = recaptchaToken;
+						tokenInput.value = captchaToken;
 					}
 				} catch (error) {
 					this.setLoading(false);
-					this.showErrors(fplantData.i18n.recaptchaError);
+					this.showErrors(fplantData.i18n.captchaError || fplantData.i18n.recaptchaError);
+					return;
+				}
+			} else if (this.captchaConfig.type === 'turnstile') {
+				try {
+					captchaToken = await this.getTurnstileToken();
+					const tokenInput = this.form.querySelector('.fplant-captcha-token');
+					if (tokenInput) {
+						tokenInput.value = captchaToken;
+					}
+				} catch (error) {
+					this.setLoading(false);
+					this.showErrors(fplantData.i18n.captchaError || fplantData.i18n.recaptchaError);
 					return;
 				}
 			}
@@ -494,9 +1203,9 @@
 				body.append('form_id', this.formId);
 				body.append('data', JSON.stringify(formData));
 
-				// Add reCAPTCHA token
-				if (recaptchaToken) {
-					body.append('fplant_recaptcha_token', recaptchaToken);
+				// Add CAPTCHA token
+				if (captchaToken) {
+					body.append('fplant_captcha_token', captchaToken);
 				}
 
 				// Add file fields
@@ -516,9 +1225,9 @@
 					data: JSON.stringify(formData)
 				};
 
-				// Add reCAPTCHA token
-				if (recaptchaToken) {
-					params.fplant_recaptcha_token = recaptchaToken;
+				// Add CAPTCHA token
+				if (captchaToken) {
+					params.fplant_captcha_token = captchaToken;
 				}
 
 				body = new URLSearchParams(params);
@@ -555,10 +1264,204 @@
 				}
 
 				grecaptcha.ready(() => {
-					grecaptcha.execute(this.recaptchaConfig.siteKey, { action: 'submit' })
+					grecaptcha.execute(this.captchaConfig.recaptchaSiteKey, { action: 'submit' })
 						.then(token => resolve(token))
 						.catch(error => reject(error));
 				});
+			});
+		}
+
+		/**
+		 * Render reCAPTCHA v2 checkbox widget
+		 * @param {HTMLElement} parentElement - The form or confirmation element
+		 */
+		renderRecaptchaV2Widget(parentElement) {
+			if (typeof grecaptcha === 'undefined') {
+				// api.js not yet loaded, retry after load
+				window.addEventListener('load', () => {
+					if (typeof grecaptcha !== 'undefined') {
+						this._doRenderRecaptchaV2(parentElement);
+					}
+				});
+				return;
+			}
+			this._doRenderRecaptchaV2(parentElement);
+		}
+
+		_doRenderRecaptchaV2(parentElement) {
+			// Remove existing widget
+			this.removeRecaptchaV2Widget();
+
+			// Create container
+			const container = document.createElement('div');
+			container.className = 'fplant-recaptcha-v2-container';
+			container.style.marginBottom = '15px';
+
+			// Insert before submit button
+			const submitButton = parentElement.querySelector('.fplant-confirm-submit-button, .fplant-submit-button, button[type="submit"]');
+			const footer = parentElement.querySelector('.fplant-confirmation-footer');
+			if (footer) {
+				footer.parentNode.insertBefore(container, footer);
+			} else if (submitButton) {
+				submitButton.parentNode.insertBefore(container, submitButton);
+			} else {
+				parentElement.appendChild(container);
+			}
+
+			// Disable submit button until checkbox is checked
+			if (submitButton) {
+				submitButton.disabled = true;
+			}
+
+			this.recaptchaV2WidgetId = grecaptcha.render(container, {
+				sitekey: this.captchaConfig.recaptchaV2SiteKey,
+				callback: (token) => {
+					const tokenInput = this.form.querySelector('.fplant-captcha-token');
+					if (tokenInput) {
+						tokenInput.value = token;
+					}
+					if (submitButton) {
+						submitButton.disabled = false;
+					}
+				},
+				'expired-callback': () => {
+					const tokenInput = this.form.querySelector('.fplant-captcha-token');
+					if (tokenInput) {
+						tokenInput.value = '';
+					}
+					if (submitButton) {
+						submitButton.disabled = true;
+					}
+				}
+			});
+		}
+
+		/**
+		 * Remove existing reCAPTCHA v2 widget
+		 */
+		removeRecaptchaV2Widget() {
+			if (this.recaptchaV2WidgetId !== null && typeof grecaptcha !== 'undefined') {
+				try {
+					grecaptcha.reset(this.recaptchaV2WidgetId);
+				} catch (e) {
+					// Widget may already be removed
+				}
+				this.recaptchaV2WidgetId = null;
+			}
+			// Remove container elements
+			this.form.querySelectorAll('.fplant-recaptcha-v2-container').forEach(el => el.remove());
+			if (this.confirmation) {
+				this.confirmation.querySelectorAll('.fplant-recaptcha-v2-container').forEach(el => el.remove());
+			}
+		}
+
+		/**
+		 * Render Turnstile widget visibly inside a container
+		 * @param {HTMLElement} parentElement - The form or confirmation element
+		 */
+		renderTurnstileWidget(parentElement) {
+			if (typeof turnstile === 'undefined') {
+				return;
+			}
+
+			// Remove existing widget if any
+			this.removeTurnstileWidget();
+
+			// Create container for Turnstile widget
+			const container = document.createElement('div');
+			container.className = 'fplant-turnstile-container';
+			container.style.marginBottom = '15px';
+
+			// Insert before submit button
+			const submitButton = parentElement.querySelector('.fplant-confirm-submit-button, .fplant-submit-button, button[type="submit"]');
+			const footer = parentElement.querySelector('.fplant-confirmation-footer');
+			if (footer) {
+				footer.parentNode.insertBefore(container, footer);
+			} else if (submitButton) {
+				submitButton.parentNode.insertBefore(container, submitButton);
+			} else {
+				parentElement.appendChild(container);
+			}
+
+			this.turnstileWidgetId = turnstile.render(container, {
+				sitekey: this.captchaConfig.turnstileSiteKey,
+				callback: (token) => {
+					const tokenInput = this.form.querySelector('.fplant-captcha-token');
+					if (tokenInput) {
+						tokenInput.value = token;
+					}
+				},
+				'error-callback': () => {
+					const tokenInput = this.form.querySelector('.fplant-captcha-token');
+					if (tokenInput) {
+						tokenInput.value = '';
+					}
+				}
+			});
+		}
+
+		/**
+		 * Remove existing Turnstile widget
+		 */
+		removeTurnstileWidget() {
+			if (this.turnstileWidgetId !== null && typeof turnstile !== 'undefined') {
+				try {
+					turnstile.remove(this.turnstileWidgetId);
+				} catch (e) {
+					// Widget may already be removed
+				}
+				this.turnstileWidgetId = null;
+			}
+			// Remove container elements scoped to this form instance only
+			this.form.querySelectorAll('.fplant-turnstile-container').forEach(el => el.remove());
+			if (this.confirmation) {
+				this.confirmation.querySelectorAll('.fplant-turnstile-container').forEach(el => el.remove());
+			}
+		}
+
+		/**
+		 * Get Cloudflare Turnstile token from rendered widget
+		 * @returns {Promise<string>}
+		 */
+		getTurnstileToken() {
+			return new Promise((resolve, reject) => {
+				if (typeof turnstile === 'undefined') {
+					reject(new Error('Cloudflare Turnstile not loaded'));
+					return;
+				}
+
+				// Get token from already-rendered widget
+				if (this.turnstileWidgetId !== null) {
+					const token = turnstile.getResponse(this.turnstileWidgetId);
+					if (token) {
+						resolve(token);
+						return;
+					}
+				}
+
+				// Fallback: render a hidden widget if no visible widget exists
+				const container = document.createElement('div');
+				container.className = 'fplant-turnstile-container';
+				container.style.position = 'absolute';
+				container.style.left = '-9999px';
+				this.form.appendChild(container);
+
+				try {
+					turnstile.render(container, {
+						sitekey: this.captchaConfig.turnstileSiteKey,
+						callback: (token) => {
+							container.remove();
+							resolve(token);
+						},
+						'error-callback': () => {
+							container.remove();
+							reject(new Error('Turnstile verification failed'));
+						}
+					});
+				} catch (error) {
+					container.remove();
+					reject(error);
+				}
 			});
 		}
 
@@ -610,6 +1513,12 @@
 					} else {
 						fieldValue = '';
 					}
+				}
+
+				// Mask password field in confirmation
+				const passwordInput = this.form.querySelector(`input[name="${fieldName}"]`);
+				if (passwordInput && passwordInput.closest('.fplant-password-wrapper')) {
+					fieldValue = fieldValue ? '\u25CF'.repeat(fieldValue.length) : '';
 				}
 
 				// Convert value to label for select/radio/checkbox fields
@@ -730,14 +1639,44 @@
 			const data = {};
 			const formData = new FormData(this.form);
 
+			// Detect honeypot field name from DOM for server-side check
+			const honeypotInput = this.form.querySelector('.fplant-field-url input[type="text"]');
+			const honeypotFieldName = honeypotInput ? honeypotInput.name : 'fplant_website_url';
+
 			for (const [key, value] of formData.entries()) {
-				// Skip internal fields starting with fplant_ (but keep honeypot field for server-side check)
-				if (key.indexOf('fplant_') === 0 && key !== 'fplant_website_url') {
+				// Skip internal fields starting with fplant_ (but keep honeypot and timestamp for server-side check)
+				if (key.indexOf('fplant_') === 0 && key !== honeypotFieldName && key !== 'fplant_form_ts') {
 					continue;
 				}
 
 				// Skip individual date dropdown fields (fieldname[year], etc.)
 				if (key.match(/\[(year|month|day)\]$/)) {
+					continue;
+				}
+
+				// Send individual name part fields as flat keys for server-side validation
+				const namePartMatch = key.match(/^([^\[]+)\[(family|given|middle)\]$/);
+				if (namePartMatch) {
+					data[namePartMatch[1] + '_' + namePartMatch[2]] = value;
+					continue;
+				}
+
+				// Skip individual postal code split fields (fieldname[part1], [part2])
+				if (key.match(/\[(part1|part2|postal_code_part1|postal_code_part2)\]$/)) {
+					continue;
+				}
+
+				// Handle address composite sub-fields (fieldname[sub_key])
+				const addressMatch = key.match(/^([^\[]+)\[(postal_code|prefecture|city|street|building|address2|state|country)\]$/);
+				if (addressMatch) {
+					const parentName = addressMatch[1];
+					const subKey = addressMatch[2];
+					if (!data[parentName]) {
+						data[parentName] = {};
+					}
+					if (typeof data[parentName] === 'object' && !Array.isArray(data[parentName])) {
+						data[parentName][subKey] = value;
+					}
 					continue;
 				}
 
@@ -801,11 +1740,23 @@
 				this.form.dispatchEvent(new CustomEvent('fplant:success', { detail: response.data }));
 			} else {
 				this.showErrors(response.data.message, response.data.errors);
+
+				// Dispatch submitError event
+				this.dispatchFplantEvent('fplant:submitError', {
+					message: response.data.message,
+					errors: response.data.errors || {}
+				});
 			}
 		}
 
 		handleError(error) {
 			this.showErrors(fplantData.i18n.errorOccurred);
+
+			// Dispatch submitError event
+			this.dispatchFplantEvent('fplant:submitError', {
+				message: fplantData.i18n.errorOccurred,
+				errors: {}
+			});
 		}
 
 		showSuccess(message) {
@@ -878,6 +1829,12 @@
 
 			// Scroll to top
 			this.scrollToMessage(errorsEl);
+
+			// Dispatch error event
+			this.dispatchFplantEvent('fplant:error', {
+				fieldErrors: fieldErrors,
+				message: message
+			});
 		}
 
 		clearMessages() {
@@ -926,6 +1883,9 @@
 					submitBtn.disabled = false;
 				}
 			}
+
+			// Dispatch loading event
+			this.dispatchFplantEvent('fplant:loading', { loading: loading });
 		}
 
 		scrollToMessage(element) {
@@ -942,6 +1902,30 @@
 			const div = document.createElement('div');
 			div.textContent = String(text);
 			return div.innerHTML;
+		}
+
+		dispatchFplantEvent(eventName, detail, cancelable) {
+			const event = new CustomEvent(eventName, {
+				detail: detail || {},
+				bubbles: true,
+				cancelable: cancelable || false
+			});
+			return this.form.dispatchEvent(event);
+		}
+
+		getFieldValue(fieldName, fields, fieldType) {
+			if (!fields || !fields.length) return null;
+			if (fieldType === 'checkbox') {
+				const checked = [];
+				fields.forEach(field => { if (field.checked) checked.push(field.value); });
+				return checked;
+			} else if (fieldType === 'radio') {
+				for (const field of fields) { if (field.checked) return field.value; }
+				return null;
+			} else if (fieldType === 'file') {
+				return fields[0].files && fields[0].files[0] ? fields[0].files[0] : null;
+			}
+			return fields[0].value;
 		}
 
 		getCustomValidationMessage(fieldName) {
@@ -1045,7 +2029,7 @@
 		}
 
 		buildAllFieldsHtml(formData) {
-			let fieldsHtml = '<table class="fplant-confirmation-table">';
+			let fieldsHtml = '';
 
 			Object.keys(formData).forEach(fieldName => {
 				// Skip WordPress internal fields and nonce fields
@@ -1067,6 +2051,12 @@
 					}
 				}
 
+				// Mask password field in confirmation
+				const passwordInput = this.form.querySelector(`input[name="${fieldName}"]`);
+				if (passwordInput && passwordInput.closest('.fplant-password-wrapper')) {
+					fieldValue = fieldValue ? '\u25CF'.repeat(fieldValue.length) : '';
+				}
+
 				// Convert value to label for select/radio/checkbox fields
 				if (this.isChoiceField(fieldName)) {
 					fieldValue = this.getOptionLabel(fieldName, fieldValue);
@@ -1082,15 +2072,77 @@
 				const displayValue = escapedValue.replace(/\n/g, '<br>');
 
 				fieldsHtml += `
-					<tr>
-						<th>${this.escapeHtml(fieldLabel)}</th>
-						<td>${displayValue}</td>
-					</tr>
-				`;
+						<div class="fplant-field-group" data-field-name="${this.escapeHtml(fieldName)}">
+							<label>${this.escapeHtml(fieldLabel)}</label>
+							<div class="fplant-field-value">${displayValue}</div>
+						</div>
+					`;
 			});
-
-			fieldsHtml += '</table>';
 			return fieldsHtml;
+		}
+
+		initPasswordToggles() {
+			const toggles = this.form.querySelectorAll('.fplant-password-toggle');
+			toggles.forEach(toggle => {
+				toggle.addEventListener('click', () => {
+					const wrapper = toggle.closest('.fplant-password-input-wrapper');
+					const input = wrapper ? wrapper.querySelector('input') : null;
+					if (!input) return;
+
+					const icon = toggle.querySelector('.dashicons');
+					if (input.type === 'password') {
+						input.type = 'text';
+						if (icon) {
+							icon.classList.remove('dashicons-visibility');
+							icon.classList.add('dashicons-hidden');
+						}
+						toggle.setAttribute('aria-label', fplantData.i18n.hidePassword || 'Hide password');
+					} else {
+						input.type = 'password';
+						if (icon) {
+							icon.classList.remove('dashicons-hidden');
+							icon.classList.add('dashicons-visibility');
+						}
+						toggle.setAttribute('aria-label', fplantData.i18n.showPassword || 'Show password');
+					}
+				});
+			});
+		}
+
+		initPasswordStrengthMeters() {
+			const wrappers = this.form.querySelectorAll('.fplant-password-wrapper[data-strength-meter="1"]');
+			wrappers.forEach(wrapper => {
+				const input = wrapper.querySelector('input');
+				const bar = wrapper.querySelector('.fplant-password-strength-bar');
+				const text = wrapper.querySelector('.fplant-password-strength-text');
+				if (!input || !bar || !text) return;
+
+				input.addEventListener('input', () => {
+					if (!input.value) {
+						bar.style.width = '0%';
+						bar.className = 'fplant-password-strength-bar';
+						text.textContent = '';
+						return;
+					}
+
+					if (typeof zxcvbn === 'undefined') return;
+
+					const result = zxcvbn(input.value);
+					const labels = [
+						fplantData.i18n.strengthVeryWeak || 'Very Weak',
+						fplantData.i18n.strengthWeak || 'Weak',
+						fplantData.i18n.strengthFair || 'Fair',
+						fplantData.i18n.strengthStrong || 'Strong',
+						fplantData.i18n.strengthVeryStrong || 'Very Strong'
+					];
+					const classes = ['very-weak', 'weak', 'fair', 'strong', 'very-strong'];
+					const widths = ['20%', '40%', '60%', '80%', '100%'];
+
+					bar.style.width = widths[result.score];
+					bar.className = 'fplant-password-strength-bar fplant-strength-' + classes[result.score];
+					text.textContent = labels[result.score];
+				});
+			});
 		}
 	}
 

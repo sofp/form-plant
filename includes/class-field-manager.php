@@ -31,9 +31,15 @@ class FPLANT_Field_Manager {
 		'select',
 		'radio',
 		'checkbox',
+		'name_parts',
+		'name_kana',
+		'password',
 		'file',
 		'hidden',
 		'html',
+		'postal_code',
+		'prefecture',
+		'address',
 	);
 
 	/**
@@ -105,6 +111,21 @@ class FPLANT_Field_Manager {
 				'icon'        => 'dashicons-yes',
 				'description' => __( 'Multiple selection field', 'form-plant' ),
 			),
+			'name_parts' => array(
+				'label'       => __( 'Name', 'form-plant' ),
+				'icon'        => 'dashicons-admin-users',
+				'description' => __( 'Name input field with multiple parts', 'form-plant' ),
+			),
+			'name_kana' => array(
+				'label'       => __( 'Name (Kana)', 'form-plant' ),
+				'icon'        => 'dashicons-editor-spellcheck',
+				'description' => __( 'Kana name input field with multiple parts', 'form-plant' ),
+			),
+			'password' => array(
+				'label'       => __( 'Password', 'form-plant' ),
+				'icon'        => 'dashicons-lock',
+				'description' => __( 'Password input field', 'form-plant' ),
+			),
 			'file'     => array(
 				'label'       => __( 'File Upload', 'form-plant' ),
 				'icon'        => 'dashicons-upload',
@@ -119,6 +140,21 @@ class FPLANT_Field_Manager {
 				'label'       => __( 'HTML', 'form-plant' ),
 				'icon'        => 'dashicons-editor-code',
 				'description' => __( 'Custom HTML content', 'form-plant' ),
+			),
+			'postal_code' => array(
+				'label'       => __( 'Postal Code', 'form-plant' ),
+				'icon'        => 'dashicons-location',
+				'description' => __( 'Postal code input field with auto-fill support', 'form-plant' ),
+			),
+			'prefecture' => array(
+				'label'       => __( 'Prefecture', 'form-plant' ),
+				'icon'        => 'dashicons-location-alt',
+				'description' => __( 'Japanese prefecture selection field', 'form-plant' ),
+			),
+			'address'    => array(
+				'label'       => __( 'Address', 'form-plant' ),
+				'icon'        => 'dashicons-admin-home',
+				'description' => __( 'Address input field with multiple parts', 'form-plant' ),
 			),
 		);
 
@@ -189,8 +225,104 @@ class FPLANT_Field_Manager {
 				$defaults['max_date'] = '';
 				break;
 
+			case 'name_parts':
+				$defaults['name_format']       = '2';
+				$defaults['name_labels']       = array(
+					'family' => __( 'Last Name', 'form-plant' ),
+					'given'  => __( 'First Name', 'form-plant' ),
+					'middle' => __( 'Middle Name', 'form-plant' ),
+				);
+				$defaults['name_placeholders'] = array(
+					'family' => '',
+					'given'  => '',
+					'middle' => '',
+				);
+				break;
+
+			case 'name_kana':
+				$defaults['name_format']        = '2';
+				$defaults['name_labels']        = array(
+					'family' => __( 'Last Name (Kana)', 'form-plant' ),
+					'given'  => __( 'First Name (Kana)', 'form-plant' ),
+					'middle' => __( 'Middle Name (Kana)', 'form-plant' ),
+				);
+				$defaults['name_placeholders']  = array(
+					'family' => '',
+					'given'  => '',
+					'middle' => '',
+				);
+				$defaults['kana_validation']    = 'katakana';
+				$defaults['kana_error_message'] = '';
+				break;
+
+			case 'password':
+				$defaults['password_min_length']     = '';
+				$defaults['password_mask_email']     = false;
+				$defaults['password_mask_save']      = false;
+				$defaults['password_strength_meter'] = false;
+				$defaults['password_strength_level'] = 'none';
+				break;
+
 			case 'html':
 				$defaults['content'] = '';
+				break;
+
+			case 'postal_code':
+				$defaults['postal_format']         = 'single';
+				$defaults['postal_autofill']       = false;
+				$defaults['postal_show_search_btn'] = false;
+				$defaults['postal_target_pref']    = '';
+				$defaults['postal_target_addr1']   = '';
+				$defaults['postal_target_addr2']   = '';
+				break;
+
+			case 'prefecture':
+				$defaults['pref_display_type'] = 'select';
+				$defaults['layout']            = 'vertical';
+				$defaults['options']           = array_map(
+					function ( $pref ) {
+						return array(
+							'value' => $pref,
+							'label' => $pref,
+						);
+					},
+					self::get_prefectures()
+				);
+				break;
+
+			case 'address':
+				$defaults['postal_format']         = 'single';
+				$defaults['postal_show_search_btn'] = false;
+				$defaults['pref_display_type']     = 'select';
+				$defaults['address_labels']    = array(
+					'postal_code' => __( 'Postal Code', 'form-plant' ),
+					'prefecture'  => __( 'Prefecture', 'form-plant' ),
+					'city'        => __( 'City', 'form-plant' ),
+					'street'      => __( 'Street Address', 'form-plant' ),
+					'building'    => __( 'Building / Apartment', 'form-plant' ),
+					'country'     => __( 'Country', 'form-plant' ),
+					'state'       => __( 'State / Province', 'form-plant' ),
+					'address2'    => __( 'Address Line 2', 'form-plant' ),
+				);
+				$defaults['address_placeholders'] = array(
+					'postal_code' => '',
+					'city'        => '',
+					'street'      => '',
+					'building'    => '',
+					'country'     => '',
+					'state'       => '',
+					'address2'    => '',
+				);
+				$defaults['address_validation_messages'] = array(
+					'postal_code' => '',
+					'prefecture'  => '',
+					'city'        => '',
+					'street'      => '',
+					'building'    => '',
+					'country'     => '',
+					'state'       => '',
+					'address2'    => '',
+				);
 				break;
 		}
 
@@ -380,6 +512,10 @@ class FPLANT_Field_Manager {
 				}
 				return null;
 
+			case 'name_parts':
+			case 'name_kana':
+				return sanitize_text_field( $raw_value );
+
 			case 'textarea':
 				return sanitize_textarea_field( $raw_value );
 
@@ -441,8 +577,8 @@ class FPLANT_Field_Manager {
 		// Get settings for confirmation screen.
 		$settings = isset( $form['settings'] ) ? $form['settings'] : array();
 
-		// Render all fields HTML using all_fields.php template.
-		$fields_html = $this->render_all_fields_html( $form['fields'], $data, $filenames );
+		// Render all fields HTML using all_fields.php or all_fields_div.php template.
+		$fields_html = $this->render_all_fields_html( $form['fields'], $data, $filenames, $form );
 
 		// Prepare template variables.
 		$title        = isset( $settings['confirmation_title'] ) && '' !== $settings['confirmation_title']
@@ -451,16 +587,16 @@ class FPLANT_Field_Manager {
 		$message      = isset( $settings['confirmation_message'] ) && '' !== $settings['confirmation_message']
 			? $settings['confirmation_message']
 			: __( 'Please review your input below and click submit to complete.', 'form-plant' );
-		$back_text    = isset( $settings['back_button_text'] ) && '' !== $settings['back_button_text']
-			? $settings['back_button_text']
+		$back_text    = isset( $settings['confirmation_back_text'] ) && '' !== $settings['confirmation_back_text']
+			? $settings['confirmation_back_text']
 			: __( 'Back', 'form-plant' );
-		$back_class   = isset( $settings['back_button_class'] ) ? $settings['back_button_class'] : '';
-		$back_id      = isset( $settings['back_button_id'] ) ? $settings['back_button_id'] : '';
-		$submit_text  = isset( $settings['confirm_submit_button_text'] ) && '' !== $settings['confirm_submit_button_text']
-			? $settings['confirm_submit_button_text']
+		$back_class   = isset( $settings['confirmation_back_class'] ) ? $settings['confirmation_back_class'] : '';
+		$back_id      = isset( $settings['confirmation_back_id'] ) ? $settings['confirmation_back_id'] : '';
+		$submit_text  = isset( $settings['confirmation_submit_text'] ) && '' !== $settings['confirmation_submit_text']
+			? $settings['confirmation_submit_text']
 			: __( 'Submit', 'form-plant' );
-		$submit_class = isset( $settings['confirm_submit_button_class'] ) ? $settings['confirm_submit_button_class'] : '';
-		$submit_id    = isset( $settings['confirm_submit_button_id'] ) ? $settings['confirm_submit_button_id'] : '';
+		$submit_class = isset( $settings['confirmation_submit_class'] ) ? $settings['confirmation_submit_class'] : '';
+		$submit_id    = isset( $settings['confirmation_submit_id'] ) ? $settings['confirmation_submit_id'] : '';
 
 		// Locate confirmation template.
 		$template = $template_loader->locate_confirmation_template();
@@ -499,8 +635,8 @@ class FPLANT_Field_Manager {
 			: __( 'Please review your input below and click submit to complete.', 'form-plant' );
 		$html    = str_replace( '[fplant_confirmation_message]', esc_html( $message ), $html );
 
-		// Replace [fplant_all_fields] using all_fields.php template.
-		$all_fields_html = $this->render_all_fields_html( $form['fields'], $data, $filenames );
+		// Replace [fplant_all_fields] using all_fields.php or all_fields_div.php template.
+		$all_fields_html = $this->render_all_fields_html( $form['fields'], $data, $filenames, $form );
 		$html            = str_replace( '[fplant_all_fields]', $all_fields_html, $html );
 
 		// Replace [fplant_value name="..."] using confirm-fields/{type}.php templates.
@@ -513,16 +649,19 @@ class FPLANT_Field_Manager {
 	}
 
 	/**
-	 * Render all fields HTML using all_fields.php template
+	 * Render all fields HTML using all_fields.php or all_fields_div.php template
 	 *
 	 * @param array $fields    Form field definitions.
 	 * @param array $values    Submitted values.
 	 * @param array $filenames Optional. Array of filenames for file fields.
+	 * @param array $form      Optional. Form data (used for design_type detection).
 	 * @return string All fields HTML.
 	 */
-	private function render_all_fields_html( $fields, $values, $filenames = array() ) {
+	private function render_all_fields_html( $fields, $values, $filenames = array(), $form = array() ) {
 		$template_loader = new FPLANT_Template_Loader();
-		$template        = $template_loader->locate_template( 'confirm-fields/all_fields.php' );
+		$design_type     = $form['settings']['design_type'] ?? 'default';
+		$template_name   = ( 'default' !== $design_type ) ? 'confirm-fields/all_fields_div.php' : 'confirm-fields/all_fields.php';
+		$template        = $template_loader->locate_template( $template_name );
 
 		if ( empty( $template ) ) {
 			return '';
@@ -586,16 +725,16 @@ class FPLANT_Field_Manager {
 	 */
 	private function replace_button_shortcodes( $html, $settings ) {
 		// Get button text and attributes.
-		$back_text    = isset( $settings['back_button_text'] ) && '' !== $settings['back_button_text']
-			? $settings['back_button_text']
+		$back_text    = isset( $settings['confirmation_back_text'] ) && '' !== $settings['confirmation_back_text']
+			? $settings['confirmation_back_text']
 			: __( 'Back', 'form-plant' );
-		$back_class   = isset( $settings['back_button_class'] ) ? $settings['back_button_class'] : '';
-		$back_id      = isset( $settings['back_button_id'] ) ? $settings['back_button_id'] : '';
-		$submit_text  = isset( $settings['confirm_submit_button_text'] ) && '' !== $settings['confirm_submit_button_text']
-			? $settings['confirm_submit_button_text']
+		$back_class   = isset( $settings['confirmation_back_class'] ) ? $settings['confirmation_back_class'] : '';
+		$back_id      = isset( $settings['confirmation_back_id'] ) ? $settings['confirmation_back_id'] : '';
+		$submit_text  = isset( $settings['confirmation_submit_text'] ) && '' !== $settings['confirmation_submit_text']
+			? $settings['confirmation_submit_text']
 			: __( 'Submit', 'form-plant' );
-		$submit_class = isset( $settings['confirm_submit_button_class'] ) ? $settings['confirm_submit_button_class'] : '';
-		$submit_id    = isset( $settings['confirm_submit_button_id'] ) ? $settings['confirm_submit_button_id'] : '';
+		$submit_class = isset( $settings['confirmation_submit_class'] ) ? $settings['confirmation_submit_class'] : '';
+		$submit_id    = isset( $settings['confirmation_submit_id'] ) ? $settings['confirmation_submit_id'] : '';
 
 		// Replace [fplant_back] with optional text attribute.
 		$html = preg_replace_callback(
@@ -622,5 +761,227 @@ class FPLANT_Field_Manager {
 		);
 
 		return $html;
+	}
+
+	/**
+	 * Get Japanese prefectures list
+	 *
+	 * @return array
+	 */
+	public static function get_prefectures() {
+		return array(
+			'北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
+			'茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+			'新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
+			'静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
+			'奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
+			'徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
+			'熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県',
+		);
+	}
+
+	/**
+	 * Get countries list (ISO 3166-1)
+	 *
+	 * @return array
+	 */
+	public static function get_countries() {
+		return array(
+			'AF' => __( 'Afghanistan', 'form-plant' ),
+			'AL' => __( 'Albania', 'form-plant' ),
+			'DZ' => __( 'Algeria', 'form-plant' ),
+			'AD' => __( 'Andorra', 'form-plant' ),
+			'AO' => __( 'Angola', 'form-plant' ),
+			'AG' => __( 'Antigua and Barbuda', 'form-plant' ),
+			'AR' => __( 'Argentina', 'form-plant' ),
+			'AM' => __( 'Armenia', 'form-plant' ),
+			'AU' => __( 'Australia', 'form-plant' ),
+			'AT' => __( 'Austria', 'form-plant' ),
+			'AZ' => __( 'Azerbaijan', 'form-plant' ),
+			'BS' => __( 'Bahamas', 'form-plant' ),
+			'BH' => __( 'Bahrain', 'form-plant' ),
+			'BD' => __( 'Bangladesh', 'form-plant' ),
+			'BB' => __( 'Barbados', 'form-plant' ),
+			'BY' => __( 'Belarus', 'form-plant' ),
+			'BE' => __( 'Belgium', 'form-plant' ),
+			'BZ' => __( 'Belize', 'form-plant' ),
+			'BJ' => __( 'Benin', 'form-plant' ),
+			'BT' => __( 'Bhutan', 'form-plant' ),
+			'BO' => __( 'Bolivia', 'form-plant' ),
+			'BA' => __( 'Bosnia and Herzegovina', 'form-plant' ),
+			'BW' => __( 'Botswana', 'form-plant' ),
+			'BR' => __( 'Brazil', 'form-plant' ),
+			'BN' => __( 'Brunei', 'form-plant' ),
+			'BG' => __( 'Bulgaria', 'form-plant' ),
+			'BF' => __( 'Burkina Faso', 'form-plant' ),
+			'BI' => __( 'Burundi', 'form-plant' ),
+			'CV' => __( 'Cabo Verde', 'form-plant' ),
+			'KH' => __( 'Cambodia', 'form-plant' ),
+			'CM' => __( 'Cameroon', 'form-plant' ),
+			'CA' => __( 'Canada', 'form-plant' ),
+			'CF' => __( 'Central African Republic', 'form-plant' ),
+			'TD' => __( 'Chad', 'form-plant' ),
+			'CL' => __( 'Chile', 'form-plant' ),
+			'CN' => __( 'China', 'form-plant' ),
+			'CO' => __( 'Colombia', 'form-plant' ),
+			'KM' => __( 'Comoros', 'form-plant' ),
+			'CG' => __( 'Congo', 'form-plant' ),
+			'CD' => __( 'Congo (Democratic Republic)', 'form-plant' ),
+			'CR' => __( 'Costa Rica', 'form-plant' ),
+			'CI' => __( 'Côte d\'Ivoire', 'form-plant' ),
+			'HR' => __( 'Croatia', 'form-plant' ),
+			'CU' => __( 'Cuba', 'form-plant' ),
+			'CY' => __( 'Cyprus', 'form-plant' ),
+			'CZ' => __( 'Czech Republic', 'form-plant' ),
+			'DK' => __( 'Denmark', 'form-plant' ),
+			'DJ' => __( 'Djibouti', 'form-plant' ),
+			'DM' => __( 'Dominica', 'form-plant' ),
+			'DO' => __( 'Dominican Republic', 'form-plant' ),
+			'EC' => __( 'Ecuador', 'form-plant' ),
+			'EG' => __( 'Egypt', 'form-plant' ),
+			'SV' => __( 'El Salvador', 'form-plant' ),
+			'GQ' => __( 'Equatorial Guinea', 'form-plant' ),
+			'ER' => __( 'Eritrea', 'form-plant' ),
+			'EE' => __( 'Estonia', 'form-plant' ),
+			'SZ' => __( 'Eswatini', 'form-plant' ),
+			'ET' => __( 'Ethiopia', 'form-plant' ),
+			'FJ' => __( 'Fiji', 'form-plant' ),
+			'FI' => __( 'Finland', 'form-plant' ),
+			'FR' => __( 'France', 'form-plant' ),
+			'GA' => __( 'Gabon', 'form-plant' ),
+			'GM' => __( 'Gambia', 'form-plant' ),
+			'GE' => __( 'Georgia', 'form-plant' ),
+			'DE' => __( 'Germany', 'form-plant' ),
+			'GH' => __( 'Ghana', 'form-plant' ),
+			'GR' => __( 'Greece', 'form-plant' ),
+			'GD' => __( 'Grenada', 'form-plant' ),
+			'GT' => __( 'Guatemala', 'form-plant' ),
+			'GN' => __( 'Guinea', 'form-plant' ),
+			'GW' => __( 'Guinea-Bissau', 'form-plant' ),
+			'GY' => __( 'Guyana', 'form-plant' ),
+			'HT' => __( 'Haiti', 'form-plant' ),
+			'HN' => __( 'Honduras', 'form-plant' ),
+			'HU' => __( 'Hungary', 'form-plant' ),
+			'IS' => __( 'Iceland', 'form-plant' ),
+			'IN' => __( 'India', 'form-plant' ),
+			'ID' => __( 'Indonesia', 'form-plant' ),
+			'IR' => __( 'Iran', 'form-plant' ),
+			'IQ' => __( 'Iraq', 'form-plant' ),
+			'IE' => __( 'Ireland', 'form-plant' ),
+			'IL' => __( 'Israel', 'form-plant' ),
+			'IT' => __( 'Italy', 'form-plant' ),
+			'JM' => __( 'Jamaica', 'form-plant' ),
+			'JP' => __( 'Japan', 'form-plant' ),
+			'JO' => __( 'Jordan', 'form-plant' ),
+			'KZ' => __( 'Kazakhstan', 'form-plant' ),
+			'KE' => __( 'Kenya', 'form-plant' ),
+			'KI' => __( 'Kiribati', 'form-plant' ),
+			'KP' => __( 'Korea (North)', 'form-plant' ),
+			'KR' => __( 'Korea (South)', 'form-plant' ),
+			'KW' => __( 'Kuwait', 'form-plant' ),
+			'KG' => __( 'Kyrgyzstan', 'form-plant' ),
+			'LA' => __( 'Laos', 'form-plant' ),
+			'LV' => __( 'Latvia', 'form-plant' ),
+			'LB' => __( 'Lebanon', 'form-plant' ),
+			'LS' => __( 'Lesotho', 'form-plant' ),
+			'LR' => __( 'Liberia', 'form-plant' ),
+			'LY' => __( 'Libya', 'form-plant' ),
+			'LI' => __( 'Liechtenstein', 'form-plant' ),
+			'LT' => __( 'Lithuania', 'form-plant' ),
+			'LU' => __( 'Luxembourg', 'form-plant' ),
+			'MG' => __( 'Madagascar', 'form-plant' ),
+			'MW' => __( 'Malawi', 'form-plant' ),
+			'MY' => __( 'Malaysia', 'form-plant' ),
+			'MV' => __( 'Maldives', 'form-plant' ),
+			'ML' => __( 'Mali', 'form-plant' ),
+			'MT' => __( 'Malta', 'form-plant' ),
+			'MH' => __( 'Marshall Islands', 'form-plant' ),
+			'MR' => __( 'Mauritania', 'form-plant' ),
+			'MU' => __( 'Mauritius', 'form-plant' ),
+			'MX' => __( 'Mexico', 'form-plant' ),
+			'FM' => __( 'Micronesia', 'form-plant' ),
+			'MD' => __( 'Moldova', 'form-plant' ),
+			'MC' => __( 'Monaco', 'form-plant' ),
+			'MN' => __( 'Mongolia', 'form-plant' ),
+			'ME' => __( 'Montenegro', 'form-plant' ),
+			'MA' => __( 'Morocco', 'form-plant' ),
+			'MZ' => __( 'Mozambique', 'form-plant' ),
+			'MM' => __( 'Myanmar', 'form-plant' ),
+			'NA' => __( 'Namibia', 'form-plant' ),
+			'NR' => __( 'Nauru', 'form-plant' ),
+			'NP' => __( 'Nepal', 'form-plant' ),
+			'NL' => __( 'Netherlands', 'form-plant' ),
+			'NZ' => __( 'New Zealand', 'form-plant' ),
+			'NI' => __( 'Nicaragua', 'form-plant' ),
+			'NE' => __( 'Niger', 'form-plant' ),
+			'NG' => __( 'Nigeria', 'form-plant' ),
+			'MK' => __( 'North Macedonia', 'form-plant' ),
+			'NO' => __( 'Norway', 'form-plant' ),
+			'OM' => __( 'Oman', 'form-plant' ),
+			'PK' => __( 'Pakistan', 'form-plant' ),
+			'PW' => __( 'Palau', 'form-plant' ),
+			'PA' => __( 'Panama', 'form-plant' ),
+			'PG' => __( 'Papua New Guinea', 'form-plant' ),
+			'PY' => __( 'Paraguay', 'form-plant' ),
+			'PE' => __( 'Peru', 'form-plant' ),
+			'PH' => __( 'Philippines', 'form-plant' ),
+			'PL' => __( 'Poland', 'form-plant' ),
+			'PT' => __( 'Portugal', 'form-plant' ),
+			'QA' => __( 'Qatar', 'form-plant' ),
+			'RO' => __( 'Romania', 'form-plant' ),
+			'RU' => __( 'Russia', 'form-plant' ),
+			'RW' => __( 'Rwanda', 'form-plant' ),
+			'KN' => __( 'Saint Kitts and Nevis', 'form-plant' ),
+			'LC' => __( 'Saint Lucia', 'form-plant' ),
+			'VC' => __( 'Saint Vincent and the Grenadines', 'form-plant' ),
+			'WS' => __( 'Samoa', 'form-plant' ),
+			'SM' => __( 'San Marino', 'form-plant' ),
+			'ST' => __( 'Sao Tome and Principe', 'form-plant' ),
+			'SA' => __( 'Saudi Arabia', 'form-plant' ),
+			'SN' => __( 'Senegal', 'form-plant' ),
+			'RS' => __( 'Serbia', 'form-plant' ),
+			'SC' => __( 'Seychelles', 'form-plant' ),
+			'SL' => __( 'Sierra Leone', 'form-plant' ),
+			'SG' => __( 'Singapore', 'form-plant' ),
+			'SK' => __( 'Slovakia', 'form-plant' ),
+			'SI' => __( 'Slovenia', 'form-plant' ),
+			'SB' => __( 'Solomon Islands', 'form-plant' ),
+			'SO' => __( 'Somalia', 'form-plant' ),
+			'ZA' => __( 'South Africa', 'form-plant' ),
+			'SS' => __( 'South Sudan', 'form-plant' ),
+			'ES' => __( 'Spain', 'form-plant' ),
+			'LK' => __( 'Sri Lanka', 'form-plant' ),
+			'SD' => __( 'Sudan', 'form-plant' ),
+			'SR' => __( 'Suriname', 'form-plant' ),
+			'SE' => __( 'Sweden', 'form-plant' ),
+			'CH' => __( 'Switzerland', 'form-plant' ),
+			'SY' => __( 'Syria', 'form-plant' ),
+			'TW' => __( 'Taiwan', 'form-plant' ),
+			'TJ' => __( 'Tajikistan', 'form-plant' ),
+			'TZ' => __( 'Tanzania', 'form-plant' ),
+			'TH' => __( 'Thailand', 'form-plant' ),
+			'TL' => __( 'Timor-Leste', 'form-plant' ),
+			'TG' => __( 'Togo', 'form-plant' ),
+			'TO' => __( 'Tonga', 'form-plant' ),
+			'TT' => __( 'Trinidad and Tobago', 'form-plant' ),
+			'TN' => __( 'Tunisia', 'form-plant' ),
+			'TR' => __( 'Turkey', 'form-plant' ),
+			'TM' => __( 'Turkmenistan', 'form-plant' ),
+			'TV' => __( 'Tuvalu', 'form-plant' ),
+			'UG' => __( 'Uganda', 'form-plant' ),
+			'UA' => __( 'Ukraine', 'form-plant' ),
+			'AE' => __( 'United Arab Emirates', 'form-plant' ),
+			'GB' => __( 'United Kingdom', 'form-plant' ),
+			'US' => __( 'United States', 'form-plant' ),
+			'UY' => __( 'Uruguay', 'form-plant' ),
+			'UZ' => __( 'Uzbekistan', 'form-plant' ),
+			'VU' => __( 'Vanuatu', 'form-plant' ),
+			'VA' => __( 'Vatican City', 'form-plant' ),
+			'VE' => __( 'Venezuela', 'form-plant' ),
+			'VN' => __( 'Vietnam', 'form-plant' ),
+			'YE' => __( 'Yemen', 'form-plant' ),
+			'ZM' => __( 'Zambia', 'form-plant' ),
+			'ZW' => __( 'Zimbabwe', 'form-plant' ),
+		);
 	}
 }

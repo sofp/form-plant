@@ -52,6 +52,9 @@ class FPLANT_Submission_Manager {
 			);
 		}
 
+		// Expand address composite field sub-values into individual keys
+		$data = self::expand_address_fields( $data, $form['fields'] );
+
 		// Hook: before submission
 		do_action( 'fplant_before_submission', $form_id, $data );
 
@@ -94,6 +97,16 @@ class FPLANT_Submission_Manager {
 		if ( 'none' !== $save_submission ) {
 			// Filter: transform data before database save
 			$save_data = apply_filters( 'fplant_before_save_submission_data', $sanitized_data, $form_id );
+
+			// Mask password fields for database save
+			foreach ( $form['fields'] as $pw_field ) {
+				if ( 'password' === $pw_field['type'] && ! empty( $pw_field['password_mask_save'] ) ) {
+					$pw_name = $pw_field['name'];
+					if ( isset( $save_data[ $pw_name ] ) && is_string( $save_data[ $pw_name ] ) && '' !== $save_data[ $pw_name ] ) {
+						$save_data[ $pw_name ] = str_repeat( '*', max( mb_strlen( $save_data[ $pw_name ] ), 8 ) );
+					}
+				}
+			}
 
 			// Clear input data for 'metadata_only'
 			if ( 'metadata_only' === $save_submission ) {
@@ -143,7 +156,7 @@ class FPLANT_Submission_Manager {
 		if ( 'redirect' === $action_type && ! empty( $form['settings']['redirect_url'] ) ) {
 			$result['redirect_url'] = $form['settings']['redirect_url'];
 		} elseif ( 'custom_page' === $action_type && ! empty( $form['settings']['success_page_html'] ) ) {
-			$result['success_page_html'] = $form['settings']['success_page_html'];
+			$result['success_page_html'] = fplant_replace_template_values( $form['settings']['success_page_html'], $form_id );
 		}
 
 		return $result;
@@ -170,25 +183,107 @@ class FPLANT_Submission_Manager {
 			wp_send_json_error( array( 'message' => __( 'Invalid data format', 'form-plant' ) ) );
 		}
 
-		// Honeypot check
-		if ( ! empty( $data['fplant_website_url'] ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'Invalid request', 'form-plant' ),
-				)
-			);
-		}
-
-		// Verify reCAPTCHA
+		// Get form data for spam/CAPTCHA checks
 		$form = FPLANT_Database::get_form( $form_id );
-		if ( $form && ! empty( $form['settings']['recaptcha_enabled'] ) ) {
-			$recaptcha_result = $this->verify_recaptcha( $form );
-			if ( is_wp_error( $recaptcha_result ) ) {
+
+		if ( $form ) {
+			// Honeypot check
+			$fplant_hp_enabled = ( $form['settings']['spam_honeypot_enabled'] ?? true ) !== false;
+			$fplant_hp_name    = $form['settings']['spam_honeypot_field_name'] ?? 'fplant_website_url';
+			if ( $fplant_hp_enabled && ! empty( $data[ $fplant_hp_name ] ) ) {
 				wp_send_json_error(
 					array(
-						'message' => $recaptcha_result->get_error_message(),
+						'message' => __( 'Invalid request', 'form-plant' ),
 					)
 				);
+			}
+			// Disposable email blocking filter.
+			if ( ! empty( $form['settings']['spam_disposable_email_block'] ) ) {
+				add_filter(
+					'fplant_validate_field_type_email',
+					function ( $error, $field, $value ) {
+						if ( false !== $error ) {
+							return $error;
+						}
+						$validator = new FPLANT_Validator();
+						if ( $validator->is_disposable_email( $value ) ) {
+							return sprintf(
+								/* translators: %s: field label */
+								__( '%s: This email address cannot be used', 'form-plant' ),
+								$field['label']
+							);
+						}
+						return false;
+					},
+					10,
+					3
+				);
+			}
+
+			// Blocked email domain filter (global setting).
+			add_filter(
+				'fplant_validate_field_type_email',
+				function ( $error, $field, $value ) {
+					if ( false !== $error ) {
+						return $error;
+					}
+					$validator = new FPLANT_Validator();
+					if ( $validator->is_blocked_email_domain( $value ) ) {
+						return sprintf(
+							/* translators: %s: field label */
+							__( '%s: This email address cannot be used', 'form-plant' ),
+							$field['label']
+						);
+					}
+					return false;
+				},
+				11,
+				3
+			);
+
+			// Spam protection checks (rate limit + time-based)
+			$validator     = new FPLANT_Validator();
+			$spam_settings = array(
+				'rate_limit'         => ! empty( $form['settings']['spam_rate_limit_enabled'] ),
+				'rate_limit_minutes' => intval( $form['settings']['spam_rate_limit_minutes'] ?? 5 ),
+				'rate_limit_count'   => intval( $form['settings']['spam_rate_limit_count'] ?? 3 ),
+				'time_check'         => ! empty( $form['settings']['spam_time_check_enabled'] ),
+				'time_check_seconds' => intval( $form['settings']['spam_time_check_seconds'] ?? 3 ),
+			);
+			$is_spam       = $validator->check_spam( $data, $spam_settings );
+			if ( $is_spam ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'Submission was blocked. Please try again later.', 'form-plant' ),
+					)
+				);
+			}
+
+			// Blocked keywords check (global setting).
+			if ( $validator->contains_blocked_keywords( $data ) ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'Submission was blocked. Please try again later.', 'form-plant' ),
+					)
+				);
+			}
+
+			// Verify CAPTCHA
+			$fplant_captcha_type = $form['settings']['captcha_type'] ?? 'none';
+			// Backward compatibility: recaptcha_enabled flag
+			if ( 'none' === $fplant_captcha_type && ! empty( $form['settings']['recaptcha_enabled'] ) ) {
+				$fplant_captcha_type = 'recaptcha';
+			}
+
+			if ( 'none' !== $fplant_captcha_type ) {
+				$captcha_result = $this->verify_captcha( $form, $fplant_captcha_type );
+				if ( is_wp_error( $captcha_result ) ) {
+					wp_send_json_error(
+						array(
+							'message' => $captcha_result->get_error_message(),
+						)
+					);
+				}
 			}
 		}
 
@@ -205,8 +300,13 @@ class FPLANT_Submission_Manager {
 		// Add uploaded file info to data
 		$data = array_merge( $data, $uploaded_files );
 
-		// Remove honeypot data before processing
+		// Remove internal fields before processing
 		unset( $data['fplant_website_url'] );
+		$fplant_hp_field = $form['settings']['spam_honeypot_field_name'] ?? '';
+		if ( $fplant_hp_field && 'fplant_website_url' !== $fplant_hp_field ) {
+			unset( $data[ $fplant_hp_field ] );
+		}
+		unset( $data['fplant_form_ts'] );
 
 		// Process submission
 		$result = $this->process_submission( $form_id, $data );
@@ -239,15 +339,6 @@ class FPLANT_Submission_Manager {
 			wp_send_json_error( array( 'message' => __( 'Invalid data format', 'form-plant' ) ) );
 		}
 
-		// Honeypot check
-		if ( ! empty( $data['fplant_website_url'] ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'Invalid request', 'form-plant' ),
-				)
-			);
-		}
-
 		// Get form data
 		$form = FPLANT_Database::get_form( $form_id );
 
@@ -258,6 +349,61 @@ class FPLANT_Submission_Manager {
 				)
 			);
 		}
+
+		// Honeypot check
+		$fplant_hp_enabled = ( $form['settings']['spam_honeypot_enabled'] ?? true ) !== false;
+		$fplant_hp_name    = $form['settings']['spam_honeypot_field_name'] ?? 'fplant_website_url';
+		if ( $fplant_hp_enabled && ! empty( $data[ $fplant_hp_name ] ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Invalid request', 'form-plant' ),
+				)
+			);
+		}
+
+		// Disposable email blocking filter.
+		if ( ! empty( $form['settings']['spam_disposable_email_block'] ) ) {
+			add_filter(
+				'fplant_validate_field_type_email',
+				function ( $error, $field, $value ) {
+					if ( false !== $error ) {
+						return $error;
+					}
+					$validator = new FPLANT_Validator();
+					if ( $validator->is_disposable_email( $value ) ) {
+						return sprintf(
+							/* translators: %s: field label */
+							__( '%s: This email address cannot be used', 'form-plant' ),
+							$field['label']
+						);
+					}
+					return false;
+				},
+				10,
+				3
+			);
+		}
+
+		// Blocked email domain filter (global setting).
+		add_filter(
+			'fplant_validate_field_type_email',
+			function ( $error, $field, $value ) {
+				if ( false !== $error ) {
+					return $error;
+				}
+				$validator = new FPLANT_Validator();
+				if ( $validator->is_blocked_email_domain( $value ) ) {
+					return sprintf(
+						/* translators: %s: field label */
+						__( '%s: This email address cannot be used', 'form-plant' ),
+						$field['label']
+					);
+				}
+				return false;
+			},
+			11,
+			3
+		);
 
 		// Validate file fields only (no actual upload)
 		if ( ! empty( $_FILES ) ) {
@@ -271,6 +417,9 @@ class FPLANT_Submission_Manager {
 				);
 			}
 		}
+
+		// Expand address composite field sub-values
+		$data = self::expand_address_fields( $data, $form['fields'] );
 
 		// Run validation
 		$validator = new FPLANT_Validator();
@@ -308,6 +457,21 @@ class FPLANT_Submission_Manager {
 
 		foreach ( $fields as $field ) {
 			$field_name = $field['name'];
+
+			// For address composite fields, collect expanded sub-keys even if parent key is absent
+			if ( 'address' === $field['type'] ) {
+				$is_ja       = ( 0 === strpos( get_locale(), 'ja' ) );
+				$addr_subs   = $is_ja
+					? array( 'postal_code', 'prefecture', 'city', 'street', 'building' )
+					: array( 'street', 'address2', 'city', 'state', 'postal_code', 'country' );
+				foreach ( $addr_subs as $sub_key ) {
+					$expanded_key = $field_name . '_' . $sub_key;
+					if ( isset( $data[ $expanded_key ] ) ) {
+						$sanitized[ $expanded_key ] = sanitize_text_field( $data[ $expanded_key ] );
+					}
+				}
+				continue;
+			}
 
 			if ( ! isset( $data[ $field_name ] ) ) {
 				continue;
@@ -351,10 +515,15 @@ class FPLANT_Submission_Manager {
 					}
 					break;
 
+				case 'password':
+					$sanitized[ $field_name ] = sanitize_text_field( $value );
+					break;
+
 				default:
 					$sanitized[ $field_name ] = sanitize_text_field( $value );
 					break;
 			}
+
 		}
 
 		return $sanitized;
@@ -529,21 +698,57 @@ class FPLANT_Submission_Manager {
 	}
 
 	/**
-	 * Verify reCAPTCHA
+	 * Verify CAPTCHA (dispatcher)
 	 *
-	 * @param array $form Form data.
+	 * @param array  $form Form data.
+	 * @param string $type CAPTCHA type ('recaptcha', 'recaptcha_v2', or 'turnstile').
 	 * @return bool|WP_Error True on success, WP_Error on failure.
 	 */
-	private function verify_recaptcha( $form ) {
-		$secret_key = get_option( 'fplant_recaptcha_secret_key' );
+	private function verify_captcha( $form, $type ) {
+		if ( 'recaptcha' === $type || 'recaptcha_v2' === $type ) {
+			return $this->verify_recaptcha( $form, $type );
+		} elseif ( 'turnstile' === $type ) {
+			return $this->verify_turnstile( $form );
+		}
+		return new WP_Error( 'captcha_error', __( 'Invalid CAPTCHA type', 'form-plant' ) );
+	}
+
+	/**
+	 * Get CAPTCHA token from POST data
+	 *
+	 * @return string
+	 */
+	private function get_captcha_token() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_ajax_submission
+		$token = isset( $_POST['fplant_captcha_token'] ) ? sanitize_text_field( wp_unslash( $_POST['fplant_captcha_token'] ) ) : '';
+		// Backward compatibility: old field name
+		if ( empty( $token ) && isset( $_POST['fplant_recaptcha_token'] ) ) {
+			$token = sanitize_text_field( wp_unslash( $_POST['fplant_recaptcha_token'] ) );
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		return $token;
+	}
+
+	/**
+	 * Verify reCAPTCHA (v2 and v3)
+	 *
+	 * @param array  $form         Form data.
+	 * @param string $captcha_type CAPTCHA type ('recaptcha' for v3, 'recaptcha_v2' for v2).
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 */
+	private function verify_recaptcha( $form, $captcha_type = 'recaptcha' ) {
+		// Use appropriate secret key based on version
+		if ( 'recaptcha_v2' === $captcha_type ) {
+			$secret_key = get_option( 'fplant_recaptcha_v2_secret_key' );
+		} else {
+			$secret_key = get_option( 'fplant_recaptcha_secret_key' );
+		}
 
 		if ( empty( $secret_key ) ) {
 			return new WP_Error( 'recaptcha_error', __( 'reCAPTCHA configuration is incomplete', 'form-plant' ) );
 		}
 
-		// Get reCAPTCHA v3 token
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_ajax_submission
-		$token = isset( $_POST['fplant_recaptcha_token'] ) ? sanitize_text_field( wp_unslash( $_POST['fplant_recaptcha_token'] ) ) : '';
+		$token = $this->get_captcha_token();
 
 		if ( empty( $token ) ) {
 			return new WP_Error( 'recaptcha_error', __( 'reCAPTCHA verification failed', 'form-plant' ) );
@@ -572,14 +777,67 @@ class FPLANT_Submission_Manager {
 			return new WP_Error( 'recaptcha_error', __( 'reCAPTCHA verification failed', 'form-plant' ) );
 		}
 
-		// Check v3 score (only if score is included in response)
-		if ( isset( $body['score'] ) ) {
+		// Check v3 score (only for v3; v2 does not return score)
+		if ( 'recaptcha' === $captcha_type && isset( $body['score'] ) ) {
 			$threshold = floatval( get_option( 'fplant_recaptcha_v3_threshold', 0.5 ) );
 			$score     = floatval( $body['score'] );
 
 			if ( $score < $threshold ) {
 				return new WP_Error( 'recaptcha_error', __( 'Suspected spam detected', 'form-plant' ) );
 			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Verify Cloudflare Turnstile
+	 *
+	 * @param array $form Form data.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 */
+	private function verify_turnstile( $form ) {
+		$secret_key = get_option( 'fplant_turnstile_secret_key' );
+
+		if ( empty( $secret_key ) ) {
+			return new WP_Error( 'turnstile_error', __( 'Cloudflare Turnstile configuration is incomplete', 'form-plant' ) );
+		}
+
+		$token = $this->get_captcha_token();
+
+		if ( empty( $token ) ) {
+			return new WP_Error( 'turnstile_error', __( 'Cloudflare Turnstile verification failed', 'form-plant' ) );
+		}
+
+		// Send verification request to Cloudflare API
+		$response = wp_remote_post(
+			'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+			array(
+				'body'    => array(
+					'secret'   => $secret_key,
+					'response' => $token,
+					'remoteip' => $this->get_client_ip(),
+				),
+				'timeout' => 10,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error( 'turnstile_error', __( 'Failed to communicate with Cloudflare Turnstile server', 'form-plant' ) );
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( empty( $body['success'] ) ) {
+			$error_codes = isset( $body['error-codes'] ) ? implode( ', ', $body['error-codes'] ) : '';
+			return new WP_Error(
+				'turnstile_error',
+				sprintf(
+					/* translators: %s: error code from Cloudflare Turnstile */
+					__( 'Cloudflare Turnstile verification failed: %s', 'form-plant' ),
+					$error_codes
+				)
+			);
 		}
 
 		return true;
@@ -911,8 +1169,8 @@ class FPLANT_Submission_Manager {
 		// Get filenames for file fields.
 		$filenames = $this->get_file_field_names( $form['fields'] );
 
-		// Render all fields HTML using all_fields.php template.
-		$fields_html = $this->render_all_fields_html( $form['fields'], $data, $filenames );
+		// Render all fields HTML using all_fields.php or all_fields_div.php template.
+		$fields_html = $this->render_all_fields_html( $form['fields'], $data, $filenames, $form );
 
 		// Prepare template variables.
 		$title        = isset( $settings['confirmation_title'] ) && '' !== $settings['confirmation_title']
@@ -921,16 +1179,16 @@ class FPLANT_Submission_Manager {
 		$message      = isset( $settings['confirmation_message'] ) && '' !== $settings['confirmation_message']
 			? $settings['confirmation_message']
 			: __( 'Please review your input below and click submit to complete.', 'form-plant' );
-		$back_text    = isset( $settings['back_button_text'] ) && '' !== $settings['back_button_text']
-			? $settings['back_button_text']
+		$back_text    = isset( $settings['confirmation_back_text'] ) && '' !== $settings['confirmation_back_text']
+			? $settings['confirmation_back_text']
 			: __( 'Back', 'form-plant' );
-		$back_class   = isset( $settings['back_button_class'] ) ? $settings['back_button_class'] : '';
-		$back_id      = isset( $settings['back_button_id'] ) ? $settings['back_button_id'] : '';
-		$submit_text  = isset( $settings['confirm_submit_button_text'] ) && '' !== $settings['confirm_submit_button_text']
-			? $settings['confirm_submit_button_text']
+		$back_class   = isset( $settings['confirmation_back_class'] ) ? $settings['confirmation_back_class'] : '';
+		$back_id      = isset( $settings['confirmation_back_id'] ) ? $settings['confirmation_back_id'] : '';
+		$submit_text  = isset( $settings['confirmation_submit_text'] ) && '' !== $settings['confirmation_submit_text']
+			? $settings['confirmation_submit_text']
 			: __( 'Submit', 'form-plant' );
-		$submit_class = isset( $settings['confirm_submit_button_class'] ) ? $settings['confirm_submit_button_class'] : '';
-		$submit_id    = isset( $settings['confirm_submit_button_id'] ) ? $settings['confirm_submit_button_id'] : '';
+		$submit_class = isset( $settings['confirmation_submit_class'] ) ? $settings['confirmation_submit_class'] : '';
+		$submit_id    = isset( $settings['confirmation_submit_id'] ) ? $settings['confirmation_submit_id'] : '';
 
 		// Locate confirmation template.
 		$template = $template_loader->locate_confirmation_template();
@@ -953,7 +1211,7 @@ class FPLANT_Submission_Manager {
 	 * @return string Confirmation HTML.
 	 */
 	private function render_custom_confirmation_template( $form, $data, $template ) {
-		$html     = $template;
+		$html     = fplant_replace_template_values( $template, $form['id'] );
 		$settings = isset( $form['settings'] ) ? $form['settings'] : array();
 
 		// Get filenames for file fields.
@@ -971,8 +1229,8 @@ class FPLANT_Submission_Manager {
 			: __( 'Please review your input below and click submit to complete.', 'form-plant' );
 		$html    = str_replace( '[fplant_confirmation_message]', esc_html( $message ), $html );
 
-		// Replace [fplant_all_fields] using all_fields.php template.
-		$all_fields_html = $this->render_all_fields_html( $form['fields'], $data, $filenames );
+		// Replace [fplant_all_fields] using all_fields.php or all_fields_div.php template.
+		$all_fields_html = $this->render_all_fields_html( $form['fields'], $data, $filenames, $form );
 		$html            = str_replace( '[fplant_all_fields]', $all_fields_html, $html );
 
 		// Replace [fplant_value name="..."] using confirm-fields/{type}.php templates.
@@ -985,16 +1243,19 @@ class FPLANT_Submission_Manager {
 	}
 
 	/**
-	 * Render all fields HTML using all_fields.php template
+	 * Render all fields HTML using all_fields.php or all_fields_div.php template
 	 *
 	 * @param array $fields    Form field definitions.
 	 * @param array $values    Submitted values.
 	 * @param array $filenames Optional. Array of filenames for file fields.
+	 * @param array $form      Optional. Form data (used for design_type detection).
 	 * @return string All fields HTML.
 	 */
-	private function render_all_fields_html( $fields, $values, $filenames = array() ) {
+	private function render_all_fields_html( $fields, $values, $filenames = array(), $form = array() ) {
 		$template_loader = new FPLANT_Template_Loader();
-		$template        = $template_loader->locate_template( 'confirm-fields/all_fields.php' );
+		$design_type     = $form['settings']['design_type'] ?? 'default';
+		$template_name   = ( 'default' !== $design_type ) ? 'confirm-fields/all_fields_div.php' : 'confirm-fields/all_fields.php';
+		$template        = $template_loader->locate_template( $template_name );
 
 		if ( empty( $template ) ) {
 			return '';
@@ -1078,16 +1339,16 @@ class FPLANT_Submission_Manager {
 	 */
 	private function replace_button_shortcodes( $html, $settings ) {
 		// Default values.
-		$back_text    = isset( $settings['back_button_text'] ) && '' !== $settings['back_button_text']
-			? $settings['back_button_text']
+		$back_text    = isset( $settings['confirmation_back_text'] ) && '' !== $settings['confirmation_back_text']
+			? $settings['confirmation_back_text']
 			: __( 'Back', 'form-plant' );
-		$back_class   = isset( $settings['back_button_class'] ) ? $settings['back_button_class'] : '';
-		$back_id      = isset( $settings['back_button_id'] ) ? $settings['back_button_id'] : '';
-		$submit_text  = isset( $settings['confirm_submit_button_text'] ) && '' !== $settings['confirm_submit_button_text']
-			? $settings['confirm_submit_button_text']
+		$back_class   = isset( $settings['confirmation_back_class'] ) ? $settings['confirmation_back_class'] : '';
+		$back_id      = isset( $settings['confirmation_back_id'] ) ? $settings['confirmation_back_id'] : '';
+		$submit_text  = isset( $settings['confirmation_submit_text'] ) && '' !== $settings['confirmation_submit_text']
+			? $settings['confirmation_submit_text']
 			: __( 'Submit', 'form-plant' );
-		$submit_class = isset( $settings['confirm_submit_button_class'] ) ? $settings['confirm_submit_button_class'] : '';
-		$submit_id    = isset( $settings['confirm_submit_button_id'] ) ? $settings['confirm_submit_button_id'] : '';
+		$submit_class = isset( $settings['confirmation_submit_class'] ) ? $settings['confirmation_submit_class'] : '';
+		$submit_id    = isset( $settings['confirmation_submit_id'] ) ? $settings['confirmation_submit_id'] : '';
 
 		// Replace [fplant_back] or [fplant_back text="..." class="..." id="..."].
 		$html = preg_replace_callback(
@@ -1230,5 +1491,58 @@ class FPLANT_Submission_Manager {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Expand address composite field array data into individual keys.
+	 *
+	 * Converts address[postal_code] => "123-4567" into address_postal_code => "123-4567".
+	 * Also handles postal_code split fields (postal_code_part1 + postal_code_part2).
+	 *
+	 * @param array $data   Submitted form data.
+	 * @param array $fields Form field definitions.
+	 * @return array Modified data with expanded address keys.
+	 */
+	public static function expand_address_fields( $data, $fields ) {
+		foreach ( $fields as $field ) {
+			$field_name = $field['name'];
+
+			// Expand address composite fields
+			if ( 'address' === $field['type'] && isset( $data[ $field_name ] ) && is_array( $data[ $field_name ] ) ) {
+				$sub_data = $data[ $field_name ];
+
+				// Handle split postal code
+				if ( isset( $sub_data['postal_code_part1'] ) || isset( $sub_data['postal_code_part2'] ) ) {
+					$part1 = isset( $sub_data['postal_code_part1'] ) ? preg_replace( '/[^0-9]/', '', $sub_data['postal_code_part1'] ) : '';
+					$part2 = isset( $sub_data['postal_code_part2'] ) ? preg_replace( '/[^0-9]/', '', $sub_data['postal_code_part2'] ) : '';
+					if ( $part1 && $part2 ) {
+						$sub_data['postal_code'] = $part1 . '-' . $part2;
+					}
+					unset( $sub_data['postal_code_part1'], $sub_data['postal_code_part2'] );
+				}
+
+				// Expand each sub-field into {field_name}_{sub_key}
+				foreach ( $sub_data as $sub_key => $sub_value ) {
+					$expanded_key          = $field_name . '_' . $sub_key;
+					$data[ $expanded_key ] = is_string( $sub_value ) ? sanitize_text_field( $sub_value ) : $sub_value;
+				}
+
+				unset( $data[ $field_name ] );
+			}
+
+			// Handle standalone postal_code split fields
+			if ( 'postal_code' === $field['type'] && isset( $data[ $field_name ] ) && is_array( $data[ $field_name ] ) ) {
+				$pc_data = $data[ $field_name ];
+				$part1   = isset( $pc_data['part1'] ) ? preg_replace( '/[^0-9]/', '', $pc_data['part1'] ) : '';
+				$part2   = isset( $pc_data['part2'] ) ? preg_replace( '/[^0-9]/', '', $pc_data['part2'] ) : '';
+				if ( $part1 && $part2 ) {
+					$data[ $field_name ] = $part1 . '-' . $part2;
+				} else {
+					$data[ $field_name ] = $part1;
+				}
+			}
+		}
+
+		return $data;
 	}
 }

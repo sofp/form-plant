@@ -14,9 +14,20 @@ global $fplant_current_form;
 $fplant_current_form = $form;
 ?>
 
-<div class="fplant-form-wrapper" id="fplant-form-<?php echo esc_attr( $form['id'] ); ?>">
+<?php
+$fplant_form_class = 'fplant-form';
+if ( ! empty( $form['settings']['form_tag_class'] ) ) {
+	$fplant_form_class .= ' ' . $form['settings']['form_tag_class'];
+}
+$fplant_form_tag_id = $form['settings']['form_tag_id'] ?? '';
+$fplant_wrapper_class = 'fplant-form-wrapper';
+?>
+<div class="<?php echo esc_attr( $fplant_wrapper_class ); ?>" id="fplant-form-<?php echo esc_attr( $form['id'] ); ?>">
 	<form
-		class="fplant-form"
+		class="<?php echo esc_attr( $fplant_form_class ); ?>"
+		<?php if ( ! empty( $fplant_form_tag_id ) ) : ?>
+			id="<?php echo esc_attr( $fplant_form_tag_id ); ?>"
+		<?php endif; ?>
 		data-form-id="<?php echo esc_attr( $form['id'] ); ?>"
 		data-use-confirmation="<?php echo esc_attr( ! empty( $form['settings']['use_confirmation'] ) ? '1' : '0' ); ?>"
 		data-confirmation-title="<?php echo esc_attr( $form['settings']['confirmation_title'] ?? __( 'Confirm Your Input', 'form-plant' ) ); ?>"
@@ -25,8 +36,9 @@ $fplant_current_form = $form;
 
 		<?php if ( ! empty( $form['html_template'] ) && ! empty( $form['settings']['use_html_template'] ) ) : ?>
 			<?php
-			// Process shortcodes in the input screen HTML template
-			echo wp_kses( do_shortcode( $form['html_template'] ), fplant_get_allowed_form_html() );
+			// Replace {{key}} template values, then process shortcodes
+			$fplant_template_html = fplant_replace_template_values( $form['html_template'], $form['id'] );
+			echo wp_kses( do_shortcode( $fplant_template_html ), fplant_get_allowed_form_html() );
 			?>
 		<?php else : ?>
 			<!-- Default layout -->
@@ -52,7 +64,7 @@ $fplant_current_form = $form;
 						<label for="fplant-field-<?php echo esc_attr( $fplant_field['name'] ); ?>">
 							<?php echo esc_html( $fplant_field['label'] ); ?>
 							<?php if ( ! empty( $fplant_field['required'] ) ) : ?>
-								<span class="required">*</span>
+								<span class="required"><?php echo esc_html( $form['settings']['required_mark_text'] ?? '*' ); ?></span>
 							<?php endif; ?>
 						</label>
 					<?php endif; ?>
@@ -82,14 +94,17 @@ $fplant_current_form = $form;
 		<?php endif; ?>
 
 		<?php
-		// Check reCAPTCHA v3 settings
-		$fplant_recaptcha_enabled  = ! empty( $form['settings']['recaptcha_enabled'] );
-		$fplant_recaptcha_site_key = get_option( 'fplant_recaptcha_site_key' );
+		// Check CAPTCHA settings
+		$fplant_captcha_type = $form['settings']['captcha_type'] ?? 'none';
+		// Backward compatibility
+		if ( 'none' === $fplant_captcha_type && ! empty( $form['settings']['recaptcha_enabled'] ) ) {
+			$fplant_captcha_type = 'recaptcha';
+		}
 
-		if ( $fplant_recaptcha_enabled && ! empty( $fplant_recaptcha_site_key ) ) :
+		if ( 'none' !== $fplant_captcha_type ) :
 			?>
-			<!-- reCAPTCHA v3 (hidden) -->
-			<input type="hidden" name="fplant_recaptcha_token" class="fplant-recaptcha-token" value="">
+			<!-- CAPTCHA token (hidden) -->
+			<input type="hidden" name="fplant_captcha_token" class="fplant-captcha-token" value="">
 			<?php
 		endif;
 		?>
@@ -97,9 +112,13 @@ $fplant_current_form = $form;
 		<?php wp_nonce_field( 'fplant_form_nonce', 'fplant_nonce' ); ?>
 		<input type="hidden" name="fplant_form_id" value="<?php echo esc_attr( $form['id'] ); ?>">
 
-		<div class="fplant-field-wrap fplant-field-url" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;overflow:hidden;">
-			<label for="fplant_field_url_<?php echo esc_attr( $form['id'] ); ?>">Website URL</label>
-			<input type="text" name="fplant_website_url" id="fplant_field_url_<?php echo esc_attr( $form['id'] ); ?>" value="" tabindex="-1" autocomplete="off">
-		</div>
+		<?php if ( ( $form['settings']['spam_honeypot_enabled'] ?? true ) !== false ) : ?>
+			<?php $fplant_hp_name = $form['settings']['spam_honeypot_field_name'] ?? 'fplant_website_url'; ?>
+			<div class="fplant-field-wrap fplant-field-url" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;overflow:hidden;">
+				<label for="fplant_field_url_<?php echo esc_attr( $form['id'] ); ?>">Website URL</label>
+				<input type="text" name="<?php echo esc_attr( $fplant_hp_name ); ?>" id="fplant_field_url_<?php echo esc_attr( $form['id'] ); ?>" value="" tabindex="-1" autocomplete="off">
+			</div>
+		<?php endif; ?>
+		<input type="hidden" name="fplant_form_ts" class="fplant-form-ts" value="">
 	</form>
 </div>
