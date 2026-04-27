@@ -3758,29 +3758,24 @@ msgstr ""
 #: blocks/form-block/block.json
 msgctxt "block title"
 msgid "Form Plant"
-msgstr ""
-
-#: blocks/form-block/block.json
-msgctxt "block description"
-msgid "作成済みのフォームを選択して埋め込みます。"
-msgstr ""
+msgstr "Form Plant"
 
 #: blocks/form-block/block.json
 msgctxt "block keyword"
 msgid "form"
-msgstr ""
+msgstr "フォーム"
 
 #: blocks/form-block/block.json
 msgctxt "block keyword"
 msgid "contact"
-msgstr ""
+msgstr "問い合わせ"
 
 #: blocks/form-block/block.json
 msgctxt "block keyword"
 msgid "form plant"
-msgstr ""
+msgstr "form plant"
 
 #: blocks/form-block/block.json
-msgctxt "block keyword"
-msgid "フォーム"
-msgstr ""
+msgctxt "block description"
+msgid "Pick a Form Plant form from a dropdown and embed it."
+msgstr "Form Plant のフォームをドロップダウンで選択して埋め込みます。"

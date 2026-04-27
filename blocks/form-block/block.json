@@ -4,8 +4,8 @@
 	"name": "form-plant/form",
 	"title": "Form Plant",
 	"category": "widgets",
-	"description": "作成済みのフォームを選択して埋め込みます。",
-	"keywords": ["form", "contact", "form plant", "フォーム"],
+	"description": "Pick a Form Plant form from a dropdown and embed it.",
+	"keywords": ["form", "contact", "form plant"],
 	"textdomain": "form-plant",
 	"attributes": {
 		"formId": {

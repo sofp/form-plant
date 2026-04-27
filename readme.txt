@@ -3,7 +3,7 @@ Contributors: reiji-sato
 Tags: form, contact form, custom form, email, block
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -146,6 +146,9 @@ Yes, the File Upload field type allows users to upload files with configurable s
 5. Embed forms on external sites via iframe or JavaScript.
 
 == Changelog ==
+
+= 1.1.1 =
+* Fix: Changed the source strings in `block.json` (block description and keywords) from Japanese to English so that English-locale sites display the correct text.
 
 = 1.1.0 =
 * New: Added a Contact Form 7 style form selector block. From the block inserter, choose "Form Plant" and pick a form from the dropdown to embed it.
