@@ -115,6 +115,15 @@ class FPLANT_Form_Plant {
 		// Admin
 		if ( is_admin() ) {
 			require_once FPLANT_PLUGIN_DIR . 'includes/class-admin.php';
+			require_once FPLANT_PLUGIN_DIR . 'includes/migration/class-migrator-base.php';
+			require_once FPLANT_PLUGIN_DIR . 'includes/migration/class-name-translator.php';
+			require_once FPLANT_PLUGIN_DIR . 'includes/migration/class-mwwpform-parser.php';
+			require_once FPLANT_PLUGIN_DIR . 'includes/migration/class-mwwpform-field-mapper.php';
+			require_once FPLANT_PLUGIN_DIR . 'includes/migration/class-mwwpform-email-mapper.php';
+			require_once FPLANT_PLUGIN_DIR . 'includes/migration/class-mwwpform-validation-merger.php';
+			require_once FPLANT_PLUGIN_DIR . 'includes/migration/class-mwwpform-template-builder.php';
+			require_once FPLANT_PLUGIN_DIR . 'includes/migration/class-mwwpform-migrator.php';
+			require_once FPLANT_PLUGIN_DIR . 'admin/class-migration-admin.php';
 		}
 
 		// REST API
@@ -165,6 +174,7 @@ class FPLANT_Form_Plant {
 
 		if ( is_admin() ) {
 			$this->admin = new FPLANT_Admin();
+			new FPLANT_Migration_Admin();
 		}
 
 		// Initialize REST API
@@ -506,7 +516,7 @@ class FPLANT_Form_Plant {
 		$fplant_recaptcha_v2_site_key = get_option( 'fplant_recaptcha_v2_site_key', '' );
 		$fplant_turnstile_site_key    = get_option( 'fplant_turnstile_site_key', '' );
 
-		// Site key が空の場合は type を none に落とす
+		// If the site key is empty, fall back to type "none".
 		if ( 'recaptcha_v2' === $fplant_captcha_type && empty( $fplant_recaptcha_v2_site_key ) ) {
 			$fplant_captcha_type = 'none';
 		}
@@ -538,6 +548,64 @@ class FPLANT_Form_Plant {
 		// Only load on Form Plant pages
 		if ( strpos( $hook, 'fplant' ) === false && 'post.php' !== $hook && 'post-new.php' !== $hook ) {
 			return;
+		}
+
+		// Migration tab assets (Tools page → MW WP Form Migration tab).
+		if (
+			class_exists( 'FPLANT_Migration_Admin' )
+			&& FPLANT_Migration_Admin::is_current_screen()
+			&& FPLANT_Migration_Admin::is_mwwpform_active()
+		) {
+			wp_enqueue_style(
+				'fplant-migration',
+				FPLANT_PLUGIN_URL . 'assets/admin/css/migration.css',
+				array(),
+				FPLANT_VERSION
+			);
+			wp_enqueue_script(
+				'fplant-migration',
+				FPLANT_PLUGIN_URL . 'assets/admin/js/migration.js',
+				array( 'jquery' ),
+				FPLANT_VERSION,
+				true
+			);
+			wp_localize_script(
+				'fplant-migration',
+				'fplantMigrationData',
+				array(
+					'ajaxUrl'         => admin_url( 'admin-ajax.php' ),
+					'nonce'           => wp_create_nonce( 'fplant_admin_nonce' ),
+					'editFormUrlBase' => admin_url( 'admin.php?page=fplant-form-new&id=' ),
+					'i18n'            => array(
+						'loading'        => __( 'Loading list…', 'form-plant' ),
+						'noForms'        => __( 'No MW WP Form forms were found.', 'form-plant' ),
+						'loadError'      => __( 'Failed to load the list.', 'form-plant' ),
+						'networkError'   => __( 'A network error occurred.', 'form-plant' ),
+						'noResults'      => __( 'No results.', 'form-plant' ),
+						'noWarnings'     => __( 'No warnings.', 'form-plant' ),
+						'summaryLabel'   => __( 'Result summary', 'form-plant' ),
+						'formsLabel'     => __( 'forms', 'form-plant' ),
+						'statusMigrated' => __( 'Migrated', 'form-plant' ),
+						'statusPending'  => __( 'Not migrated', 'form-plant' ),
+						'statusRunning'  => __( 'Migrating…', 'form-plant' ),
+						'statusSuccess'  => __( 'Success', 'form-plant' ),
+						'statusPartial'  => __( 'With warnings', 'form-plant' ),
+						'statusFailed'   => __( 'Failed', 'form-plant' ),
+						'openNewForm'    => __( 'Open the generated Form Plant form', 'form-plant' ),
+						'confirmRun'     => __( 'Migrate the selected forms to Form Plant. Are you sure? (Existing migrated forms are kept as-is, and a new Form Plant form is added.)', 'form-plant' ),
+						'viewLog'        => __( 'View log', 'form-plant' ),
+						'logTitle'       => __( 'Migration Log', 'form-plant' ),
+						'logClose'       => __( 'Close', 'form-plant' ),
+						'logLoading'     => __( 'Loading the log…', 'form-plant' ),
+						'logLoadError'   => __( 'Failed to load the log.', 'form-plant' ),
+						'logNoEntries'   => __( 'No migration log has been saved for this form.', 'form-plant' ),
+						'logMigratedAt'  => __( 'Migrated at', 'form-plant' ),
+						'logStatus'      => __( 'Status', 'form-plant' ),
+						'logSourceForm'  => __( 'Source form', 'form-plant' ),
+						'logWarnings'    => __( 'Warnings', 'form-plant' ),
+					),
+				)
+			);
 		}
 
 		// Admin styles

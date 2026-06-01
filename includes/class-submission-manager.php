@@ -142,6 +142,18 @@ class FPLANT_Submission_Manager {
 			? $form['settings']['success_message']
 			: __( 'Submission completed', 'form-plant' );
 
+		/**
+		 * Filters the completion message shown after submission.
+		 *
+		 * MW WP Form's mwform_complete_content equivalent.
+		 *
+		 * @since 1.2.0
+		 * @param string $success_message Completion message.
+		 * @param int    $form_id         Form ID.
+		 * @param array  $sanitized_data  Submitted data.
+		 */
+		$success_message = apply_filters( 'fplant_complete_message', $success_message, $form_id, $sanitized_data );
+
 		// Get action type
 		$action_type = ! empty( $form['settings']['action_type'] ) ? $form['settings']['action_type'] : 'message';
 
@@ -154,9 +166,30 @@ class FPLANT_Submission_Manager {
 
 		// Set additional data based on action type
 		if ( 'redirect' === $action_type && ! empty( $form['settings']['redirect_url'] ) ) {
-			$result['redirect_url'] = $form['settings']['redirect_url'];
+			/**
+			 * Filters the redirect URL used after submission.
+			 *
+			 * MW WP Form's mwform_redirect_url equivalent.
+			 *
+			 * @since 1.2.0
+			 * @param string $redirect_url   Redirect URL from form settings.
+			 * @param int    $form_id        Form ID.
+			 * @param array  $sanitized_data Submitted data.
+			 */
+			$redirect_url           = apply_filters( 'fplant_redirect_url', $form['settings']['redirect_url'], $form_id, $sanitized_data );
+			$result['redirect_url'] = esc_url_raw( $redirect_url );
 		} elseif ( 'custom_page' === $action_type && ! empty( $form['settings']['success_page_html'] ) ) {
-			$result['success_page_html'] = fplant_replace_template_values( $form['settings']['success_page_html'], $form_id );
+			/**
+			 * Filters the custom completion page HTML.
+			 *
+			 * MW WP Form's mwform_complete_content equivalent.
+			 *
+			 * @since 1.2.0
+			 * @param string $success_page_html Completion page HTML (placeholders already replaced).
+			 * @param int    $form_id           Form ID.
+			 * @param array  $sanitized_data    Submitted data.
+			 */
+			$result['success_page_html'] = apply_filters( 'fplant_success_html', fplant_replace_template_values( $form['settings']['success_page_html'], $form_id ), $form_id, $sanitized_data );
 		}
 
 		return $result;
@@ -597,14 +630,28 @@ class FPLANT_Submission_Manager {
 		}
 		$filename .= '-' . gmdate( 'Y-m-d' ) . '.csv';
 
+		// Determine export character encoding (UTF-8 default; Shift-JIS for Excel compatibility).
+		// Mirrors MW WP Form's mwform_csv_encoding filter.
+		$encoding = apply_filters( 'fplant_export_encoding', 'UTF-8', $form_id );
+		$is_sjis  = in_array(
+			strtolower( str_replace( array( '_', ' ' ), '-', (string) $encoding ) ),
+			array( 'sjis', 'sjis-win', 'shift-jis', 'cp932', 'windows-31j', 'ms932' ),
+			true
+		);
+
 		// CSV headers
-		header( 'Content-Type: text/csv; charset=UTF-8' );
+		header( 'Content-Type: text/csv; charset=' . ( $is_sjis ? 'Shift_JIS' : 'UTF-8' ) );
 		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
 
 		$output = fopen( 'php://output', 'w' );
 
-		// Add BOM (Excel support)
-		fprintf( $output, chr( 0xEF ) . chr( 0xBB ) . chr( 0xBF ) );
+		if ( $is_sjis ) {
+			// Convert UTF-8 output to Windows Shift-JIS (CP932) on the fly. Shift-JIS files use no BOM.
+			stream_filter_append( $output, 'convert.iconv.UTF-8/CP932//TRANSLIT', STREAM_FILTER_WRITE );
+		} else {
+			// Add BOM (Excel support for UTF-8)
+			fprintf( $output, chr( 0xEF ) . chr( 0xBB ) . chr( 0xBF ) );
+		}
 
 		if ( $form ) {
 			// Single form export
@@ -897,6 +944,24 @@ class FPLANT_Submission_Manager {
 			return $custom_dir;
 		}
 
+		/**
+		 * Filters the upload directory (path + url) for form file uploads.
+		 *
+		 * MW WP Form's mwform_upload_dir equivalent. The returned path must stay
+		 * inside the WordPress uploads directory (validated for security).
+		 *
+		 * @since 1.2.0
+		 * @param array $custom_dir array( 'path' => absolute dir, 'url' => dir URL ).
+		 * @param int   $form_id    Form ID.
+		 */
+		$custom_dir = apply_filters( 'fplant_upload_dir', $custom_dir, $form_id );
+
+		// Ensure the (possibly customized) directory exists inside uploads and is protected.
+		$custom_dir = $this->ensure_upload_directory( $custom_dir );
+		if ( is_wp_error( $custom_dir ) ) {
+			return $custom_dir;
+		}
+
 		// Blacklist of dangerous extensions (executable files)
 		$dangerous_extensions = array(
 			'php', 'phtml', 'php3', 'php4', 'php5', 'php7', 'phar', 'phps',
@@ -1019,6 +1084,29 @@ class FPLANT_Submission_Manager {
 
 			$new_filename  = $file_basename . '_' . wp_generate_password( 6, false, false ) . '.' . $file_ext;
 
+			/**
+			 * Filters the saved upload filename.
+			 *
+			 * MW WP Form's mwform_upload_filename equivalent. The result is re-sanitized
+			 * and the extension is re-validated against the blacklist for security.
+			 *
+			 * @since 1.2.0
+			 * @param string $new_filename Generated filename.
+			 * @param array  $field_config File field configuration.
+			 * @param int    $form_id      Form ID.
+			 */
+			$new_filename = apply_filters( 'fplant_upload_filename', $new_filename, $field_config, $form_id );
+			$new_filename = sanitize_file_name( $new_filename );
+
+			// Security: re-validate the (possibly filtered) filename and its extension.
+			$filtered_ext = strtolower( (string) pathinfo( $new_filename, PATHINFO_EXTENSION ) );
+			if ( '' === $new_filename || in_array( $filtered_ext, $dangerous_extensions, true ) ) {
+				return new WP_Error(
+					'invalid_filename',
+					__( 'Invalid filename', 'form-plant' )
+				);
+			}
+
 			// Set destination path
 			$upload_path = $custom_dir['path'] . '/' . $new_filename;
 			$upload_url  = $custom_dir['url'] . '/' . $new_filename;
@@ -1118,6 +1206,55 @@ class FPLANT_Submission_Manager {
 	}
 
 	/**
+	 * Ensure an upload directory exists inside the uploads folder, with protection files.
+	 *
+	 * Validates that the (possibly fplant_upload_dir-filtered) directory is inside the
+	 * WordPress uploads base directory, then creates it with .htaccess / index.php if
+	 * it does not yet exist. Guards against path traversal.
+	 *
+	 * @since 1.2.0
+	 * @param array $custom_dir array( 'path' => ..., 'url' => ... ).
+	 * @return array|WP_Error Directory info, or error.
+	 */
+	private function ensure_upload_directory( $custom_dir ) {
+		if ( ! is_array( $custom_dir ) || empty( $custom_dir['path'] ) || empty( $custom_dir['url'] ) ) {
+			return new WP_Error( 'invalid_upload_dir', __( 'Invalid upload directory', 'form-plant' ) );
+		}
+
+		// Security: the directory must be inside the WordPress uploads base directory.
+		$upload_dir   = wp_upload_dir();
+		$basedir_real = realpath( $upload_dir['basedir'] );
+
+		// Resolve the nearest existing ancestor so realpath works even if the target is new.
+		$ancestor = wp_normalize_path( $custom_dir['path'] );
+		while ( '' !== $ancestor && ! file_exists( $ancestor ) ) {
+			$parent = dirname( $ancestor );
+			if ( $parent === $ancestor ) {
+				break;
+			}
+			$ancestor = $parent;
+		}
+		$ancestor_real = realpath( $ancestor );
+
+		if ( ! $basedir_real || ! $ancestor_real || ( $ancestor_real !== $basedir_real && 0 !== strpos( $ancestor_real, $basedir_real . '/' ) ) ) {
+			return new WP_Error( 'invalid_upload_dir', __( 'Upload directory must be inside the uploads folder', 'form-plant' ) );
+		}
+
+		if ( ! file_exists( $custom_dir['path'] ) ) {
+			if ( ! wp_mkdir_p( $custom_dir['path'] ) ) {
+				return new WP_Error( 'dir_creation_failed', __( 'Failed to create upload directory', 'form-plant' ) );
+			}
+
+			// Prevent directory listing and direct access (same protection as the default directory).
+			$htaccess_content = "Options -Indexes\n<Files *>\n  Order Allow,Deny\n  Deny from all\n</Files>\n";
+			file_put_contents( $custom_dir['path'] . '/.htaccess', $htaccess_content );
+			file_put_contents( $custom_dir['path'] . '/index.php', '<?php // Silence is golden' );
+		}
+
+		return $custom_dir;
+	}
+
+	/**
 	 * Custom upload directory filter
 	 *
 	 * @param array $dirs Upload directory info.
@@ -1140,6 +1277,9 @@ class FPLANT_Submission_Manager {
 	 * @return string Confirmation HTML.
 	 */
 	private function render_confirmation( $form, $data ) {
+		// Apply dynamic choices so confirmation labels match the form (fplant_field_choices).
+		$form = ( new FPLANT_Field_Manager() )->apply_field_choices( $form );
+
 		$settings            = isset( $form['settings'] ) ? $form['settings'] : array();
 		$use_custom_template = ! empty( $settings['use_confirmation_template'] );
 		$custom_template     = isset( $settings['confirmation_template'] ) ? $settings['confirmation_template'] : '';

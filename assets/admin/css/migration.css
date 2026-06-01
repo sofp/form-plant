@@ -1,0 +1,211 @@
+/**
+ * Form Plant — MW WP Form Migration UI
+ *
+ * @package Form_Plant
+ * @since 1.2.0
+ */
+
+.fplant-migration-table th,
+.fplant-migration-table td {
+	vertical-align: middle;
+}
+
+.fplant-migration-status {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 3px;
+	font-size: 12px;
+}
+
+.fplant-migration-status-migrated {
+	background: #e7f3ff;
+	color: #135e96;
+}
+
+.fplant-migration-status-pending {
+	background: #f0f0f1;
+	color: #50575e;
+}
+
+.fplant-migration-result {
+	border: 1px solid #c3c4c7;
+	border-left-width: 4px;
+	padding: 12px 16px;
+	margin: 12px 0;
+	background: #fff;
+}
+
+.fplant-migration-result h4 {
+	margin: 0 0 8px 0;
+	font-size: 14px;
+}
+
+.fplant-migration-result-success {
+	border-left-color: #00a32a;
+}
+
+.fplant-migration-result-partial {
+	border-left-color: #dba617;
+}
+
+.fplant-migration-result-failed {
+	border-left-color: #d63638;
+}
+
+.fplant-migration-result-status {
+	font-weight: 600;
+}
+
+.fplant-migration-result-success .fplant-migration-result-status {
+	color: #00a32a;
+}
+
+.fplant-migration-result-partial .fplant-migration-result-status {
+	color: #dba617;
+}
+
+.fplant-migration-result-failed .fplant-migration-result-status {
+	color: #d63638;
+}
+
+.fplant-migration-warnings {
+	list-style: none;
+	margin: 8px 0 0 0;
+	padding: 0;
+}
+
+.fplant-migration-warning {
+	padding: 4px 0;
+	font-size: 13px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.fplant-migration-warning:first-child {
+	border-top: 0;
+}
+
+.fplant-migration-warning-level {
+	display: inline-block;
+	min-width: 60px;
+	padding: 1px 6px;
+	margin-right: 6px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.fplant-migration-warning-info .fplant-migration-warning-level {
+	background: #e7f3ff;
+	color: #135e96;
+}
+
+.fplant-migration-warning-warning .fplant-migration-warning-level {
+	background: #fcf9e8;
+	color: #8a6d00;
+}
+
+.fplant-migration-warning-error .fplant-migration-warning-level {
+	background: #fcebec;
+	color: #b32d2e;
+}
+
+.fplant-migration-report-summary {
+	padding: 8px 12px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	margin-bottom: 12px;
+}
+
+/* Derived form list for migrated forms (inside the list table) */
+.fplant-migration-derived-list {
+	list-style: none;
+	margin: 6px 0 0 0;
+	padding: 0;
+	font-size: 12px;
+}
+
+.fplant-migration-derived-list li {
+	padding: 2px 0;
+}
+
+.fplant-migration-view-log {
+	margin-left: 8px;
+	font-size: 12px;
+}
+
+/* Migration log modal */
+.fplant-migration-modal-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.55);
+	z-index: 100000;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding: 60px 20px 20px;
+	overflow-y: auto;
+}
+
+.fplant-migration-modal-content {
+	background: #fff;
+	max-width: 720px;
+	width: 100%;
+	border-radius: 4px;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+}
+
+.fplant-migration-modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 20px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.fplant-migration-modal-header h2 {
+	margin: 0;
+	font-size: 16px;
+	line-height: 1.4;
+}
+
+.fplant-migration-modal-close {
+	font-size: 24px;
+	line-height: 1;
+	color: #50575e;
+	background: none;
+	border: 0;
+	cursor: pointer;
+	padding: 4px 8px;
+	text-decoration: none;
+}
+
+.fplant-migration-modal-close:hover {
+	color: #d63638;
+}
+
+.fplant-migration-modal-body {
+	padding: 16px 20px;
+	max-height: calc(100vh - 200px);
+	overflow-y: auto;
+}
+
+.fplant-migration-log-meta {
+	display: grid;
+	grid-template-columns: 130px 1fr;
+	gap: 6px 12px;
+	margin: 0 0 12px 0;
+}
+
+.fplant-migration-log-meta dt {
+	font-weight: 600;
+	color: #50575e;
+}
+
+.fplant-migration-log-meta dd {
+	margin: 0;
+}

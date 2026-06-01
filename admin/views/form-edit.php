@@ -976,6 +976,70 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 					</div>
 				</div>
 			</div>
+
+			<!-- Extended Settings (fplant_custom_settings_fields) -->
+			<?php
+			$fplant_custom_settings = FPLANT_Form_Manager::get_custom_settings_fields( absint( $fplant_form['id'] ?? 0 ) );
+			if ( ! empty( $fplant_custom_settings ) ) :
+				?>
+			<div class="fplant-card">
+				<div class="fplant-card-header">
+					<?php esc_html_e( 'Extended Settings', 'form-plant' ); ?>
+				</div>
+				<?php
+				foreach ( $fplant_custom_settings as $fplant_cs ) :
+					$fplant_cs_value = $fplant_form['settings'][ $fplant_cs['key'] ] ?? $fplant_cs['default'];
+					?>
+					<div class="fplant-form-group">
+						<?php if ( 'checkbox' === $fplant_cs['type'] ) : ?>
+							<label>
+								<input
+									type="checkbox"
+									data-fplant-setting="<?php echo esc_attr( $fplant_cs['key'] ); ?>"
+									value="1"
+									<?php checked( ! empty( $fplant_cs_value ) ); ?>
+								>
+								<?php echo esc_html( $fplant_cs['label'] ); ?>
+							</label>
+						<?php else : ?>
+							<label><?php echo esc_html( $fplant_cs['label'] ); ?></label>
+							<?php if ( 'textarea' === $fplant_cs['type'] ) : ?>
+								<textarea
+									class="fplant-form-control"
+									rows="4"
+									data-fplant-setting="<?php echo esc_attr( $fplant_cs['key'] ); ?>"
+								><?php echo esc_textarea( (string) $fplant_cs_value ); ?></textarea>
+							<?php elseif ( 'select' === $fplant_cs['type'] ) : ?>
+								<select class="fplant-form-control" data-fplant-setting="<?php echo esc_attr( $fplant_cs['key'] ); ?>">
+									<?php foreach ( $fplant_cs['options'] as $fplant_opt_value => $fplant_opt_label ) : ?>
+										<option value="<?php echo esc_attr( $fplant_opt_value ); ?>" <?php selected( (string) $fplant_cs_value, (string) $fplant_opt_value ); ?>>
+											<?php echo esc_html( $fplant_opt_label ); ?>
+										</option>
+									<?php endforeach; ?>
+								</select>
+							<?php elseif ( 'number' === $fplant_cs['type'] ) : ?>
+								<input
+									type="number"
+									class="fplant-form-control"
+									data-fplant-setting="<?php echo esc_attr( $fplant_cs['key'] ); ?>"
+									value="<?php echo esc_attr( (string) $fplant_cs_value ); ?>"
+								>
+							<?php else : ?>
+								<input
+									type="text"
+									class="fplant-form-control"
+									data-fplant-setting="<?php echo esc_attr( $fplant_cs['key'] ); ?>"
+									value="<?php echo esc_attr( (string) $fplant_cs_value ); ?>"
+								>
+							<?php endif; ?>
+						<?php endif; ?>
+						<?php if ( ! empty( $fplant_cs['description'] ) ) : ?>
+							<p class="description"><?php echo esc_html( $fplant_cs['description'] ); ?></p>
+						<?php endif; ?>
+					</div>
+				<?php endforeach; ?>
+			</div>
+			<?php endif; ?>
 		</div>
 
 		<!-- Spam Protection tab -->
@@ -1254,6 +1318,7 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 					<option value="address"><?php esc_html_e( 'Address', 'form-plant' ); ?></option>
 					<option value="hidden"><?php esc_html_e( 'Hidden', 'form-plant' ); ?></option>
 					<option value="html"><?php esc_html_e( 'HTML', 'form-plant' ); ?></option>
+					<option value="custom_mail_tag"><?php esc_html_e( 'Custom Mail Tag', 'form-plant' ); ?></option>
 				</select>
 			</div>
 
@@ -1375,9 +1440,9 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				</div>
 			</div>
 
-			<!-- Text Field Settings (for text) -->
+			<!-- Input Field Settings (for text / email / url / password) -->
 			<div id="fplant-field-text-settings-section" class="fplant-form-group" style="display: none;">
-				<label><?php esc_html_e( 'Text Field Settings', 'form-plant' ); ?></label>
+				<label><?php esc_html_e( 'Input Field Settings', 'form-plant' ); ?></label>
 				<div style="display: flex; gap: 10px; align-items: flex-start; margin-top: 10px;">
 					<div style="flex: 1;">
 						<label for="fplant-field-size" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Size', 'form-plant' ); ?></label>
@@ -1396,6 +1461,49 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 						<input
 							type="number"
 							id="fplant-field-maxlength"
+							class="fplant-form-control"
+							placeholder=""
+							min="1"
+							max="10000"
+						>
+						<p class="description"><?php esc_html_e( 'Maximum number of characters allowed', 'form-plant' ); ?></p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Textarea Field Settings (for textarea) -->
+			<div id="fplant-field-textarea-settings-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Textarea Field Settings', 'form-plant' ); ?></label>
+				<div style="display: flex; gap: 10px; align-items: flex-start; margin-top: 10px;">
+					<div style="flex: 1;">
+						<label for="fplant-field-rows" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Rows', 'form-plant' ); ?></label>
+						<input
+							type="number"
+							id="fplant-field-rows"
+							class="fplant-form-control"
+							placeholder="5"
+							min="1"
+							max="50"
+						>
+						<p class="description"><?php esc_html_e( 'Number of visible text rows', 'form-plant' ); ?></p>
+					</div>
+					<div style="flex: 1;">
+						<label for="fplant-field-cols" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Columns', 'form-plant' ); ?></label>
+						<input
+							type="number"
+							id="fplant-field-cols"
+							class="fplant-form-control"
+							placeholder=""
+							min="1"
+							max="200"
+						>
+						<p class="description"><?php esc_html_e( 'Visible width (number of characters)', 'form-plant' ); ?></p>
+					</div>
+					<div style="flex: 1;">
+						<label for="fplant-field-textarea-maxlength" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Max Length', 'form-plant' ); ?></label>
+						<input
+							type="number"
+							id="fplant-field-textarea-maxlength"
 							class="fplant-form-control"
 							placeholder=""
 							min="1"
@@ -1611,6 +1719,40 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				<?php // phpcs:ignore WordPress.WP.I18n.NoHtmlWrappedStrings -- Placeholder example text showing HTML format ?>
 				<textarea id="fplant-field-html-content" class="fplant-form-control" rows="8" placeholder="<?php esc_attr_e( '<p>Enter your HTML content here...</p>', 'form-plant' ); ?>"></textarea>
 				<p class="description"><?php esc_html_e( 'Enter the HTML content to display. This field is for display only and will not be submitted.', 'form-plant' ); ?></p>
+			</div>
+
+			<!-- Custom Mail Tag Settings -->
+			<div id="fplant-field-custom-mail-tag-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Custom Mail Tag Settings', 'form-plant' ); ?></label>
+				<p class="description">
+					<?php esc_html_e( 'Value is supplied by the `fplant_custom_mail_tag_value_{name}` PHP filter and included in the submission data / email body.', 'form-plant' ); ?>
+				</p>
+
+				<div class="fplant-checkbox" style="margin-top: 10px;">
+					<input type="checkbox" id="fplant-field-cmt-display-in-form" checked>
+					<label for="fplant-field-cmt-display-in-form"><?php esc_html_e( 'Display the resolved value in the form', 'form-plant' ); ?></label>
+				</div>
+
+				<div style="margin-top: 10px;">
+					<label for="fplant-field-cmt-display-wrapper" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Wrapper element (when displayed)', 'form-plant' ); ?></label>
+					<select id="fplant-field-cmt-display-wrapper" class="fplant-form-control">
+						<option value="span"><?php esc_html_e( 'Inline (span)', 'form-plant' ); ?></option>
+						<option value="div"><?php esc_html_e( 'Block (div)', 'form-plant' ); ?></option>
+						<option value="hidden"><?php esc_html_e( 'Hidden input only (no visible element)', 'form-plant' ); ?></option>
+					</select>
+				</div>
+			</div>
+
+			<!-- Phone Number Settings -->
+			<div id="fplant-field-tel-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Phone Number Settings', 'form-plant' ); ?></label>
+				<div style="margin-top: 10px;">
+					<label for="fplant-field-tel-format" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Input Format', 'form-plant' ); ?></label>
+					<select id="fplant-field-tel-format" class="fplant-form-control">
+						<option value="single"><?php esc_html_e( 'Single input', 'form-plant' ); ?></option>
+						<option value="split3"><?php esc_html_e( 'Split input (3 fields)', 'form-plant' ); ?></option>
+					</select>
+				</div>
 			</div>
 
 			<!-- Postal Code Settings -->

@@ -19,7 +19,9 @@ if ( ! empty( $field['class'] ) ) {
 if ( ! empty( $field['custom_class'] ) ) {
 	$field_class .= ' ' . esc_attr( $field['custom_class'] );
 }
-$rows = ! empty( $field['rows'] ) ? absint( $field['rows'] ) : 5;
+$rows      = ! empty( $field['rows'] ) ? absint( $field['rows'] ) : 5;
+$cols      = ! empty( $field['cols'] ) ? absint( $field['cols'] ) : null;
+$maxlength = ! empty( $field['maxlength'] ) ? absint( $field['maxlength'] ) : null;
 ?>
 
 <textarea
@@ -27,6 +29,12 @@ $rows = ! empty( $field['rows'] ) ? absint( $field['rows'] ) : 5;
 	name="<?php echo esc_attr( $field['name'] ); ?>"
 	class="<?php echo esc_attr( $field_class ); ?>"
 	rows="<?php echo esc_attr( $rows ); ?>"
+	<?php if ( null !== $cols ) : ?>
+		cols="<?php echo esc_attr( $cols ); ?>"
+	<?php endif; ?>
+	<?php if ( null !== $maxlength ) : ?>
+		maxlength="<?php echo esc_attr( $maxlength ); ?>"
+	<?php endif; ?>
 	<?php if ( ! empty( $field['placeholder'] ) ) : ?>
 		placeholder="<?php echo esc_attr( $field['placeholder'] ); ?>"
 	<?php endif; ?>

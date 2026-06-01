@@ -39,8 +39,14 @@ $strength_level = isset( $field['password_strength_level'] ) ? $field['password_
 			<?php if ( ! empty( $field['placeholder'] ) ) : ?>
 				placeholder="<?php echo esc_attr( $field['placeholder'] ); ?>"
 			<?php endif; ?>
+			<?php if ( ! empty( $field['size'] ) ) : ?>
+				size="<?php echo esc_attr( $field['size'] ); ?>"
+			<?php endif; ?>
 			<?php if ( ! empty( $field['password_min_length'] ) ) : ?>
 				minlength="<?php echo esc_attr( $field['password_min_length'] ); ?>"
+			<?php endif; ?>
+			<?php if ( ! empty( $field['maxlength'] ) ) : ?>
+				maxlength="<?php echo esc_attr( $field['maxlength'] ); ?>"
 			<?php endif; ?>
 			value="<?php echo esc_attr( $value ); ?>"
 			autocomplete="new-password"

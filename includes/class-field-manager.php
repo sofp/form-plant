@@ -40,6 +40,7 @@ class FPLANT_Field_Manager {
 		'postal_code',
 		'prefecture',
 		'address',
+		'custom_mail_tag',
 	);
 
 	/**
@@ -156,6 +157,11 @@ class FPLANT_Field_Manager {
 				'icon'        => 'dashicons-admin-home',
 				'description' => __( 'Address input field with multiple parts', 'form-plant' ),
 			),
+			'custom_mail_tag' => array(
+				'label'       => __( 'Custom Mail Tag', 'form-plant' ),
+				'icon'        => 'dashicons-tag',
+				'description' => __( 'Dynamic value provided via PHP filter hook (for email body / data)', 'form-plant' ),
+			),
 		);
 
 		return apply_filters( 'fplant_field_types', $field_types );
@@ -188,6 +194,10 @@ class FPLANT_Field_Manager {
 
 		// Additional settings per field type
 		switch ( $field_type ) {
+			case 'tel':
+				$defaults['tel_format'] = 'single';
+				break;
+
 			case 'textarea':
 				$defaults['rows'] = 5;
 				break;
@@ -290,6 +300,11 @@ class FPLANT_Field_Manager {
 				);
 				break;
 
+			case 'custom_mail_tag':
+				$defaults['display_in_form'] = true;
+				$defaults['display_wrapper'] = 'span';
+				break;
+
 			case 'address':
 				$defaults['postal_format']         = 'single';
 				$defaults['postal_show_search_btn'] = false;
@@ -367,6 +382,11 @@ class FPLANT_Field_Manager {
 	public function render_field( $field, $value = '', $form_id = 0, $form_settings = array() ) {
 		$field = wp_parse_args( $field, $this->get_field_defaults( $field['type'] ) );
 
+		// Apply dynamic choices for select/radio/checkbox (fplant_field_choices).
+		if ( in_array( $field['type'], array( 'select', 'radio', 'checkbox' ), true ) ) {
+			$field['options'] = $this->get_field_choices( $field, $form_id );
+		}
+
 		// Get initial value if $value is empty
 		if ( '' === $value || ( is_array( $value ) && empty( $value ) ) ) {
 			$value = $this->get_field_initial_value( $field, $form_id, $form_settings );
@@ -426,6 +446,13 @@ class FPLANT_Field_Manager {
 		$field_name    = $field['name'];
 		$default_value = isset( $field['default'] ) ? $field['default'] : '';
 
+		// 0. Custom mail tag — value is provided exclusively via filter hook.
+		if ( isset( $field['type'] ) && 'custom_mail_tag' === $field['type'] ) {
+			$value = apply_filters( 'fplant_custom_mail_tag_value', '', $field_name, $field, $form_id );
+			$value = apply_filters( "fplant_custom_mail_tag_value_{$field_name}", $value, $field, $form_id );
+			return $value;
+		}
+
 		// 1. Get from URL parameters
 		//    Condition: allowed in settings AND default value is {field_name} format
 		$allow_url_params = ! empty( $form_settings['allow_url_params'] );
@@ -447,6 +474,59 @@ class FPLANT_Field_Manager {
 
 		// 3. Default value
 		return $default_value;
+	}
+
+	/**
+	 * Get the choice options for a select/radio/checkbox field.
+	 *
+	 * Mirrors get_field_initial_value(): applies the fplant_field_choices filters so
+	 * third-party code can populate options dynamically (e.g. from posts or terms).
+	 * MW WP Form's mwform_choices equivalent. Non-choice field types are returned unchanged.
+	 *
+	 * @since 1.2.0
+	 * @param array $field   Field configuration.
+	 * @param int   $form_id Form ID.
+	 * @return array Choice options (each option is array( 'label' => ..., 'value' => ... )).
+	 */
+	public function get_field_choices( $field, $form_id = 0 ) {
+		$options = ( isset( $field['options'] ) && is_array( $field['options'] ) ) ? $field['options'] : array();
+
+		if ( ! isset( $field['type'] ) || ! in_array( $field['type'], array( 'select', 'radio', 'checkbox' ), true ) ) {
+			return $options;
+		}
+
+		$field_name = isset( $field['name'] ) ? $field['name'] : '';
+
+		// Common hook, then field-specific hook (same two-stage design as field initial value).
+		$options = apply_filters( 'fplant_field_choices', $options, $field_name, $field, $form_id );
+		if ( '' !== $field_name ) {
+			$options = apply_filters( "fplant_field_choices_{$field_name}", $options, $field, $form_id );
+		}
+
+		return is_array( $options ) ? $options : array();
+	}
+
+	/**
+	 * Apply fplant_field_choices to every choice field in a form's fields array.
+	 *
+	 * Used at confirmation entry points so the confirmation screen labels match the
+	 * dynamically-populated form choices.
+	 *
+	 * @since 1.2.0
+	 * @param array $form Form data.
+	 * @return array Form data with filtered choice options.
+	 */
+	public function apply_field_choices( $form ) {
+		if ( empty( $form['fields'] ) || ! is_array( $form['fields'] ) ) {
+			return $form;
+		}
+		$form_id = isset( $form['id'] ) ? (int) $form['id'] : 0;
+		foreach ( $form['fields'] as $index => $field ) {
+			if ( isset( $field['type'] ) && in_array( $field['type'], array( 'select', 'radio', 'checkbox' ), true ) ) {
+				$form['fields'][ $index ]['options'] = $this->get_field_choices( $field, $form_id );
+			}
+		}
+		return $form;
 	}
 
 	/**
@@ -550,6 +630,9 @@ class FPLANT_Field_Manager {
 	 * @return string Confirmation HTML.
 	 */
 	public function render_confirmation( $form, $data, $filenames = array() ) {
+		// Apply dynamic choices so confirmation labels match the form (fplant_field_choices).
+		$form = $this->apply_field_choices( $form );
+
 		$settings            = isset( $form['settings'] ) ? $form['settings'] : array();
 		$use_custom_template = ! empty( $settings['use_confirmation_template'] );
 		$custom_template     = isset( $settings['confirmation_template'] ) ? $settings['confirmation_template'] : '';

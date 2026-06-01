@@ -54,7 +54,7 @@ $fplant_wrapper_class = 'fplant-form-wrapper';
 					continue;
 				}
 				if ( 'html' === $fplant_field['type'] ) :
-					// HTMLフィールドはラベル・エラー表示なしで直接出力
+					// HTML field: output directly without label or error display.
 					echo wp_kses( do_shortcode( '[fplant_field name="' . esc_attr( $fplant_field['name'] ) . '"]' ), fplant_get_allowed_form_html() );
 					continue;
 				endif;

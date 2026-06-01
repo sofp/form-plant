@@ -612,6 +612,34 @@
 	width: 12em;
 }
 
+.fplant-tel-split {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.fplant-tel-separator {
+	font-size: 16px;
+	color: #666;
+	flex-shrink: 0;
+}
+
+.fplant-tel-input {
+	padding: 10px 15px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 16px;
+	box-sizing: border-box;
+	transition: border-color 0.2s;
+	width: 5em;
+}
+
+.fplant-tel-input:focus {
+	outline: none;
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
 .fplant-postal-code-search {
 	padding: 10px 16px;
 	font-size: 14px;

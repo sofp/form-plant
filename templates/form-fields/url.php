@@ -29,6 +29,12 @@ if ( ! empty( $field['custom_class'] ) ) {
 	<?php if ( ! empty( $field['placeholder'] ) ) : ?>
 		placeholder="<?php echo esc_attr( $field['placeholder'] ); ?>"
 	<?php endif; ?>
+	<?php if ( ! empty( $field['size'] ) ) : ?>
+		size="<?php echo esc_attr( $field['size'] ); ?>"
+	<?php endif; ?>
+	<?php if ( ! empty( $field['maxlength'] ) ) : ?>
+		maxlength="<?php echo esc_attr( $field['maxlength'] ); ?>"
+	<?php endif; ?>
 	<?php if ( ! empty( $field['default'] ) && empty( $value ) ) : ?>
 		value="<?php echo esc_attr( $field['default'] ); ?>"
 	<?php else : ?>

@@ -185,7 +185,7 @@ class FPLANT_Embed {
 		<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title><?php esc_html_e( 'エラー', 'form-plant' ); ?></title>
+			<title><?php esc_html_e( 'Error', 'form-plant' ); ?></title>
 		</head>
 		<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background-color: #f6f7f7;">
 			<div style="text-align: center; padding: 40px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
@@ -284,7 +284,7 @@ class FPLANT_Embed {
 		$recaptcha_site_key = get_option( 'fplant_recaptcha_site_key', '' );
 		$turnstile_site_key = get_option( 'fplant_turnstile_site_key', '' );
 
-		// Site key が空の場合は type を none に落とす
+		// If the site key is empty, fall back to type "none".
 		if ( 'recaptcha' === $captcha_type && empty( $recaptcha_site_key ) ) {
 			$captcha_type = 'none';
 		}

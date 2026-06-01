@@ -86,6 +86,10 @@
 				if (e.target.matches('.fplant-postal-code-part1, .fplant-postal-code-part2')) {
 					this.handlePostalCodeSplitChange(e);
 				}
+				// Combine tel split values
+				if (e.target.matches('.fplant-tel-part1, .fplant-tel-part2, .fplant-tel-part3')) {
+					this.handleTelSplitChange(e);
+				}
 			});
 
 			// Postal code search button
@@ -113,6 +117,21 @@
 						const part2 = container.querySelector('.fplant-postal-code-part2');
 						if (part2) part2.focus();
 					}
+				}
+			});
+
+			// Auto-focus between tel split boxes when a box is filled to its maxlength
+			this.form.addEventListener('input', (e) => {
+				const container = e.target.closest('.fplant-tel-split');
+				if (!container) return;
+				const maxlength = parseInt(e.target.getAttribute('maxlength'), 10);
+				if (!maxlength || e.target.value.length < maxlength) return;
+				if (e.target.matches('.fplant-tel-part1')) {
+					const part2 = container.querySelector('.fplant-tel-part2');
+					if (part2) part2.focus();
+				} else if (e.target.matches('.fplant-tel-part2')) {
+					const part3 = container.querySelector('.fplant-tel-part3');
+					if (part3) part3.focus();
 				}
 			});
 
@@ -250,6 +269,31 @@
 				hidden.value = v1 + '-' + v2;
 			} else if (v1) {
 				hidden.value = v1;
+			} else {
+				hidden.value = '';
+			}
+		}
+
+		/**
+		 * Handle tel split input change — combine part1-part2-part3 into hidden field
+		 */
+		handleTelSplitChange(e) {
+			const input = e.target;
+			const wrapper = input.closest('.fplant-field-tel');
+			if (!wrapper) return;
+
+			const part1 = wrapper.querySelector('.fplant-tel-part1');
+			const part2 = wrapper.querySelector('.fplant-tel-part2');
+			const part3 = wrapper.querySelector('.fplant-tel-part3');
+			const hidden = wrapper.querySelector('.fplant-tel-value');
+			if (!hidden) return;
+
+			const v1 = (part1 ? part1.value : '').replace(/[^0-9]/g, '');
+			const v2 = (part2 ? part2.value : '').replace(/[^0-9]/g, '');
+			const v3 = (part3 ? part3.value : '').replace(/[^0-9]/g, '');
+
+			if (v1 || v2 || v3) {
+				hidden.value = [v1, v2, v3].join('-');
 			} else {
 				hidden.value = '';
 			}
@@ -1661,8 +1705,8 @@
 					continue;
 				}
 
-				// Skip individual postal code split fields (fieldname[part1], [part2])
-				if (key.match(/\[(part1|part2|postal_code_part1|postal_code_part2)\]$/)) {
+				// Skip individual postal code / tel split fields (fieldname[part1], [part2], [part3])
+				if (key.match(/\[(part1|part2|part3|postal_code_part1|postal_code_part2)\]$/)) {
 					continue;
 				}
 
@@ -1740,6 +1784,9 @@
 				this.form.dispatchEvent(new CustomEvent('fplant:success', { detail: response.data }));
 			} else {
 				this.showErrors(response.data.message, response.data.errors);
+				// Show field-specific errors (works even in HTML template mode without a
+				// .fplant-errors container, via the dynamic fallback in showFieldErrors).
+				this.showFieldErrors(response.data.errors || {});
 
 				// Dispatch submitError event
 				this.dispatchFplantEvent('fplant:submitError', {

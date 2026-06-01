@@ -121,15 +121,24 @@
 		// Set file size
 		$('#fplant-field-max-size').val(field && field.max_size ? field.max_size : '');
 
-		// Set text field settings (size, maxlength)
+		// Set input field settings (size, maxlength) - text / email / url / password
 		$('#fplant-field-size').val(field && field.size ? field.size : '');
-		$('#fplant-field-maxlength').val(field && field.maxlength ? field.maxlength : '');
+		$('#fplant-field-maxlength').val(field && field.type !== 'textarea' && field.maxlength ? field.maxlength : '');
+
+		// Set textarea field settings (rows, cols, maxlength)
+		$('#fplant-field-rows').val(field && field.rows ? field.rows : '');
+		$('#fplant-field-cols').val(field && field.cols ? field.cols : '');
+		$('#fplant-field-textarea-maxlength').val(field && field.type === 'textarea' && field.maxlength ? field.maxlength : '');
 
 		// Set default value
 		$('#fplant-field-default-value').val(field && field.default ? field.default : '');
 
 		// Set HTML content
 		$('#fplant-field-html-content').val(field && field.content ? field.content : '');
+
+		// Set custom mail tag settings
+		$('#fplant-field-cmt-display-in-form').prop('checked', field && typeof field.display_in_form !== 'undefined' ? !!field.display_in_form : true);
+		$('#fplant-field-cmt-display-wrapper').val(field && field.display_wrapper ? field.display_wrapper : 'span');
 
 		// Set name parts settings
 		$('#fplant-field-name-format').val(field && field.name_format ? field.name_format : '2');
@@ -210,6 +219,9 @@
 		} else {
 			$('#fplant-field-password-strength-level-section').hide();
 		}
+
+		// Set tel settings
+		$('#fplant-field-tel-format').val(field && field.tel_format ? field.tel_format : 'single');
 
 		// Set postal code settings
 		$('#fplant-field-postal-format').val(field && field.postal_format ? field.postal_format : 'single');
@@ -311,11 +323,18 @@
 			$('#fplant-field-file-section').hide();
 		}
 
-		// Text field settings visibility (size, maxlength)
-		if (fieldType === 'text') {
+		// Input field settings visibility (size, maxlength) - text / email / url / password
+		if (['text', 'email', 'url', 'password'].indexOf(fieldType) !== -1) {
 			$('#fplant-field-text-settings-section').show();
 		} else {
 			$('#fplant-field-text-settings-section').hide();
+		}
+
+		// Textarea field settings visibility (rows, cols, maxlength)
+		if (fieldType === 'textarea') {
+			$('#fplant-field-textarea-settings-section').show();
+		} else {
+			$('#fplant-field-textarea-settings-section').hide();
 		}
 
 		// HTML content section (for html type)
@@ -344,6 +363,13 @@
 			$('#fplant-field-password-section').show();
 		} else {
 			$('#fplant-field-password-section').hide();
+		}
+
+		// Tel settings visibility
+		if (fieldType === 'tel') {
+			$('#fplant-field-tel-section').show();
+		} else {
+			$('#fplant-field-tel-section').hide();
 		}
 
 		// Postal code settings visibility
@@ -375,8 +401,15 @@
 			$('#fplant-field-default-value-section').hide();
 		}
 
-		// Hide unnecessary fields for hidden and html types
-		const isHiddenOrHtml = fieldType === 'hidden' || fieldType === 'html';
+		// Custom Mail Tag settings visibility
+		if (fieldType === 'custom_mail_tag') {
+			$('#fplant-field-custom-mail-tag-section').show();
+		} else {
+			$('#fplant-field-custom-mail-tag-section').hide();
+		}
+
+		// Hide unnecessary fields for hidden/html/custom_mail_tag types
+		const isHiddenOrHtml = fieldType === 'hidden' || fieldType === 'html' || fieldType === 'custom_mail_tag';
 		const $labelGroup = $('#fplant-field-label').closest('.fplant-form-group');
 		const $requiredGroup = $('#fplant-field-required').closest('.fplant-checkbox');
 		const $validationGroup = $('#fplant-field-validation-message').closest('.fplant-form-group');
@@ -766,8 +799,8 @@
 				}
 			}
 
-			// For text field types (size, maxlength)
-			if (fieldType === 'text') {
+			// For single-line input field types (size, maxlength) - text / email / url / password
+			if (['text', 'email', 'url', 'password'].indexOf(fieldType) !== -1) {
 				const size = $('#fplant-field-size').val();
 				const maxlength = $('#fplant-field-maxlength').val();
 				if (size) {
@@ -775,6 +808,22 @@
 				}
 				if (maxlength) {
 					field.maxlength = parseInt(maxlength);
+				}
+			}
+
+			// For textarea field type (rows, cols, maxlength)
+			if (fieldType === 'textarea') {
+				const rows = $('#fplant-field-rows').val();
+				const cols = $('#fplant-field-cols').val();
+				const textareaMaxlength = $('#fplant-field-textarea-maxlength').val();
+				if (rows) {
+					field.rows = parseInt(rows);
+				}
+				if (cols) {
+					field.cols = parseInt(cols);
+				}
+				if (textareaMaxlength) {
+					field.maxlength = parseInt(textareaMaxlength);
 				}
 			}
 
@@ -799,6 +848,15 @@
 					return;
 				}
 				field.content = htmlContent;
+				if (!field.label) {
+					field.label = field.name;
+				}
+			}
+
+			// For custom_mail_tag type
+			if (fieldType === 'custom_mail_tag') {
+				field.display_in_form = $('#fplant-field-cmt-display-in-form').is(':checked');
+				field.display_wrapper = $('#fplant-field-cmt-display-wrapper').val() || 'span';
 				if (!field.label) {
 					field.label = field.name;
 				}
@@ -856,6 +914,11 @@
 				field.password_mask_save = $('#fplant-field-password-mask-save').is(':checked');
 				field.password_strength_meter = $('#fplant-field-password-strength-meter').is(':checked');
 				field.password_strength_level = $('input[name="fplant-field-password-strength-level"]:checked').val() || 'none';
+			}
+
+			// For tel type
+			if (fieldType === 'tel') {
+				field.tel_format = $('#fplant-field-tel-format').val() || 'single';
 			}
 
 			// For postal code type
@@ -1390,6 +1453,18 @@
 				reply_to: $('.fplant-email-user-reply-to').val()
 			}
 		};
+
+		// Collect custom settings fields (fplant_custom_settings_fields).
+		// Skip keys that collide with built-in settings to avoid clobbering them.
+		const fplantCoreSettingKeys = Object.keys(formData.settings);
+		$('#tab-settings [data-fplant-setting]').each(function () {
+			const $csEl = $(this);
+			const csKey = $csEl.attr('data-fplant-setting');
+			if (!csKey || fplantCoreSettingKeys.indexOf(csKey) !== -1) {
+				return;
+			}
+			formData.settings[csKey] = $csEl.is(':checkbox') ? $csEl.is(':checked') : $csEl.val();
+		});
 
 		const formId = $('.fplant-save-form').data('form-id') || 0;
 

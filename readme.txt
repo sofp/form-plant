@@ -1,20 +1,26 @@
 === Form Plant ===
 Contributors: reiji-sato
-Tags: form, contact form, custom form, email, block
+Tags: contact form, confirmation, mw wp form, csv export, recaptcha
 Requires at least: 6.0
-Tested up to: 6.9
-Stable tag: 1.1.1
+Tested up to: 7.0
+Stable tag: 1.2.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A form plugin with built-in confirmation screen, submission data storage, and external site embedding — ready to use right out of the box.
+A WordPress contact form plugin with confirmation screen, submission storage, layered spam protection, and Japanese postal code auto-fill.
 
 == Description ==
 
-Form Plant is a WordPress form plugin that includes a confirmation screen, submission data storage, and CSV export as standard features — no add-ons required.
+Form Plant is a WordPress contact form plugin built around three pillars: practical defaults, layered spam protection, and strong Japanese-locale support.
 
-Many form plugins require extra extensions for confirmation pages or data management. Form Plant gives you these essentials from the start, so you can set up a fully functional contact form in minutes.
+**Ready out of the box** — Confirmation screen, submission storage, and CSV export are standard features, not paid add-ons. Publish a working form in minutes.
+
+**Spam protection in depth** — Combine honeypot, time-based validation, IP rate limiting, disposable email blocking, Google reCAPTCHA (v2/v3), and Cloudflare Turnstile. Start with the lightweight defaults that work without any account setup; add reCAPTCHA or Turnstile only when you need them.
+
+**Built for Japanese sites** — Postal code lookup with address auto-fill, per-part name/kana validation, and Japan-specific address templates. Moving from MW WP Form? A built-in migration tool imports your existing forms — fields, validation rules, and mail settings — so you can switch without rebuilding from scratch.
+
+Many form plugins require extra extensions for confirmation pages or data management. Form Plant includes these essentials from the start.
 
 **Why Form Plant?**
 
@@ -29,6 +35,7 @@ Many form plugins require extra extensions for confirmation pages or data manage
 
 * Intuitive modal UI for field configuration
 * Block editor (Gutenberg) integration — pick a form from a dropdown using the dedicated "Form Plant" block
+* MW WP Form migration tool — convert existing MW WP Form forms (fields, validation rules, admin and auto-reply mail settings, and merge tags) into Form Plant forms, with a warning report for items that need manual review (shown when MW WP Form is active)
 * Email notifications (admin notification and auto-reply)
 * Custom HTML template support
 * Confirmation screen before submission
@@ -144,16 +151,30 @@ Yes, the File Upload field type allows users to upload files with configurable s
 3. Email notification settings for admin and auto-reply.
 4. Submission data management with CSV export support.
 5. Embed forms on external sites via iframe or JavaScript.
+6. One-click migration from MW WP Form, with a report of converted fields and items that need manual review.
 
 == Changelog ==
+
+= 1.2.0 =
+* New: MW WP Form migration tool. Convert existing MW WP Form forms — fields, validation rules, admin and auto-reply mail settings, and merge tags — into Form Plant forms, with a warning report for items that need manual review. Available under Form Plant → Tools while MW WP Form is active.
+* New: Custom Mail Tag field type. Embed a dynamic value (supplied via the `fplant_custom_mail_tag_value_*` filter) into the form, the saved submission, and the email body.
+* New: Added rows/cols/maxlength settings for textarea fields and size/maxlength settings for email, url, and password fields in the form editor.
+* Fix: Custom Mail Tag fields are now rendered on the front end so their value reaches the submission data and email.
+* Fix: Validation errors are now displayed on forms that use an HTML template without a confirmation screen.
+* Developer: Added filters and actions for MW WP Form-equivalent extensibility — dynamic field values/choices, custom validation, email subject/body/recipient customization and conditional skipping, post-submission integration, redirect and completion-page control, attachment save path/filename, custom form settings, and CSV export encoding.
 
 = 1.1.1 =
 * Fix: Changed the source strings in `block.json` (block description and keywords) from Japanese to English so that English-locale sites display the correct text.
 
 = 1.1.0 =
+* New: Layered spam protection — added time-based validation, IP rate limiting, disposable email domain blocking, Google reCAPTCHA v2 Checkbox, and Cloudflare Turnstile (in addition to existing honeypot and reCAPTCHA v3).
+* New: Postal code lookup that auto-fills address fields for the Japanese locale, using the zipcloud API.
+* New: JavaScript hook API (`window.fplant.addValidator`, `removeValidator`, and form lifecycle events) for custom validation and behavior.
+* New: Password field type with optional strength meter.
+* New: Form settings export/import for migration and backup.
 * New: Added a Contact Form 7 style form selector block. From the block inserter, choose "Form Plant" and pick a form from the dropdown to embed it.
 * New: Added REST API endpoint `GET /form-plant/v1/forms` (capability: edit_posts) used by the block editor to list available forms.
-* New: Added per-part required validation and custom error messages for the Name (parts) field.
+* New: Per-part required validation and custom error messages for the Name (parts) field.
 * New: Unified form design settings; multiple custom CSS files can now be uploaded per form.
 * New: Added design type presets and a customizable required-field marker.
 * New: Split the address template into a Japanese locale version and an international version.

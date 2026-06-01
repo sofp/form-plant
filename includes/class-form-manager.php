@@ -112,8 +112,25 @@ class FPLANT_Form_Manager {
 		if ( isset( $data['settings'] ) ) {
 			// Allow HTML in keys that store user-authored HTML content
 			$html_allowed_keys = array( 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template' );
+			// Allow HTML for custom settings fields declared with 'allow_html'.
+			foreach ( self::get_custom_settings_fields( $form_id ) as $custom_field ) {
+				if ( $custom_field['allow_html'] ) {
+					$html_allowed_keys[] = $custom_field['key'];
+				}
+			}
 			$sanitized_settings = self::sanitize_array_recursive( $data['settings'], $html_allowed_keys );
 			FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_SETTINGS, $sanitized_settings );
+
+			/**
+			 * Fires after a form's settings have been saved.
+			 *
+			 * MW WP Form's mwform_settings_save equivalent.
+			 *
+			 * @since 1.2.0
+			 * @param int   $form_id            Form ID.
+			 * @param array $sanitized_settings Saved settings (includes any custom settings).
+			 */
+			do_action( 'fplant_form_settings_saved', $form_id, $sanitized_settings );
 			$updated = true;
 		}
 
@@ -197,6 +214,66 @@ class FPLANT_Form_Manager {
 			return null;
 		}
 		return self::sanitize_array_recursive( $decoded, $html_allowed_keys );
+	}
+
+	/**
+	 * Get custom settings field definitions registered via the
+	 * fplant_custom_settings_fields filter (mwform_settings_extend_fields equivalent).
+	 *
+	 * Third-party code can add custom fields to the form settings screen. The
+	 * values are rendered in the editor, saved with the form settings, and
+	 * readable at runtime via $form['settings'][ $key ]. Prefix keys (e.g. 'x_')
+	 * to avoid collisions with built-in setting keys.
+	 *
+	 *     add_filter( 'fplant_custom_settings_fields', function ( $fields, $form_id ) {
+	 *         $fields[] = array(
+	 *             'key'   => 'x_crm_endpoint',
+	 *             'type'  => 'text',
+	 *             'label' => 'CRM Endpoint',
+	 *         );
+	 *         return $fields;
+	 *     }, 10, 2 );
+	 *
+	 * @since 1.2.0
+	 * @param int $form_id Form ID.
+	 * @return array List of normalized field definitions (key, type, label, default, options, description, allow_html).
+	 */
+	public static function get_custom_settings_fields( $form_id ) {
+		$fields = apply_filters( 'fplant_custom_settings_fields', array(), absint( $form_id ) );
+
+		if ( ! is_array( $fields ) ) {
+			return array();
+		}
+
+		$allowed_types = array( 'text', 'textarea', 'checkbox', 'select', 'number' );
+		$normalized    = array();
+
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) || empty( $field['key'] ) || ! is_string( $field['key'] ) ) {
+				continue;
+			}
+
+			// Restrict key to safe characters (letters, numbers, underscore).
+			$key = preg_replace( '/[^a-zA-Z0-9_]/', '', $field['key'] );
+			if ( '' === $key ) {
+				continue;
+			}
+
+			$type = ( isset( $field['type'] ) && in_array( $field['type'], $allowed_types, true ) ) ? $field['type'] : 'text';
+
+			// Keyed by $key so duplicate keys collapse (last definition wins).
+			$normalized[ $key ] = array(
+				'key'         => $key,
+				'type'        => $type,
+				'label'       => isset( $field['label'] ) ? (string) $field['label'] : $key,
+				'default'     => isset( $field['default'] ) ? $field['default'] : '',
+				'options'     => ( isset( $field['options'] ) && is_array( $field['options'] ) ) ? $field['options'] : array(),
+				'description' => isset( $field['description'] ) ? (string) $field['description'] : '',
+				'allow_html'  => ! empty( $field['allow_html'] ),
+			);
+		}
+
+		return array_values( $normalized );
 	}
 
 	/**

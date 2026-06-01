@@ -61,12 +61,40 @@ class FPLANT_Email_Handler {
 		// Hook: Before email send
 		do_action( 'fplant_before_admin_email_send', $email_settings, $form['id'] );
 
+		/**
+		 * Filters whether to skip sending the admin email (MW's $Mail->to = false pattern).
+		 *
+		 * @since 1.2.0
+		 * @param bool  $skip          Return true to skip sending. Default false.
+		 * @param array $form          Form data.
+		 * @param array $data          Submission data.
+		 * @param int   $submission_id Submission ID.
+		 */
+		if ( apply_filters( 'fplant_skip_admin_email', false, $form, $data, $submission_id ) ) {
+			return false;
+		}
+
 		// Filter: Data transformation before email send
 		$data = apply_filters( 'fplant_before_send_email_data', $data, $form, $submission_id, 'admin' );
 
 		// Recipient (replace tags like {admin_email} before parsing)
 		$to_raw = $this->replace_tags( $email_settings['to'], $data, $form, $submission_id );
 		$to     = $this->parse_email_addresses( $to_raw );
+
+		/**
+		 * Filters the admin email recipient(s). Returning an empty value skips sending.
+		 *
+		 * MW WP Form's mwform_admin_mail ($Mail->to) equivalent.
+		 *
+		 * @since 1.2.0
+		 * @param array $to      Recipient email addresses.
+		 * @param int   $form_id Form ID.
+		 * @param array $data    Submission data.
+		 */
+		$to = apply_filters( 'fplant_admin_email_to', $to, $form['id'], $data );
+		if ( empty( $to ) ) {
+			return false;
+		}
 
 		// Subject
 		$subject = ! empty( $email_settings['subject'] )
@@ -122,6 +150,18 @@ class FPLANT_Email_Handler {
 			}
 		}
 
+		/**
+		 * Filters the admin email headers (From / Cc / Bcc / Reply-To).
+		 *
+		 * MW WP Form's mwform_admin_mail ($Mail) equivalent for recipients/headers.
+		 *
+		 * @since 1.2.0
+		 * @param array $headers Email headers.
+		 * @param int   $form_id Form ID.
+		 * @param array $data    Submission data.
+		 */
+		$headers = apply_filters( 'fplant_admin_email_headers', $headers, $form['id'], $data );
+
 		// Prepare file attachments
 		$attachments = $this->get_file_attachments( $data, $form );
 
@@ -174,6 +214,18 @@ class FPLANT_Email_Handler {
 
 		$to = sanitize_email( $data[ $to_field ] );
 
+		/**
+		 * Filters the auto-reply recipient address.
+		 *
+		 * MW WP Form's mwform_auto_mail ($Mail->to) equivalent.
+		 *
+		 * @since 1.2.0
+		 * @param string $to      Recipient email address (from the form field).
+		 * @param int    $form_id Form ID.
+		 * @param array  $data    Submission data.
+		 */
+		$to = apply_filters( 'fplant_user_email_to', $to, $form['id'], $data );
+
 		if ( ! is_email( $to ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging
 		error_log( 'Form Plant - User email: Invalid email address "' . $to . '"' );
@@ -182,6 +234,19 @@ class FPLANT_Email_Handler {
 
 		// Hook: Before email send
 		do_action( 'fplant_before_user_email_send', $email_settings, $form['id'] );
+
+		/**
+		 * Filters whether to skip sending the auto-reply email.
+		 *
+		 * @since 1.2.0
+		 * @param bool  $skip          Return true to skip sending. Default false.
+		 * @param array $form          Form data.
+		 * @param array $data          Submission data.
+		 * @param int   $submission_id Submission ID.
+		 */
+		if ( apply_filters( 'fplant_skip_user_email', false, $form, $data, $submission_id ) ) {
+			return false;
+		}
 
 		// Filter: Data transformation before email send
 		$data = apply_filters( 'fplant_before_send_email_data', $data, $form, $submission_id, 'user' );
@@ -235,6 +300,18 @@ class FPLANT_Email_Handler {
 				$headers[] = 'Reply-To: ' . $reply_to;
 			}
 		}
+
+		/**
+		 * Filters the auto-reply email headers (From / Cc / Bcc / Reply-To).
+		 *
+		 * MW WP Form's mwform_auto_mail ($Mail) equivalent for headers.
+		 *
+		 * @since 1.2.0
+		 * @param array $headers Email headers.
+		 * @param int   $form_id Form ID.
+		 * @param array $data    Submission data.
+		 */
+		$headers = apply_filters( 'fplant_user_email_headers', $headers, $form['id'], $data );
 
 		// Send
 		$result = wp_mail( $to, $subject, $message, $headers );
