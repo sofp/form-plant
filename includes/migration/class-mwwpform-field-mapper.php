@@ -222,8 +222,9 @@ class FPLANT_MWWPForm_Field_Mapper {
 				FPLANT_Migrator_Base::LEVEL_INFO,
 				'name_translated',
 				sprintf(
-					/* translators: 1: original name, 2: translated name. */
-					__( 'Field name "%1$s" was converted to "%2$s".', 'form-plant' ),
+					/* translators: 1: original field name, 2: field label (kept from the original name), 3: converted field name. */
+					__( 'Field name "%1$s" was converted to label "%2$s" and field name "%3$s".', 'form-plant' ),
+					$original_name,
 					$original_name,
 					$translated
 				),

@@ -149,6 +149,7 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 					</button>
 				</div>
 			<?php endif; ?>
+			<input type="hidden" name="fplant_form_ts" class="fplant-form-ts" value="">
 		</form>
 
 		<?php

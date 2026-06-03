@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Form Plant 1.2.0\n"
+"Project-Id-Version: Form Plant 1.2.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-plant\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-01T01:57:29+00:00\n"
+"POT-Creation-Date: 2026-06-03T01:10:16+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: form-plant\n"
@@ -54,24 +54,24 @@ msgstr ""
 msgid "The installed version of MW WP Form is not supported. Please update to the latest version."
 msgstr ""
 
-#: admin/class-migration-admin.php:164
+#: admin/class-migration-admin.php:165
 msgid "No target form ID was specified."
 msgstr ""
 
-#: admin/class-migration-admin.php:184
+#: admin/class-migration-admin.php:186
 msgid "No form ID was specified."
 msgstr ""
 
-#: admin/class-migration-admin.php:192
+#: admin/class-migration-admin.php:194
 msgid "The specified Form Plant form was not found."
 msgstr ""
 
-#: admin/class-migration-admin.php:200
+#: admin/class-migration-admin.php:202
 #: includes/class-form-plant.php:601
 msgid "No migration log has been saved for this form."
 msgstr ""
 
-#: admin/class-migration-admin.php:222
+#: admin/class-migration-admin.php:224
 #: includes/class-admin.php:620
 #: includes/class-admin.php:674
 #: includes/class-admin.php:702
@@ -113,34 +113,35 @@ msgstr ""
 
 #: admin/views/form-edit.php:74
 #: includes/class-form-list-table.php:124
-#: includes/class-form-list-table.php:777
+#: includes/class-form-list-table.php:352
+#: includes/class-form-list-table.php:778
 msgid "Published"
 msgstr ""
 
 #: admin/views/form-edit.php:75
 #: includes/class-form-list-table.php:125
-#: includes/class-form-list-table.php:354
-#: includes/class-form-list-table.php:778
+#: includes/class-form-list-table.php:353
+#: includes/class-form-list-table.php:779
 msgid "Private"
 msgstr ""
 
 #: admin/views/form-edit.php:76
 #: includes/class-form-list-table.php:126
-#: includes/class-form-list-table.php:355
-#: includes/class-form-list-table.php:779
+#: includes/class-form-list-table.php:354
+#: includes/class-form-list-table.php:780
 msgid "Draft"
 msgstr ""
 
 #: admin/views/form-edit.php:77
 #: includes/class-form-list-table.php:127
-#: includes/class-form-list-table.php:356
-#: includes/class-form-list-table.php:780
+#: includes/class-form-list-table.php:355
+#: includes/class-form-list-table.php:781
 msgid "Pending Review"
 msgstr ""
 
 #: admin/views/form-edit.php:81
 #: includes/class-form-list-table.php:197
-#: includes/class-form-list-table.php:414
+#: includes/class-form-list-table.php:415
 msgid "Move to Trash"
 msgstr ""
 
@@ -149,7 +150,7 @@ msgid "Publish"
 msgstr ""
 
 #: admin/views/form-edit.php:87
-#: includes/class-form-list-table.php:787
+#: includes/class-form-list-table.php:788
 msgid "Update"
 msgstr ""
 
@@ -160,7 +161,7 @@ msgstr ""
 #: admin/views/form-edit.php:97
 #: admin/views/form-edit.php:921
 #: admin/views/form-edit.php:971
-#: includes/class-form-list-table.php:433
+#: includes/class-form-list-table.php:434
 msgid "Copy"
 msgstr ""
 
@@ -193,7 +194,7 @@ msgid "Spam Protection"
 msgstr ""
 
 #: admin/views/form-edit.php:124
-#: admin/views/migration-page.php:56
+#: admin/views/migration-page.php:59
 msgid "Fields"
 msgstr ""
 
@@ -205,7 +206,7 @@ msgstr ""
 #: admin/views/form-edit.php:206
 #: admin/views/form-edit.php:386
 #: admin/views/form-edit.php:399
-#: includes/class-form-list-table.php:391
+#: includes/class-form-list-table.php:392
 #: includes/class-form-plant.php:679
 msgid "Edit"
 msgstr ""
@@ -267,15 +268,15 @@ msgstr ""
 #: admin/views/form-edit.php:203
 #: admin/views/form-edit.php:350
 #: admin/views/form-edit.php:1942
-#: includes/class-embed.php:352
+#: includes/class-embed.php:359
 #: includes/class-field-manager.php:680
 #: includes/class-field-manager.php:818
 #: includes/class-form-plant.php:451
 #: includes/class-form-plant.php:697
-#: includes/class-rest-api.php:457
-#: includes/class-shortcode.php:129
-#: includes/class-submission-manager.php:1329
-#: includes/class-submission-manager.php:1489
+#: includes/class-rest-api.php:466
+#: includes/class-shortcode.php:167
+#: includes/class-submission-manager.php:1356
+#: includes/class-submission-manager.php:1516
 #: templates/embed.php:136
 #: templates/form-wrapper.php:79
 msgid "Submit"
@@ -378,7 +379,7 @@ msgstr ""
 
 #: admin/views/form-edit.php:310
 #: admin/views/form-edit.php:311
-#: includes/class-embed.php:349
+#: includes/class-embed.php:356
 #: includes/class-form-plant.php:448
 #: templates/form-wrapper.php:33
 msgid "Confirm Your Input"
@@ -390,7 +391,7 @@ msgstr ""
 
 #: admin/views/form-edit.php:321
 #: admin/views/form-edit.php:323
-#: includes/class-embed.php:350
+#: includes/class-embed.php:357
 #: includes/class-form-plant.php:449
 #: templates/form-wrapper.php:34
 msgid "If the information below is correct, please click the \"Submit\" button."
@@ -401,13 +402,13 @@ msgid "Use confirmation screen HTML template"
 msgstr ""
 
 #: admin/views/form-edit.php:346
-#: admin/views/migration-page.php:55
-#: includes/class-form-list-table.php:767
+#: admin/views/migration-page.php:58
+#: includes/class-form-list-table.php:768
 msgid "Title"
 msgstr ""
 
 #: admin/views/form-edit.php:347
-#: includes/class-form-list-table.php:559
+#: includes/class-form-list-table.php:560
 #: includes/class-form-plant.php:1101
 msgid "Message"
 msgstr ""
@@ -419,14 +420,14 @@ msgstr ""
 #: admin/views/form-edit.php:349
 #: admin/views/form-edit.php:383
 #: admin/views/form-edit.php:1988
-#: includes/class-embed.php:351
+#: includes/class-embed.php:358
 #: includes/class-field-manager.php:675
 #: includes/class-field-manager.php:813
 #: includes/class-form-plant.php:450
 #: includes/class-form-plant.php:498
 #: includes/class-form-plant.php:698
-#: includes/class-submission-manager.php:1324
-#: includes/class-submission-manager.php:1484
+#: includes/class-submission-manager.php:1351
+#: includes/class-submission-manager.php:1511
 msgid "Back"
 msgstr ""
 
@@ -488,7 +489,7 @@ msgstr ""
 
 #: admin/views/form-edit.php:420
 #: admin/views/form-edit.php:1695
-#: includes/class-form-list-table.php:582
+#: includes/class-form-list-table.php:583
 #: includes/class-validator.php:763
 msgid "None"
 msgstr ""
@@ -816,7 +817,7 @@ msgid "Settings page"
 msgstr ""
 
 #: admin/views/form-edit.php:1161
-#: includes/class-form-list-table.php:631
+#: includes/class-form-list-table.php:632
 msgid "Honeypot"
 msgstr ""
 
@@ -869,7 +870,7 @@ msgid "Rejects submissions that are faster than human input speed."
 msgstr ""
 
 #: admin/views/form-edit.php:1263
-#: includes/class-form-list-table.php:653
+#: includes/class-form-list-table.php:654
 msgid "Email Address Verification"
 msgstr ""
 
@@ -1042,7 +1043,7 @@ msgid "Validation Message"
 msgstr ""
 
 #: admin/views/form-edit.php:1348
-#: includes/class-embed.php:340
+#: includes/class-embed.php:347
 #: includes/class-form-plant.php:436
 msgid "This field is required. Please enter a value."
 msgstr ""
@@ -1562,7 +1563,7 @@ msgstr ""
 #: admin/views/form-edit.php:1968
 #: admin/views/form-edit.php:2014
 #: admin/views/form-edit.php:2060
-#: includes/class-form-list-table.php:786
+#: includes/class-form-list-table.php:787
 msgid "Cancel"
 msgstr ""
 
@@ -1668,47 +1669,51 @@ msgstr ""
 msgid "Converts MW WP Form form definitions into Form Plant forms. Fields, mail settings, and merge tags are migrated automatically; items that could not be migrated are shown in the warning report."
 msgstr ""
 
+#: admin/views/migration-page.php:27
+msgid "Migrated forms are created as published with Form Plant's standard design. The layout from MW WP Form is saved as an HTML template but disabled by default; enable it in the form's layout settings if you want to use it."
+msgstr ""
+
 #. translators: 1: installed version, 2: minimum supported version.
-#: admin/views/migration-page.php:34
+#: admin/views/migration-page.php:37
 #, php-format
 msgid "The installed MW WP Form %1$s does not meet the required version for the migration tool (v%2$s or later). Please update MW WP Form to the latest version before running a migration."
 msgstr ""
 
-#: admin/views/migration-page.php:44
+#: admin/views/migration-page.php:47
 msgid "MW WP Form List"
 msgstr ""
 
-#: admin/views/migration-page.php:48
+#: admin/views/migration-page.php:51
 #: includes/class-form-plant.php:580
 msgid "Loading list…"
 msgstr ""
 
-#: admin/views/migration-page.php:57
+#: admin/views/migration-page.php:60
 msgid "Migration Status"
 msgstr ""
 
-#: admin/views/migration-page.php:65
+#: admin/views/migration-page.php:68
 msgid "Migrate selected forms"
 msgstr ""
 
-#: admin/views/migration-page.php:68
+#: admin/views/migration-page.php:71
 msgid "Refresh list"
 msgstr ""
 
-#: admin/views/migration-page.php:72
+#: admin/views/migration-page.php:75
 msgid "Migration Report"
 msgstr ""
 
-#: admin/views/migration-page.php:74
+#: admin/views/migration-page.php:77
 msgid "Results will appear here once a migration is run."
 msgstr ""
 
-#: admin/views/migration-page.php:83
+#: admin/views/migration-page.php:86
 #: includes/class-form-plant.php:597
 msgid "Migration Log"
 msgstr ""
 
-#: admin/views/migration-page.php:84
+#: admin/views/migration-page.php:87
 #: admin/views/submission-list.php:245
 #: includes/class-form-plant.php:598
 msgid "Close"
@@ -1948,7 +1953,7 @@ msgid "Selected forms"
 msgstr ""
 
 #: admin/views/tools-general-tab.php:45
-#: includes/class-form-list-table.php:746
+#: includes/class-form-list-table.php:747
 msgid "No forms found."
 msgstr ""
 
@@ -2088,12 +2093,14 @@ msgstr ""
 
 #: includes/class-admin.php:809
 #: includes/class-embed.php:64
+#: includes/class-embed.php:71
 #: includes/class-rest-api.php:286
-#: includes/class-rest-api.php:510
-#: includes/class-rest-api.php:630
+#: includes/class-rest-api.php:295
+#: includes/class-rest-api.php:519
+#: includes/class-rest-api.php:648
 #: includes/class-shortcode.php:55
 #: includes/class-submission-manager.php:51
-#: includes/class-submission-manager.php:381
+#: includes/class-submission-manager.php:399
 msgid "Form not found"
 msgstr ""
 
@@ -2154,13 +2161,13 @@ msgstr ""
 #: includes/class-admin.php:1152
 #: includes/class-admin.php:1161
 #: includes/class-admin.php:1171
-#: includes/class-rest-api.php:492
-#: includes/class-rest-api.php:555
-#: includes/class-rest-api.php:612
-#: includes/class-submission-manager.php:206
-#: includes/class-submission-manager.php:229
-#: includes/class-submission-manager.php:362
-#: includes/class-submission-manager.php:392
+#: includes/class-rest-api.php:501
+#: includes/class-rest-api.php:573
+#: includes/class-rest-api.php:630
+#: includes/class-submission-manager.php:215
+#: includes/class-submission-manager.php:247
+#: includes/class-submission-manager.php:380
+#: includes/class-submission-manager.php:419
 msgid "Invalid request"
 msgstr ""
 
@@ -2227,41 +2234,41 @@ msgstr ""
 msgid "We have received the following:"
 msgstr ""
 
-#: includes/class-embed.php:70
+#: includes/class-embed.php:77
 msgid "Iframe embedding is not allowed for this form"
 msgstr ""
 
-#: includes/class-embed.php:81
-#: includes/class-rest-api.php:319
+#: includes/class-embed.php:88
+#: includes/class-rest-api.php:328
 msgid "Embedding from this domain is not allowed"
 msgstr ""
 
-#: includes/class-embed.php:188
+#: includes/class-embed.php:195
 msgid "Error"
 msgstr ""
 
-#: includes/class-embed.php:335
+#: includes/class-embed.php:342
 #: includes/class-form-plant.php:431
-#: includes/class-rest-api.php:567
-#: includes/class-rest-api.php:799
-#: includes/class-submission-manager.php:68
-#: includes/class-submission-manager.php:464
+#: includes/class-rest-api.php:585
+#: includes/class-rest-api.php:826
+#: includes/class-submission-manager.php:77
+#: includes/class-submission-manager.php:491
 msgid "There are errors in your input"
 msgstr ""
 
-#: includes/class-embed.php:336
+#: includes/class-embed.php:343
 #: includes/class-form-plant.php:432
 msgid "This field is required. Please select at least one option."
 msgstr ""
 
-#: includes/class-embed.php:337
-#: includes/class-embed.php:338
+#: includes/class-embed.php:344
+#: includes/class-embed.php:345
 #: includes/class-form-plant.php:433
 #: includes/class-form-plant.php:434
 msgid "This field is required. Please make a selection."
 msgstr ""
 
-#: includes/class-embed.php:339
+#: includes/class-embed.php:346
 #: includes/class-form-plant.php:435
 msgid "This field is required. Please select a file."
 msgstr ""
@@ -2269,7 +2276,7 @@ msgstr ""
 #. translators: %s: sub-field label (e.g., Last Name, First Name)
 #. translators: %s: sub-field label
 #. translators: %s: field label
-#: includes/class-embed.php:342
+#: includes/class-embed.php:349
 #: includes/class-form-plant.php:438
 #: includes/class-validator.php:69
 #: includes/class-validator.php:115
@@ -2280,28 +2287,28 @@ msgstr ""
 
 #. translators: %s: Maximum file size in megabytes
 #. translators: %s: maximum file size in MB
-#: includes/class-embed.php:344
+#: includes/class-embed.php:351
 #: includes/class-form-plant.php:440
 #, php-format
 msgid "File size is too large. Please select a file under %sMB."
 msgstr ""
 
-#: includes/class-embed.php:345
+#: includes/class-embed.php:352
 #: includes/class-form-plant.php:441
 msgid "Please select an image file."
 msgstr ""
 
-#: includes/class-embed.php:346
+#: includes/class-embed.php:353
 #: includes/class-form-plant.php:444
 msgid "A server error occurred. Please try again."
 msgstr ""
 
-#: includes/class-embed.php:347
+#: includes/class-embed.php:354
 #: includes/class-form-plant.php:445
 msgid "An error occurred. Please try again."
 msgstr ""
 
-#: includes/class-embed.php:348
+#: includes/class-embed.php:355
 #: includes/class-form-plant.php:446
 msgid "reCAPTCHA verification failed. Please reload the page and try again."
 msgstr ""
@@ -2426,15 +2433,15 @@ msgstr ""
 
 #: includes/class-field-manager.php:669
 #: includes/class-field-manager.php:712
-#: includes/class-submission-manager.php:1318
-#: includes/class-submission-manager.php:1363
+#: includes/class-submission-manager.php:1345
+#: includes/class-submission-manager.php:1390
 msgid "Please confirm your input"
 msgstr ""
 
 #: includes/class-field-manager.php:672
 #: includes/class-field-manager.php:718
-#: includes/class-submission-manager.php:1321
-#: includes/class-submission-manager.php:1369
+#: includes/class-submission-manager.php:1348
+#: includes/class-submission-manager.php:1396
 msgid "Please review your input below and click submit to complete."
 msgstr ""
 
@@ -3227,17 +3234,17 @@ msgid "All"
 msgstr ""
 
 #: includes/class-form-list-table.php:128
-#: includes/class-form-list-table.php:357
+#: includes/class-form-list-table.php:356
 msgid "Trash"
 msgstr ""
 
 #: includes/class-form-list-table.php:191
-#: includes/class-form-list-table.php:375
+#: includes/class-form-list-table.php:376
 msgid "Restore"
 msgstr ""
 
 #: includes/class-form-list-table.php:192
-#: includes/class-form-list-table.php:384
+#: includes/class-form-list-table.php:385
 msgid "Delete Permanently"
 msgstr ""
 
@@ -3245,74 +3252,74 @@ msgstr ""
 msgid "(No Title)"
 msgstr ""
 
-#: includes/class-form-list-table.php:383
+#: includes/class-form-list-table.php:384
 msgid "Are you sure you want to delete this permanently? This action cannot be undone."
 msgstr ""
 
-#: includes/class-form-list-table.php:398
-#: includes/class-form-list-table.php:764
+#: includes/class-form-list-table.php:399
+#: includes/class-form-list-table.php:765
 msgid "Quick Edit"
 msgstr ""
 
-#: includes/class-form-list-table.php:406
+#: includes/class-form-list-table.php:407
 msgid "Duplicate"
 msgstr ""
 
 #. translators: %d: number of remaining fields
-#: includes/class-form-list-table.php:484
+#: includes/class-form-list-table.php:485
 #, php-format
 msgid "and %d more..."
 msgstr ""
 
-#: includes/class-form-list-table.php:508
+#: includes/class-form-list-table.php:509
 msgid "HTML Template"
 msgstr ""
 
-#: includes/class-form-list-table.php:511
+#: includes/class-form-list-table.php:512
 msgid "Confirmation"
 msgstr ""
 
-#: includes/class-form-list-table.php:514
+#: includes/class-form-list-table.php:515
 msgid "Confirmation HTML"
 msgstr ""
 
-#: includes/class-form-list-table.php:535
+#: includes/class-form-list-table.php:536
 msgid "Admin Notification"
 msgstr ""
 
-#: includes/class-form-list-table.php:538
+#: includes/class-form-list-table.php:539
 msgid "Auto Reply"
 msgstr ""
 
-#: includes/class-form-list-table.php:560
+#: includes/class-form-list-table.php:561
 msgid "Redirect"
 msgstr ""
 
-#: includes/class-form-list-table.php:561
+#: includes/class-form-list-table.php:562
 msgid "Custom Page"
 msgstr ""
 
-#: includes/class-form-list-table.php:583
+#: includes/class-form-list-table.php:584
 msgid "Metadata Only"
 msgstr ""
 
-#: includes/class-form-list-table.php:584
+#: includes/class-form-list-table.php:585
 msgid "Full"
 msgstr ""
 
-#: includes/class-form-list-table.php:645
+#: includes/class-form-list-table.php:646
 msgid "Rate Limit"
 msgstr ""
 
-#: includes/class-form-list-table.php:649
+#: includes/class-form-list-table.php:650
 msgid "Time Check"
 msgstr ""
 
-#: includes/class-form-list-table.php:744
+#: includes/class-form-list-table.php:745
 msgid "No forms found in Trash."
 msgstr ""
 
-#: includes/class-form-list-table.php:775
+#: includes/class-form-list-table.php:776
 #: includes/class-form-plant.php:603
 msgid "Status"
 msgstr ""
@@ -3709,79 +3716,87 @@ msgid ""
 "We will get back to you shortly."
 msgstr ""
 
-#: includes/class-rest-api.php:295
-#: includes/class-rest-api.php:519
-#: includes/class-rest-api.php:639
+#: includes/class-rest-api.php:304
+#: includes/class-rest-api.php:537
+#: includes/class-rest-api.php:666
 msgid "JS embedding is not allowed for this form"
 msgstr ""
 
-#: includes/class-rest-api.php:500
-#: includes/class-rest-api.php:620
-#: includes/class-submission-manager.php:216
-#: includes/class-submission-manager.php:372
+#: includes/class-rest-api.php:509
+#: includes/class-rest-api.php:638
+#: includes/class-submission-manager.php:225
+#: includes/class-submission-manager.php:390
 msgid "Invalid data format"
 msgstr ""
 
-#: includes/class-rest-api.php:543
-#: includes/class-rest-api.php:663
+#: includes/class-rest-api.php:528
+#: includes/class-rest-api.php:657
+#: includes/class-submission-manager.php:60
+#: includes/class-submission-manager.php:235
+#: includes/class-submission-manager.php:408
+msgid "This form is currently unavailable."
+msgstr ""
+
+#: includes/class-rest-api.php:561
+#: includes/class-rest-api.php:690
 msgid "Submissions from this domain are not allowed"
 msgstr ""
 
-#: includes/class-rest-api.php:684
-#: includes/class-rest-api.php:693
-#: includes/class-submission-manager.php:290
-#: includes/class-submission-manager.php:299
+#: includes/class-rest-api.php:711
+#: includes/class-rest-api.php:720
+#: includes/class-submission-manager.php:308
+#: includes/class-submission-manager.php:317
 msgid "Submission was blocked. Please try again later."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/class-rest-api.php:760
-#: includes/class-rest-api.php:782
-#: includes/class-submission-manager.php:245
-#: includes/class-submission-manager.php:267
-#: includes/class-submission-manager.php:409
-#: includes/class-submission-manager.php:431
+#: includes/class-rest-api.php:787
+#: includes/class-rest-api.php:809
+#: includes/class-submission-manager.php:263
+#: includes/class-submission-manager.php:285
+#: includes/class-submission-manager.php:436
+#: includes/class-submission-manager.php:458
 #, php-format
 msgid "%s: This email address cannot be used"
 msgstr ""
 
-#: includes/class-rest-api.php:811
+#: includes/class-rest-api.php:838
 msgid "Submission processing failed"
 msgstr ""
 
-#: includes/class-rest-api.php:824
-#: includes/class-submission-manager.php:143
+#: includes/class-rest-api.php:851
+#: includes/class-submission-manager.php:152
 msgid "Submission completed"
 msgstr ""
 
-#: includes/class-rest-api.php:866
+#: includes/class-rest-api.php:893
 msgid "reCAPTCHA verification is required"
 msgstr ""
 
-#: includes/class-rest-api.php:887
+#: includes/class-rest-api.php:914
 msgid "An error occurred during reCAPTCHA verification"
 msgstr ""
 
-#: includes/class-rest-api.php:898
-#: includes/class-submission-manager.php:801
-#: includes/class-submission-manager.php:824
+#: includes/class-rest-api.php:925
+#: includes/class-submission-manager.php:828
+#: includes/class-submission-manager.php:851
 msgid "reCAPTCHA verification failed"
 msgstr ""
 
-#: includes/class-rest-api.php:909
+#: includes/class-rest-api.php:936
 msgid "Submission was blocked due to suspected spam activity"
 msgstr ""
 
-#: includes/class-rest-api.php:936
+#: includes/class-rest-api.php:963
 msgid "Cloudflare Turnstile verification is required"
 msgstr ""
 
-#: includes/class-rest-api.php:957
+#: includes/class-rest-api.php:984
 msgid "An error occurred during Cloudflare Turnstile verification"
 msgstr ""
 
-#: includes/class-rest-api.php:968
-#: includes/class-submission-manager.php:856
+#: includes/class-rest-api.php:995
+#: includes/class-submission-manager.php:883
 msgid "Cloudflare Turnstile verification failed"
 msgstr ""
 
@@ -3789,84 +3804,88 @@ msgstr ""
 msgid "Form ID is not specified"
 msgstr ""
 
-#: includes/class-submission-manager.php:121
+#: includes/class-shortcode.php:86
+msgid "Preview: This form is not published yet, so it is hidden from visitors. Only users who can edit it can see it."
+msgstr ""
+
+#: includes/class-submission-manager.php:130
 msgid "Failed to save data"
 msgstr ""
 
-#: includes/class-submission-manager.php:475
+#: includes/class-submission-manager.php:502
 msgid "Validation successful"
 msgstr ""
 
-#: includes/class-submission-manager.php:760
+#: includes/class-submission-manager.php:787
 msgid "Invalid CAPTCHA type"
 msgstr ""
 
-#: includes/class-submission-manager.php:795
+#: includes/class-submission-manager.php:822
 msgid "reCAPTCHA configuration is incomplete"
 msgstr ""
 
-#: includes/class-submission-manager.php:818
+#: includes/class-submission-manager.php:845
 msgid "Failed to communicate with reCAPTCHA server"
 msgstr ""
 
-#: includes/class-submission-manager.php:833
+#: includes/class-submission-manager.php:860
 msgid "Suspected spam detected"
 msgstr ""
 
-#: includes/class-submission-manager.php:850
+#: includes/class-submission-manager.php:877
 msgid "Cloudflare Turnstile configuration is incomplete"
 msgstr ""
 
-#: includes/class-submission-manager.php:873
+#: includes/class-submission-manager.php:900
 msgid "Failed to communicate with Cloudflare Turnstile server"
 msgstr ""
 
 #. translators: %s: error code from Cloudflare Turnstile
-#: includes/class-submission-manager.php:884
+#: includes/class-submission-manager.php:911
 #, php-format
 msgid "Cloudflare Turnstile verification failed: %s"
 msgstr ""
 
 #. translators: %s: field name
-#: includes/class-submission-manager.php:1017
-#: includes/class-submission-manager.php:1136
-#: includes/class-submission-manager.php:1593
+#: includes/class-submission-manager.php:1044
+#: includes/class-submission-manager.php:1163
+#: includes/class-submission-manager.php:1620
 #, php-format
 msgid "Failed to upload %s"
 msgstr ""
 
-#: includes/class-submission-manager.php:1033
-#: includes/class-submission-manager.php:1081
+#: includes/class-submission-manager.php:1060
+#: includes/class-submission-manager.php:1108
 msgid "This file type cannot be uploaded"
 msgstr ""
 
-#: includes/class-submission-manager.php:1042
-#: includes/class-submission-manager.php:1106
+#: includes/class-submission-manager.php:1069
+#: includes/class-submission-manager.php:1133
 msgid "Invalid filename"
 msgstr ""
 
-#: includes/class-submission-manager.php:1188
-#: includes/class-submission-manager.php:1245
+#: includes/class-submission-manager.php:1215
+#: includes/class-submission-manager.php:1272
 msgid "Failed to create upload directory"
 msgstr ""
 
-#: includes/class-submission-manager.php:1221
+#: includes/class-submission-manager.php:1248
 msgid "Invalid upload directory"
 msgstr ""
 
-#: includes/class-submission-manager.php:1240
+#: includes/class-submission-manager.php:1267
 msgid "Upload directory must be inside the uploads folder"
 msgstr ""
 
 #. translators: 1: field label, 2: max file size
-#: includes/class-submission-manager.php:1606
+#: includes/class-submission-manager.php:1633
 #: includes/class-validator.php:493
 #, php-format
 msgid "%1$s file size must be %2$sMB or less"
 msgstr ""
 
 #. translators: 1: field label, 2: allowed file types
-#: includes/class-submission-manager.php:1624
+#: includes/class-submission-manager.php:1651
 #: includes/class-validator.php:507
 #, php-format
 msgid "%1$s only accepts %2$s files"
@@ -3979,20 +3998,20 @@ msgstr ""
 msgid "Custom Mail Tag \"%s\" was migrated. Please update the filter hook that provides its value from mwform_custom_mail_tag_* to fplant_custom_mail_tag_value_*."
 msgstr ""
 
-#. translators: 1: original name, 2: translated name.
+#. translators: 1: original field name, 2: field label (kept from the original name), 3: converted field name.
 #: includes/migration/class-mwwpform-field-mapper.php:226
 #, php-format
-msgid "Field name \"%1$s\" was converted to \"%2$s\"."
+msgid "Field name \"%1$s\" was converted to label \"%2$s\" and field name \"%3$s\"."
 msgstr ""
 
 #. translators: 1: field name, 2: skipped attribute list.
-#: includes/migration/class-mwwpform-field-mapper.php:315
+#: includes/migration/class-mwwpform-field-mapper.php:316
 #, php-format
 msgid "The following attributes of field \"%1$s\" will not be migrated: %2$s"
 msgstr ""
 
 #. translators: 1: field type, 2: original field name, 3: attribute name, 4: attribute value.
-#: includes/migration/class-mwwpform-field-mapper.php:374
+#: includes/migration/class-mwwpform-field-mapper.php:375
 #, php-format
 msgid "The %3$s attribute (%4$s) of the %1$s field \"%2$s\" is not supported in Form Plant and will not be applied."
 msgstr ""
@@ -4004,71 +4023,81 @@ msgid "The specified MW WP Form post (ID: %d) was not found."
 msgstr ""
 
 #. translators: %s: shortcode name.
-#: includes/migration/class-mwwpform-migrator.php:156
+#: includes/migration/class-mwwpform-migrator.php:158
+#, php-format
+msgid "[%s] is migrated to Form Plant's built-in button feature (its text and class are carried over)."
+msgstr ""
+
+#. translators: %s: shortcode name.
+#: includes/migration/class-mwwpform-migrator.php:175
 #, php-format
 msgid "[%s] is auto-generated by Form Plant and is therefore excluded from migration."
 msgstr ""
 
 #. translators: %s: shortcode name.
-#: includes/migration/class-mwwpform-migrator.php:168
+#: includes/migration/class-mwwpform-migrator.php:187
 #, php-format
 msgid "[%s] is an unsupported shortcode and was skipped."
 msgstr ""
 
 #. translators: %d: form id.
-#: includes/migration/class-mwwpform-migrator.php:208
+#: includes/migration/class-mwwpform-migrator.php:227
 #, php-format
 msgid "The previously migrated form (ID: %d) will be kept as-is; a new Form Plant form will be created."
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/migration/class-mwwpform-migrator.php:243
+#: includes/migration/class-mwwpform-migrator.php:264
 #, php-format
 msgid "Failed to create the form: %s"
 msgstr ""
 
-#: includes/migration/class-mwwpform-migrator.php:274
+#: includes/migration/class-mwwpform-migrator.php:281
+msgid "The form was created as published. You can try it right away by selecting it in the block editor or pasting its shortcode."
+msgstr ""
+
+#: includes/migration/class-mwwpform-migrator.php:302
 msgid "Failed to save form settings."
 msgstr ""
 
 #. translators: 1: field name, 2: number of fields sharing it.
-#: includes/migration/class-mwwpform-migrator.php:424
+#: includes/migration/class-mwwpform-migrator.php:452
 #, php-format
 msgid "After migration, %2$d fields share the same name \"%1$s\". HTML forms send same-named fields as a single value, so their input may be lost on submission. Please give them unique names in the migrated form."
 msgstr ""
 
-#: includes/migration/class-mwwpform-migrator.php:492
-msgid "The migrated form's form design has been set to \"none\" (Form Plant decorative CSS will not be applied). If you want to retain the original MW WP Form appearance, adjust the CSS in the layout settings as needed."
+#: includes/migration/class-mwwpform-migrator.php:523
+msgid "The migrated form uses Form Plant's standard design. The layout reproduced from MW WP Form was saved as an HTML template but is turned off by default; enable it in the layout settings to use the original layout."
 msgstr ""
 
-#: includes/migration/class-mwwpform-migrator.php:631
+#: includes/migration/class-mwwpform-migrator.php:660
 msgid "(Untitled)"
 msgstr ""
 
 #. translators: 1: original form title, 2: timestamp YYYY-MM-DD HH:MM:SS
-#: includes/migration/class-mwwpform-migrator.php:634
+#: includes/migration/class-mwwpform-migrator.php:663
 #, php-format
-msgid "%1$s(from WP MW Form %2$s)"
+msgid "%1$s(from MW WP Form %2$s)"
 msgstr ""
 
-#: includes/migration/class-mwwpform-migrator.php:666
+#: includes/migration/class-mwwpform-migrator.php:695
 msgid "A completion URL is set, so redirect takes priority. The completion screen message will not be used (MW WP Form also prioritises the URL over the message)."
 msgstr ""
 
 #. translators: %s: URL value
-#: includes/migration/class-mwwpform-migrator.php:682
+#: includes/migration/class-mwwpform-migrator.php:711
 #, php-format
 msgid "The MW WP Form input screen URL \"%s\" will not be migrated because in Form Plant the page where the form is placed serves as the input screen."
 msgstr ""
 
 #. translators: %s: URL value
-#: includes/migration/class-mwwpform-migrator.php:687
+#: includes/migration/class-mwwpform-migrator.php:716
 #, php-format
 msgid "The MW WP Form confirmation screen URL \"%s\" will not be migrated because in Form Plant the confirmation screen is displayed within the form's page."
 msgstr ""
 
 #. translators: %s: URL value
-#: includes/migration/class-mwwpform-migrator.php:692
+#: includes/migration/class-mwwpform-migrator.php:721
 #, php-format
 msgid "The MW WP Form validation error screen URL \"%s\" will not be migrated because in Form Plant validation errors are displayed within the form's page."
 msgstr ""

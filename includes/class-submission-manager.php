@@ -52,6 +52,15 @@ class FPLANT_Submission_Manager {
 			);
 		}
 
+		// Safety guard: never process submissions for non-published forms
+		// (editors may test-submit). Front-end handlers also check this earlier.
+		if ( ! FPLANT_Database::is_form_submittable( $form ) ) {
+			return array(
+				'success' => false,
+				'message' => __( 'This form is currently unavailable.', 'form-plant' ),
+			);
+		}
+
 		// Expand address composite field sub-values into individual keys
 		$data = self::expand_address_fields( $data, $form['fields'] );
 
@@ -219,6 +228,15 @@ class FPLANT_Submission_Manager {
 		// Get form data for spam/CAPTCHA checks
 		$form = FPLANT_Database::get_form( $form_id );
 
+		// Reject submissions to non-published forms (editors may test-submit).
+		if ( $form && ! FPLANT_Database::is_form_submittable( $form ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'This form is currently unavailable.', 'form-plant' ),
+				)
+			);
+		}
+
 		if ( $form ) {
 			// Honeypot check
 			$fplant_hp_enabled = ( $form['settings']['spam_honeypot_enabled'] ?? true ) !== false;
@@ -379,6 +397,15 @@ class FPLANT_Submission_Manager {
 			wp_send_json_error(
 				array(
 					'message' => __( 'Form not found', 'form-plant' ),
+				)
+			);
+		}
+
+		// Reject validation for non-published forms (editors may test).
+		if ( ! FPLANT_Database::is_form_submittable( $form ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'This form is currently unavailable.', 'form-plant' ),
 				)
 			);
 		}

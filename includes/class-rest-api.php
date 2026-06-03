@@ -288,6 +288,15 @@ class FPLANT_REST_API {
 			);
 		}
 
+		// Respect the form's publish status (hide non-published forms from visitors).
+		if ( ! FPLANT_Database::is_form_viewable( $form ) ) {
+			return new WP_Error(
+				'form_not_found',
+				__( 'Form not found', 'form-plant' ),
+				array( 'status' => 404 )
+			);
+		}
+
 		// Check if JS embedding is allowed
 		if ( empty( $form['settings']['embed_js_enabled'] ) ) {
 			return new WP_Error(
@@ -512,6 +521,15 @@ class FPLANT_REST_API {
 			);
 		}
 
+		// Reject validation/submission for non-published forms (editors may test).
+		if ( ! FPLANT_Database::is_form_submittable( $form ) ) {
+			return new WP_Error(
+				'form_unavailable',
+				__( 'This form is currently unavailable.', 'form-plant' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		// Check if JS embedding is allowed.
 		if ( empty( $form['settings']['embed_js_enabled'] ) ) {
 			return new WP_Error(
@@ -629,6 +647,15 @@ class FPLANT_REST_API {
 				'form_not_found',
 				__( 'Form not found', 'form-plant' ),
 				array( 'status' => 404 )
+			);
+		}
+
+		// Reject submissions to non-published forms (editors may test-submit).
+		if ( ! FPLANT_Database::is_form_submittable( $form ) ) {
+			return new WP_Error(
+				'form_unavailable',
+				__( 'This form is currently unavailable.', 'form-plant' ),
+				array( 'status' => 403 )
 			);
 		}
 

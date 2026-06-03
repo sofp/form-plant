@@ -23,6 +23,9 @@ $fplant_mwwpform_supported = FPLANT_Migration_Admin::is_supported_version();
 		<p>
 			<?php esc_html_e( 'Converts MW WP Form form definitions into Form Plant forms. Fields, mail settings, and merge tags are migrated automatically; items that could not be migrated are shown in the warning report.', 'form-plant' ); ?>
 		</p>
+		<p class="description">
+			<?php esc_html_e( 'Migrated forms are created as published with Form Plant\'s standard design. The layout from MW WP Form is saved as an HTML template but disabled by default; enable it in the form\'s layout settings if you want to use it.', 'form-plant' ); ?>
+		</p>
 
 		<?php if ( ! $fplant_mwwpform_supported ) : ?>
 			<div class="notice notice-error inline">

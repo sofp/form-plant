@@ -65,6 +65,13 @@ class FPLANT_Embed {
 			return;
 		}
 
+		// Respect the form's publish status. Hide non-published forms from
+		// visitors (only users who can edit the form may preview them).
+		if ( ! FPLANT_Database::is_form_viewable( $form ) ) {
+			$this->send_error( 404, __( 'Form not found', 'form-plant' ) );
+			return;
+		}
+
 		// Check if iframe embedding is allowed
 		if ( empty( $form['settings']['embed_iframe_enabled'] ) ) {
 			$this->send_error( 403, __( 'Iframe embedding is not allowed for this form', 'form-plant' ) );

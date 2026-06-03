@@ -347,19 +347,20 @@ class FPLANT_Form_List_Table extends WP_List_Table {
 			esc_html( $item['title'] ? $item['title'] : __( '(No Title)', 'form-plant' ) )
 		);
 
-		// Status display
-		$status_label = '';
-		if ( 'publish' !== $item['status'] ) {
-			$status_labels = array(
-				'private' => __( 'Private', 'form-plant' ),
-				'draft'   => __( 'Draft', 'form-plant' ),
-				'pending' => __( 'Pending Review', 'form-plant' ),
-				'trash'   => __( 'Trash', 'form-plant' ),
-			);
-			if ( isset( $status_labels[ $item['status'] ] ) ) {
-				$status_label = ' &mdash; ' . $status_labels[ $item['status'] ];
-			}
-		}
+		// Status badge (shown for every status, including published).
+		$status_labels = array(
+			'publish' => __( 'Published', 'form-plant' ),
+			'private' => __( 'Private', 'form-plant' ),
+			'draft'   => __( 'Draft', 'form-plant' ),
+			'pending' => __( 'Pending Review', 'form-plant' ),
+			'trash'   => __( 'Trash', 'form-plant' ),
+		);
+		$status_text  = isset( $status_labels[ $item['status'] ] ) ? $status_labels[ $item['status'] ] : $item['status'];
+		$status_label = sprintf(
+			' <span class="fplant-status-badge fplant-status-%s">%s</span>',
+			esc_attr( $item['status'] ),
+			esc_html( $status_text )
+		);
 
 		// Row actions
 		$actions = array();

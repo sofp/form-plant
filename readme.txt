@@ -3,7 +3,7 @@ Contributors: reiji-sato
 Tags: contact form, confirmation, mw wp form, csv export, recaptcha
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -154,6 +154,13 @@ Yes, the File Upload field type allows users to upload files with configurable s
 6. One-click migration from MW WP Form, with a report of converted fields and items that need manual review.
 
 == Changelog ==
+
+= 1.2.1 =
+* Important: Forms now respect their publish status. Private, draft, and pending forms are no longer shown to or submittable by visitors; only users who can edit a form can preview and test-submit it. Published forms are unaffected. To restore the previous behavior, use the new `fplant_form_is_viewable` / `fplant_form_is_submittable` filters.
+* New: The forms list now shows a colored status badge (published, private, draft, pending) next to each form title.
+* Change: Migrating from MW WP Form now creates the new form as published with Form Plant's standard design, so it works right after placing the shortcode. The MW WP Form layout is still saved as an HTML template but is disabled by default; enable it from the layout settings to use the original layout.
+* Fix: Forms embedded via iframe could not be submitted when the time-based spam check was enabled, because the form timestamp field was missing from the iframe template.
+* Developer: Added `fplant_form_is_viewable`, `fplant_form_is_submittable`, and `fplant_preview_notice` filters to control front-end visibility, submission, and the editor preview notice per form.
 
 = 1.2.0 =
 * New: MW WP Form migration tool. Convert existing MW WP Form forms — fields, validation rules, admin and auto-reply mail settings, and merge tags — into Form Plant forms, with a warning report for items that need manual review. Available under Form Plant → Tools while MW WP Form is active.

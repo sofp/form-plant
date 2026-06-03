@@ -55,10 +55,48 @@ class FPLANT_Shortcode {
 			return '<p>' . esc_html__( 'Form not found', 'form-plant' ) . '</p>';
 		}
 
+		// Respect the form's publish status. Non-published forms (private/
+		// draft/pending) are hidden from visitors; only users who can edit
+		// the form can preview them.
+		if ( ! FPLANT_Database::is_form_viewable( $form ) ) {
+			return '';
+		}
+
 		// Load template
 		ob_start();
 		$this->load_template( 'form-wrapper', array( 'form' => $form ) );
-		return ob_get_clean();
+		$output = ob_get_clean();
+
+		// Show a preview notice to editors when the form is not published.
+		if ( 'publish' !== $form['status'] ) {
+			$output = $this->get_preview_notice( $form ) . $output;
+		}
+
+		return $output;
+	}
+
+	/**
+	 * Preview notice shown to editors when a non-published form is rendered.
+	 *
+	 * @param array $form Form data.
+	 * @return string
+	 */
+	private function get_preview_notice( $form ) {
+		$notice = '<div class="fplant-preview-notice" role="status" style="margin:0 0 12px;padding:10px 14px;border-left:4px solid #d98300;background:#fff8ec;color:#5d4200;font-size:14px;border-radius:2px;">'
+			. esc_html__( 'Preview: This form is not published yet, so it is hidden from visitors. Only users who can edit it can see it.', 'form-plant' )
+			. '</div>';
+
+		/**
+		 * Filter the preview notice shown to editors for non-published forms.
+		 *
+		 * Return an empty string to hide the notice, or replace it with your
+		 * own markup — for example when granting members access to a private
+		 * form via the fplant_form_is_viewable filter.
+		 *
+		 * @param string $notice The notice HTML.
+		 * @param array  $form   Form data.
+		 */
+		return apply_filters( 'fplant_preview_notice', $notice, $form );
 	}
 
 	/**

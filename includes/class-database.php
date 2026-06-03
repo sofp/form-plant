@@ -91,6 +91,73 @@ class FPLANT_Database {
 	}
 
 	/**
+	 * Determine whether a form may be displayed on the front end.
+	 *
+	 * Published forms are visible to everyone. Non-published forms
+	 * (private/draft/pending) are visible only to users who can edit the
+	 * form, so they can preview it before publishing.
+	 *
+	 * @param array $form Form data from get_form().
+	 * @return bool
+	 */
+	public static function is_form_viewable( $form ) {
+		$viewable = self::user_can_access_form( $form );
+
+		/**
+		 * Filter whether a form may be displayed on the front end.
+		 *
+		 * Return true to always display a form regardless of its status
+		 * (for example, to restore the pre-1.2.1 behavior).
+		 *
+		 * @param bool  $viewable Whether the form may be displayed.
+		 * @param array $form     Form data.
+		 */
+		return (bool) apply_filters( 'fplant_form_is_viewable', $viewable, $form );
+	}
+
+	/**
+	 * Determine whether a form may accept submissions.
+	 *
+	 * @param array $form Form data from get_form().
+	 * @return bool
+	 */
+	public static function is_form_submittable( $form ) {
+		$submittable = self::user_can_access_form( $form );
+
+		/**
+		 * Filter whether a form accepts submissions.
+		 *
+		 * @param bool  $submittable Whether the form accepts submissions.
+		 * @param array $form        Form data.
+		 */
+		return (bool) apply_filters( 'fplant_form_is_submittable', $submittable, $form );
+	}
+
+	/**
+	 * Shared default access logic for viewing/submitting a form.
+	 *
+	 * @param array $form Form data.
+	 * @return bool
+	 */
+	private static function user_can_access_form( $form ) {
+		if ( empty( $form ) || ! isset( $form['status'] ) ) {
+			return false;
+		}
+
+		// Published forms are accessible to everyone.
+		if ( 'publish' === $form['status'] ) {
+			return true;
+		}
+
+		// Non-published forms: only users who can edit the form (preview).
+		$form_id = isset( $form['id'] ) ? (int) $form['id'] : 0;
+
+		return $form_id > 0
+			&& is_user_logged_in()
+			&& current_user_can( 'edit_post', $form_id );
+	}
+
+	/**
 	 * Get form metadata
 	 *
 	 * @param int    $form_id  Form ID
