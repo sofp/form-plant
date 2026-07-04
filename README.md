@@ -17,12 +17,16 @@ Many form plugins require extra extensions for confirmation pages or data manage
 - **CSV export** — Download submission data anytime for reporting or backup.
 - **Embed on external sites** — Display your forms on any website via iframe or JavaScript snippet, not just within WordPress.
 - **Migrate from MW WP Form** — Import your existing MW WP Form forms — fields, validation rules, and mail settings — with the built-in migration tool. No need to rebuild from scratch.
-- **Quick setup** — An intuitive modal UI lets you build forms without touching code.
+- **Quick setup** — An intuitive ACF-style accordion editor lets you build forms without touching code.
+- **No-code design** — Adjust colors, sizes, and spacing from the admin screen with a live preview.
 - **Flexible customization** — Custom HTML templates, validation messages, and post-submission actions give you full control when you need it.
 
 ## Features
 
-- Intuitive modal UI for field configuration
+- Intuitive ACF-style accordion UI for field configuration, with an icon-based field type picker
+- Design adjustments with a live preview — customize colors, sizes, and spacing without CSS
+- Per-field descriptions in three positions (below label / above input / below input, HTML allowed)
+- Theme-context form preview with desktop / tablet / mobile switching
 - Block editor (Gutenberg) integration — embed forms with the dedicated "Form Plant" block
 - MW WP Form migration tool — convert existing forms, validation rules, and mail settings into Form Plant forms
 - Email notifications (admin notification and auto-reply)
@@ -67,9 +71,10 @@ See [LICENSE.txt](LICENSE.txt) for details.
 ## Support
 
 - GitHub Repository: https://github.com/sofp/form-plant
-- Detailed documentation: See the "Settings" page within the plugin
+- User manual: https://www.sofplant.com/form-plant/
+- WordPress.org: https://wordpress.org/plugins/form-plant/
 
 ## Developer Information
 
 - **Author**: SOFPLANT
-- **Version**: 1.2.0
+- **Version**: 1.3.0

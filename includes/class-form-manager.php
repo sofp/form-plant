@@ -96,7 +96,7 @@ class FPLANT_Form_Manager {
 		// Field definitions
 		if ( isset( $data['fields'] ) ) {
 			// Allow HTML in description field
-			$html_allowed_keys = array( 'description', 'content' );
+			$html_allowed_keys = array( 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input' );
 			$sanitized_fields  = self::sanitize_array_recursive( $data['fields'], $html_allowed_keys );
 			FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_FIELDS, $sanitized_fields );
 			$updated = true;
@@ -379,7 +379,7 @@ class FPLANT_Form_Manager {
 
 		// Save form data
 		if ( isset( $_POST['fplant_form_data'] ) ) {
-			$html_allowed_keys = array( 'description', 'content', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
+			$html_allowed_keys = array( 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_json_input().
 			$form_data = self::sanitize_json_input( wp_unslash( $_POST['fplant_form_data'] ), $html_allowed_keys );
 			if ( null === $form_data ) {

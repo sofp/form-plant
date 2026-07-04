@@ -40,6 +40,13 @@ class FPLANT_Form_List_Table extends WP_List_Table {
 	private $form_meta_cache = array();
 
 	/**
+	 * Field type => icon class map, built lazily from FPLANT_Field_Manager.
+	 *
+	 * @var array|null
+	 */
+	private $field_type_icons = null;
+
+	/**
 	 * Constructor
 	 *
 	 * @param array $column_options Column display options.
@@ -468,18 +475,22 @@ class FPLANT_Form_List_Table extends WP_List_Table {
 		$output  = array();
 
 		foreach ( $display as $field ) {
+			$icon  = $this->get_field_type_icon( isset( $field['type'] ) ? $field['type'] : '' );
 			$label = esc_html( ! empty( $field['label'] ) ? $field['label'] : $field['name'] );
 			if ( ! empty( $field['required'] ) ) {
 				$label .= '<span class="fplant-required">*</span>';
 			}
-			$output[] = $label;
+			$output[] = '<span class="fplant-field-name-item">'
+				. '<span class="dashicons ' . esc_attr( $icon ) . '" aria-hidden="true"></span>'
+				. '<span class="fplant-field-name-label">' . $label . '</span>'
+				. '</span>';
 		}
 
-		$html = implode( '<br>', $output );
+		$html = implode( '', $output );
 		if ( $total > $max ) {
 			$remaining = $total - $max;
 			$html     .= sprintf(
-				'<br><span class="description">%s</span>',
+				'<span class="description fplant-field-name-more">%s</span>',
 				sprintf(
 					/* translators: %d: number of remaining fields */
 					esc_html__( 'and %d more...', 'form-plant' ),
@@ -488,6 +499,25 @@ class FPLANT_Form_List_Table extends WP_List_Table {
 			);
 		}
 		return $html;
+	}
+
+	/**
+	 * Resolve a field type's icon class (dashicons or custom), built once from
+	 * the shared FPLANT_Field_Manager schema so the list matches the editor.
+	 *
+	 * @param string $type Field type key.
+	 * @return string Icon class, e.g. 'dashicons-edit'. Falls back to a generic icon.
+	 */
+	private function get_field_type_icon( $type ) {
+		if ( null === $this->field_type_icons ) {
+			$this->field_type_icons = array();
+			if ( class_exists( 'FPLANT_Field_Manager' ) ) {
+				foreach ( ( new FPLANT_Field_Manager() )->get_field_types() as $key => $cfg ) {
+					$this->field_type_icons[ $key ] = ! empty( $cfg['icon'] ) ? $cfg['icon'] : 'dashicons-forms';
+				}
+			}
+		}
+		return isset( $this->field_type_icons[ $type ] ) ? $this->field_type_icons[ $type ] : 'dashicons-forms';
 	}
 
 	/**

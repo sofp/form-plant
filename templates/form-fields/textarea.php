@@ -19,9 +19,11 @@ if ( ! empty( $field['class'] ) ) {
 if ( ! empty( $field['custom_class'] ) ) {
 	$field_class .= ' ' . esc_attr( $field['custom_class'] );
 }
-$rows      = ! empty( $field['rows'] ) ? absint( $field['rows'] ) : 5;
-$cols      = ! empty( $field['cols'] ) ? absint( $field['cols'] ) : null;
-$maxlength = ! empty( $field['maxlength'] ) ? absint( $field['maxlength'] ) : null;
+$rows = ! empty( $field['rows'] ) ? absint( $field['rows'] ) : 5;
+$cols = ! empty( $field['cols'] ) ? absint( $field['cols'] ) : null;
+// Max length is enforced as a validation rule (validation.max_length) rather than
+// the hard HTML maxlength attribute, so the user can exceed it and see the
+// (optionally customized) error message instead of being silently capped.
 ?>
 
 <textarea
@@ -31,9 +33,6 @@ $maxlength = ! empty( $field['maxlength'] ) ? absint( $field['maxlength'] ) : nu
 	rows="<?php echo esc_attr( $rows ); ?>"
 	<?php if ( null !== $cols ) : ?>
 		cols="<?php echo esc_attr( $cols ); ?>"
-	<?php endif; ?>
-	<?php if ( null !== $maxlength ) : ?>
-		maxlength="<?php echo esc_attr( $maxlength ); ?>"
 	<?php endif; ?>
 	<?php if ( ! empty( $field['placeholder'] ) ) : ?>
 		placeholder="<?php echo esc_attr( $field['placeholder'] ); ?>"

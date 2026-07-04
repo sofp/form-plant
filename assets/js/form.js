@@ -1688,8 +1688,9 @@
 			const honeypotFieldName = honeypotInput ? honeypotInput.name : 'fplant_website_url';
 
 			for (const [key, value] of formData.entries()) {
-				// Skip internal fields starting with fplant_ (but keep honeypot and timestamp for server-side check)
-				if (key.indexOf('fplant_') === 0 && key !== honeypotFieldName && key !== 'fplant_form_ts') {
+				// Skip internal fields starting with fplant_ (but keep honeypot, timestamp
+				// and the preview-route flag for server-side handling)
+				if (key.indexOf('fplant_') === 0 && key !== honeypotFieldName && key !== 'fplant_form_ts' && key !== 'fplant_preview') {
 					continue;
 				}
 

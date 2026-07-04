@@ -3,7 +3,7 @@ Contributors: reiji-sato
 Tags: contact form, confirmation, mw wp form, csv export, recaptcha
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 1.2.2
+Stable tag: 1.3.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -28,12 +28,12 @@ Many form plugins require extra extensions for confirmation pages or data manage
 * **Submission data storage** — All form entries are saved in the database and manageable from the admin panel.
 * **CSV export** — Download submission data anytime for reporting or backup.
 * **Embed on external sites** — Display your forms on any website via iframe or JavaScript snippet, not just within WordPress.
-* **Quick setup** — An intuitive modal UI lets you build forms without touching code.
+* **Quick setup** — An intuitive ACF-style accordion editor lets you build forms without touching code.
 * **Flexible customization** — Custom HTML templates, validation messages, and post-submission actions give you full control when you need it.
 
 = Features =
 
-* Intuitive modal UI for field configuration
+* Intuitive ACF-style accordion UI for field configuration
 * Block editor (Gutenberg) integration — pick a form from a dropdown using the dedicated "Form Plant" block
 * MW WP Form migration tool — convert existing MW WP Form forms (fields, validation rules, admin and auto-reply mail settings, and merge tags) into Form Plant forms, with a warning report for items that need manual review (shown when MW WP Form is active)
 * Email notifications (admin notification and auto-reply)
@@ -146,14 +146,25 @@ Yes, the File Upload field type allows users to upload files with configurable s
 
 == Screenshots ==
 
-1. Intuitive modal UI for easy and clear field configuration.
+1. Intuitive accordion field editor — fields expand in place with Basic, Validation, and Advanced tabs.
 2. Freely customizable confirmation screen layout.
 3. Email notification settings for admin and auto-reply.
 4. Submission data management with CSV export support.
 5. Embed forms on external sites via iframe or JavaScript.
 6. One-click migration from MW WP Form, with a report of converted fields and items that need manual review.
+7. Icon-based field type picker for quick field creation.
+8. Design adjustments with a live preview — customize colors and sizes from the admin screen without CSS.
 
 == Changelog ==
+
+= 1.3.0 =
+* New: Redesigned field editor. Fields now open inline as an accordion with Basic / Validation / Advanced tabs, replacing the modal dialog.
+* New: Field type picker with icons for faster field creation.
+* New: Design adjustments. Customize the form frame, field labels, inputs, and buttons (colors, sizes, spacing, shadows) from the new Design tab with a live preview — no CSS required.
+* New: Per-field descriptions. Show help text below the label, above the input, and below the input (HTML allowed), configurable on the field's Advanced tab. Text color and size are adjustable in Design adjustments.
+* New: Form preview now renders in your theme context, with desktop / tablet / mobile viewport switching and zoom. Preview submissions run validation only and are never saved or emailed.
+* Change: The submit button is rendered through a template and can be overridden from your theme (`form-plant/form-fields/submit.php`).
+* Developer: Field types are filterable via `fplant_field_types`, and the field editor exposes an extension socket (`window.fplant.fields.registerTab`) for add-ons.
 
 = 1.2.2 =
 * Fix: The 3-part phone number and split postal code fields (added for MW WP Form migration) now follow the form's theme design. Previously the input boxes kept the plain default style and the field container's gray background and border leaked around them.

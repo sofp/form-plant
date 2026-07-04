@@ -210,6 +210,18 @@
 	margin: 5px 0;
 }
 
+/* Field description */
+.fplant-field-desc {
+	margin: 2px 0 6px;
+	font-size: 13px;
+	color: #646970;
+	line-height: 1.5;
+}
+
+.fplant-field-desc-after-input {
+	margin: 5px 0 0;
+}
+
 /* Field error */
 .fplant-field-error {
 	margin-top: 5px;

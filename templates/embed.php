@@ -43,7 +43,7 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 	<?php
 	$fplant_embed_wrapper_class = 'fplant-form-wrapper';
 	?>
-	<div class="<?php echo esc_attr( $fplant_embed_wrapper_class ); ?>" data-form-id="<?php echo esc_attr( $form_id ); ?>">
+	<div class="<?php echo esc_attr( $fplant_embed_wrapper_class ); ?>" id="fplant-form-<?php echo esc_attr( $form_id ); ?>" data-form-id="<?php echo esc_attr( $form_id ); ?>">
 		<?php
 		$fplant_embed_form_class = 'fplant-form';
 		if ( ! empty( $settings['form_tag_class'] ) ) {
@@ -121,11 +121,14 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 							</label>
 						<?php endif; ?>
 
+						<?php echo wp_kses_post( $field_manager->render_field_description( $field, 'after_label' ) ); ?>
+						<?php echo wp_kses_post( $field_manager->render_field_description( $field, 'before_input' ) ); ?>
 						<?php
 						// Render using template via render_field() method
 						echo wp_kses( $field_manager->render_field( $field, $field_value, $form_id, $settings ), fplant_get_allowed_form_html() );
 						?>
 						<div class="fplant-field-error" style="display: none;"></div>
+						<?php echo wp_kses_post( $field_manager->render_field_description( $field, 'after_input' ) ); ?>
 					</div>
 					<?php
 				endforeach;

@@ -78,6 +78,13 @@ class FPLANT_Form_Plant {
 	public $embed;
 
 	/**
+	 * Preview route
+	 *
+	 * @var FPLANT_Preview
+	 */
+	public $preview;
+
+	/**
 	 * Get singleton instance
 	 *
 	 * @return Form_Plant
@@ -111,6 +118,7 @@ class FPLANT_Form_Plant {
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-email-handler.php';
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-shortcode.php';
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-database.php';
+		require_once FPLANT_PLUGIN_DIR . 'includes/class-design-options.php';
 
 		// Admin
 		if ( is_admin() ) {
@@ -130,7 +138,9 @@ class FPLANT_Form_Plant {
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-rest-api.php';
 
 		// Embed
+		require_once FPLANT_PLUGIN_DIR . 'includes/class-rewrite-endpoint.php';
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-embed.php';
+		require_once FPLANT_PLUGIN_DIR . 'includes/class-preview.php';
 
 		// Block editor integration
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-block.php';
@@ -182,6 +192,9 @@ class FPLANT_Form_Plant {
 
 		// Initialize embed
 		$this->embed = new FPLANT_Embed();
+
+		// Initialize admin preview route (/fplant-preview/{id}/)
+		$this->preview = new FPLANT_Preview();
 
 		// Initialize block editor integration
 		new FPLANT_Block();
@@ -255,6 +268,22 @@ class FPLANT_Form_Plant {
 		preg_match_all( '/\[fplant\s+id="?(\d+)"?\]/', $post->post_content, $matches );
 		$form_ids = array_unique( $matches[1] );
 
+		$this->enqueue_form_assets( $form_ids );
+	}
+
+	/**
+	 * Enqueue all front-end assets for the given form IDs.
+	 *
+	 * Loads design/custom/inline CSS, form.js, per-form inline JS config, CAPTCHA
+	 * scripts and the password-strength meter. Extracted from enqueue_scripts() so it
+	 * can be driven directly by a form ID — e.g. the admin preview route
+	 * /fplant-preview/{id}/ — without relying on the global $post / shortcode
+	 * detection, guaranteeing the preview matches the production front-end exactly.
+	 *
+	 * @param array $form_ids Form IDs to load assets for.
+	 * @return void
+	 */
+	public function enqueue_form_assets( $form_ids ) {
 		// Whether to load default CSS (form.css) — skip when all forms use 'none'
 		$load_default_css = false;
 
@@ -314,6 +343,22 @@ class FPLANT_Form_Plant {
 					wp_enqueue_style( $handle, $css_url, array(), FPLANT_VERSION );
 					$inline_handle = $handle;
 					$css_file_index++;
+				}
+			}
+
+			// --- Design adjustments CSS (before custom inline CSS so the user's CSS comes later) ---
+
+			if ( 'none' !== $fplant_design_type ) {
+				$fplant_design_css = FPLANT_Design_Options::build_css(
+					'#fplant-form-' . absint( $form_id ),
+					$form['settings']['design_options'] ?? array()
+				);
+				if ( '' !== $fplant_design_css ) {
+					if ( $css_file_index > 0 ) {
+						wp_add_inline_style( $inline_handle, $fplant_design_css );
+					} else {
+						$inline_css_queue[] = $fplant_design_css;
+					}
 				}
 			}
 
@@ -616,17 +661,23 @@ class FPLANT_Form_Plant {
 			FPLANT_VERSION
 		);
 
+		// Color picker for the design adjustments UI
+		wp_enqueue_style( 'wp-color-picker' );
+
 		// Admin scripts
 		wp_enqueue_script(
 			'fplant-admin',
 			FPLANT_PLUGIN_URL . 'admin/js/admin.js',
-			array( 'jquery', 'jquery-ui-sortable' ),
+			array( 'jquery', 'jquery-ui-sortable', 'wp-color-picker' ),
 			FPLANT_VERSION,
 			true
 		);
 
 		// Get form data for form edit page
 		$form_data = array();
+		// Nonce for the theme-context preview route (/fplant-preview/{id}/). Only an
+		// existing, saved form can be previewed, so this stays empty for new forms.
+		$fplant_preview_nonce = '';
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only admin page URL params, not form submission
 		if ( isset( $_GET['page'] ) && 'fplant-form-new' === $_GET['page'] ) {
 			if ( isset( $_GET['id'] ) ) {
@@ -634,7 +685,8 @@ class FPLANT_Form_Plant {
 				$post_id = absint( $_GET['id'] );
 				$post    = get_post( $post_id );
 				if ( $post && 'fplant_form' === $post->post_type ) {
-					$form_data = FPLANT_Database::get_form( $post_id );
+					$form_data            = FPLANT_Database::get_form( $post_id );
+					$fplant_preview_nonce = wp_create_nonce( 'fplant_preview_' . $post_id );
 				}
 			} else {
 				// New form — set default fields and basic settings
@@ -657,8 +709,20 @@ class FPLANT_Form_Plant {
 				'ajaxUrl'            => admin_url( 'admin-ajax.php' ),
 				'nonce'              => wp_create_nonce( 'fplant_admin_nonce' ),
 				'formData'           => $form_data,
+				'fieldTypes'         => $this->field_manager->get_field_types(),
+				'previewUrlBase'     => home_url( '/fplant-preview/' ),
+				'previewNonce'       => $fplant_preview_nonce,
 				'cssNonce'           => wp_create_nonce( 'fplant_css_upload' ),
 				'pluginUrl'          => FPLANT_PLUGIN_URL,
+				// Design adjustments: schema shared with the JS CSS generator
+				// (admin.js buildSectionCss), plus the preset CSS URLs loaded
+				// inside the part preview shadow roots.
+				'designSchema'        => FPLANT_Design_Options::get_schema(),
+				'designCssUrls'       => array(
+					'simple1' => FPLANT_PLUGIN_URL . 'assets/css/form.css?ver=' . FPLANT_VERSION,
+					'simple2' => FPLANT_PLUGIN_URL . 'assets/css/design-simple2.css?ver=' . FPLANT_VERSION,
+					'normal'  => FPLANT_PLUGIN_URL . 'assets/css/design-normal.css?ver=' . FPLANT_VERSION,
+				),
 				'defaultPrefectures' => array_map(
 					function ( $pref ) {
 						return array(
@@ -677,6 +741,7 @@ class FPLANT_Form_Plant {
 					'label'                 => __( 'Label', 'form-plant' ),
 					'delete'                => __( 'Delete', 'form-plant' ),
 					'edit'                  => __( 'Edit', 'form-plant' ),
+					'duplicate'             => __( 'Duplicate', 'form-plant' ),
 					'optionRequired'        => __( 'At least one option is required', 'form-plant' ),
 					'fieldNameRequired'     => __( 'Please enter a field name', 'form-plant' ),
 					'fieldNameAlphanumeric' => __( 'Field name can only contain alphanumeric characters and underscores', 'form-plant' ),
@@ -710,6 +775,22 @@ class FPLANT_Form_Plant {
 					'confirmationTemplateEmpty'    => __( 'Confirmation HTML template is empty. Please add the required tags or uncheck "Use confirmation screen HTML template".', 'form-plant' ),
 					'confirmationSubmitRequired'   => __( 'Submit button [fplant_confirm_submit] is required in the confirmation template.', 'form-plant' ),
 					'confirmCloseModal'            => __( 'Changes have not been saved. Are you sure you want to close?', 'form-plant' ),
+					'designSampleLabel'            => __( 'Sample Label', 'form-plant' ),
+					'designSampleText'             => __( 'Sample text', 'form-plant' ),
+					'designSampleLabel1'           => __( 'Field 1', 'form-plant' ),
+					'designSampleLabel2'           => __( 'Field 2', 'form-plant' ),
+					'designSampleLabel3'           => __( 'Field 3', 'form-plant' ),
+					'designSampleChoice1'          => __( 'Choice 1', 'form-plant' ),
+					'designSampleChoice2'          => __( 'Choice 2', 'form-plant' ),
+					'designSampleChoice3'          => __( 'Choice 3', 'form-plant' ),
+					'designSampleStateNormal'      => __( 'Empty / no error state', 'form-plant' ),
+					'designSampleStateError'       => __( 'Entered / error state', 'form-plant' ),
+					'designSampleDesc'             => __( 'This is a sample field description.', 'form-plant' ),
+					'designDefaultLabel'           => __( 'Default', 'form-plant' ),
+					'designSampleError'            => __( 'This is a sample error message.', 'form-plant' ),
+					'designSampleFieldError'       => __( 'This field is required.', 'form-plant' ),
+					'designSaved'                  => __( 'Saved.', 'form-plant' ),
+					'designSaveFirst'              => __( 'Please save the form first.', 'form-plant' ),
 				),
 			)
 		);
@@ -1061,8 +1142,9 @@ class FPLANT_Form_Plant {
 		// Create database tables
 		FPLANT_Database::create_tables();
 
-		// Flush rewrite rules for embed endpoint
+		// Flush rewrite rules for embed and preview endpoints
 		FPLANT_Embed::flush_rewrite_rules();
+		FPLANT_Preview::flush_rewrite_rules();
 
 		// Save version info
 		update_option( 'fplant_version', FPLANT_VERSION );

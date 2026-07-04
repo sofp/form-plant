@@ -178,23 +178,28 @@ class FPLANT_Shortcode {
 			'fplant_submit'
 		);
 
-		$class = 'fplant-submit-button';
-		if ( ! empty( $atts['class'] ) ) {
-			$class .= ' ' . esc_attr( $atts['class'] );
-		}
+		// Variables exposed to the template (form-fields/submit.php).
+		$submit_text  = $atts['text'];
+		$submit_class = $atts['class'];
+		$submit_id    = $atts['id'];
 
-		$id_attr = '';
-		if ( ! empty( $atts['id'] ) ) {
-			$id_attr = ' id="' . esc_attr( $atts['id'] ) . '"';
-		}
+		// Locate the submit button template (allows theme overrides).
+		$template_loader = new FPLANT_Template_Loader();
+		$template        = $template_loader->locate_template( 'form-fields/submit.php' );
 
 		ob_start();
-		?>
-		<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $id_attr is already escaped with esc_attr() ?>
-		<button type="submit"<?php echo $id_attr; ?> class="<?php echo esc_attr( $class ); ?>">
-			<?php echo esc_html( $atts['text'] ); ?>
-		</button>
-		<?php
+		if ( ! empty( $template ) && file_exists( $template ) ) {
+			include $template;
+		} else {
+			// Fallback in case the template cannot be located.
+			$class = 'fplant-submit-button';
+			if ( ! empty( $submit_class ) ) {
+				$class .= ' ' . esc_attr( $submit_class );
+			}
+			$id_attr = ! empty( $submit_id ) ? ' id="' . esc_attr( $submit_id ) . '"' : '';
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $id_attr is already escaped with esc_attr().
+			echo '<button type="submit"' . $id_attr . ' class="' . esc_attr( $class ) . '">' . esc_html( $submit_text ) . '</button>';
+		}
 		return ob_get_clean();
 	}
 

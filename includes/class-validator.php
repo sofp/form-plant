@@ -419,12 +419,14 @@ class FPLANT_Validator {
 
 		// Maximum character length
 		if ( isset( $validation['max_length'] ) && mb_strlen( $value ) > $validation['max_length'] ) {
-			$message = sprintf(
-				/* translators: 1: field label, 2: maximum length */
-				__( '%1$s must be at most %2$s characters', 'form-plant' ),
-				$field['label'],
-				$validation['max_length']
-			);
+			$message = ! empty( $validation['max_length_message'] )
+				? $validation['max_length_message']
+				: sprintf(
+					/* translators: 1: field label, 2: maximum length */
+					__( '%1$s must be at most %2$s characters', 'form-plant' ),
+					$field['label'],
+					$validation['max_length']
+				);
 			return apply_filters( 'fplant_validation_message_max_length', $message, $field, $value, $validation );
 		}
 

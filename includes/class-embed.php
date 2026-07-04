@@ -14,43 +14,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Embed functionality class
  */
-class FPLANT_Embed {
+class FPLANT_Embed extends FPLANT_Rewrite_Endpoint {
 
 	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		add_action( 'init', array( $this, 'register_embed_endpoint' ) );
-		add_action( 'template_redirect', array( $this, 'render_embed' ) );
-		add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
-	}
-
-	/**
-	 * Register embed endpoint
-	 */
-	public function register_embed_endpoint() {
-		add_rewrite_rule(
-			'^fplant-embed/([0-9]+)/?$',
-			'index.php?fplant_embed_form=$matches[1]',
-			'top'
-		);
-	}
-
-	/**
-	 * Add query variables
+	 * Rewrite regex for the embed endpoint.
 	 *
-	 * @param array $vars Array of query variables.
-	 * @return array
+	 * @return string
 	 */
-	public function add_query_vars( $vars ) {
-		$vars[] = 'fplant_embed_form';
-		return $vars;
+	protected function rewrite_regex() {
+		return '^fplant-embed/([0-9]+)/?$';
+	}
+
+	/**
+	 * Query var for the embed endpoint.
+	 *
+	 * @return string
+	 */
+	protected function query_var() {
+		return 'fplant_embed_form';
 	}
 
 	/**
 	 * Render embed page
 	 */
-	public function render_embed() {
+	public function maybe_render() {
 		$form_id = get_query_var( 'fplant_embed_form' );
 
 		if ( empty( $form_id ) ) {
@@ -256,6 +243,23 @@ class FPLANT_Embed {
 			}
 		}
 
+		// Design adjustments CSS (before custom inline CSS so the user's CSS comes later)
+		if ( 'none' !== $fplant_embed_design ) {
+			$fplant_design_css = FPLANT_Design_Options::build_css(
+				'#fplant-form-' . absint( $form_id ),
+				$settings['design_options'] ?? array()
+			);
+			if ( '' !== $fplant_design_css ) {
+				if ( empty( $inline_css_handle ) ) {
+					// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Intentionally no version for inline-only style
+					wp_register_style( 'fplant-embed-inline', false );
+					wp_enqueue_style( 'fplant-embed-inline' );
+					$inline_css_handle = 'fplant-embed-inline';
+				}
+				wp_add_inline_style( $inline_css_handle, $fplant_design_css );
+			}
+		}
+
 		// Custom CSS inline
 		$custom_css_inline = $settings['custom_css_inline'] ?? '';
 		if ( ! empty( $custom_css_inline ) ) {
@@ -395,14 +399,5 @@ class FPLANT_Embed {
 
 		// Load template
 		include FPLANT_PLUGIN_DIR . 'templates/embed.php';
-	}
-
-	/**
-	 * Flush rewrite rules (called on plugin activation)
-	 */
-	public static function flush_rewrite_rules() {
-		$embed = new self();
-		$embed->register_embed_endpoint();
-		flush_rewrite_rules();
 	}
 }

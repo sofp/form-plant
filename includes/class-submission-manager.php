@@ -37,11 +37,14 @@ class FPLANT_Submission_Manager {
 	/**
 	 * Process form submission
 	 *
-	 * @param int   $form_id Form ID.
-	 * @param array $data Submission data.
+	 * @param int   $form_id    Form ID.
+	 * @param array $data       Submission data.
+	 * @param bool  $is_preview When true (preview route, capability-gated by the
+	 *                          caller), stop after validation: nothing is saved,
+	 *                          no emails are sent and no integration hooks fire.
 	 * @return array
 	 */
-	public function process_submission( $form_id, $data ) {
+	public function process_submission( $form_id, $data, $is_preview = false ) {
 		// Get form data
 		$form = FPLANT_Database::get_form( $form_id );
 
@@ -64,8 +67,11 @@ class FPLANT_Submission_Manager {
 		// Expand address composite field sub-values into individual keys
 		$data = self::expand_address_fields( $data, $form['fields'] );
 
-		// Hook: before submission
-		do_action( 'fplant_before_submission', $form_id, $data );
+		// Hook: before submission (suppressed in preview so third-party
+		// integrations see no side effects from editor test runs)
+		if ( ! $is_preview ) {
+			do_action( 'fplant_before_submission', $form_id, $data );
+		}
 
 		// Validation
 		$validator = new FPLANT_Validator();
@@ -76,6 +82,19 @@ class FPLANT_Submission_Manager {
 				'success' => false,
 				'message' => __( 'There are errors in your input', 'form-plant' ),
 				'errors'  => $validation_result['errors'],
+			);
+		}
+
+		// Preview mode: stop here — validation succeeded, but nothing is saved,
+		// no emails are sent and no submission hooks fire. The message tells the
+		// editor explicitly that this was a dry run.
+		if ( $is_preview ) {
+			return array(
+				'success'       => true,
+				'message'       => __( 'This is a preview. The form works correctly, but the submission was not saved and no emails were sent.', 'form-plant' ),
+				'submission_id' => 0,
+				'action_type'   => 'message',
+				'is_preview'    => true,
 			);
 		}
 
@@ -225,6 +244,13 @@ class FPLANT_Submission_Manager {
 			wp_send_json_error( array( 'message' => __( 'Invalid data format', 'form-plant' ) ) );
 		}
 
+		// Preview mode: the /fplant-preview/ route injects this flag so editors can
+		// exercise the whole flow (validation, confirmation screen) without side
+		// effects — nothing is saved or emailed. Capability-gated, so a regular
+		// visitor spoofing the flag is simply processed as a normal submission.
+		$is_preview = ! empty( $data['fplant_preview'] ) && current_user_can( 'edit_post', $form_id );
+		unset( $data['fplant_preview'] );
+
 		// Get form data for spam/CAPTCHA checks
 		$form = FPLANT_Database::get_form( $form_id );
 
@@ -292,7 +318,8 @@ class FPLANT_Submission_Manager {
 				3
 			);
 
-			// Spam protection checks (rate limit + time-based)
+			// Spam protection checks (rate limit + time-based). Skipped in preview:
+			// repeated editor test submissions must not trip (or pollute) the rate limit.
 			$validator     = new FPLANT_Validator();
 			$spam_settings = array(
 				'rate_limit'         => ! empty( $form['settings']['spam_rate_limit_enabled'] ),
@@ -301,7 +328,7 @@ class FPLANT_Submission_Manager {
 				'time_check'         => ! empty( $form['settings']['spam_time_check_enabled'] ),
 				'time_check_seconds' => intval( $form['settings']['spam_time_check_seconds'] ?? 3 ),
 			);
-			$is_spam       = $validator->check_spam( $data, $spam_settings );
+			$is_spam       = $is_preview ? false : $validator->check_spam( $data, $spam_settings );
 			if ( $is_spam ) {
 				wp_send_json_error(
 					array(
@@ -326,7 +353,9 @@ class FPLANT_Submission_Manager {
 				$fplant_captcha_type = 'recaptcha';
 			}
 
-			if ( 'none' !== $fplant_captcha_type ) {
+			// CAPTCHA verification is skipped in preview (the flag is capability-gated;
+			// repeated test submissions would otherwise burn one-time tokens).
+			if ( 'none' !== $fplant_captcha_type && ! $is_preview ) {
 				$captcha_result = $this->verify_captcha( $form, $fplant_captcha_type );
 				if ( is_wp_error( $captcha_result ) ) {
 					wp_send_json_error(
@@ -360,7 +389,17 @@ class FPLANT_Submission_Manager {
 		unset( $data['fplant_form_ts'] );
 
 		// Process submission
-		$result = $this->process_submission( $form_id, $data );
+		$result = $this->process_submission( $form_id, $data, $is_preview );
+
+		// Preview submissions keep uploaded files only long enough to validate
+		// them — remove them again so test runs leave nothing behind.
+		if ( $is_preview && ! empty( $uploaded_files ) && is_array( $uploaded_files ) ) {
+			foreach ( $uploaded_files as $fplant_preview_file ) {
+				if ( ! empty( $fplant_preview_file['file'] ) && file_exists( $fplant_preview_file['file'] ) ) {
+					wp_delete_file( $fplant_preview_file['file'] );
+				}
+			}
+		}
 
 		if ( $result['success'] ) {
 			wp_send_json_success( $result );

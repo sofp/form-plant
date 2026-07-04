@@ -15,35 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class FPLANT_Field_Manager {
 
 	/**
-	 * Supported field types
-	 *
-	 * @var array
-	 */
-	private $field_types = array(
-		'text',
-		'textarea',
-		'email',
-		'tel',
-		'url',
-		'number',
-		'date',
-		'time',
-		'select',
-		'radio',
-		'checkbox',
-		'name_parts',
-		'name_kana',
-		'password',
-		'file',
-		'hidden',
-		'html',
-		'postal_code',
-		'prefecture',
-		'address',
-		'custom_mail_tag',
-	);
-
-	/**
 	 * Constructor
 	 */
 	public function __construct() {
@@ -92,6 +63,11 @@ class FPLANT_Field_Manager {
 				'icon'        => 'dashicons-calendar',
 				'description' => __( 'Date picker field', 'form-plant' ),
 			),
+			'date_select' => array(
+				'label'       => __( 'Date (Dropdown)', 'form-plant' ),
+				'icon'        => 'dashicons-calendar-alt',
+				'description' => __( 'Date input field with year/month/day dropdowns', 'form-plant' ),
+			),
 			'time'     => array(
 				'label'       => __( 'Time', 'form-plant' ),
 				'icon'        => 'dashicons-clock',
@@ -119,7 +95,10 @@ class FPLANT_Field_Manager {
 			),
 			'name_kana' => array(
 				'label'       => __( 'Name (Kana)', 'form-plant' ),
-				'icon'        => 'dashicons-editor-spellcheck',
+				// Furigana is a Japanese-only concept; show a custom kana mark
+				// (assets/icons/name-kana-ja.svg via .fplant-icon-namekana-ja in admin.css)
+				// in the Japanese admin, falling back to the spellcheck dashicon elsewhere.
+				'icon'        => ( 0 === strpos( get_user_locale(), 'ja' ) ) ? 'fplant-icon-namekana-ja' : 'dashicons-editor-spellcheck',
 				'description' => __( 'Kana name input field with multiple parts', 'form-plant' ),
 			),
 			'password' => array(
@@ -144,7 +123,10 @@ class FPLANT_Field_Manager {
 			),
 			'postal_code' => array(
 				'label'       => __( 'Postal Code', 'form-plant' ),
-				'icon'        => 'dashicons-location',
+				// Use the Japanese postal mark (〒) when the admin UI is in Japanese; a
+				// custom CSS class swaps the dashicon glyph for assets/icons/postal-code-ja.svg
+				// (see .fplant-icon-postal-ja in admin.css). Other locales keep the generic pin.
+				'icon'        => ( 0 === strpos( get_user_locale(), 'ja' ) ) ? 'fplant-icon-postal-ja' : 'dashicons-location',
 				'description' => __( 'Postal code input field with auto-fill support', 'form-plant' ),
 			),
 			'prefecture' => array(
@@ -175,17 +157,20 @@ class FPLANT_Field_Manager {
 	 */
 	public function get_field_defaults( $field_type ) {
 		$defaults = array(
-			'type'         => $field_type,
-			'label'        => '',
-			'name'         => '',
-			'placeholder'  => '',
-			'default'      => '',
-			'required'     => false,
-			'class'        => '',
-			'custom_id'    => '',
-			'custom_class' => '',
-			'validation'   => array(),
-			'conditional'  => array(
+			'type'              => $field_type,
+			'label'             => '',
+			'name'              => '',
+			'placeholder'       => '',
+			'default'           => '',
+			'required'          => false,
+			'class'             => '',
+			'custom_id'         => '',
+			'custom_class'      => '',
+			'desc_after_label'  => '',
+			'desc_before_input' => '',
+			'desc_after_input'  => '',
+			'validation'        => array(),
+			'conditional'       => array(
 				'enabled' => false,
 				'field'   => '',
 				'value'   => '',
@@ -363,7 +348,9 @@ class FPLANT_Field_Manager {
 			return new WP_Error( 'invalid_name', __( 'Field name can only contain alphanumeric characters and underscores', 'form-plant' ) );
 		}
 
-		if ( ! in_array( $field['type'], $this->field_types, true ) ) {
+		// Validate against the single source of truth (filtered via fplant_field_types),
+		// so Pro-registered types pass validation just like built-in types.
+		if ( ! array_key_exists( $field['type'], $this->get_field_types() ) ) {
 			return new WP_Error( 'invalid_type', __( 'Unsupported field type', 'form-plant' ) );
 		}
 
@@ -403,6 +390,22 @@ class FPLANT_Field_Manager {
 		ob_start();
 		include $template;
 		return ob_get_clean();
+	}
+
+	/**
+	 * Render a field description slot
+	 *
+	 * @param array  $field    Field configuration
+	 * @param string $position after_label | before_input | after_input
+	 * @return string HTML ('' when the description is empty)
+	 */
+	public function render_field_description( $field, $position ) {
+		$key = 'desc_' . $position;
+		if ( empty( $field[ $key ] ) ) {
+			return '';
+		}
+		return '<div class="fplant-field-desc fplant-field-desc-' . str_replace( '_', '-', $position ) . '">'
+			. wp_kses_post( $field[ $key ] ) . '</div>';
 	}
 
 	/**

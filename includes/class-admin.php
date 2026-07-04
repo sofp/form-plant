@@ -35,6 +35,9 @@ class FPLANT_Admin {
 		// Admin menu
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 
+		// Highlight "Form List" (not "Add New") while editing an existing form.
+		add_filter( 'submenu_file', array( $this, 'highlight_form_list_when_editing' ) );
+
 		// Register settings
 		add_action( 'admin_init', array( $this, 'register_recaptcha_settings' ) );
 		add_action( 'admin_init', array( $this, 'register_turnstile_settings' ) );
@@ -45,6 +48,7 @@ class FPLANT_Admin {
 
 		// AJAX actions
 		add_action( 'wp_ajax_fplant_save_form', array( $this, 'ajax_save_form' ) );
+		add_action( 'wp_ajax_fplant_save_design_options', array( $this, 'ajax_save_design_options' ) );
 		add_action( 'wp_ajax_fplant_delete_form', array( $this, 'ajax_delete_form' ) );
 		add_action( 'wp_ajax_fplant_duplicate_form', array( $this, 'ajax_duplicate_form' ) );
 		add_action( 'wp_ajax_fplant_export_submissions', array( $this, 'ajax_export_submissions' ) );
@@ -251,6 +255,25 @@ class FPLANT_Admin {
 			'fplant-settings',
 			array( $this, 'render_settings_page' )
 		);
+	}
+
+	/**
+	 * Mark the "Form List" submenu as current when editing an existing form.
+	 *
+	 * The edit screen reuses the "Add New" page (fplant-form-new) with an ?id=, so
+	 * WordPress would otherwise highlight "Add New". When an id is present we point the
+	 * current submenu back at the form list instead.
+	 *
+	 * @param string|null $submenu_file The submenu file WordPress would mark as current.
+	 * @return string|null
+	 */
+	public function highlight_form_list_when_editing( $submenu_file ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only admin menu state from URL params, not a form submission.
+		if ( isset( $_GET['page'] ) && 'fplant-form-new' === $_GET['page'] && ! empty( $_GET['id'] ) ) {
+			return 'fplant-forms';
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		return $submenu_file;
 	}
 
 	/**
@@ -621,7 +644,7 @@ class FPLANT_Admin {
 		}
 
 		$form_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
-		$html_allowed_keys = array( 'description', 'content', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
+		$html_allowed_keys = array( 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_json_input().
 		$form_data = FPLANT_Form_Manager::sanitize_json_input( isset( $_POST['form_data'] ) ? wp_unslash( $_POST['form_data'] ) : '', $html_allowed_keys );
 		if ( null === $form_data ) {
@@ -660,6 +683,52 @@ class FPLANT_Admin {
 				wp_send_json_error( array( 'message' => __( 'Failed to create form', 'form-plant' ) ) );
 			}
 		}
+	}
+
+	/**
+	 * AJAX: Save one design adjustments section (partial save — leaves every
+	 * other setting and any unsaved editor state untouched, no page reload)
+	 */
+	public function ajax_save_design_options() {
+		// Nonce verification
+		check_ajax_referer( 'fplant_admin_nonce', 'nonce' );
+
+		// Permission check
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied', 'form-plant' ) ) );
+		}
+
+		$form_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
+
+		if ( ! $form_id || 'fplant_form' !== get_post_type( $form_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Form ID not specified', 'form-plant' ) ) );
+		}
+
+		if ( isset( $_POST['sections'] ) ) {
+			// Grouped accordion (e.g. the confirmation buttons): save several
+			// sections in one atomic write so concurrent requests cannot race on
+			// the shared settings meta. Unknown sections are skipped server-side.
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each section's values are sanitized via sanitize_section_values() inside update_sections().
+			$sections = json_decode( wp_unslash( $_POST['sections'] ), true );
+			if ( ! is_array( $sections ) ) {
+				$sections = array();
+			}
+			$result = FPLANT_Design_Options::update_sections( $form_id, $sections );
+		} else {
+			$section = isset( $_POST['section'] ) ? sanitize_key( wp_unslash( $_POST['section'] ) ) : '';
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_section_values() inside update_section().
+			$values = json_decode( isset( $_POST['values'] ) ? wp_unslash( $_POST['values'] ) : '', true );
+			if ( ! is_array( $values ) ) {
+				$values = array();
+			}
+			$result = FPLANT_Design_Options::update_section( $form_id, $section, $values );
+		}
+
+		if ( null === $result ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid form data format', 'form-plant' ) ) );
+		}
+
+		wp_send_json_success( array( 'message' => __( 'Saved.', 'form-plant' ) ) );
 	}
 
 	/**

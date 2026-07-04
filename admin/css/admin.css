@@ -4,6 +4,12 @@
  * @package Form_Plant
  */
 
+/* Theme tokens. Centralize the admin accent colour so the field accordion, tabs and
+   buttons stay visually consistent and are easy to re-theme. */
+:root {
+	--fplant-accent: #2271b1;
+}
+
 /* Common */
 .fplant-admin-page {
 	max-width: 1400px;
@@ -24,7 +30,7 @@
 .fplant-button {
 	display: inline-block;
 	padding: 8px 16px;
-	background-color: #2271b1;
+	background-color: var(--fplant-accent);
 	color: #fff;
 	text-decoration: none;
 	border-radius: 3px;
@@ -54,6 +60,37 @@
 
 .fplant-button-danger:hover {
 	background-color: #b32d2e;
+}
+
+/* Preview button — modern outlined pill with an eye icon, fills on hover. */
+.fplant-button-preview {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 14px;
+	background-color: #fff;
+	color: var(--fplant-accent);
+	border: 1px solid var(--fplant-accent);
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fplant-button-preview:hover,
+.fplant-button-preview:focus {
+	background-color: var(--fplant-accent);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(34, 113, 177, 0.3);
+	outline: none;
+}
+
+.fplant-button-preview .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 1;
 }
 
 /* Table */
@@ -116,12 +153,12 @@
 }
 
 .fplant-tab:hover {
-	color: #2271b1;
+	color: var(--fplant-accent);
 }
 
 .fplant-tab.active {
-	color: #2271b1;
-	border-bottom-color: #2271b1;
+	color: var(--fplant-accent);
+	border-bottom-color: var(--fplant-accent);
 }
 
 .fplant-tab-content {
@@ -140,47 +177,191 @@
 }
 
 .fplant-field-item {
-	background-color: #f6f7f7;
+	background-color: #fff;
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
-	padding: 15px;
 	margin-bottom: 10px;
-	transition: all 0.2s;
+	transition: box-shadow 0.2s;
 }
 
 .fplant-field-item:hover {
-	background-color: #fff;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.fplant-field-item.open {
+	border-color: var(--fplant-accent);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Accordion header (clickable row) */
+.fplant-field-accordion-header,
 .fplant-field-item-header {
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	padding: 12px 15px;
+	cursor: pointer;
+	background-color: #f6f7f7;
+	border-radius: 4px;
+}
+
+.fplant-field-item.open .fplant-field-accordion-header {
+	border-bottom: 1px solid #dcdcde;
+	border-radius: 4px 4px 0 0;
+}
+
+.fplant-field-accordion-header:focus {
+	outline: 2px solid var(--fplant-accent);
+	outline-offset: -2px;
+}
+
+.fplant-drag-handle {
+	cursor: grab;
+	color: #8c8f94;
+}
+
+.fplant-drag-handle:active {
+	cursor: grabbing;
+}
+
+.fplant-field-type-icon {
+	color: var(--fplant-accent);
+}
+
+/*
+ * Custom SVG field-type icons for the Japanese admin (e.g. the postal mark 〒, the kana
+ * mark for furigana). Reuses the existing <span class="dashicons {icon}"> markup: instead
+ * of a font glyph, the SVG is painted as a mask so it follows currentColor (accent) and
+ * scales to whatever box .dashicons sets in each context (list row 20px, picker 24px).
+ */
+.fplant-icon-postal-ja::before,
+.fplant-icon-namekana-ja::before {
+	content: "";
+}
+
+.fplant-icon-postal-ja,
+.fplant-icon-namekana-ja {
+	background-color: currentColor;
+	-webkit-mask-position: center;
+	mask-position: center;
+	-webkit-mask-size: contain;
+	mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+}
+
+.fplant-icon-postal-ja {
+	-webkit-mask-image: url(../../assets/icons/postal-code-ja.svg);
+	mask-image: url(../../assets/icons/postal-code-ja.svg);
+}
+
+.fplant-icon-namekana-ja {
+	-webkit-mask-image: url(../../assets/icons/name-kana-ja.svg);
+	mask-image: url(../../assets/icons/name-kana-ja.svg);
 }
 
 .fplant-field-item-title {
+	flex: 1;
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	flex-wrap: wrap;
+	min-width: 0;
+}
+
+.fplant-field-label-text {
 	font-weight: 600;
 	color: #2c3338;
-	flex: 1;
+}
+
+.fplant-field-type-name {
+	font-size: 12px;
+	color: #646970;
+	font-weight: normal;
+}
+
+.fplant-field-name-text {
+	font-size: 12px;
+	color: #787c82;
+	font-weight: normal;
 }
 
 .fplant-field-item-actions {
 	display: flex;
-	gap: 10px;
+	align-items: center;
+	gap: 6px;
 }
 
-/* Style while dragging */
+.fplant-field-item-actions .button-link {
+	color: #50575e;
+	text-decoration: none;
+	padding: 4px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.fplant-field-item-actions .button-link:hover {
+	color: var(--fplant-accent);
+}
+
+.fplant-field-item-actions .fplant-field-delete:hover {
+	color: #d63638;
+}
+
+.fplant-field-toggle .dashicons {
+	color: #8c8f94;
+}
+
+/* Accordion body + field editor */
+.fplant-field-accordion-body {
+	padding: 15px;
+}
+
+.fplant-field-tabs {
+	display: flex;
+	gap: 4px;
+	border-bottom: 1px solid #c3c4c7;
+	margin-bottom: 15px;
+}
+
+.fplant-field-tab {
+	padding: 8px 16px;
+	background: transparent;
+	border: none;
+	border-bottom: 2px solid transparent;
+	margin-bottom: -1px;
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: 600;
+	color: #50575e;
+}
+
+.fplant-field-tab:hover {
+	color: var(--fplant-accent);
+}
+
+.fplant-field-tab.active {
+	color: var(--fplant-accent);
+	border-bottom-color: var(--fplant-accent);
+}
+
+.fplant-field-editor-footer {
+	margin-top: 15px;
+	padding-top: 12px;
+	border-top: 1px solid #dcdcde;
+	text-align: right;
+}
+
+/* Style while dragging — lift the row without tilting it. */
 .fplant-field-item.ui-sortable-helper {
 	background-color: #fff;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-	transform: rotate(2deg);
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 }
 
 /* Placeholder */
 .fplant-field-placeholder {
 	background-color: #e3f2fd;
-	border: 2px dashed #2271b1;
+	border: 2px dashed var(--fplant-accent);
 	border-radius: 4px;
 	margin-bottom: 10px;
 }
@@ -213,9 +394,9 @@
 }
 
 .fplant-form-control:focus {
-	border-color: #2271b1;
+	border-color: var(--fplant-accent);
 	outline: none;
-	box-shadow: 0 0 0 1px #2271b1;
+	box-shadow: 0 0 0 1px var(--fplant-accent);
 }
 
 .fplant-form-group {
@@ -313,6 +494,121 @@
 
 .fplant-field-modal-content {
 	max-width: 700px;
+}
+
+/* Form preview modal: wide, with a tall iframe showing the themed front-end form. */
+.fplant-preview-modal-content {
+	max-width: 1200px;
+	width: 90%;
+}
+
+.fplant-preview-note {
+	margin: 0 0 12px;
+}
+
+.fplant-preview-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 12px;
+}
+
+.fplant-preview-devices {
+	display: flex;
+	gap: 4px;
+}
+
+.fplant-preview-device.active {
+	background: var(--fplant-accent);
+	border-color: var(--fplant-accent);
+	color: #fff;
+}
+
+.fplant-preview-zoom-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+}
+
+/* Stage: real (unscaled) scroll container; frame: visually sized device box;
+   iframe: real device viewport width, scaled down/up via transform. */
+.fplant-preview-stage {
+	height: 70vh;
+	overflow: auto;
+	padding: 16px;
+	background-color: #f0f0f1;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+
+.fplant-preview-frame {
+	margin: 0 auto;
+	overflow: hidden;
+	background-color: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.fplant-preview-iframe {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background-color: #fff;
+	transform-origin: 0 0;
+}
+
+/* Field type picker: 3-column icon grid. */
+.fplant-type-picker-content {
+	max-width: 720px;
+}
+
+.fplant-type-picker-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 10px;
+}
+
+.fplant-type-picker-option {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 16px 8px;
+	background-color: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	cursor: pointer;
+	text-align: center;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.fplant-type-picker-option:hover,
+.fplant-type-picker-option:focus {
+	border-color: var(--fplant-accent);
+	background-color: #f6fbff;
+	box-shadow: 0 2px 6px rgba(34, 113, 177, 0.15);
+	outline: none;
+}
+
+.fplant-type-picker-option .dashicons {
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+	color: var(--fplant-accent);
+}
+
+.fplant-type-picker-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: #2c3338;
+	line-height: 1.3;
 }
 
 .fplant-modal-body {
@@ -427,7 +723,7 @@
 /* Quick edit button */
 .wrap .wp-list-table .editinline {
 	cursor: pointer;
-	color: #2271b1;
+	color: var(--fplant-accent);
 	text-decoration: none;
 }
 
@@ -500,6 +796,8 @@
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
 	padding: 12px 15px;
+	/* Separate from the form title input above and give breathing room below. */
+	margin-top: 20px;
 	margin-bottom: 20px;
 }
 
@@ -507,6 +805,7 @@
 	display: flex;
 	align-items: center;
 	gap: 15px;
+	flex-wrap: wrap;
 }
 
 .fplant-publish-box-left select {
@@ -516,32 +815,17 @@
 .fplant-publish-box-right {
 	display: flex;
 	align-items: center;
+	/* Space between the Preview and Update buttons. */
+	gap: 20px;
 }
 
-.fplant-shortcode-box {
-	display: flex;
-	align-items: center;
-	gap: 8px;
+/* Inline shortcode shown next to "Move to Trash" in the publish box. */
+.fplant-shortcode-code {
 	background-color: #f0f0f1;
-	border: 1px solid #c3c4c7;
-	border-top: none;
-	padding: 8px 15px;
-	margin-top: -20px;
-	margin-bottom: 20px;
-	border-radius: 0 0 4px 4px;
-}
-
-.fplant-shortcode-box code {
-	background-color: #fff;
 	padding: 2px 8px;
 	border-radius: 3px;
 	user-select: all;
-}
-
-.fplant-shortcode-label {
 	font-size: 13px;
-	color: #50575e;
-	white-space: nowrap;
 }
 
 .fplant-button-link {
@@ -610,6 +894,27 @@
 
 .wrap .wp-list-table .column-field_names {
 	width: 220px;
+}
+
+/* Field names column: the field's type icon sits before each label. */
+.wrap .wp-list-table .column-field_names .fplant-field-name-item {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	margin-bottom: 2px;
+}
+
+.wrap .wp-list-table .column-field_names .fplant-field-name-item .dashicons {
+	flex: 0 0 auto;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	color: var(--fplant-accent);
+}
+
+.wrap .wp-list-table .column-field_names .fplant-field-name-more {
+	display: block;
+	margin-top: 2px;
 }
 
 .wrap .wp-list-table .column-layout,
@@ -692,4 +997,222 @@
 .fplant-status-trash {
 	background: #fbeaea;
 	color: #b32d2e;
+}
+
+/* ==========================================================================
+   Design adjustments (Layout tab)
+   ========================================================================== */
+
+.fplant-design-accordion {
+	background-color: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	margin-bottom: 10px;
+}
+
+.fplant-design-accordion.open {
+	border-color: var(--fplant-accent);
+}
+
+.fplant-design-accordion-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 12px 15px;
+	background-color: #f6f7f7;
+	border: 0;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: 600;
+	color: #1d2327;
+	text-align: left;
+}
+
+.fplant-design-accordion.open .fplant-design-accordion-header {
+	border-bottom: 1px solid #dcdcde;
+	border-radius: 4px 4px 0 0;
+}
+
+.fplant-design-accordion-header:focus {
+	outline: 2px solid var(--fplant-accent);
+	outline-offset: -2px;
+}
+
+.fplant-design-accordion-header .dashicons {
+	color: #8c8f94;
+}
+
+.fplant-design-accordion-body {
+	display: grid;
+	grid-template-columns: minmax(280px, 4fr) minmax(280px, 6fr);
+	gap: 20px;
+	padding: 15px;
+}
+
+/* display: grid above would otherwise defeat the hidden attribute's UA style */
+.fplant-design-accordion-body[hidden] {
+	display: none;
+}
+
+@media screen and (max-width: 960px) {
+	.fplant-design-accordion-body {
+		grid-template-columns: 1fr;
+	}
+
+	/* Stacked single column: the preview sits below the controls, so pinning it
+	   would be pointless — keep it in normal flow. */
+	.fplant-design-preview {
+		position: static;
+	}
+}
+
+.fplant-design-subheading {
+	margin: 16px 0 8px;
+	padding: 6px 10px;
+	background-color: #e7f0fb;
+	border-radius: 3px;
+	font-size: 12px;
+	color: #2c3338;
+}
+
+.fplant-design-subheading:first-child {
+	margin-top: 0;
+}
+
+/* Back / submit button controls share one "Confirmation Screen Buttons" frame;
+   separate the two sub-groups so each reads as its own button. */
+.fplant-design-subscope + .fplant-design-subscope {
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.fplant-design-control {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 8px;
+	min-height: 30px;
+}
+
+.fplant-design-control > label {
+	flex: 0 0 45%;
+	font-size: 13px;
+}
+
+.fplant-design-control input[type="number"],
+.fplant-design-control select {
+	width: 110px;
+}
+
+.fplant-design-slider-group {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Muted hint shown to the left of a number box, e.g. "Default: 800px". */
+.fplant-design-default-hint {
+	color: #646970;
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+.fplant-design-slider-group.has-range {
+	flex: 1;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+}
+
+.fplant-design-range {
+	flex: 1;
+	min-width: 60px;
+	margin: 0;
+	accent-color: var(--fplant-accent);
+}
+
+/* Keep the number box the same width as every other control (110px from the
+   rule above) and never let the slider squeeze it. */
+.fplant-design-slider-group.has-range input[type="number"] {
+	flex: 0 0 110px;
+}
+
+/* Keep the color picker (input + button wrapped by Iris) on one line */
+.fplant-design-control .wp-picker-container {
+	white-space: nowrap;
+}
+
+/* "(■ Default)" appended to a color control's label so every field shows its
+   preset default without shifting the picker. Always visible, muted, and kept
+   on one line (wraps as a unit under the label when the row is narrow). */
+.fplant-design-default-inline {
+	color: #646970;
+	font-weight: normal;
+	font-size: 11px;
+	white-space: nowrap;
+}
+
+.fplant-design-default-swatch {
+	display: inline-block;
+	width: 11px;
+	height: 11px;
+	border: 1px solid #c3c4c7;
+	border-radius: 2px;
+	background-color: #fff;
+	vertical-align: -1px;
+	margin-right: 3px;
+}
+
+/* No / transparent default: a diagonal red line, mirroring the picker's clear
+   affordance. */
+.fplant-design-default-swatch.is-none {
+	background-image: linear-gradient(45deg, transparent 44%, #d63638 44%, #d63638 56%, transparent 56%);
+}
+
+.fplant-design-preview {
+	border: 1px dashed #c3c4c7;
+	border-radius: 4px;
+	background-color: #fff;
+	background-image: linear-gradient(45deg, #f6f7f7 25%, transparent 25%, transparent 75%, #f6f7f7 75%),
+		linear-gradient(45deg, #f6f7f7 25%, transparent 25%, transparent 75%, #f6f7f7 75%);
+	background-size: 16px 16px;
+	background-position: 0 0, 8px 8px;
+	padding: 12px;
+	/* Follow the scroll so the preview stays visible while editing the long
+	   control column (sticks just below the fixed WordPress admin bar). */
+	align-self: start;
+	position: sticky;
+	top: 52px;
+}
+
+.fplant-design-preview-host {
+	min-height: 60px;
+}
+
+.fplant-design-actions {
+	grid-column: 1 / -1;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 8px;
+	padding-top: 12px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.fplant-design-save-status {
+	font-size: 12px;
+	color: #008a20;
+	opacity: 0;
+	transition: opacity 0.2s;
+}
+
+.fplant-design-save-status.visible {
+	opacity: 1;
+}
+
+.fplant-design-save-status.error {
+	color: #d63638;
 }

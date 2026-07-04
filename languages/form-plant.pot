@@ -2,22 +2,22 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Form Plant 1.2.1\n"
+"Project-Id-Version: Form Plant 1.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-plant\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-03T01:10:16+00:00\n"
+"POT-Creation-Date: 2026-07-04T10:24:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: form-plant\n"
 
 #. Plugin Name of the plugin
 #: form-plant.php
-#: includes/class-admin.php:190
-#: includes/class-admin.php:191
+#: includes/class-admin.php:194
+#: includes/class-admin.php:195
 #: blocks/form-block/index.js:141
 #: blocks/form-block/index.js:156
 #: blocks/form-block/index.js:182
@@ -31,7 +31,7 @@ msgstr ""
 
 #. Description of the plugin
 #: form-plant.php
-msgid "A versatile form plugin with easy modal-based setup and flexible customization options."
+msgid "A versatile form plugin with an intuitive field editor and flexible customization options."
 msgstr ""
 
 #. Author of the plugin
@@ -67,31 +67,32 @@ msgid "The specified Form Plant form was not found."
 msgstr ""
 
 #: admin/class-migration-admin.php:202
-#: includes/class-form-plant.php:601
+#: includes/class-form-plant.php:646
 msgid "No migration log has been saved for this form."
 msgstr ""
 
 #: admin/class-migration-admin.php:224
-#: includes/class-admin.php:620
-#: includes/class-admin.php:674
-#: includes/class-admin.php:702
-#: includes/class-admin.php:729
-#: includes/class-admin.php:762
-#: includes/class-admin.php:789
-#: includes/class-admin.php:969
-#: includes/class-admin.php:1018
-#: includes/class-admin.php:1251
+#: includes/class-admin.php:643
+#: includes/class-admin.php:698
+#: includes/class-admin.php:743
+#: includes/class-admin.php:771
+#: includes/class-admin.php:798
+#: includes/class-admin.php:831
+#: includes/class-admin.php:858
+#: includes/class-admin.php:1038
+#: includes/class-admin.php:1087
+#: includes/class-admin.php:1320
 msgid "Permission denied"
 msgstr ""
 
 #: admin/views/form-edit.php:17
-#: includes/class-admin.php:649
-#: includes/class-form-plant.php:217
+#: includes/class-admin.php:672
+#: includes/class-form-plant.php:230
 msgid "New Form"
 msgstr ""
 
 #: admin/views/form-edit.php:17
-#: includes/class-form-plant.php:216
+#: includes/class-form-plant.php:229
 msgid "Edit Form"
 msgstr ""
 
@@ -112,57 +113,57 @@ msgid "Enter form title"
 msgstr ""
 
 #: admin/views/form-edit.php:74
-#: includes/class-form-list-table.php:124
-#: includes/class-form-list-table.php:352
-#: includes/class-form-list-table.php:778
+#: includes/class-form-list-table.php:131
+#: includes/class-form-list-table.php:359
+#: includes/class-form-list-table.php:808
 msgid "Published"
 msgstr ""
 
 #: admin/views/form-edit.php:75
-#: includes/class-form-list-table.php:125
-#: includes/class-form-list-table.php:353
-#: includes/class-form-list-table.php:779
+#: includes/class-form-list-table.php:132
+#: includes/class-form-list-table.php:360
+#: includes/class-form-list-table.php:809
 msgid "Private"
 msgstr ""
 
 #: admin/views/form-edit.php:76
-#: includes/class-form-list-table.php:126
-#: includes/class-form-list-table.php:354
-#: includes/class-form-list-table.php:780
+#: includes/class-form-list-table.php:133
+#: includes/class-form-list-table.php:361
+#: includes/class-form-list-table.php:810
 msgid "Draft"
 msgstr ""
 
 #: admin/views/form-edit.php:77
-#: includes/class-form-list-table.php:127
-#: includes/class-form-list-table.php:355
-#: includes/class-form-list-table.php:781
+#: includes/class-form-list-table.php:134
+#: includes/class-form-list-table.php:362
+#: includes/class-form-list-table.php:811
 msgid "Pending Review"
 msgstr ""
 
 #: admin/views/form-edit.php:81
-#: includes/class-form-list-table.php:197
-#: includes/class-form-list-table.php:415
+#: includes/class-form-list-table.php:204
+#: includes/class-form-list-table.php:422
 msgid "Move to Trash"
 msgstr ""
 
-#: admin/views/form-edit.php:87
-msgid "Publish"
+#: admin/views/form-edit.php:85
+#: admin/views/form-edit.php:1161
+#: admin/views/form-edit.php:1211
+#: includes/class-form-list-table.php:441
+msgid "Copy"
 msgstr ""
 
-#: admin/views/form-edit.php:87
-#: includes/class-form-list-table.php:788
-msgid "Update"
-msgstr ""
-
-#: admin/views/form-edit.php:94
-msgid "Shortcode:"
+#: admin/views/form-edit.php:93
+msgid "Preview"
 msgstr ""
 
 #: admin/views/form-edit.php:97
-#: admin/views/form-edit.php:921
-#: admin/views/form-edit.php:971
-#: includes/class-form-list-table.php:434
-msgid "Copy"
+msgid "Publish"
+msgstr ""
+
+#: admin/views/form-edit.php:97
+#: includes/class-form-list-table.php:818
+msgid "Update"
 msgstr ""
 
 #: admin/views/form-edit.php:104
@@ -170,460 +171,627 @@ msgid "Field Settings"
 msgstr ""
 
 #: admin/views/form-edit.php:107
-#: admin/views/form-edit.php:1373
-#: admin/views/form-edit.php:1819
-#: includes/class-admin.php:553
-#: includes/class-form-list-table.php:75
+#: admin/views/form-edit.php:1581
+#: admin/views/form-edit.php:1919
+#: includes/class-admin.php:576
+#: includes/class-form-list-table.php:82
 msgid "Layout"
 msgstr ""
 
 #: admin/views/form-edit.php:110
-#: includes/class-admin.php:554
-#: includes/class-form-list-table.php:76
-msgid "Email Settings"
+msgid "Design"
 msgstr ""
 
 #: admin/views/form-edit.php:113
-msgid "Form Settings"
+#: includes/class-admin.php:577
+#: includes/class-form-list-table.php:83
+msgid "Email Settings"
 msgstr ""
 
 #: admin/views/form-edit.php:116
-#: includes/class-admin.php:559
-#: includes/class-form-list-table.php:81
+msgid "Form Settings"
+msgstr ""
+
+#: admin/views/form-edit.php:119
+#: includes/class-admin.php:582
+#: includes/class-form-list-table.php:88
 msgid "Spam Protection"
 msgstr ""
 
-#: admin/views/form-edit.php:124
-#: admin/views/migration-page.php:59
-msgid "Fields"
-msgstr ""
-
 #: admin/views/form-edit.php:128
+#: admin/views/form-edit.php:138
 msgid "+ Add Field"
 msgstr ""
 
-#: admin/views/form-edit.php:144
-#: admin/views/form-edit.php:206
-#: admin/views/form-edit.php:386
-#: admin/views/form-edit.php:399
-#: includes/class-form-list-table.php:392
-#: includes/class-form-plant.php:679
-msgid "Edit"
-msgstr ""
-
-#: admin/views/form-edit.php:147
-#: admin/views/form-edit.php:475
-#: admin/views/submission-list.php:163
-#: includes/class-form-plant.php:678
-msgid "Delete"
-msgstr ""
-
-#: admin/views/form-edit.php:154
-msgid "No fields yet. Click \"Add Field\" button to add fields."
-msgstr ""
-
-#: admin/views/form-edit.php:165
+#: admin/views/form-edit.php:149
 msgid "Input Screen"
 msgstr ""
 
-#: admin/views/form-edit.php:169
+#: admin/views/form-edit.php:153
 msgid "Form Tag Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:173
-#: admin/views/form-edit.php:1946
-#: admin/views/form-edit.php:1992
-#: admin/views/form-edit.php:2038
+#: admin/views/form-edit.php:157
+#: admin/views/form-edit.php:2269
+#: admin/views/form-edit.php:2315
+#: admin/views/form-edit.php:2361
 msgid "CSS Class"
 msgstr ""
 
-#: admin/views/form-edit.php:180
+#: admin/views/form-edit.php:164
 msgid "e.g., my-form custom-form"
 msgstr ""
 
-#: admin/views/form-edit.php:182
+#: admin/views/form-edit.php:166
 msgid "Added to the default fplant-form class"
 msgstr ""
 
-#: admin/views/form-edit.php:186
-#: admin/views/form-edit.php:1957
-#: admin/views/form-edit.php:2003
-#: admin/views/form-edit.php:2049
+#: admin/views/form-edit.php:170
+#: admin/views/form-edit.php:2280
+#: admin/views/form-edit.php:2326
+#: admin/views/form-edit.php:2372
 #: admin/views/submission-list.php:98
-#: includes/class-admin.php:832
+#: includes/class-admin.php:901
 msgid "ID"
 msgstr ""
 
-#: admin/views/form-edit.php:193
+#: admin/views/form-edit.php:177
 msgid "e.g., my-contact-form"
 msgstr ""
 
-#: admin/views/form-edit.php:200
-#: admin/views/form-edit.php:393
-#: admin/views/form-edit.php:1932
-#: admin/views/form-edit.php:2024
+#: admin/views/form-edit.php:184
+#: admin/views/form-edit.php:377
+#: admin/views/form-edit.php:2255
+#: admin/views/form-edit.php:2347
 msgid "Submit Button Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:203
-#: admin/views/form-edit.php:350
-#: admin/views/form-edit.php:1942
-#: includes/class-embed.php:359
-#: includes/class-field-manager.php:680
-#: includes/class-field-manager.php:818
-#: includes/class-form-plant.php:451
-#: includes/class-form-plant.php:697
-#: includes/class-rest-api.php:466
+#: admin/views/form-edit.php:187
+#: admin/views/form-edit.php:334
+#: admin/views/form-edit.php:2265
+#: includes/class-embed.php:363
+#: includes/class-field-manager.php:683
+#: includes/class-field-manager.php:821
+#: includes/class-form-plant.php:496
+#: includes/class-form-plant.php:762
+#: includes/class-rest-api.php:469
 #: includes/class-shortcode.php:167
-#: includes/class-submission-manager.php:1356
-#: includes/class-submission-manager.php:1516
-#: templates/embed.php:136
-#: templates/form-wrapper.php:79
+#: includes/class-submission-manager.php:1395
+#: includes/class-submission-manager.php:1555
+#: templates/embed.php:139
+#: templates/form-wrapper.php:82
 msgid "Submit"
 msgstr ""
 
-#: admin/views/form-edit.php:209
-#: admin/views/form-edit.php:402
+#: admin/views/form-edit.php:190
+#: admin/views/form-edit.php:370
+#: admin/views/form-edit.php:383
+#: includes/class-form-list-table.php:399
+#: includes/class-form-plant.php:743
+msgid "Edit"
+msgstr ""
+
+#: admin/views/form-edit.php:193
+#: admin/views/form-edit.php:386
 msgid "Configure submit button text, CSS class, and ID"
 msgstr ""
 
-#: admin/views/form-edit.php:213
+#: admin/views/form-edit.php:197
 msgid "Required Mark"
 msgstr ""
 
-#: admin/views/form-edit.php:221
+#: admin/views/form-edit.php:205
 msgid "Text displayed next to the label of required fields (e.g., *, Required)"
 msgstr ""
 
-#: admin/views/form-edit.php:227
+#: admin/views/form-edit.php:211
 msgid "Input Screen HTML Template"
 msgstr ""
 
-#: admin/views/form-edit.php:238
+#: admin/views/form-edit.php:222
 msgid "Use HTML template"
 msgstr ""
 
-#: admin/views/form-edit.php:244
-#: admin/views/form-edit.php:341
+#: admin/views/form-edit.php:228
+#: admin/views/form-edit.php:325
 msgid "Available Shortcodes"
 msgstr ""
 
-#: admin/views/form-edit.php:247
-#: admin/views/form-edit.php:344
+#: admin/views/form-edit.php:231
+#: admin/views/form-edit.php:328
 msgid "-- Select tag --"
 msgstr ""
 
-#: admin/views/form-edit.php:248
-#: admin/views/form-edit.php:345
+#: admin/views/form-edit.php:232
+#: admin/views/form-edit.php:329
 msgid "Basic Tags"
 msgstr ""
 
-#: admin/views/form-edit.php:249
-#: admin/views/form-edit.php:350
-#: includes/class-form-plant.php:708
+#: admin/views/form-edit.php:233
+#: admin/views/form-edit.php:334
+#: includes/class-form-plant.php:773
 msgid "Submit button"
 msgstr ""
 
-#: admin/views/form-edit.php:250
+#: admin/views/form-edit.php:234
 msgid "Error display area"
 msgstr ""
 
-#: admin/views/form-edit.php:251
+#: admin/views/form-edit.php:235
 msgid "Success display area"
 msgstr ""
 
-#: admin/views/form-edit.php:254
+#: admin/views/form-edit.php:238
 msgid "Field Tags"
 msgstr ""
 
-#: admin/views/form-edit.php:254
+#: admin/views/form-edit.php:238
 msgid "Required"
 msgstr ""
 
-#: admin/views/form-edit.php:260
+#: admin/views/form-edit.php:244
 msgid "Error Message Tags"
 msgstr ""
 
-#: admin/views/form-edit.php:262
+#: admin/views/form-edit.php:246
 msgid " error"
 msgstr ""
 
-#: admin/views/form-edit.php:268
-#: admin/views/form-edit.php:361
+#: admin/views/form-edit.php:252
+#: admin/views/form-edit.php:345
 msgid "Insert"
 msgstr ""
 
-#: admin/views/form-edit.php:272
+#: admin/views/form-edit.php:256
 msgid "Field tags will be available after adding fields."
 msgstr ""
 
-#: admin/views/form-edit.php:274
+#: admin/views/form-edit.php:258
 msgid "* Required fields (*) and submit button must be included in the template."
 msgstr ""
 
-#: admin/views/form-edit.php:280
+#: admin/views/form-edit.php:264
 msgid "Enter HTML template (default layout will be used if empty)"
 msgstr ""
 
-#: admin/views/form-edit.php:289
+#: admin/views/form-edit.php:273
 msgid "Confirmation Screen Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:300
+#: admin/views/form-edit.php:284
 msgid "Show confirmation screen before submission"
 msgstr ""
 
-#: admin/views/form-edit.php:306
+#: admin/views/form-edit.php:290
 msgid "Confirmation Screen Title"
 msgstr ""
 
-#: admin/views/form-edit.php:310
-#: admin/views/form-edit.php:311
-#: includes/class-embed.php:356
-#: includes/class-form-plant.php:448
+#: admin/views/form-edit.php:294
+#: admin/views/form-edit.php:295
+#: includes/class-embed.php:360
+#: includes/class-form-plant.php:493
 #: templates/form-wrapper.php:33
 msgid "Confirm Your Input"
 msgstr ""
 
-#: admin/views/form-edit.php:317
+#: admin/views/form-edit.php:301
 msgid "Confirmation Screen Description"
 msgstr ""
 
-#: admin/views/form-edit.php:321
-#: admin/views/form-edit.php:323
-#: includes/class-embed.php:357
-#: includes/class-form-plant.php:449
+#: admin/views/form-edit.php:305
+#: admin/views/form-edit.php:307
+#: includes/class-embed.php:361
+#: includes/class-form-plant.php:494
 #: templates/form-wrapper.php:34
 msgid "If the information below is correct, please click the \"Submit\" button."
 msgstr ""
 
-#: admin/views/form-edit.php:335
+#: admin/views/form-edit.php:319
 msgid "Use confirmation screen HTML template"
 msgstr ""
 
-#: admin/views/form-edit.php:346
+#: admin/views/form-edit.php:330
 #: admin/views/migration-page.php:58
-#: includes/class-form-list-table.php:768
+#: includes/class-form-list-table.php:798
 msgid "Title"
 msgstr ""
 
-#: admin/views/form-edit.php:347
-#: includes/class-form-list-table.php:560
-#: includes/class-form-plant.php:1101
+#: admin/views/form-edit.php:331
+#: includes/class-form-list-table.php:590
+#: includes/class-form-plant.php:1183
 msgid "Message"
 msgstr ""
 
-#: admin/views/form-edit.php:348
+#: admin/views/form-edit.php:332
 msgid "All fields table"
 msgstr ""
 
-#: admin/views/form-edit.php:349
-#: admin/views/form-edit.php:383
-#: admin/views/form-edit.php:1988
-#: includes/class-embed.php:358
-#: includes/class-field-manager.php:675
-#: includes/class-field-manager.php:813
-#: includes/class-form-plant.php:450
-#: includes/class-form-plant.php:498
-#: includes/class-form-plant.php:698
-#: includes/class-submission-manager.php:1351
-#: includes/class-submission-manager.php:1511
+#: admin/views/form-edit.php:333
+#: admin/views/form-edit.php:367
+#: admin/views/form-edit.php:2311
+#: includes/class-embed.php:362
+#: includes/class-field-manager.php:678
+#: includes/class-field-manager.php:816
+#: includes/class-form-plant.php:495
+#: includes/class-form-plant.php:543
+#: includes/class-form-plant.php:763
+#: includes/class-submission-manager.php:1390
+#: includes/class-submission-manager.php:1550
 msgid "Back"
 msgstr ""
 
-#: admin/views/form-edit.php:349
+#: admin/views/form-edit.php:333
 msgid "Back button"
 msgstr ""
 
-#: admin/views/form-edit.php:353
+#: admin/views/form-edit.php:337
 msgid "Field Value Tags"
 msgstr ""
 
-#: admin/views/form-edit.php:365
+#: admin/views/form-edit.php:349
 msgid "Field value tags will be available after adding fields."
 msgstr ""
 
-#: admin/views/form-edit.php:367
+#: admin/views/form-edit.php:351
 msgid "* Submit button must be included in the template."
 msgstr ""
 
-#: admin/views/form-edit.php:373
+#: admin/views/form-edit.php:357
 msgid "Custom HTML template (default template will be used if empty)"
 msgstr ""
 
-#: admin/views/form-edit.php:380
-#: admin/views/form-edit.php:1978
+#: admin/views/form-edit.php:364
+#: admin/views/form-edit.php:2301
 msgid "Back Button Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:389
+#: admin/views/form-edit.php:373
 msgid "Configure back button text, CSS class, and ID"
 msgstr ""
 
-#: admin/views/form-edit.php:396
-#: admin/views/form-edit.php:2034
-#: includes/class-form-plant.php:501
-#: includes/class-form-plant.php:699
+#: admin/views/form-edit.php:380
+#: admin/views/form-edit.php:2357
+#: includes/class-form-plant.php:546
+#: includes/class-form-plant.php:764
 msgid "Submit Form"
 msgstr ""
 
-#: admin/views/form-edit.php:410
+#: admin/views/form-edit.php:398
 msgid "Form Design"
 msgstr ""
 
-#: admin/views/form-edit.php:414
+#: admin/views/form-edit.php:402
 msgid "Default CSS Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:417
+#: admin/views/form-edit.php:405
 msgid "Simple 1 (vertical)"
 msgstr ""
 
-#: admin/views/form-edit.php:418
+#: admin/views/form-edit.php:406
 msgid "Simple 2 (horizontal)"
 msgstr ""
 
-#: admin/views/form-edit.php:419
+#: admin/views/form-edit.php:407
 msgid "Normal (decorated)"
 msgstr ""
 
-#: admin/views/form-edit.php:420
-#: admin/views/form-edit.php:1695
-#: includes/class-form-list-table.php:583
-#: includes/class-validator.php:763
+#: admin/views/form-edit.php:408
+#: admin/views/form-edit.php:2165
+#: includes/class-form-list-table.php:613
+#: includes/class-validator.php:765
 msgid "None"
 msgstr ""
 
-#: admin/views/form-edit.php:441
+#: admin/views/form-edit.php:429
 msgid "Download CSS"
 msgstr ""
 
-#: admin/views/form-edit.php:451
-msgid "Custom CSS Settings"
+#: admin/views/form-edit.php:440
+msgid "Design Adjustments"
 msgstr ""
 
-#: admin/views/form-edit.php:453
-msgid "Upload your own CSS files to customize the form appearance."
+#: admin/views/form-edit.php:442
+msgid "Adjust colors and sizes visually without writing CSS. Empty fields keep the design preset defaults."
 msgstr ""
 
-#: admin/views/form-edit.php:458
-msgid "Upload"
+#. translators: %s: default value in pixels, e.g. 800
+#: admin/views/form-edit.php:501
+#, php-format
+msgid "Default: %spx"
 msgstr ""
 
-#: admin/views/form-edit.php:485
-msgid "Inline CSS"
-msgstr ""
-
-#: admin/views/form-edit.php:489
-msgid "Enter custom CSS directly"
-msgstr ""
-
-#: admin/views/form-edit.php:500
-msgid "Admin Email Settings"
-msgstr ""
-
-#: admin/views/form-edit.php:511
-msgid "Send email notification to admin"
-msgstr ""
-
-#: admin/views/form-edit.php:516
-msgid "Recipient Email Address"
-msgstr ""
-
-#: admin/views/form-edit.php:523
-msgid "Separate multiple addresses with commas. Available tag: {admin_email}"
-msgstr ""
-
-#: admin/views/form-edit.php:527
-#: admin/views/form-edit.php:643
-msgid "Sender Name"
+#: admin/views/form-edit.php:513
+#: admin/views/form-edit.php:553
+#: admin/views/form-edit.php:617
+#: includes/class-form-plant.php:789
+msgid "Default"
 msgstr ""
 
 #: admin/views/form-edit.php:537
-#: admin/views/form-edit.php:653
-msgid "Sender Email Address"
+#: admin/views/form-edit.php:611
+#: admin/views/form-edit.php:627
+#: admin/views/form-edit.php:636
+#: admin/views/form-edit.php:677
+msgid "Text Color"
+msgstr ""
+
+#: admin/views/form-edit.php:538
+#: admin/views/form-edit.php:603
+#: admin/views/form-edit.php:622
+#: admin/views/form-edit.php:637
+#: admin/views/form-edit.php:678
+msgid "Background Color"
+msgstr ""
+
+#: admin/views/form-edit.php:539
+#: admin/views/form-edit.php:604
+#: admin/views/form-edit.php:639
+msgid "Border Color"
+msgstr ""
+
+#: admin/views/form-edit.php:540
+#: admin/views/form-edit.php:605
+msgid "Border Width (px)"
+msgstr ""
+
+#: admin/views/form-edit.php:541
+msgid "Hover Text Color"
+msgstr ""
+
+#: admin/views/form-edit.php:542
+msgid "Hover Background Color"
+msgstr ""
+
+#: admin/views/form-edit.php:543
+#: admin/views/form-edit.php:606
+msgid "Corner Radius (px)"
+msgstr ""
+
+#: admin/views/form-edit.php:544
+#: admin/views/form-edit.php:607
+msgid "Shadow"
+msgstr ""
+
+#: admin/views/form-edit.php:545
+#: admin/views/form-edit.php:623
+#: admin/views/form-edit.php:628
+#: admin/views/form-edit.php:638
+msgid "Font Size (px)"
+msgstr ""
+
+#: admin/views/form-edit.php:546
+msgid "Vertical Padding (px)"
 msgstr ""
 
 #: admin/views/form-edit.php:547
-#: admin/views/form-edit.php:663
-msgid "Subject"
+msgid "Horizontal Padding (px)"
 msgstr ""
 
 #: admin/views/form-edit.php:551
-#: admin/views/form-edit.php:552
-msgid "[{form_title}] New Inquiry"
+msgid "Width"
+msgstr ""
+
+#: admin/views/form-edit.php:554
+msgid "Auto"
 msgstr ""
 
 #: admin/views/form-edit.php:555
-msgid "Available tags: {form_title}, {submission_id}, {site_name}, {admin_email}"
+msgid "Full Width (100%)"
 msgstr ""
 
-#: admin/views/form-edit.php:560
-#: admin/views/form-edit.php:676
-msgid "Email Body"
-msgstr ""
-
-#: admin/views/form-edit.php:564
-#: admin/views/form-edit.php:680
-msgid "Enter email body"
-msgstr ""
-
-#: admin/views/form-edit.php:566
-msgid "You have received a new inquiry."
-msgstr ""
-
-#: admin/views/form-edit.php:566
-msgid "Submission Date:"
-msgstr ""
-
-#: admin/views/form-edit.php:566
-msgid "Submission ID:"
-msgstr ""
-
-#: admin/views/form-edit.php:570
-msgid "Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}, {admin_email}"
-msgstr ""
-
-#: admin/views/form-edit.php:575
-#: admin/views/form-edit.php:691
-msgid "CC"
-msgstr ""
-
-#: admin/views/form-edit.php:582
-#: admin/views/form-edit.php:593
-#: admin/views/form-edit.php:698
-#: admin/views/form-edit.php:709
-msgid "Separate multiple addresses with commas"
+#: admin/views/form-edit.php:583
+msgid "Reset"
 msgstr ""
 
 #: admin/views/form-edit.php:586
-#: admin/views/form-edit.php:702
+msgid "Save"
+msgstr ""
+
+#: admin/views/form-edit.php:596
+msgid "Overall"
+msgstr ""
+
+#: admin/views/form-edit.php:599
+msgid "Form Frame"
+msgstr ""
+
+#: admin/views/form-edit.php:602
+msgid "Max Width (px)"
+msgstr ""
+
+#: admin/views/form-edit.php:609
+msgid "Field Labels"
+msgstr ""
+
+#: admin/views/form-edit.php:615
+msgid "Font Weight"
+msgstr ""
+
+#: admin/views/form-edit.php:618
+msgid "Bold"
+msgstr ""
+
+#: admin/views/form-edit.php:619
+msgid "Normal"
+msgstr ""
+
+#: admin/views/form-edit.php:625
+msgid "Field Descriptions"
+msgstr ""
+
+#: admin/views/form-edit.php:634
+msgid "Input Fields"
+msgstr ""
+
+#: admin/views/form-edit.php:640
+msgid "Focus Border Color"
+msgstr ""
+
+#: admin/views/form-edit.php:641
+msgid "Error Border Color"
+msgstr ""
+
+#: admin/views/form-edit.php:642
+msgid "Placeholder Text Color"
+msgstr ""
+
+#: admin/views/form-edit.php:648
+msgid "Submit/Confirm Button (Input Screen)"
+msgstr ""
+
+#: admin/views/form-edit.php:656
+msgid "Confirmation Screen Buttons"
+msgstr ""
+
+#: admin/views/form-edit.php:662
+msgid "Back Button"
+msgstr ""
+
+#: admin/views/form-edit.php:666
+msgid "Submit Button"
+msgstr ""
+
+#: admin/views/form-edit.php:675
+msgid "Error Messages"
+msgstr ""
+
+#: admin/views/form-edit.php:688
+msgid "Custom CSS Settings"
+msgstr ""
+
+#: admin/views/form-edit.php:690
+msgid "Upload your own CSS files to customize the form appearance."
+msgstr ""
+
+#: admin/views/form-edit.php:695
+msgid "Upload"
+msgstr ""
+
+#: admin/views/form-edit.php:712
+#: admin/views/submission-list.php:163
+#: includes/class-form-plant.php:742
+msgid "Delete"
+msgstr ""
+
+#: admin/views/form-edit.php:722
+msgid "Inline CSS"
+msgstr ""
+
+#: admin/views/form-edit.php:724
+msgid "Design Adjustments output per-form CSS using an ID selector (#fplant-form-...). To override them here, prefix your selectors with the same ID or use !important."
+msgstr ""
+
+#: admin/views/form-edit.php:729
+msgid "Enter custom CSS directly"
+msgstr ""
+
+#: admin/views/form-edit.php:740
+msgid "Admin Email Settings"
+msgstr ""
+
+#: admin/views/form-edit.php:751
+msgid "Send email notification to admin"
+msgstr ""
+
+#: admin/views/form-edit.php:756
+msgid "Recipient Email Address"
+msgstr ""
+
+#: admin/views/form-edit.php:763
+msgid "Separate multiple addresses with commas. Available tag: {admin_email}"
+msgstr ""
+
+#: admin/views/form-edit.php:767
+#: admin/views/form-edit.php:883
+msgid "Sender Name"
+msgstr ""
+
+#: admin/views/form-edit.php:777
+#: admin/views/form-edit.php:893
+msgid "Sender Email Address"
+msgstr ""
+
+#: admin/views/form-edit.php:787
+#: admin/views/form-edit.php:903
+msgid "Subject"
+msgstr ""
+
+#: admin/views/form-edit.php:791
+#: admin/views/form-edit.php:792
+msgid "[{form_title}] New Inquiry"
+msgstr ""
+
+#: admin/views/form-edit.php:795
+msgid "Available tags: {form_title}, {submission_id}, {site_name}, {admin_email}"
+msgstr ""
+
+#: admin/views/form-edit.php:800
+#: admin/views/form-edit.php:916
+msgid "Email Body"
+msgstr ""
+
+#: admin/views/form-edit.php:804
+#: admin/views/form-edit.php:920
+msgid "Enter email body"
+msgstr ""
+
+#: admin/views/form-edit.php:806
+msgid "You have received a new inquiry."
+msgstr ""
+
+#: admin/views/form-edit.php:806
+msgid "Submission Date:"
+msgstr ""
+
+#: admin/views/form-edit.php:806
+msgid "Submission ID:"
+msgstr ""
+
+#: admin/views/form-edit.php:810
+msgid "Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {ip_address}, {admin_email}"
+msgstr ""
+
+#: admin/views/form-edit.php:815
+#: admin/views/form-edit.php:931
+msgid "CC"
+msgstr ""
+
+#: admin/views/form-edit.php:822
+#: admin/views/form-edit.php:833
+#: admin/views/form-edit.php:938
+#: admin/views/form-edit.php:949
+msgid "Separate multiple addresses with commas"
+msgstr ""
+
+#: admin/views/form-edit.php:826
+#: admin/views/form-edit.php:942
 msgid "BCC"
 msgstr ""
 
-#: admin/views/form-edit.php:597
-#: admin/views/form-edit.php:713
+#: admin/views/form-edit.php:837
+#: admin/views/form-edit.php:953
 msgid "Reply-To"
 msgstr ""
 
-#: admin/views/form-edit.php:604
-#: admin/views/form-edit.php:720
+#: admin/views/form-edit.php:844
+#: admin/views/form-edit.php:960
 msgid "Reply destination when the recipient replies to this email"
 msgstr ""
 
-#: admin/views/form-edit.php:610
+#: admin/views/form-edit.php:850
 msgid "Auto-reply Email Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:621
+#: admin/views/form-edit.php:861
 msgid "Send auto-reply email to user"
 msgstr ""
 
-#: admin/views/form-edit.php:626
+#: admin/views/form-edit.php:866
 msgid "Recipient Field"
 msgstr ""
 
-#: admin/views/form-edit.php:628
+#: admin/views/form-edit.php:868
 #: templates/form-fields/address-ja.php:130
 #: templates/form-fields/address.php:129
 #: templates/form-fields/prefecture.php:34
@@ -631,999 +799,988 @@ msgstr ""
 msgid "Please select"
 msgstr ""
 
-#: admin/views/form-edit.php:639
+#: admin/views/form-edit.php:879
 msgid "Select an email type field"
 msgstr ""
 
-#: admin/views/form-edit.php:667
-#: admin/views/form-edit.php:668
-#: includes/class-form-plant.php:1167
+#: admin/views/form-edit.php:907
+#: admin/views/form-edit.php:908
+#: includes/class-form-plant.php:1249
 msgid "Thank you for your inquiry"
 msgstr ""
 
-#: admin/views/form-edit.php:671
+#: admin/views/form-edit.php:911
 msgid "Available tags: {form_title}, {field:field_name}, {site_name}, {admin_email}"
 msgstr ""
 
-#: admin/views/form-edit.php:682
+#: admin/views/form-edit.php:922
 #: includes/class-email-handler.php:514
 msgid "Thank you for your inquiry."
 msgstr ""
 
-#: admin/views/form-edit.php:682
+#: admin/views/form-edit.php:922
 msgid "We have received the following information."
 msgstr ""
 
-#: admin/views/form-edit.php:686
+#: admin/views/form-edit.php:926
 msgid "Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}, {admin_email}"
 msgstr ""
 
-#: admin/views/form-edit.php:729
+#: admin/views/form-edit.php:969
 msgid "Action After Submission"
 msgstr ""
 
-#: admin/views/form-edit.php:733
+#: admin/views/form-edit.php:973
 msgid "Action Type"
 msgstr ""
 
-#: admin/views/form-edit.php:736
+#: admin/views/form-edit.php:976
 msgid "Message Only"
 msgstr ""
 
-#: admin/views/form-edit.php:739
+#: admin/views/form-edit.php:979
 msgid "Completion Page"
 msgstr ""
 
-#: admin/views/form-edit.php:742
-#: admin/views/form-edit.php:768
+#: admin/views/form-edit.php:982
+#: admin/views/form-edit.php:1008
 msgid "Redirect URL"
 msgstr ""
 
-#: admin/views/form-edit.php:748
+#: admin/views/form-edit.php:988
 msgid "Success Message"
 msgstr ""
 
-#: admin/views/form-edit.php:752
+#: admin/views/form-edit.php:992
 msgid "Submission completed successfully"
 msgstr ""
 
-#: admin/views/form-edit.php:757
+#: admin/views/form-edit.php:997
 msgid "Completion Page HTML"
 msgstr ""
 
-#: admin/views/form-edit.php:763
+#: admin/views/form-edit.php:1003
 msgid "Enter the HTML to display after submission. The form will be hidden and this HTML will be shown."
 msgstr ""
 
-#: admin/views/form-edit.php:776
+#: admin/views/form-edit.php:1016
 msgid "Enter the URL to redirect to after submission."
 msgstr ""
 
-#: admin/views/form-edit.php:783
-#: includes/class-admin.php:861
+#: admin/views/form-edit.php:1023
+#: includes/class-admin.php:930
 msgid "Submission Data"
 msgstr ""
 
-#: admin/views/form-edit.php:812
+#: admin/views/form-edit.php:1052
 msgid "Do not save anything"
 msgstr ""
 
-#: admin/views/form-edit.php:826
+#: admin/views/form-edit.php:1066
 msgid "Save only submission record (do not save input data)"
 msgstr ""
 
-#: admin/views/form-edit.php:840
+#: admin/views/form-edit.php:1080
 msgid "Save submission data including input data"
 msgstr ""
 
-#: admin/views/form-edit.php:845
+#: admin/views/form-edit.php:1085
 msgid "When \"Save only submission record\" is selected, only metadata such as submission date and IP address will be recorded, and input content will not be saved."
 msgstr ""
 
-#: admin/views/form-edit.php:852
+#: admin/views/form-edit.php:1092
 msgid "URL Parameter Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:863
+#: admin/views/form-edit.php:1103
 msgid "Allow initial values from URL parameters"
 msgstr ""
 
-#: admin/views/form-edit.php:867
+#: admin/views/form-edit.php:1107
 msgid "When enabled, field values can be set via URL parameters (e.g., ?field_name=value)"
 msgstr ""
 
-#: admin/views/form-edit.php:870
+#: admin/views/form-edit.php:1110
 msgid "* Set {field_name} as the default value for each field."
 msgstr ""
 
-#: admin/views/form-edit.php:877
+#: admin/views/form-edit.php:1117
 msgid "External Usage"
 msgstr ""
 
-#: admin/views/form-edit.php:881
+#: admin/views/form-edit.php:1121
 msgid "Settings for embedding this form on external sites."
 msgstr ""
 
-#: admin/views/form-edit.php:894
+#: admin/views/form-edit.php:1134
 msgid "Allow iframe embedding"
 msgstr ""
 
-#: admin/views/form-edit.php:900
-#: admin/views/form-edit.php:947
+#: admin/views/form-edit.php:1140
+#: admin/views/form-edit.php:1187
 msgid "Allowed Site URLs (multiple allowed)"
 msgstr ""
 
-#: admin/views/form-edit.php:907
+#: admin/views/form-edit.php:1147
 msgid "Enter one URL per line. Only these sites will be allowed to embed via iframe."
 msgstr ""
 
-#: admin/views/form-edit.php:912
-#: admin/views/form-edit.php:959
+#: admin/views/form-edit.php:1152
+#: admin/views/form-edit.php:1199
 msgid "Embed Code"
 msgstr ""
 
-#: admin/views/form-edit.php:941
+#: admin/views/form-edit.php:1181
 msgid "Allow JavaScript embedding"
 msgstr ""
 
-#: admin/views/form-edit.php:954
+#: admin/views/form-edit.php:1194
 msgid "Enter one URL per line. Only these sites will be allowed for JS embedding (CORS control)."
 msgstr ""
 
-#: admin/views/form-edit.php:987
+#: admin/views/form-edit.php:1227
 msgid "Extended Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1051
+#: admin/views/form-edit.php:1291
 msgid "CAPTCHA Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1077
+#: admin/views/form-edit.php:1317
 msgid "Do not use CAPTCHA"
 msgstr ""
 
-#: admin/views/form-edit.php:1092
+#: admin/views/form-edit.php:1332
 msgid "Google reCAPTCHA v2 (Checkbox)"
 msgstr ""
 
-#: admin/views/form-edit.php:1098
+#: admin/views/form-edit.php:1338
 msgid "Users must check the \"I'm not a robot\" checkbox before submitting."
 msgstr ""
 
-#: admin/views/form-edit.php:1113
+#: admin/views/form-edit.php:1353
 msgid "Google reCAPTCHA v3"
 msgstr ""
 
-#: admin/views/form-edit.php:1119
+#: admin/views/form-edit.php:1359
 msgid "Uses reCAPTCHA v3 (invisible/score-based) for automatic background verification."
 msgstr ""
 
-#: admin/views/form-edit.php:1134
+#: admin/views/form-edit.php:1374
 msgid "Cloudflare Turnstile"
 msgstr ""
 
-#: admin/views/form-edit.php:1140
+#: admin/views/form-edit.php:1380
 msgid "Uses Cloudflare Turnstile for automatic background verification."
 msgstr ""
 
 #. translators: %s: settings page link
-#: admin/views/form-edit.php:1150
+#: admin/views/form-edit.php:1390
 #, php-format
 msgid "To use CAPTCHA, please first set up the API keys on the %s."
 msgstr ""
 
-#: admin/views/form-edit.php:1151
+#: admin/views/form-edit.php:1391
 msgid "Settings page"
 msgstr ""
 
-#: admin/views/form-edit.php:1161
-#: includes/class-form-list-table.php:632
+#: admin/views/form-edit.php:1401
+#: includes/class-form-list-table.php:662
 msgid "Honeypot"
 msgstr ""
 
-#: admin/views/form-edit.php:1172
+#: admin/views/form-edit.php:1412
 msgid "Enable honeypot"
 msgstr ""
 
-#: admin/views/form-edit.php:1176
+#: admin/views/form-edit.php:1416
 msgid "An invisible dummy field is used to detect bots."
 msgstr ""
 
-#: admin/views/form-edit.php:1180
+#: admin/views/form-edit.php:1420
 msgid "Field name"
 msgstr ""
 
-#: admin/views/form-edit.php:1189
+#: admin/views/form-edit.php:1429
 msgid "Change the field name if it conflicts with your form fields."
 msgstr ""
 
-#: admin/views/form-edit.php:1197
+#: admin/views/form-edit.php:1437
 msgid "Rate Limiting"
 msgstr ""
 
-#: admin/views/form-edit.php:1208
+#: admin/views/form-edit.php:1448
 msgid "Enable rate limiting"
 msgstr ""
 
 #. translators: %1$s: minutes input field, %2$s: count input field
-#: admin/views/form-edit.php:1217
+#: admin/views/form-edit.php:1457
 #, php-format
 msgid "Block submissions exceeding %2$s times within %1$s minutes from the same IP address"
 msgstr ""
 
-#: admin/views/form-edit.php:1229
+#: admin/views/form-edit.php:1469
 msgid "Submission Speed Check"
 msgstr ""
 
-#: admin/views/form-edit.php:1240
+#: admin/views/form-edit.php:1480
 msgid "Enable submission speed check"
 msgstr ""
 
 #. translators: %s: seconds input field
-#: admin/views/form-edit.php:1249
+#: admin/views/form-edit.php:1489
 #, php-format
 msgid "Block submissions faster than %s seconds after form display"
 msgstr ""
 
-#: admin/views/form-edit.php:1255
+#: admin/views/form-edit.php:1495
 msgid "Rejects submissions that are faster than human input speed."
 msgstr ""
 
-#: admin/views/form-edit.php:1263
-#: includes/class-form-list-table.php:654
+#: admin/views/form-edit.php:1503
+#: includes/class-form-list-table.php:684
 msgid "Email Address Verification"
 msgstr ""
 
-#: admin/views/form-edit.php:1274
+#: admin/views/form-edit.php:1514
 msgid "Enable disposable email blocking"
 msgstr ""
 
-#: admin/views/form-edit.php:1279
+#: admin/views/form-edit.php:1519
 msgid "Block disposable email addresses like tempmail.com"
 msgstr ""
 
-#: admin/views/form-edit.php:1292
-#: includes/class-form-plant.php:675
-msgid "Add Field"
+#: admin/views/form-edit.php:1533
+msgid "Basic"
 msgstr ""
 
-#: admin/views/form-edit.php:1298
+#: admin/views/form-edit.php:1534
+msgid "Validation"
+msgstr ""
+
+#: admin/views/form-edit.php:1535
+msgid "Advanced"
+msgstr ""
+
+#: admin/views/form-edit.php:1539
 msgid "Field Type"
 msgstr ""
 
-#: admin/views/form-edit.php:1300
-#: includes/class-field-manager.php:116
-#: includes/class-form-plant.php:1088
-msgid "Name"
-msgstr ""
-
-#: admin/views/form-edit.php:1301
-#: includes/class-field-manager.php:121
-msgid "Name (Kana)"
-msgstr ""
-
-#: admin/views/form-edit.php:1302
-msgid "Email Address"
-msgstr ""
-
-#: admin/views/form-edit.php:1303
-#: admin/views/form-edit.php:1860
-#: includes/class-field-manager.php:61
-msgid "Text"
-msgstr ""
-
-#: admin/views/form-edit.php:1304
-msgid "Phone Number"
-msgstr ""
-
-#: admin/views/form-edit.php:1305
-#: includes/class-field-manager.php:81
-msgid "URL"
-msgstr ""
-
-#: admin/views/form-edit.php:1306
-#: includes/class-field-manager.php:86
-msgid "Number"
-msgstr ""
-
-#: admin/views/form-edit.php:1307
-#: includes/class-field-manager.php:66
-msgid "Textarea"
-msgstr ""
-
-#: admin/views/form-edit.php:1308
-msgid "Select Box"
-msgstr ""
-
-#: admin/views/form-edit.php:1309
-#: admin/views/form-edit.php:1814
-msgid "Radio Button"
-msgstr ""
-
-#: admin/views/form-edit.php:1310
-#: admin/views/form-edit.php:1815
-#: includes/class-field-manager.php:111
-msgid "Checkbox"
-msgstr ""
-
-#: admin/views/form-edit.php:1311
-msgid "Date (Calendar)"
-msgstr ""
-
-#: admin/views/form-edit.php:1312
-msgid "Date (Dropdown)"
-msgstr ""
-
-#: admin/views/form-edit.php:1313
-#: includes/class-field-manager.php:96
-msgid "Time"
-msgstr ""
-
-#: admin/views/form-edit.php:1314
-#: includes/class-field-manager.php:126
-msgid "Password"
-msgstr ""
-
-#: admin/views/form-edit.php:1315
-#: includes/class-field-manager.php:131
-msgid "File Upload"
-msgstr ""
-
-#: admin/views/form-edit.php:1316
-#: admin/views/form-edit.php:1868
-#: admin/views/form-edit.php:1879
-#: includes/class-field-manager.php:146
-#: includes/class-field-manager.php:313
-#: includes/class-validator.php:354
-#: templates/form-fields/address-ja.php:55
-#: templates/form-fields/address.php:54
-msgid "Postal Code"
-msgstr ""
-
-#: admin/views/form-edit.php:1317
-#: admin/views/form-edit.php:1869
-#: includes/class-field-manager.php:151
-#: includes/class-field-manager.php:314
-#: templates/form-fields/address-ja.php:56
-msgid "Prefecture"
-msgstr ""
-
-#: admin/views/form-edit.php:1318
-#: includes/class-field-manager.php:156
-msgid "Address"
-msgstr ""
-
-#: admin/views/form-edit.php:1319
-#: includes/class-field-manager.php:136
-msgid "Hidden"
-msgstr ""
-
-#: admin/views/form-edit.php:1320
-#: includes/class-field-manager.php:141
-msgid "HTML"
-msgstr ""
-
-#: admin/views/form-edit.php:1321
-#: includes/class-field-manager.php:161
-msgid "Custom Mail Tag"
-msgstr ""
-
-#: admin/views/form-edit.php:1326
+#: admin/views/form-edit.php:1555
 msgid "Field Name"
 msgstr ""
 
-#: admin/views/form-edit.php:1328
+#: admin/views/form-edit.php:1557
 msgid "Only alphanumeric characters and underscores allowed"
 msgstr ""
 
-#: admin/views/form-edit.php:1332
+#: admin/views/form-edit.php:1561
 msgid "Field Label"
 msgstr ""
 
-#: admin/views/form-edit.php:1333
+#: admin/views/form-edit.php:1562
 msgid "Your Name"
 msgstr ""
 
-#: admin/views/form-edit.php:1337
-#: admin/views/form-edit.php:1554
-#: admin/views/form-edit.php:1603
-#: admin/views/form-edit.php:1901
+#: admin/views/form-edit.php:1566
+#: admin/views/form-edit.php:1733
+#: admin/views/form-edit.php:1778
+#: admin/views/form-edit.php:2001
 msgid "Placeholder"
 msgstr ""
 
-#: admin/views/form-edit.php:1343
-msgid "Required Field"
-msgstr ""
-
-#: admin/views/form-edit.php:1347
-#: admin/views/form-edit.php:1558
-#: admin/views/form-edit.php:1607
-#: admin/views/form-edit.php:1905
-msgid "Validation Message"
-msgstr ""
-
-#: admin/views/form-edit.php:1348
-#: includes/class-embed.php:347
-#: includes/class-form-plant.php:436
-msgid "This field is required. Please enter a value."
-msgstr ""
-
-#: admin/views/form-edit.php:1349
-msgid "Message to display when required field is empty (default message used if blank)"
-msgstr ""
-
-#: admin/views/form-edit.php:1353
-msgid "Custom ID"
-msgstr ""
-
-#: admin/views/form-edit.php:1354
-msgid "e.g., my-custom-field"
-msgstr ""
-
-#: admin/views/form-edit.php:1355
-msgid "Set a custom ID for the field (auto-generated if blank)"
-msgstr ""
-
-#: admin/views/form-edit.php:1359
-msgid "Custom Class"
-msgstr ""
-
-#: admin/views/form-edit.php:1360
-msgid "e.g., my-class another-class"
-msgstr ""
-
-#: admin/views/form-edit.php:1361
-msgid "CSS classes to add to the field (separate multiple with spaces)"
-msgstr ""
-
-#: admin/views/form-edit.php:1366
-#: admin/views/form-edit.php:1832
+#: admin/views/form-edit.php:1574
+#: admin/views/form-edit.php:1932
 msgid "Options"
 msgstr ""
 
-#: admin/views/form-edit.php:1367
+#: admin/views/form-edit.php:1575
 msgid ""
 "value1:Label 1\n"
 "value2:Label 2\n"
 "value3"
 msgstr ""
 
-#: admin/views/form-edit.php:1368
+#: admin/views/form-edit.php:1576
 msgid "Enter one option per line. Use \"value:label\" format to set different value and label. If no colon, the text becomes both value and label."
 msgstr ""
 
-#: admin/views/form-edit.php:1377
-#: admin/views/form-edit.php:1823
+#: admin/views/form-edit.php:1585
+#: admin/views/form-edit.php:1923
 msgid "Vertical"
 msgstr ""
 
-#: admin/views/form-edit.php:1381
-#: admin/views/form-edit.php:1827
+#: admin/views/form-edit.php:1589
+#: admin/views/form-edit.php:1927
 msgid "Horizontal"
 msgstr ""
 
-#: admin/views/form-edit.php:1384
+#: admin/views/form-edit.php:1592
 msgid "Choose how options are displayed"
 msgstr ""
 
-#: admin/views/form-edit.php:1389
+#: admin/views/form-edit.php:1597
 msgid "Delimiter"
 msgstr ""
 
-#: admin/views/form-edit.php:1391
+#: admin/views/form-edit.php:1599
 msgid "Separator used when displaying multiple selected values in confirmation screen and emails"
 msgstr ""
 
-#: admin/views/form-edit.php:1396
+#: admin/views/form-edit.php:1604
 msgid "Year Range Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1399
+#: admin/views/form-edit.php:1607
 msgid "Start Year (Past)"
 msgstr ""
 
-#: admin/views/form-edit.php:1408
+#: admin/views/form-edit.php:1616
 msgid "How many years in the past"
 msgstr ""
 
-#: admin/views/form-edit.php:1411
+#: admin/views/form-edit.php:1619
 msgid "End Year (Future)"
 msgstr ""
 
-#: admin/views/form-edit.php:1420
+#: admin/views/form-edit.php:1628
 msgid "How many years in the future"
 msgstr ""
 
-#: admin/views/form-edit.php:1427
+#: admin/views/form-edit.php:1635
 msgid "File Upload Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1429
+#: admin/views/form-edit.php:1637
 msgid "Maximum File Size (MB)"
 msgstr ""
 
-#: admin/views/form-edit.php:1439
+#: admin/views/form-edit.php:1647
 msgid "Specify the maximum file size in MB (Default: 2MB)"
 msgstr ""
 
-#: admin/views/form-edit.php:1445
-msgid "Input Field Settings"
-msgstr ""
-
-#: admin/views/form-edit.php:1448
+#: admin/views/form-edit.php:1653
 msgid "Size"
 msgstr ""
 
-#: admin/views/form-edit.php:1457
+#: admin/views/form-edit.php:1662
 msgid "Display width of the input field (number of characters)"
 msgstr ""
 
-#: admin/views/form-edit.php:1460
-#: admin/views/form-edit.php:1503
-msgid "Max Length"
-msgstr ""
-
-#: admin/views/form-edit.php:1469
-#: admin/views/form-edit.php:1512
-msgid "Maximum number of characters allowed"
-msgstr ""
-
-#: admin/views/form-edit.php:1476
+#: admin/views/form-edit.php:1667
 msgid "Textarea Field Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1479
+#: admin/views/form-edit.php:1670
 msgid "Rows"
 msgstr ""
 
-#: admin/views/form-edit.php:1488
+#: admin/views/form-edit.php:1679
 msgid "Number of visible text rows"
 msgstr ""
 
-#: admin/views/form-edit.php:1491
-#: includes/class-admin.php:454
-#: includes/class-admin.php:566
+#: admin/views/form-edit.php:1682
+#: includes/class-admin.php:477
+#: includes/class-admin.php:589
 msgid "Columns"
 msgstr ""
 
-#: admin/views/form-edit.php:1500
+#: admin/views/form-edit.php:1691
 msgid "Visible width (number of characters)"
 msgstr ""
 
-#: admin/views/form-edit.php:1519
+#: admin/views/form-edit.php:1698
 msgid "Name Field Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1521
-#: admin/views/form-edit.php:1571
+#: admin/views/form-edit.php:1700
+#: admin/views/form-edit.php:1746
 msgid "Number of Inputs"
 msgstr ""
 
-#: admin/views/form-edit.php:1523
-#: admin/views/form-edit.php:1573
+#: admin/views/form-edit.php:1702
+#: admin/views/form-edit.php:1748
 msgid "1 input"
 msgstr ""
 
-#: admin/views/form-edit.php:1524
-#: admin/views/form-edit.php:1574
+#: admin/views/form-edit.php:1703
+#: admin/views/form-edit.php:1749
 msgid "2 inputs (First / Last)"
 msgstr ""
 
-#: admin/views/form-edit.php:1525
-#: admin/views/form-edit.php:1575
+#: admin/views/form-edit.php:1704
+#: admin/views/form-edit.php:1750
 msgid "3 inputs (First / Middle / Last)"
 msgstr ""
 
-#: admin/views/form-edit.php:1530
-#: includes/class-field-manager.php:241
+#: admin/views/form-edit.php:1709
+#: includes/class-field-manager.php:226
 #: includes/class-validator.php:99
 msgid "Last Name"
 msgstr ""
 
-#: admin/views/form-edit.php:1531
-#: includes/class-field-manager.php:242
+#: admin/views/form-edit.php:1710
+#: includes/class-field-manager.php:227
 #: includes/class-validator.php:100
 msgid "First Name"
 msgstr ""
 
-#: admin/views/form-edit.php:1532
-#: includes/class-field-manager.php:243
+#: admin/views/form-edit.php:1711
+#: includes/class-field-manager.php:228
 #: includes/class-validator.php:101
 msgid "Middle Name"
 msgstr ""
 
-#: admin/views/form-edit.php:1545
+#: admin/views/form-edit.php:1724
+#: admin/views/form-edit.php:2066
 msgid "Full Name"
 msgstr ""
 
-#: admin/views/form-edit.php:1550
-#: admin/views/form-edit.php:1599
+#: admin/views/form-edit.php:1729
+#: admin/views/form-edit.php:1774
 msgid "Sub-label"
 msgstr ""
 
-#: admin/views/form-edit.php:1559
-#: admin/views/form-edit.php:1608
-#: admin/views/form-edit.php:1906
-msgid "Default message used if blank"
-msgstr ""
-
-#: admin/views/form-edit.php:1569
+#: admin/views/form-edit.php:1744
 msgid "Kana Field Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1580
-#: includes/class-field-manager.php:255
+#: admin/views/form-edit.php:1755
+#: includes/class-field-manager.php:240
 #: includes/class-validator.php:94
 msgid "Last Name (Kana)"
 msgstr ""
 
-#: admin/views/form-edit.php:1581
-#: includes/class-field-manager.php:256
+#: admin/views/form-edit.php:1756
+#: includes/class-field-manager.php:241
 #: includes/class-validator.php:95
 msgid "First Name (Kana)"
 msgstr ""
 
-#: admin/views/form-edit.php:1582
-#: includes/class-field-manager.php:257
+#: admin/views/form-edit.php:1757
+#: includes/class-field-manager.php:242
 #: includes/class-validator.php:96
 msgid "Middle Name (Kana)"
 msgstr ""
 
-#: admin/views/form-edit.php:1594
+#: admin/views/form-edit.php:1769
+#: admin/views/form-edit.php:2086
 msgid "Full Name (Kana)"
 msgstr ""
 
-#: admin/views/form-edit.php:1615
-msgid "Kana Validation"
-msgstr ""
-
-#: admin/views/form-edit.php:1618
-msgid "Katakana only"
-msgstr ""
-
-#: admin/views/form-edit.php:1622
-msgid "Hiragana only"
-msgstr ""
-
-#: admin/views/form-edit.php:1626
-msgid "No validation"
-msgstr ""
-
-#: admin/views/form-edit.php:1630
-msgid "Kana Validation Error Message"
-msgstr ""
-
-#: admin/views/form-edit.php:1631
-#: includes/class-form-plant.php:442
-msgid "Please enter in katakana."
-msgstr ""
-
-#: admin/views/form-edit.php:1632
-msgid "Custom error message for kana validation (default message used if blank)"
-msgstr ""
-
-#: admin/views/form-edit.php:1638
+#: admin/views/form-edit.php:1789
 msgid "Password Field Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1642
-msgid "Minimum Character Length"
-msgstr ""
-
-#: admin/views/form-edit.php:1653
-msgid "Minimum number of characters required (leave blank for no limit)"
-msgstr ""
-
-#: admin/views/form-edit.php:1661
+#: admin/views/form-edit.php:1795
 msgid "Mask value in email notifications"
 msgstr ""
 
-#: admin/views/form-edit.php:1665
+#: admin/views/form-edit.php:1799
 msgid "Replace the password value with masked characters in email notifications"
 msgstr ""
 
-#: admin/views/form-edit.php:1673
+#: admin/views/form-edit.php:1807
 msgid "Mask value when saving data"
 msgstr ""
 
-#: admin/views/form-edit.php:1677
+#: admin/views/form-edit.php:1811
 msgid "Replace the password value with masked characters before saving to database (irreversible)"
 msgstr ""
 
-#: admin/views/form-edit.php:1685
-msgid "Show password strength meter"
-msgstr ""
-
-#: admin/views/form-edit.php:1691
-msgid "Required Strength Level"
-msgstr ""
-
-#: admin/views/form-edit.php:1699
-#: includes/class-form-plant.php:456
-#: includes/class-validator.php:757
-msgid "Weak"
-msgstr ""
-
-#: admin/views/form-edit.php:1703
-#: includes/class-form-plant.php:457
-#: includes/class-validator.php:759
-msgid "Fair"
-msgstr ""
-
-#: admin/views/form-edit.php:1707
-#: includes/class-form-plant.php:458
-#: includes/class-validator.php:761
-msgid "Strong"
-msgstr ""
-
-#: admin/views/form-edit.php:1710
-msgid "Set the minimum password strength required for submission"
-msgstr ""
-
-#: admin/views/form-edit.php:1718
+#: admin/views/form-edit.php:1818
 msgid "HTML Content"
 msgstr ""
 
-#: admin/views/form-edit.php:1720
+#: admin/views/form-edit.php:1820
 msgid "<p>Enter your HTML content here...</p>"
 msgstr ""
 
-#: admin/views/form-edit.php:1721
+#: admin/views/form-edit.php:1821
 msgid "Enter the HTML content to display. This field is for display only and will not be submitted."
 msgstr ""
 
-#: admin/views/form-edit.php:1726
+#: admin/views/form-edit.php:1826
 msgid "Custom Mail Tag Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1728
+#: admin/views/form-edit.php:1828
 msgid "Value is supplied by the `fplant_custom_mail_tag_value_{name}` PHP filter and included in the submission data / email body."
 msgstr ""
 
-#: admin/views/form-edit.php:1733
+#: admin/views/form-edit.php:1833
 msgid "Display the resolved value in the form"
 msgstr ""
 
-#: admin/views/form-edit.php:1737
+#: admin/views/form-edit.php:1837
 msgid "Wrapper element (when displayed)"
 msgstr ""
 
-#: admin/views/form-edit.php:1739
+#: admin/views/form-edit.php:1839
 msgid "Inline (span)"
 msgstr ""
 
-#: admin/views/form-edit.php:1740
+#: admin/views/form-edit.php:1840
 msgid "Block (div)"
 msgstr ""
 
-#: admin/views/form-edit.php:1741
+#: admin/views/form-edit.php:1841
 msgid "Hidden input only (no visible element)"
 msgstr ""
 
-#: admin/views/form-edit.php:1748
+#: admin/views/form-edit.php:1848
 msgid "Phone Number Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1750
-#: admin/views/form-edit.php:1762
+#: admin/views/form-edit.php:1850
+#: admin/views/form-edit.php:1862
 msgid "Input Format"
 msgstr ""
 
-#: admin/views/form-edit.php:1752
-#: admin/views/form-edit.php:1764
-#: admin/views/form-edit.php:1844
+#: admin/views/form-edit.php:1852
+#: admin/views/form-edit.php:1864
+#: admin/views/form-edit.php:1944
 msgid "Single input"
 msgstr ""
 
-#: admin/views/form-edit.php:1753
+#: admin/views/form-edit.php:1853
 msgid "Split input (3 fields)"
 msgstr ""
 
-#: admin/views/form-edit.php:1760
+#: admin/views/form-edit.php:1860
 msgid "Postal Code Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1765
-#: admin/views/form-edit.php:1845
+#: admin/views/form-edit.php:1865
+#: admin/views/form-edit.php:1945
 msgid "Split input (3 + 4 digits)"
 msgstr ""
 
-#: admin/views/form-edit.php:1771
-#: admin/views/form-edit.php:1852
+#: admin/views/form-edit.php:1871
+#: admin/views/form-edit.php:1952
 msgid "Show search button"
 msgstr ""
 
-#: admin/views/form-edit.php:1773
-#: admin/views/form-edit.php:1854
+#: admin/views/form-edit.php:1873
+#: admin/views/form-edit.php:1954
 msgid "Display a search button next to the postal code input."
 msgstr ""
 
-#: admin/views/form-edit.php:1778
+#: admin/views/form-edit.php:1878
 msgid "Enable auto-fill from postal code"
 msgstr ""
 
-#: admin/views/form-edit.php:1780
+#: admin/views/form-edit.php:1880
 msgid "Automatically fills address fields when a valid postal code is entered. Available for Japanese locale only."
 msgstr ""
 
-#: admin/views/form-edit.php:1784
+#: admin/views/form-edit.php:1884
 msgid "Field 1 only (text): all address info. Field 1 only (select): prefecture only. Fields 1+2: prefecture + remaining. Fields 1+2+3: prefecture, city, street."
 msgstr ""
 
-#: admin/views/form-edit.php:1787
+#: admin/views/form-edit.php:1887
 msgid "Auto-fill field 1"
 msgstr ""
 
-#: admin/views/form-edit.php:1789
-#: admin/views/form-edit.php:1795
-#: admin/views/form-edit.php:1801
+#: admin/views/form-edit.php:1889
+#: admin/views/form-edit.php:1895
+#: admin/views/form-edit.php:1901
 msgid "-- Not set --"
 msgstr ""
 
-#: admin/views/form-edit.php:1793
+#: admin/views/form-edit.php:1893
 msgid "Auto-fill field 2"
 msgstr ""
 
-#: admin/views/form-edit.php:1799
+#: admin/views/form-edit.php:1899
 msgid "Auto-fill field 3"
 msgstr ""
 
-#: admin/views/form-edit.php:1809
+#: admin/views/form-edit.php:1909
 msgid "Prefecture Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1811
+#: admin/views/form-edit.php:1911
 msgid "Display Type"
 msgstr ""
 
-#: admin/views/form-edit.php:1813
-#: admin/views/form-edit.php:1859
+#: admin/views/form-edit.php:1913
+#: admin/views/form-edit.php:1959
 msgid "Dropdown"
 msgstr ""
 
-#: admin/views/form-edit.php:1834
+#: admin/views/form-edit.php:1914
+msgid "Radio Button"
+msgstr ""
+
+#: admin/views/form-edit.php:1915
+#: includes/class-field-manager.php:87
+msgid "Checkbox"
+msgstr ""
+
+#: admin/views/form-edit.php:1934
 msgid "Enter one option per line. You can change the order or edit choices."
 msgstr ""
 
-#: admin/views/form-edit.php:1840
+#: admin/views/form-edit.php:1940
 msgid "Address Settings"
 msgstr ""
 
-#: admin/views/form-edit.php:1842
+#: admin/views/form-edit.php:1942
 msgid "Postal Code Format"
 msgstr ""
 
-#: admin/views/form-edit.php:1847
-#: admin/views/form-edit.php:1862
+#: admin/views/form-edit.php:1947
+#: admin/views/form-edit.php:1962
 msgid "Japanese locale only."
 msgstr ""
 
-#: admin/views/form-edit.php:1857
+#: admin/views/form-edit.php:1957
 msgid "Prefecture Display Type"
 msgstr ""
 
-#: admin/views/form-edit.php:1865
+#: admin/views/form-edit.php:1960
+#: includes/class-field-manager.php:32
+msgid "Text"
+msgstr ""
+
+#: admin/views/form-edit.php:1965
 msgid "Sub-field Labels"
 msgstr ""
 
-#: admin/views/form-edit.php:1870
-#: admin/views/form-edit.php:1877
-#: includes/class-field-manager.php:315
+#: admin/views/form-edit.php:1968
+#: admin/views/form-edit.php:1979
+#: includes/class-field-manager.php:125
+#: includes/class-field-manager.php:298
+#: includes/class-validator.php:354
+#: templates/form-fields/address-ja.php:55
+#: templates/form-fields/address.php:54
+msgid "Postal Code"
+msgstr ""
+
+#: admin/views/form-edit.php:1969
+#: includes/class-field-manager.php:133
+#: includes/class-field-manager.php:299
+#: templates/form-fields/address-ja.php:56
+msgid "Prefecture"
+msgstr ""
+
+#: admin/views/form-edit.php:1970
+#: admin/views/form-edit.php:1977
+#: includes/class-field-manager.php:300
 #: templates/form-fields/address-ja.php:57
 #: templates/form-fields/address.php:55
 msgid "City"
 msgstr ""
 
-#: admin/views/form-edit.php:1871
-#: admin/views/form-edit.php:1875
-#: includes/class-field-manager.php:316
+#: admin/views/form-edit.php:1971
+#: admin/views/form-edit.php:1975
+#: includes/class-field-manager.php:301
 #: templates/form-fields/address-ja.php:58
 #: templates/form-fields/address.php:56
 msgid "Street Address"
 msgstr ""
 
-#: admin/views/form-edit.php:1872
-#: includes/class-field-manager.php:317
+#: admin/views/form-edit.php:1972
+#: includes/class-field-manager.php:302
 #: templates/form-fields/address-ja.php:59
 msgid "Building / Apartment"
 msgstr ""
 
-#: admin/views/form-edit.php:1876
-#: includes/class-field-manager.php:320
+#: admin/views/form-edit.php:1976
+#: includes/class-field-manager.php:305
 #: templates/form-fields/address.php:59
 msgid "Address Line 2"
 msgstr ""
 
-#: admin/views/form-edit.php:1878
-#: includes/class-field-manager.php:319
+#: admin/views/form-edit.php:1978
+#: includes/class-field-manager.php:304
 #: templates/form-fields/address.php:58
 msgid "State / Province"
 msgstr ""
 
-#: admin/views/form-edit.php:1880
-#: includes/class-field-manager.php:318
+#: admin/views/form-edit.php:1980
+#: includes/class-field-manager.php:303
 #: templates/form-fields/address.php:57
 msgid "Country"
 msgstr ""
 
-#: admin/views/form-edit.php:1897
-#: includes/class-form-plant.php:677
+#: admin/views/form-edit.php:1997
+#: includes/class-form-plant.php:741
 msgid "Label"
 msgstr ""
 
-#: admin/views/form-edit.php:1916
+#: admin/views/form-edit.php:2012
 msgid "Default Value"
 msgstr ""
 
-#: admin/views/form-edit.php:1918
+#: admin/views/form-edit.php:2016
 msgid "Default value for the field"
 msgstr ""
 
-#: admin/views/form-edit.php:1922
-#: admin/views/form-edit.php:1968
-#: admin/views/form-edit.php:2014
-#: admin/views/form-edit.php:2060
-#: includes/class-form-list-table.php:787
-msgid "Cancel"
+#: admin/views/form-edit.php:2023
+msgid "Required Field"
 msgstr ""
 
-#: admin/views/form-edit.php:1923
-msgid "Save"
+#: admin/views/form-edit.php:2027
+msgid "Validation Message"
 msgstr ""
 
-#: admin/views/form-edit.php:1937
-#: admin/views/form-edit.php:1983
+#: admin/views/form-edit.php:2028
+#: includes/class-embed.php:351
+#: includes/class-form-plant.php:481
+msgid "This field is required. Please enter a value."
+msgstr ""
+
 #: admin/views/form-edit.php:2029
-msgid "Button Text"
+msgid "Message to display when required field is empty (default message used if blank)"
 msgstr ""
 
-#: admin/views/form-edit.php:1952
+#: admin/views/form-edit.php:2034
+#: admin/views/form-edit.php:2051
+msgid "Max Length"
+msgstr ""
+
+#: admin/views/form-edit.php:2042
+#: admin/views/form-edit.php:2053
+msgid "Maximum number of characters allowed"
+msgstr ""
+
 #: admin/views/form-edit.php:2044
-msgid "e.g., btn btn-primary"
-msgstr ""
-
-#: admin/views/form-edit.php:1954
-msgid "Added to the default fplant-submit-button class"
-msgstr ""
-
-#: admin/views/form-edit.php:1963
-msgid "e.g., my-submit-button"
-msgstr ""
-
-#: admin/views/form-edit.php:1969
-#: admin/views/form-edit.php:2015
-#: admin/views/form-edit.php:2061
-msgid "OK"
-msgstr ""
-
-#: admin/views/form-edit.php:1998
-msgid "e.g., btn btn-secondary"
-msgstr ""
-
-#: admin/views/form-edit.php:2000
-msgid "Added to the default fplant-back-button class"
-msgstr ""
-
-#: admin/views/form-edit.php:2009
-msgid "e.g., my-back-button"
+msgid "Max Length Error Message"
 msgstr ""
 
 #: admin/views/form-edit.php:2046
+msgid "Message to display when the maximum length is exceeded (default message used if blank)"
+msgstr ""
+
+#: admin/views/form-edit.php:2058
+#: admin/views/form-edit.php:2078
+#: admin/views/form-edit.php:2118
+msgid "Validation Messages"
+msgstr ""
+
+#: admin/views/form-edit.php:2070
+#: admin/views/form-edit.php:2090
+#: admin/views/form-edit.php:2126
+msgid "Default message used if blank"
+msgstr ""
+
+#: admin/views/form-edit.php:2095
+msgid "Kana Validation"
+msgstr ""
+
+#: admin/views/form-edit.php:2098
+msgid "Katakana only"
+msgstr ""
+
+#: admin/views/form-edit.php:2102
+msgid "Hiragana only"
+msgstr ""
+
+#: admin/views/form-edit.php:2106
+msgid "No validation"
+msgstr ""
+
+#: admin/views/form-edit.php:2110
+msgid "Kana Validation Error Message"
+msgstr ""
+
+#: admin/views/form-edit.php:2111
+#: includes/class-form-plant.php:487
+msgid "Please enter in katakana."
+msgstr ""
+
+#: admin/views/form-edit.php:2112
+msgid "Custom error message for kana validation (default message used if blank)"
+msgstr ""
+
+#: admin/views/form-edit.php:2136
+msgid "Minimum Character Length"
+msgstr ""
+
+#: admin/views/form-edit.php:2147
+msgid "Minimum number of characters required (leave blank for no limit)"
+msgstr ""
+
+#: admin/views/form-edit.php:2155
+msgid "Show password strength meter"
+msgstr ""
+
+#: admin/views/form-edit.php:2161
+msgid "Required Strength Level"
+msgstr ""
+
+#: admin/views/form-edit.php:2169
+#: includes/class-form-plant.php:501
+#: includes/class-validator.php:759
+msgid "Weak"
+msgstr ""
+
+#: admin/views/form-edit.php:2173
+#: includes/class-form-plant.php:502
+#: includes/class-validator.php:761
+msgid "Fair"
+msgstr ""
+
+#: admin/views/form-edit.php:2177
+#: includes/class-form-plant.php:503
+#: includes/class-validator.php:763
+msgid "Strong"
+msgstr ""
+
+#: admin/views/form-edit.php:2180
+msgid "Set the minimum password strength required for submission"
+msgstr ""
+
+#: admin/views/form-edit.php:2189
+msgid "Description below label"
+msgstr ""
+
+#: admin/views/form-edit.php:2191
+msgid "Shown directly below the field label. HTML tags are allowed."
+msgstr ""
+
+#: admin/views/form-edit.php:2195
+msgid "Description above input"
+msgstr ""
+
+#: admin/views/form-edit.php:2197
+msgid "Shown directly above the input. HTML tags are allowed."
+msgstr ""
+
+#: admin/views/form-edit.php:2201
+msgid "Description below input"
+msgstr ""
+
+#: admin/views/form-edit.php:2203
+msgid "Shown below the input (below the error message if any). HTML tags are allowed."
+msgstr ""
+
+#: admin/views/form-edit.php:2207
+msgid "Custom ID"
+msgstr ""
+
+#: admin/views/form-edit.php:2208
+msgid "e.g., my-custom-field"
+msgstr ""
+
+#: admin/views/form-edit.php:2209
+msgid "Set a custom ID for the field (auto-generated if blank)"
+msgstr ""
+
+#: admin/views/form-edit.php:2213
+msgid "Custom Class"
+msgstr ""
+
+#: admin/views/form-edit.php:2214
+msgid "e.g., my-class another-class"
+msgstr ""
+
+#: admin/views/form-edit.php:2215
+msgid "CSS classes to add to the field (separate multiple with spaces)"
+msgstr ""
+
+#: admin/views/form-edit.php:2220
+#: admin/views/migration-page.php:87
+#: admin/views/submission-list.php:245
+#: includes/class-form-plant.php:643
+msgid "Close"
+msgstr ""
+
+#: admin/views/form-edit.php:2229
+msgid "Select Field Type"
+msgstr ""
+
+#: admin/views/form-edit.php:2260
+#: admin/views/form-edit.php:2306
+#: admin/views/form-edit.php:2352
+msgid "Button Text"
+msgstr ""
+
+#: admin/views/form-edit.php:2275
+#: admin/views/form-edit.php:2367
+msgid "e.g., btn btn-primary"
+msgstr ""
+
+#: admin/views/form-edit.php:2277
+msgid "Added to the default fplant-submit-button class"
+msgstr ""
+
+#: admin/views/form-edit.php:2286
+msgid "e.g., my-submit-button"
+msgstr ""
+
+#: admin/views/form-edit.php:2291
+#: admin/views/form-edit.php:2337
+#: admin/views/form-edit.php:2383
+#: includes/class-form-list-table.php:817
+msgid "Cancel"
+msgstr ""
+
+#: admin/views/form-edit.php:2292
+#: admin/views/form-edit.php:2338
+#: admin/views/form-edit.php:2384
+msgid "OK"
+msgstr ""
+
+#: admin/views/form-edit.php:2321
+msgid "e.g., btn btn-secondary"
+msgstr ""
+
+#: admin/views/form-edit.php:2323
+msgid "Added to the default fplant-back-button class"
+msgstr ""
+
+#: admin/views/form-edit.php:2332
+msgid "e.g., my-back-button"
+msgstr ""
+
+#: admin/views/form-edit.php:2369
 msgid "Added to the default fplant-confirm-submit-button class"
 msgstr ""
 
-#: admin/views/form-edit.php:2055
+#: admin/views/form-edit.php:2378
 msgid "e.g., my-confirm-submit-button"
 msgstr ""
 
+#: admin/views/form-edit.php:2394
+#: admin/views/form-edit.php:2424
+msgid "Form Preview"
+msgstr ""
+
+#: admin/views/form-edit.php:2398
+msgid "This preview shows the saved form as it appears on your site. Save the form to reflect the latest changes."
+msgstr ""
+
+#: admin/views/form-edit.php:2400
+msgid "Preview device"
+msgstr ""
+
+#: admin/views/form-edit.php:2402
+msgid "Desktop"
+msgstr ""
+
+#: admin/views/form-edit.php:2405
+msgid "Tablet"
+msgstr ""
+
+#: admin/views/form-edit.php:2408
+msgid "Mobile"
+msgstr ""
+
+#: admin/views/form-edit.php:2412
+msgid "Zoom"
+msgstr ""
+
 #: admin/views/form-list.php:14
-#: includes/class-admin.php:202
-#: includes/class-admin.php:203
+#: includes/class-admin.php:206
+#: includes/class-admin.php:207
 msgid "Form List"
 msgstr ""
 
 #: admin/views/form-list.php:17
-#: includes/class-form-plant.php:215
+#: includes/class-form-plant.php:228
 msgid "Add New Form"
 msgstr ""
 
@@ -1656,7 +1813,7 @@ msgid "Form duplicated."
 msgstr ""
 
 #: admin/views/form-list.php:90
-#: includes/class-form-plant.php:219
+#: includes/class-form-plant.php:232
 msgid "Search Forms"
 msgstr ""
 
@@ -1684,8 +1841,12 @@ msgid "MW WP Form List"
 msgstr ""
 
 #: admin/views/migration-page.php:51
-#: includes/class-form-plant.php:580
+#: includes/class-form-plant.php:625
 msgid "Loading list…"
+msgstr ""
+
+#: admin/views/migration-page.php:59
+msgid "Fields"
 msgstr ""
 
 #: admin/views/migration-page.php:60
@@ -1709,14 +1870,8 @@ msgid "Results will appear here once a migration is run."
 msgstr ""
 
 #: admin/views/migration-page.php:86
-#: includes/class-form-plant.php:597
+#: includes/class-form-plant.php:642
 msgid "Migration Log"
-msgstr ""
-
-#: admin/views/migration-page.php:87
-#: admin/views/submission-list.php:245
-#: includes/class-form-plant.php:598
-msgid "Close"
 msgstr ""
 
 #: admin/views/settings.php:14
@@ -1828,10 +1983,10 @@ msgid "Submissions containing these keywords will be blocked."
 msgstr ""
 
 #: admin/views/submission-list.php:14
-#: includes/class-admin.php:225
-#: includes/class-admin.php:226
-#: includes/class-admin.php:557
-#: includes/class-form-list-table.php:79
+#: includes/class-admin.php:229
+#: includes/class-admin.php:230
+#: includes/class-admin.php:580
+#: includes/class-form-list-table.php:86
 msgid "Submissions"
 msgstr ""
 
@@ -1879,8 +2034,8 @@ msgid "%1$d-%2$d of %3$d items"
 msgstr ""
 
 #: admin/views/submission-list.php:99
-#: includes/class-admin.php:836
-#: includes/class-form-plant.php:213
+#: includes/class-admin.php:905
+#: includes/class-form-plant.php:226
 #: templates/embed.php:39
 #: blocks/form-block/index.js:119
 #: blocks/form-block/index.js:186
@@ -1888,19 +2043,19 @@ msgid "Form"
 msgstr ""
 
 #: admin/views/submission-list.php:101
-#: includes/class-admin.php:458
+#: includes/class-admin.php:481
 msgid "File"
 msgstr ""
 
 #: admin/views/submission-list.php:103
-#: includes/class-field-manager.php:91
-#: includes/class-form-list-table.php:91
+#: includes/class-field-manager.php:62
+#: includes/class-form-list-table.php:98
 msgid "Date"
 msgstr ""
 
 #: admin/views/submission-list.php:105
-#: includes/class-admin.php:463
-#: includes/class-admin.php:844
+#: includes/class-admin.php:486
+#: includes/class-admin.php:913
 msgid "IP Address"
 msgstr ""
 
@@ -1931,7 +2086,7 @@ msgid "Submission Details"
 msgstr ""
 
 #: admin/views/submission-list.php:242
-#: includes/class-form-plant.php:769
+#: includes/class-form-plant.php:850
 msgid "Loading..."
 msgstr ""
 
@@ -1953,7 +2108,7 @@ msgid "Selected forms"
 msgstr ""
 
 #: admin/views/tools-general-tab.php:45
-#: includes/class-form-list-table.php:747
+#: includes/class-form-list-table.php:777
 msgid "No forms found."
 msgstr ""
 
@@ -1975,231 +2130,238 @@ msgid "Import / Export"
 msgstr ""
 
 #: admin/views/tools.php:33
-#: includes/class-admin.php:238
-#: includes/class-admin.php:239
+#: includes/class-admin.php:242
+#: includes/class-admin.php:243
 msgid "Tools"
 msgstr ""
 
-#: includes/class-admin.php:215
-#: includes/class-admin.php:216
-#: includes/class-form-plant.php:214
+#: includes/class-admin.php:219
+#: includes/class-admin.php:220
+#: includes/class-form-plant.php:227
 msgid "Add New"
 msgstr ""
 
-#: includes/class-admin.php:248
-#: includes/class-admin.php:249
+#: includes/class-admin.php:252
+#: includes/class-admin.php:253
 msgid "Settings"
 msgstr ""
 
-#: includes/class-admin.php:389
-#: includes/class-admin.php:500
+#: includes/class-admin.php:412
+#: includes/class-admin.php:523
 msgid "Number of items per page"
 msgstr ""
 
-#: includes/class-admin.php:550
-#: includes/class-form-list-table.php:72
+#: includes/class-admin.php:573
+#: includes/class-form-list-table.php:79
 msgid "Shortcode"
 msgstr ""
 
-#: includes/class-admin.php:551
-#: includes/class-form-list-table.php:73
+#: includes/class-admin.php:574
+#: includes/class-form-list-table.php:80
 msgid "Field Count"
 msgstr ""
 
-#: includes/class-admin.php:552
-#: includes/class-form-list-table.php:74
+#: includes/class-admin.php:575
+#: includes/class-form-list-table.php:81
 msgid "Field Names"
 msgstr ""
 
-#: includes/class-admin.php:555
-#: includes/class-form-list-table.php:77
+#: includes/class-admin.php:578
+#: includes/class-form-list-table.php:84
 msgid "After Submit Action"
 msgstr ""
 
-#: includes/class-admin.php:556
-#: includes/class-form-list-table.php:78
+#: includes/class-admin.php:579
+#: includes/class-form-list-table.php:85
 msgid "Submission Data Settings"
 msgstr ""
 
-#: includes/class-admin.php:558
-#: includes/class-form-list-table.php:80
+#: includes/class-admin.php:581
+#: includes/class-form-list-table.php:87
 msgid "External Embed"
 msgstr ""
 
-#: includes/class-admin.php:560
-#: includes/class-form-list-table.php:82
+#: includes/class-admin.php:583
+#: includes/class-form-list-table.php:89
 msgid "Author"
 msgstr ""
 
-#: includes/class-admin.php:628
+#: includes/class-admin.php:651
+#: includes/class-admin.php:728
 msgid "Invalid form data format"
 msgstr ""
 
-#: includes/class-admin.php:640
+#: includes/class-admin.php:663
 msgid "Form saved"
 msgstr ""
 
-#: includes/class-admin.php:645
+#: includes/class-admin.php:668
 msgid "Failed to save form"
 msgstr ""
 
-#: includes/class-admin.php:655
+#: includes/class-admin.php:678
 msgid "Form created"
 msgstr ""
 
-#: includes/class-admin.php:660
+#: includes/class-admin.php:683
 msgid "Failed to create form"
 msgstr ""
 
-#: includes/class-admin.php:680
-#: includes/class-admin.php:708
-#: includes/class-admin.php:735
-#: includes/class-admin.php:1259
+#: includes/class-admin.php:704
+#: includes/class-admin.php:749
+#: includes/class-admin.php:777
+#: includes/class-admin.php:804
+#: includes/class-admin.php:1328
 msgid "Form ID not specified"
 msgstr ""
 
-#: includes/class-admin.php:687
+#: includes/class-admin.php:731
+#: includes/class-form-plant.php:792
+msgid "Saved."
+msgstr ""
+
+#: includes/class-admin.php:756
 msgid "Form deleted"
 msgstr ""
 
-#: includes/class-admin.php:689
+#: includes/class-admin.php:758
 msgid "Failed to delete form"
 msgstr ""
 
-#: includes/class-admin.php:714
+#: includes/class-admin.php:783
 msgid "Form moved to trash"
 msgstr ""
 
-#: includes/class-admin.php:716
+#: includes/class-admin.php:785
 msgid "Failed to move form"
 msgstr ""
 
-#: includes/class-admin.php:744
+#: includes/class-admin.php:813
 msgid "Form duplicated"
 msgstr ""
 
-#: includes/class-admin.php:749
+#: includes/class-admin.php:818
 msgid "Failed to duplicate form"
 msgstr ""
 
-#: includes/class-admin.php:795
+#: includes/class-admin.php:864
 msgid "Submission ID not specified"
 msgstr ""
 
-#: includes/class-admin.php:802
-#: includes/class-admin.php:1032
+#: includes/class-admin.php:871
+#: includes/class-admin.php:1101
 msgid "Submission not found"
 msgstr ""
 
-#: includes/class-admin.php:809
-#: includes/class-embed.php:64
-#: includes/class-embed.php:71
+#: includes/class-admin.php:878
+#: includes/class-embed.php:51
+#: includes/class-embed.php:58
 #: includes/class-rest-api.php:286
 #: includes/class-rest-api.php:295
-#: includes/class-rest-api.php:519
-#: includes/class-rest-api.php:648
+#: includes/class-rest-api.php:522
+#: includes/class-rest-api.php:651
 #: includes/class-shortcode.php:55
-#: includes/class-submission-manager.php:51
-#: includes/class-submission-manager.php:399
+#: includes/class-submission-manager.php:54
+#: includes/class-submission-manager.php:438
 msgid "Form not found"
 msgstr ""
 
-#: includes/class-admin.php:840
+#: includes/class-admin.php:909
 msgid "Submitted At"
 msgstr ""
 
-#: includes/class-admin.php:848
+#: includes/class-admin.php:917
 msgid "User Agent"
 msgstr ""
 
-#: includes/class-admin.php:853
+#: includes/class-admin.php:922
 msgid "Referrer"
 msgstr ""
 
-#: includes/class-admin.php:864
+#: includes/class-admin.php:933
 msgid "Input data was not saved (metadata only setting)"
 msgstr ""
 
-#: includes/class-admin.php:976
+#: includes/class-admin.php:1045
 msgid "No data specified for deletion"
 msgstr ""
 
 #. translators: %d: number of deleted submissions
-#: includes/class-admin.php:996
+#: includes/class-admin.php:1065
 #, php-format
 msgid "%d submission deleted"
 msgid_plural "%d submissions deleted"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-admin.php:1003
+#: includes/class-admin.php:1072
 msgid "Failed to delete data"
 msgstr ""
 
-#: includes/class-admin.php:1013
+#: includes/class-admin.php:1082
 msgid "Security check failed"
 msgstr ""
 
-#: includes/class-admin.php:1026
+#: includes/class-admin.php:1095
 msgid "Invalid parameters"
 msgstr ""
 
-#: includes/class-admin.php:1037
+#: includes/class-admin.php:1106
 msgid "Field not found"
 msgstr ""
 
-#: includes/class-admin.php:1042
-#: includes/class-admin.php:1061
+#: includes/class-admin.php:1111
+#: includes/class-admin.php:1130
 msgid "File not found"
 msgstr ""
 
-#: includes/class-admin.php:1056
+#: includes/class-admin.php:1125
 msgid "Access denied"
 msgstr ""
 
-#: includes/class-admin.php:1143
-#: includes/class-admin.php:1152
-#: includes/class-admin.php:1161
-#: includes/class-admin.php:1171
-#: includes/class-rest-api.php:501
-#: includes/class-rest-api.php:573
-#: includes/class-rest-api.php:630
-#: includes/class-submission-manager.php:215
-#: includes/class-submission-manager.php:247
-#: includes/class-submission-manager.php:380
+#: includes/class-admin.php:1212
+#: includes/class-admin.php:1221
+#: includes/class-admin.php:1230
+#: includes/class-admin.php:1240
+#: includes/class-rest-api.php:504
+#: includes/class-rest-api.php:576
+#: includes/class-rest-api.php:633
+#: includes/class-submission-manager.php:234
+#: includes/class-submission-manager.php:273
 #: includes/class-submission-manager.php:419
+#: includes/class-submission-manager.php:458
 msgid "Invalid request"
 msgstr ""
 
-#: includes/class-admin.php:1282
+#: includes/class-admin.php:1351
 msgid "Form updated"
 msgstr ""
 
-#: includes/class-admin.php:1292
-#: includes/class-admin.php:1344
-#: includes/class-form-plant.php:894
-#: includes/class-form-plant.php:998
+#: includes/class-admin.php:1361
+#: includes/class-admin.php:1413
+#: includes/class-form-plant.php:975
+#: includes/class-form-plant.php:1079
 msgid "Permission denied."
 msgstr ""
 
-#: includes/class-admin.php:1348
+#: includes/class-admin.php:1417
 msgid "No file selected."
 msgstr ""
 
-#: includes/class-admin.php:1354
+#: includes/class-admin.php:1423
 msgid "Invalid upload."
 msgstr ""
 
-#: includes/class-admin.php:1362
+#: includes/class-admin.php:1431
 msgid "Invalid import file."
 msgstr ""
 
-#: includes/class-admin.php:1366
+#: includes/class-admin.php:1435
 msgid "No forms found in import file."
 msgstr ""
 
 #. translators: %d: number of imported forms
-#: includes/class-admin.php:1386
+#: includes/class-admin.php:1455
 #, php-format
 msgid "%d form(s) imported successfully."
 msgstr ""
@@ -2234,50 +2396,50 @@ msgstr ""
 msgid "We have received the following:"
 msgstr ""
 
-#: includes/class-embed.php:77
+#: includes/class-embed.php:64
 msgid "Iframe embedding is not allowed for this form"
 msgstr ""
 
-#: includes/class-embed.php:88
+#: includes/class-embed.php:75
 #: includes/class-rest-api.php:328
 msgid "Embedding from this domain is not allowed"
 msgstr ""
 
-#: includes/class-embed.php:195
+#: includes/class-embed.php:182
 msgid "Error"
 msgstr ""
 
-#: includes/class-embed.php:342
-#: includes/class-form-plant.php:431
-#: includes/class-rest-api.php:585
-#: includes/class-rest-api.php:826
-#: includes/class-submission-manager.php:77
-#: includes/class-submission-manager.php:491
+#: includes/class-embed.php:346
+#: includes/class-form-plant.php:476
+#: includes/class-rest-api.php:588
+#: includes/class-rest-api.php:829
+#: includes/class-submission-manager.php:83
+#: includes/class-submission-manager.php:530
 msgid "There are errors in your input"
 msgstr ""
 
-#: includes/class-embed.php:343
-#: includes/class-form-plant.php:432
+#: includes/class-embed.php:347
+#: includes/class-form-plant.php:477
 msgid "This field is required. Please select at least one option."
 msgstr ""
 
-#: includes/class-embed.php:344
-#: includes/class-embed.php:345
-#: includes/class-form-plant.php:433
-#: includes/class-form-plant.php:434
+#: includes/class-embed.php:348
+#: includes/class-embed.php:349
+#: includes/class-form-plant.php:478
+#: includes/class-form-plant.php:479
 msgid "This field is required. Please make a selection."
 msgstr ""
 
-#: includes/class-embed.php:346
-#: includes/class-form-plant.php:435
+#: includes/class-embed.php:350
+#: includes/class-form-plant.php:480
 msgid "This field is required. Please select a file."
 msgstr ""
 
 #. translators: %s: sub-field label (e.g., Last Name, First Name)
 #. translators: %s: sub-field label
 #. translators: %s: field label
-#: includes/class-embed.php:349
-#: includes/class-form-plant.php:438
+#: includes/class-embed.php:353
+#: includes/class-form-plant.php:483
 #: includes/class-validator.php:69
 #: includes/class-validator.php:115
 #: includes/class-validator.php:140
@@ -2287,1413 +2449,1531 @@ msgstr ""
 
 #. translators: %s: Maximum file size in megabytes
 #. translators: %s: maximum file size in MB
-#: includes/class-embed.php:351
-#: includes/class-form-plant.php:440
+#: includes/class-embed.php:355
+#: includes/class-form-plant.php:485
 #, php-format
 msgid "File size is too large. Please select a file under %sMB."
 msgstr ""
 
-#: includes/class-embed.php:352
-#: includes/class-form-plant.php:441
+#: includes/class-embed.php:356
+#: includes/class-form-plant.php:486
 msgid "Please select an image file."
 msgstr ""
 
-#: includes/class-embed.php:353
-#: includes/class-form-plant.php:444
+#: includes/class-embed.php:357
+#: includes/class-form-plant.php:489
 msgid "A server error occurred. Please try again."
 msgstr ""
 
-#: includes/class-embed.php:354
-#: includes/class-form-plant.php:445
+#: includes/class-embed.php:358
+#: includes/class-form-plant.php:490
 msgid "An error occurred. Please try again."
 msgstr ""
 
-#: includes/class-embed.php:355
-#: includes/class-form-plant.php:446
+#: includes/class-embed.php:359
+#: includes/class-form-plant.php:491
 msgid "reCAPTCHA verification failed. Please reload the page and try again."
 msgstr ""
 
-#: includes/class-field-manager.php:63
+#: includes/class-field-manager.php:34
 msgid "Single line text input field"
 msgstr ""
 
-#: includes/class-field-manager.php:68
+#: includes/class-field-manager.php:37
+msgid "Textarea"
+msgstr ""
+
+#: includes/class-field-manager.php:39
 msgid "Multi-line text input field"
 msgstr ""
 
-#: includes/class-field-manager.php:71
-#: includes/class-form-plant.php:1095
+#: includes/class-field-manager.php:42
+#: includes/class-form-plant.php:1177
 msgid "Email"
 msgstr ""
 
-#: includes/class-field-manager.php:73
+#: includes/class-field-manager.php:44
 msgid "Email address input field"
 msgstr ""
 
-#: includes/class-field-manager.php:76
+#: includes/class-field-manager.php:47
 msgid "Phone"
 msgstr ""
 
-#: includes/class-field-manager.php:78
+#: includes/class-field-manager.php:49
 msgid "Phone number input field"
 msgstr ""
 
-#: includes/class-field-manager.php:83
+#: includes/class-field-manager.php:52
+msgid "URL"
+msgstr ""
+
+#: includes/class-field-manager.php:54
 msgid "URL input field"
 msgstr ""
 
-#: includes/class-field-manager.php:88
+#: includes/class-field-manager.php:57
+msgid "Number"
+msgstr ""
+
+#: includes/class-field-manager.php:59
 msgid "Number input field"
 msgstr ""
 
-#: includes/class-field-manager.php:93
+#: includes/class-field-manager.php:64
 msgid "Date picker field"
 msgstr ""
 
-#: includes/class-field-manager.php:98
+#: includes/class-field-manager.php:67
+msgid "Date (Dropdown)"
+msgstr ""
+
+#: includes/class-field-manager.php:69
+msgid "Date input field with year/month/day dropdowns"
+msgstr ""
+
+#: includes/class-field-manager.php:72
+msgid "Time"
+msgstr ""
+
+#: includes/class-field-manager.php:74
 msgid "Time picker field"
 msgstr ""
 
-#: includes/class-field-manager.php:101
+#: includes/class-field-manager.php:77
 msgid "Select"
 msgstr ""
 
-#: includes/class-field-manager.php:103
+#: includes/class-field-manager.php:79
 msgid "Dropdown selection field"
 msgstr ""
 
-#: includes/class-field-manager.php:106
+#: includes/class-field-manager.php:82
 msgid "Radio"
 msgstr ""
 
-#: includes/class-field-manager.php:108
+#: includes/class-field-manager.php:84
 msgid "Single selection field"
 msgstr ""
 
-#: includes/class-field-manager.php:113
+#: includes/class-field-manager.php:89
 msgid "Multiple selection field"
 msgstr ""
 
-#: includes/class-field-manager.php:118
+#: includes/class-field-manager.php:92
+#: includes/class-form-plant.php:1170
+msgid "Name"
+msgstr ""
+
+#: includes/class-field-manager.php:94
 msgid "Name input field with multiple parts"
 msgstr ""
 
-#: includes/class-field-manager.php:123
+#: includes/class-field-manager.php:97
+msgid "Name (Kana)"
+msgstr ""
+
+#: includes/class-field-manager.php:102
 msgid "Kana name input field with multiple parts"
 msgstr ""
 
-#: includes/class-field-manager.php:128
+#: includes/class-field-manager.php:105
+msgid "Password"
+msgstr ""
+
+#: includes/class-field-manager.php:107
 msgid "Password input field"
 msgstr ""
 
-#: includes/class-field-manager.php:133
+#: includes/class-field-manager.php:110
+msgid "File Upload"
+msgstr ""
+
+#: includes/class-field-manager.php:112
 msgid "File upload field"
 msgstr ""
 
-#: includes/class-field-manager.php:138
+#: includes/class-field-manager.php:115
+msgid "Hidden"
+msgstr ""
+
+#: includes/class-field-manager.php:117
 msgid "Hidden field not displayed on screen"
 msgstr ""
 
-#: includes/class-field-manager.php:143
+#: includes/class-field-manager.php:120
+msgid "HTML"
+msgstr ""
+
+#: includes/class-field-manager.php:122
 msgid "Custom HTML content"
 msgstr ""
 
-#: includes/class-field-manager.php:148
+#: includes/class-field-manager.php:130
 msgid "Postal code input field with auto-fill support"
 msgstr ""
 
-#: includes/class-field-manager.php:153
+#: includes/class-field-manager.php:135
 msgid "Japanese prefecture selection field"
 msgstr ""
 
-#: includes/class-field-manager.php:158
+#: includes/class-field-manager.php:138
+msgid "Address"
+msgstr ""
+
+#: includes/class-field-manager.php:140
 msgid "Address input field with multiple parts"
 msgstr ""
 
-#: includes/class-field-manager.php:163
+#: includes/class-field-manager.php:143
+msgid "Custom Mail Tag"
+msgstr ""
+
+#: includes/class-field-manager.php:145
 msgid "Dynamic value provided via PHP filter hook (for email body / data)"
 msgstr ""
 
-#: includes/class-field-manager.php:355
+#: includes/class-field-manager.php:340
 msgid "Field type is not specified"
 msgstr ""
 
-#: includes/class-field-manager.php:359
+#: includes/class-field-manager.php:344
 msgid "Field name is not specified"
 msgstr ""
 
-#: includes/class-field-manager.php:363
-#: includes/class-form-plant.php:682
+#: includes/class-field-manager.php:348
+#: includes/class-form-plant.php:747
 msgid "Field name can only contain alphanumeric characters and underscores"
 msgstr ""
 
-#: includes/class-field-manager.php:367
+#: includes/class-field-manager.php:354
 msgid "Unsupported field type"
 msgstr ""
 
-#: includes/class-field-manager.php:669
-#: includes/class-field-manager.php:712
-#: includes/class-submission-manager.php:1345
-#: includes/class-submission-manager.php:1390
+#: includes/class-field-manager.php:672
+#: includes/class-field-manager.php:715
+#: includes/class-submission-manager.php:1384
+#: includes/class-submission-manager.php:1429
 msgid "Please confirm your input"
 msgstr ""
 
-#: includes/class-field-manager.php:672
-#: includes/class-field-manager.php:718
-#: includes/class-submission-manager.php:1348
-#: includes/class-submission-manager.php:1396
+#: includes/class-field-manager.php:675
+#: includes/class-field-manager.php:721
+#: includes/class-submission-manager.php:1387
+#: includes/class-submission-manager.php:1435
 msgid "Please review your input below and click submit to complete."
 msgstr ""
 
-#: includes/class-field-manager.php:873
+#: includes/class-field-manager.php:876
 msgid "Afghanistan"
 msgstr ""
 
-#: includes/class-field-manager.php:874
+#: includes/class-field-manager.php:877
 msgid "Albania"
 msgstr ""
 
-#: includes/class-field-manager.php:875
+#: includes/class-field-manager.php:878
 msgid "Algeria"
 msgstr ""
 
-#: includes/class-field-manager.php:876
+#: includes/class-field-manager.php:879
 msgid "Andorra"
 msgstr ""
 
-#: includes/class-field-manager.php:877
+#: includes/class-field-manager.php:880
 msgid "Angola"
 msgstr ""
 
-#: includes/class-field-manager.php:878
+#: includes/class-field-manager.php:881
 msgid "Antigua and Barbuda"
 msgstr ""
 
-#: includes/class-field-manager.php:879
+#: includes/class-field-manager.php:882
 msgid "Argentina"
 msgstr ""
 
-#: includes/class-field-manager.php:880
+#: includes/class-field-manager.php:883
 msgid "Armenia"
 msgstr ""
 
-#: includes/class-field-manager.php:881
+#: includes/class-field-manager.php:884
 msgid "Australia"
 msgstr ""
 
-#: includes/class-field-manager.php:882
+#: includes/class-field-manager.php:885
 msgid "Austria"
 msgstr ""
 
-#: includes/class-field-manager.php:883
+#: includes/class-field-manager.php:886
 msgid "Azerbaijan"
 msgstr ""
 
-#: includes/class-field-manager.php:884
+#: includes/class-field-manager.php:887
 msgid "Bahamas"
 msgstr ""
 
-#: includes/class-field-manager.php:885
+#: includes/class-field-manager.php:888
 msgid "Bahrain"
 msgstr ""
 
-#: includes/class-field-manager.php:886
+#: includes/class-field-manager.php:889
 msgid "Bangladesh"
 msgstr ""
 
-#: includes/class-field-manager.php:887
+#: includes/class-field-manager.php:890
 msgid "Barbados"
 msgstr ""
 
-#: includes/class-field-manager.php:888
+#: includes/class-field-manager.php:891
 msgid "Belarus"
 msgstr ""
 
-#: includes/class-field-manager.php:889
+#: includes/class-field-manager.php:892
 msgid "Belgium"
 msgstr ""
 
-#: includes/class-field-manager.php:890
+#: includes/class-field-manager.php:893
 msgid "Belize"
 msgstr ""
 
-#: includes/class-field-manager.php:891
+#: includes/class-field-manager.php:894
 msgid "Benin"
 msgstr ""
 
-#: includes/class-field-manager.php:892
+#: includes/class-field-manager.php:895
 msgid "Bhutan"
 msgstr ""
 
-#: includes/class-field-manager.php:893
+#: includes/class-field-manager.php:896
 msgid "Bolivia"
 msgstr ""
 
-#: includes/class-field-manager.php:894
+#: includes/class-field-manager.php:897
 msgid "Bosnia and Herzegovina"
 msgstr ""
 
-#: includes/class-field-manager.php:895
+#: includes/class-field-manager.php:898
 msgid "Botswana"
 msgstr ""
 
-#: includes/class-field-manager.php:896
+#: includes/class-field-manager.php:899
 msgid "Brazil"
 msgstr ""
 
-#: includes/class-field-manager.php:897
+#: includes/class-field-manager.php:900
 msgid "Brunei"
 msgstr ""
 
-#: includes/class-field-manager.php:898
+#: includes/class-field-manager.php:901
 msgid "Bulgaria"
 msgstr ""
 
-#: includes/class-field-manager.php:899
+#: includes/class-field-manager.php:902
 msgid "Burkina Faso"
 msgstr ""
 
-#: includes/class-field-manager.php:900
+#: includes/class-field-manager.php:903
 msgid "Burundi"
 msgstr ""
 
-#: includes/class-field-manager.php:901
+#: includes/class-field-manager.php:904
 msgid "Cabo Verde"
 msgstr ""
 
-#: includes/class-field-manager.php:902
+#: includes/class-field-manager.php:905
 msgid "Cambodia"
 msgstr ""
 
-#: includes/class-field-manager.php:903
+#: includes/class-field-manager.php:906
 msgid "Cameroon"
 msgstr ""
 
-#: includes/class-field-manager.php:904
+#: includes/class-field-manager.php:907
 msgid "Canada"
 msgstr ""
 
-#: includes/class-field-manager.php:905
+#: includes/class-field-manager.php:908
 msgid "Central African Republic"
 msgstr ""
 
-#: includes/class-field-manager.php:906
+#: includes/class-field-manager.php:909
 msgid "Chad"
 msgstr ""
 
-#: includes/class-field-manager.php:907
+#: includes/class-field-manager.php:910
 msgid "Chile"
 msgstr ""
 
-#: includes/class-field-manager.php:908
+#: includes/class-field-manager.php:911
 msgid "China"
 msgstr ""
 
-#: includes/class-field-manager.php:909
+#: includes/class-field-manager.php:912
 msgid "Colombia"
 msgstr ""
 
-#: includes/class-field-manager.php:910
+#: includes/class-field-manager.php:913
 msgid "Comoros"
 msgstr ""
 
-#: includes/class-field-manager.php:911
+#: includes/class-field-manager.php:914
 msgid "Congo"
 msgstr ""
 
-#: includes/class-field-manager.php:912
+#: includes/class-field-manager.php:915
 msgid "Congo (Democratic Republic)"
 msgstr ""
 
-#: includes/class-field-manager.php:913
+#: includes/class-field-manager.php:916
 msgid "Costa Rica"
 msgstr ""
 
-#: includes/class-field-manager.php:914
+#: includes/class-field-manager.php:917
 msgid "Côte d'Ivoire"
 msgstr ""
 
-#: includes/class-field-manager.php:915
+#: includes/class-field-manager.php:918
 msgid "Croatia"
 msgstr ""
 
-#: includes/class-field-manager.php:916
+#: includes/class-field-manager.php:919
 msgid "Cuba"
 msgstr ""
 
-#: includes/class-field-manager.php:917
+#: includes/class-field-manager.php:920
 msgid "Cyprus"
 msgstr ""
 
-#: includes/class-field-manager.php:918
+#: includes/class-field-manager.php:921
 msgid "Czech Republic"
 msgstr ""
 
-#: includes/class-field-manager.php:919
+#: includes/class-field-manager.php:922
 msgid "Denmark"
 msgstr ""
 
-#: includes/class-field-manager.php:920
+#: includes/class-field-manager.php:923
 msgid "Djibouti"
 msgstr ""
 
-#: includes/class-field-manager.php:921
+#: includes/class-field-manager.php:924
 msgid "Dominica"
 msgstr ""
 
-#: includes/class-field-manager.php:922
+#: includes/class-field-manager.php:925
 msgid "Dominican Republic"
 msgstr ""
 
-#: includes/class-field-manager.php:923
+#: includes/class-field-manager.php:926
 msgid "Ecuador"
 msgstr ""
 
-#: includes/class-field-manager.php:924
+#: includes/class-field-manager.php:927
 msgid "Egypt"
 msgstr ""
 
-#: includes/class-field-manager.php:925
+#: includes/class-field-manager.php:928
 msgid "El Salvador"
 msgstr ""
 
-#: includes/class-field-manager.php:926
+#: includes/class-field-manager.php:929
 msgid "Equatorial Guinea"
 msgstr ""
 
-#: includes/class-field-manager.php:927
+#: includes/class-field-manager.php:930
 msgid "Eritrea"
 msgstr ""
 
-#: includes/class-field-manager.php:928
+#: includes/class-field-manager.php:931
 msgid "Estonia"
 msgstr ""
 
-#: includes/class-field-manager.php:929
+#: includes/class-field-manager.php:932
 msgid "Eswatini"
 msgstr ""
 
-#: includes/class-field-manager.php:930
+#: includes/class-field-manager.php:933
 msgid "Ethiopia"
 msgstr ""
 
-#: includes/class-field-manager.php:931
+#: includes/class-field-manager.php:934
 msgid "Fiji"
 msgstr ""
 
-#: includes/class-field-manager.php:932
+#: includes/class-field-manager.php:935
 msgid "Finland"
 msgstr ""
 
-#: includes/class-field-manager.php:933
+#: includes/class-field-manager.php:936
 msgid "France"
 msgstr ""
 
-#: includes/class-field-manager.php:934
+#: includes/class-field-manager.php:937
 msgid "Gabon"
 msgstr ""
 
-#: includes/class-field-manager.php:935
+#: includes/class-field-manager.php:938
 msgid "Gambia"
 msgstr ""
 
-#: includes/class-field-manager.php:936
+#: includes/class-field-manager.php:939
 msgid "Georgia"
 msgstr ""
 
-#: includes/class-field-manager.php:937
+#: includes/class-field-manager.php:940
 msgid "Germany"
 msgstr ""
 
-#: includes/class-field-manager.php:938
+#: includes/class-field-manager.php:941
 msgid "Ghana"
 msgstr ""
 
-#: includes/class-field-manager.php:939
+#: includes/class-field-manager.php:942
 msgid "Greece"
 msgstr ""
 
-#: includes/class-field-manager.php:940
+#: includes/class-field-manager.php:943
 msgid "Grenada"
 msgstr ""
 
-#: includes/class-field-manager.php:941
+#: includes/class-field-manager.php:944
 msgid "Guatemala"
 msgstr ""
 
-#: includes/class-field-manager.php:942
+#: includes/class-field-manager.php:945
 msgid "Guinea"
 msgstr ""
 
-#: includes/class-field-manager.php:943
+#: includes/class-field-manager.php:946
 msgid "Guinea-Bissau"
 msgstr ""
 
-#: includes/class-field-manager.php:944
+#: includes/class-field-manager.php:947
 msgid "Guyana"
 msgstr ""
 
-#: includes/class-field-manager.php:945
+#: includes/class-field-manager.php:948
 msgid "Haiti"
 msgstr ""
 
-#: includes/class-field-manager.php:946
+#: includes/class-field-manager.php:949
 msgid "Honduras"
 msgstr ""
 
-#: includes/class-field-manager.php:947
+#: includes/class-field-manager.php:950
 msgid "Hungary"
 msgstr ""
 
-#: includes/class-field-manager.php:948
+#: includes/class-field-manager.php:951
 msgid "Iceland"
 msgstr ""
 
-#: includes/class-field-manager.php:949
+#: includes/class-field-manager.php:952
 msgid "India"
 msgstr ""
 
-#: includes/class-field-manager.php:950
+#: includes/class-field-manager.php:953
 msgid "Indonesia"
 msgstr ""
 
-#: includes/class-field-manager.php:951
+#: includes/class-field-manager.php:954
 msgid "Iran"
 msgstr ""
 
-#: includes/class-field-manager.php:952
+#: includes/class-field-manager.php:955
 msgid "Iraq"
 msgstr ""
 
-#: includes/class-field-manager.php:953
+#: includes/class-field-manager.php:956
 msgid "Ireland"
 msgstr ""
 
-#: includes/class-field-manager.php:954
+#: includes/class-field-manager.php:957
 msgid "Israel"
 msgstr ""
 
-#: includes/class-field-manager.php:955
+#: includes/class-field-manager.php:958
 msgid "Italy"
 msgstr ""
 
-#: includes/class-field-manager.php:956
+#: includes/class-field-manager.php:959
 msgid "Jamaica"
 msgstr ""
 
-#: includes/class-field-manager.php:957
+#: includes/class-field-manager.php:960
 msgid "Japan"
 msgstr ""
 
-#: includes/class-field-manager.php:958
+#: includes/class-field-manager.php:961
 msgid "Jordan"
 msgstr ""
 
-#: includes/class-field-manager.php:959
+#: includes/class-field-manager.php:962
 msgid "Kazakhstan"
 msgstr ""
 
-#: includes/class-field-manager.php:960
+#: includes/class-field-manager.php:963
 msgid "Kenya"
 msgstr ""
 
-#: includes/class-field-manager.php:961
+#: includes/class-field-manager.php:964
 msgid "Kiribati"
 msgstr ""
 
-#: includes/class-field-manager.php:962
+#: includes/class-field-manager.php:965
 msgid "Korea (North)"
 msgstr ""
 
-#: includes/class-field-manager.php:963
+#: includes/class-field-manager.php:966
 msgid "Korea (South)"
 msgstr ""
 
-#: includes/class-field-manager.php:964
+#: includes/class-field-manager.php:967
 msgid "Kuwait"
 msgstr ""
 
-#: includes/class-field-manager.php:965
+#: includes/class-field-manager.php:968
 msgid "Kyrgyzstan"
 msgstr ""
 
-#: includes/class-field-manager.php:966
+#: includes/class-field-manager.php:969
 msgid "Laos"
 msgstr ""
 
-#: includes/class-field-manager.php:967
+#: includes/class-field-manager.php:970
 msgid "Latvia"
 msgstr ""
 
-#: includes/class-field-manager.php:968
+#: includes/class-field-manager.php:971
 msgid "Lebanon"
 msgstr ""
 
-#: includes/class-field-manager.php:969
+#: includes/class-field-manager.php:972
 msgid "Lesotho"
 msgstr ""
 
-#: includes/class-field-manager.php:970
+#: includes/class-field-manager.php:973
 msgid "Liberia"
 msgstr ""
 
-#: includes/class-field-manager.php:971
+#: includes/class-field-manager.php:974
 msgid "Libya"
 msgstr ""
 
-#: includes/class-field-manager.php:972
+#: includes/class-field-manager.php:975
 msgid "Liechtenstein"
 msgstr ""
 
-#: includes/class-field-manager.php:973
+#: includes/class-field-manager.php:976
 msgid "Lithuania"
 msgstr ""
 
-#: includes/class-field-manager.php:974
+#: includes/class-field-manager.php:977
 msgid "Luxembourg"
 msgstr ""
 
-#: includes/class-field-manager.php:975
+#: includes/class-field-manager.php:978
 msgid "Madagascar"
 msgstr ""
 
-#: includes/class-field-manager.php:976
+#: includes/class-field-manager.php:979
 msgid "Malawi"
 msgstr ""
 
-#: includes/class-field-manager.php:977
+#: includes/class-field-manager.php:980
 msgid "Malaysia"
 msgstr ""
 
-#: includes/class-field-manager.php:978
+#: includes/class-field-manager.php:981
 msgid "Maldives"
 msgstr ""
 
-#: includes/class-field-manager.php:979
+#: includes/class-field-manager.php:982
 msgid "Mali"
 msgstr ""
 
-#: includes/class-field-manager.php:980
+#: includes/class-field-manager.php:983
 msgid "Malta"
 msgstr ""
 
-#: includes/class-field-manager.php:981
+#: includes/class-field-manager.php:984
 msgid "Marshall Islands"
 msgstr ""
 
-#: includes/class-field-manager.php:982
+#: includes/class-field-manager.php:985
 msgid "Mauritania"
 msgstr ""
 
-#: includes/class-field-manager.php:983
+#: includes/class-field-manager.php:986
 msgid "Mauritius"
 msgstr ""
 
-#: includes/class-field-manager.php:984
+#: includes/class-field-manager.php:987
 msgid "Mexico"
 msgstr ""
 
-#: includes/class-field-manager.php:985
+#: includes/class-field-manager.php:988
 msgid "Micronesia"
 msgstr ""
 
-#: includes/class-field-manager.php:986
+#: includes/class-field-manager.php:989
 msgid "Moldova"
 msgstr ""
 
-#: includes/class-field-manager.php:987
+#: includes/class-field-manager.php:990
 msgid "Monaco"
 msgstr ""
 
-#: includes/class-field-manager.php:988
+#: includes/class-field-manager.php:991
 msgid "Mongolia"
 msgstr ""
 
-#: includes/class-field-manager.php:989
+#: includes/class-field-manager.php:992
 msgid "Montenegro"
 msgstr ""
 
-#: includes/class-field-manager.php:990
+#: includes/class-field-manager.php:993
 msgid "Morocco"
 msgstr ""
 
-#: includes/class-field-manager.php:991
+#: includes/class-field-manager.php:994
 msgid "Mozambique"
 msgstr ""
 
-#: includes/class-field-manager.php:992
+#: includes/class-field-manager.php:995
 msgid "Myanmar"
 msgstr ""
 
-#: includes/class-field-manager.php:993
+#: includes/class-field-manager.php:996
 msgid "Namibia"
 msgstr ""
 
-#: includes/class-field-manager.php:994
+#: includes/class-field-manager.php:997
 msgid "Nauru"
 msgstr ""
 
-#: includes/class-field-manager.php:995
+#: includes/class-field-manager.php:998
 msgid "Nepal"
 msgstr ""
 
-#: includes/class-field-manager.php:996
+#: includes/class-field-manager.php:999
 msgid "Netherlands"
 msgstr ""
 
-#: includes/class-field-manager.php:997
+#: includes/class-field-manager.php:1000
 msgid "New Zealand"
 msgstr ""
 
-#: includes/class-field-manager.php:998
+#: includes/class-field-manager.php:1001
 msgid "Nicaragua"
 msgstr ""
 
-#: includes/class-field-manager.php:999
+#: includes/class-field-manager.php:1002
 msgid "Niger"
 msgstr ""
 
-#: includes/class-field-manager.php:1000
+#: includes/class-field-manager.php:1003
 msgid "Nigeria"
 msgstr ""
 
-#: includes/class-field-manager.php:1001
+#: includes/class-field-manager.php:1004
 msgid "North Macedonia"
 msgstr ""
 
-#: includes/class-field-manager.php:1002
+#: includes/class-field-manager.php:1005
 msgid "Norway"
 msgstr ""
 
-#: includes/class-field-manager.php:1003
+#: includes/class-field-manager.php:1006
 msgid "Oman"
 msgstr ""
 
-#: includes/class-field-manager.php:1004
+#: includes/class-field-manager.php:1007
 msgid "Pakistan"
 msgstr ""
 
-#: includes/class-field-manager.php:1005
+#: includes/class-field-manager.php:1008
 msgid "Palau"
 msgstr ""
 
-#: includes/class-field-manager.php:1006
+#: includes/class-field-manager.php:1009
 msgid "Panama"
 msgstr ""
 
-#: includes/class-field-manager.php:1007
+#: includes/class-field-manager.php:1010
 msgid "Papua New Guinea"
 msgstr ""
 
-#: includes/class-field-manager.php:1008
+#: includes/class-field-manager.php:1011
 msgid "Paraguay"
 msgstr ""
 
-#: includes/class-field-manager.php:1009
+#: includes/class-field-manager.php:1012
 msgid "Peru"
 msgstr ""
 
-#: includes/class-field-manager.php:1010
+#: includes/class-field-manager.php:1013
 msgid "Philippines"
 msgstr ""
 
-#: includes/class-field-manager.php:1011
+#: includes/class-field-manager.php:1014
 msgid "Poland"
 msgstr ""
 
-#: includes/class-field-manager.php:1012
+#: includes/class-field-manager.php:1015
 msgid "Portugal"
 msgstr ""
 
-#: includes/class-field-manager.php:1013
+#: includes/class-field-manager.php:1016
 msgid "Qatar"
 msgstr ""
 
-#: includes/class-field-manager.php:1014
+#: includes/class-field-manager.php:1017
 msgid "Romania"
 msgstr ""
 
-#: includes/class-field-manager.php:1015
+#: includes/class-field-manager.php:1018
 msgid "Russia"
 msgstr ""
 
-#: includes/class-field-manager.php:1016
+#: includes/class-field-manager.php:1019
 msgid "Rwanda"
 msgstr ""
 
-#: includes/class-field-manager.php:1017
+#: includes/class-field-manager.php:1020
 msgid "Saint Kitts and Nevis"
 msgstr ""
 
-#: includes/class-field-manager.php:1018
+#: includes/class-field-manager.php:1021
 msgid "Saint Lucia"
 msgstr ""
 
-#: includes/class-field-manager.php:1019
+#: includes/class-field-manager.php:1022
 msgid "Saint Vincent and the Grenadines"
 msgstr ""
 
-#: includes/class-field-manager.php:1020
+#: includes/class-field-manager.php:1023
 msgid "Samoa"
 msgstr ""
 
-#: includes/class-field-manager.php:1021
+#: includes/class-field-manager.php:1024
 msgid "San Marino"
 msgstr ""
 
-#: includes/class-field-manager.php:1022
+#: includes/class-field-manager.php:1025
 msgid "Sao Tome and Principe"
 msgstr ""
 
-#: includes/class-field-manager.php:1023
+#: includes/class-field-manager.php:1026
 msgid "Saudi Arabia"
 msgstr ""
 
-#: includes/class-field-manager.php:1024
+#: includes/class-field-manager.php:1027
 msgid "Senegal"
 msgstr ""
 
-#: includes/class-field-manager.php:1025
+#: includes/class-field-manager.php:1028
 msgid "Serbia"
 msgstr ""
 
-#: includes/class-field-manager.php:1026
+#: includes/class-field-manager.php:1029
 msgid "Seychelles"
 msgstr ""
 
-#: includes/class-field-manager.php:1027
+#: includes/class-field-manager.php:1030
 msgid "Sierra Leone"
 msgstr ""
 
-#: includes/class-field-manager.php:1028
+#: includes/class-field-manager.php:1031
 msgid "Singapore"
 msgstr ""
 
-#: includes/class-field-manager.php:1029
+#: includes/class-field-manager.php:1032
 msgid "Slovakia"
 msgstr ""
 
-#: includes/class-field-manager.php:1030
+#: includes/class-field-manager.php:1033
 msgid "Slovenia"
 msgstr ""
 
-#: includes/class-field-manager.php:1031
+#: includes/class-field-manager.php:1034
 msgid "Solomon Islands"
 msgstr ""
 
-#: includes/class-field-manager.php:1032
+#: includes/class-field-manager.php:1035
 msgid "Somalia"
 msgstr ""
 
-#: includes/class-field-manager.php:1033
+#: includes/class-field-manager.php:1036
 msgid "South Africa"
 msgstr ""
 
-#: includes/class-field-manager.php:1034
+#: includes/class-field-manager.php:1037
 msgid "South Sudan"
 msgstr ""
 
-#: includes/class-field-manager.php:1035
+#: includes/class-field-manager.php:1038
 msgid "Spain"
 msgstr ""
 
-#: includes/class-field-manager.php:1036
+#: includes/class-field-manager.php:1039
 msgid "Sri Lanka"
 msgstr ""
 
-#: includes/class-field-manager.php:1037
+#: includes/class-field-manager.php:1040
 msgid "Sudan"
 msgstr ""
 
-#: includes/class-field-manager.php:1038
+#: includes/class-field-manager.php:1041
 msgid "Suriname"
 msgstr ""
 
-#: includes/class-field-manager.php:1039
+#: includes/class-field-manager.php:1042
 msgid "Sweden"
 msgstr ""
 
-#: includes/class-field-manager.php:1040
+#: includes/class-field-manager.php:1043
 msgid "Switzerland"
 msgstr ""
 
-#: includes/class-field-manager.php:1041
+#: includes/class-field-manager.php:1044
 msgid "Syria"
 msgstr ""
 
-#: includes/class-field-manager.php:1042
+#: includes/class-field-manager.php:1045
 msgid "Taiwan"
 msgstr ""
 
-#: includes/class-field-manager.php:1043
+#: includes/class-field-manager.php:1046
 msgid "Tajikistan"
 msgstr ""
 
-#: includes/class-field-manager.php:1044
+#: includes/class-field-manager.php:1047
 msgid "Tanzania"
 msgstr ""
 
-#: includes/class-field-manager.php:1045
+#: includes/class-field-manager.php:1048
 msgid "Thailand"
 msgstr ""
 
-#: includes/class-field-manager.php:1046
+#: includes/class-field-manager.php:1049
 msgid "Timor-Leste"
 msgstr ""
 
-#: includes/class-field-manager.php:1047
+#: includes/class-field-manager.php:1050
 msgid "Togo"
 msgstr ""
 
-#: includes/class-field-manager.php:1048
+#: includes/class-field-manager.php:1051
 msgid "Tonga"
 msgstr ""
 
-#: includes/class-field-manager.php:1049
+#: includes/class-field-manager.php:1052
 msgid "Trinidad and Tobago"
 msgstr ""
 
-#: includes/class-field-manager.php:1050
+#: includes/class-field-manager.php:1053
 msgid "Tunisia"
 msgstr ""
 
-#: includes/class-field-manager.php:1051
+#: includes/class-field-manager.php:1054
 msgid "Turkey"
 msgstr ""
 
-#: includes/class-field-manager.php:1052
+#: includes/class-field-manager.php:1055
 msgid "Turkmenistan"
 msgstr ""
 
-#: includes/class-field-manager.php:1053
+#: includes/class-field-manager.php:1056
 msgid "Tuvalu"
 msgstr ""
 
-#: includes/class-field-manager.php:1054
+#: includes/class-field-manager.php:1057
 msgid "Uganda"
 msgstr ""
 
-#: includes/class-field-manager.php:1055
+#: includes/class-field-manager.php:1058
 msgid "Ukraine"
 msgstr ""
 
-#: includes/class-field-manager.php:1056
+#: includes/class-field-manager.php:1059
 msgid "United Arab Emirates"
 msgstr ""
 
-#: includes/class-field-manager.php:1057
+#: includes/class-field-manager.php:1060
 msgid "United Kingdom"
 msgstr ""
 
-#: includes/class-field-manager.php:1058
+#: includes/class-field-manager.php:1061
 msgid "United States"
 msgstr ""
 
-#: includes/class-field-manager.php:1059
+#: includes/class-field-manager.php:1062
 msgid "Uruguay"
 msgstr ""
 
-#: includes/class-field-manager.php:1060
+#: includes/class-field-manager.php:1063
 msgid "Uzbekistan"
 msgstr ""
 
-#: includes/class-field-manager.php:1061
+#: includes/class-field-manager.php:1064
 msgid "Vanuatu"
 msgstr ""
 
-#: includes/class-field-manager.php:1062
+#: includes/class-field-manager.php:1065
 msgid "Vatican City"
 msgstr ""
 
-#: includes/class-field-manager.php:1063
+#: includes/class-field-manager.php:1066
 msgid "Venezuela"
 msgstr ""
 
-#: includes/class-field-manager.php:1064
+#: includes/class-field-manager.php:1067
 msgid "Vietnam"
 msgstr ""
 
-#: includes/class-field-manager.php:1065
+#: includes/class-field-manager.php:1068
 msgid "Yemen"
 msgstr ""
 
-#: includes/class-field-manager.php:1066
+#: includes/class-field-manager.php:1069
 msgid "Zambia"
 msgstr ""
 
-#: includes/class-field-manager.php:1067
+#: includes/class-field-manager.php:1070
 msgid "Zimbabwe"
 msgstr ""
 
-#: includes/class-form-list-table.php:68
+#: includes/class-form-list-table.php:75
 msgid "Form Name"
 msgstr ""
 
-#: includes/class-form-list-table.php:123
+#: includes/class-form-list-table.php:130
 msgid "All"
 msgstr ""
 
-#: includes/class-form-list-table.php:128
-#: includes/class-form-list-table.php:356
+#: includes/class-form-list-table.php:135
+#: includes/class-form-list-table.php:363
 msgid "Trash"
 msgstr ""
 
-#: includes/class-form-list-table.php:191
-#: includes/class-form-list-table.php:376
+#: includes/class-form-list-table.php:198
+#: includes/class-form-list-table.php:383
 msgid "Restore"
 msgstr ""
 
-#: includes/class-form-list-table.php:192
-#: includes/class-form-list-table.php:385
+#: includes/class-form-list-table.php:199
+#: includes/class-form-list-table.php:392
 msgid "Delete Permanently"
 msgstr ""
 
-#: includes/class-form-list-table.php:347
+#: includes/class-form-list-table.php:354
 msgid "(No Title)"
 msgstr ""
 
-#: includes/class-form-list-table.php:384
+#: includes/class-form-list-table.php:391
 msgid "Are you sure you want to delete this permanently? This action cannot be undone."
 msgstr ""
 
-#: includes/class-form-list-table.php:399
-#: includes/class-form-list-table.php:765
+#: includes/class-form-list-table.php:406
+#: includes/class-form-list-table.php:795
 msgid "Quick Edit"
 msgstr ""
 
-#: includes/class-form-list-table.php:407
+#: includes/class-form-list-table.php:414
+#: includes/class-form-plant.php:744
 msgid "Duplicate"
 msgstr ""
 
 #. translators: %d: number of remaining fields
-#: includes/class-form-list-table.php:485
+#: includes/class-form-list-table.php:496
 #, php-format
 msgid "and %d more..."
 msgstr ""
 
-#: includes/class-form-list-table.php:509
+#: includes/class-form-list-table.php:539
 msgid "HTML Template"
 msgstr ""
 
-#: includes/class-form-list-table.php:512
+#: includes/class-form-list-table.php:542
 msgid "Confirmation"
 msgstr ""
 
-#: includes/class-form-list-table.php:515
+#: includes/class-form-list-table.php:545
 msgid "Confirmation HTML"
 msgstr ""
 
-#: includes/class-form-list-table.php:536
+#: includes/class-form-list-table.php:566
 msgid "Admin Notification"
 msgstr ""
 
-#: includes/class-form-list-table.php:539
+#: includes/class-form-list-table.php:569
 msgid "Auto Reply"
 msgstr ""
 
-#: includes/class-form-list-table.php:561
+#: includes/class-form-list-table.php:591
 msgid "Redirect"
 msgstr ""
 
-#: includes/class-form-list-table.php:562
+#: includes/class-form-list-table.php:592
 msgid "Custom Page"
 msgstr ""
 
-#: includes/class-form-list-table.php:584
+#: includes/class-form-list-table.php:614
 msgid "Metadata Only"
 msgstr ""
 
-#: includes/class-form-list-table.php:585
+#: includes/class-form-list-table.php:615
 msgid "Full"
 msgstr ""
 
-#: includes/class-form-list-table.php:646
+#: includes/class-form-list-table.php:676
 msgid "Rate Limit"
 msgstr ""
 
-#: includes/class-form-list-table.php:650
+#: includes/class-form-list-table.php:680
 msgid "Time Check"
 msgstr ""
 
-#: includes/class-form-list-table.php:745
+#: includes/class-form-list-table.php:775
 msgid "No forms found in Trash."
 msgstr ""
 
-#: includes/class-form-list-table.php:776
-#: includes/class-form-plant.php:603
+#: includes/class-form-list-table.php:806
+#: includes/class-form-plant.php:648
 msgid "Status"
 msgstr ""
 
-#: includes/class-form-plant.php:212
+#: includes/class-form-plant.php:225
 msgid "Forms"
 msgstr ""
 
-#: includes/class-form-plant.php:218
+#: includes/class-form-plant.php:231
 msgid "View Form"
 msgstr ""
 
-#: includes/class-form-plant.php:220
+#: includes/class-form-plant.php:233
 msgid "No forms found"
 msgstr ""
 
-#: includes/class-form-plant.php:221
+#: includes/class-form-plant.php:234
 msgid "No forms found in Trash"
 msgstr ""
 
-#: includes/class-form-plant.php:443
+#: includes/class-form-plant.php:488
 msgid "Please enter in hiragana."
 msgstr ""
 
-#: includes/class-form-plant.php:447
+#: includes/class-form-plant.php:492
 msgid "CAPTCHA verification failed. Please reload the page and try again."
 msgstr ""
 
 #. translators: %s: minimum character count
-#: includes/class-form-plant.php:453
+#: includes/class-form-plant.php:498
 #, php-format
 msgid "Password must be at least %s characters"
 msgstr ""
 
-#: includes/class-form-plant.php:454
+#: includes/class-form-plant.php:499
 msgid "Password is not strong enough"
 msgstr ""
 
-#: includes/class-form-plant.php:455
+#: includes/class-form-plant.php:500
 msgid "Very Weak"
 msgstr ""
 
-#: includes/class-form-plant.php:459
+#: includes/class-form-plant.php:504
 msgid "Very Strong"
 msgstr ""
 
-#: includes/class-form-plant.php:460
+#: includes/class-form-plant.php:505
 #: templates/form-fields/password.php:54
 msgid "Show password"
 msgstr ""
 
-#: includes/class-form-plant.php:461
+#: includes/class-form-plant.php:506
 msgid "Hide password"
 msgstr ""
 
-#: includes/class-form-plant.php:462
+#: includes/class-form-plant.php:507
 msgid "Searching..."
 msgstr ""
 
-#: includes/class-form-plant.php:463
+#: includes/class-form-plant.php:508
 msgid "Address not found for this postal code"
 msgstr ""
 
-#: includes/class-form-plant.php:464
+#: includes/class-form-plant.php:509
 msgid "Address search failed. Please try again."
 msgstr ""
 
-#: includes/class-form-plant.php:581
+#: includes/class-form-plant.php:626
 msgid "No MW WP Form forms were found."
 msgstr ""
 
-#: includes/class-form-plant.php:582
+#: includes/class-form-plant.php:627
 msgid "Failed to load the list."
 msgstr ""
 
-#: includes/class-form-plant.php:583
+#: includes/class-form-plant.php:628
 msgid "A network error occurred."
 msgstr ""
 
-#: includes/class-form-plant.php:584
+#: includes/class-form-plant.php:629
 msgid "No results."
 msgstr ""
 
-#: includes/class-form-plant.php:585
+#: includes/class-form-plant.php:630
 msgid "No warnings."
 msgstr ""
 
-#: includes/class-form-plant.php:586
+#: includes/class-form-plant.php:631
 msgid "Result summary"
 msgstr ""
 
-#: includes/class-form-plant.php:587
+#: includes/class-form-plant.php:632
 msgid "forms"
 msgstr ""
 
-#: includes/class-form-plant.php:588
+#: includes/class-form-plant.php:633
 msgid "Migrated"
 msgstr ""
 
-#: includes/class-form-plant.php:589
+#: includes/class-form-plant.php:634
 msgid "Not migrated"
 msgstr ""
 
-#: includes/class-form-plant.php:590
+#: includes/class-form-plant.php:635
 msgid "Migrating…"
 msgstr ""
 
-#: includes/class-form-plant.php:591
+#: includes/class-form-plant.php:636
 msgid "Success"
 msgstr ""
 
-#: includes/class-form-plant.php:592
+#: includes/class-form-plant.php:637
 msgid "With warnings"
 msgstr ""
 
-#: includes/class-form-plant.php:593
+#: includes/class-form-plant.php:638
 msgid "Failed"
 msgstr ""
 
-#: includes/class-form-plant.php:594
+#: includes/class-form-plant.php:639
 msgid "Open the generated Form Plant form"
 msgstr ""
 
-#: includes/class-form-plant.php:595
+#: includes/class-form-plant.php:640
 msgid "Migrate the selected forms to Form Plant. Are you sure? (Existing migrated forms are kept as-is, and a new Form Plant form is added.)"
 msgstr ""
 
-#: includes/class-form-plant.php:596
+#: includes/class-form-plant.php:641
 msgid "View log"
 msgstr ""
 
-#: includes/class-form-plant.php:599
+#: includes/class-form-plant.php:644
 msgid "Loading the log…"
 msgstr ""
 
-#: includes/class-form-plant.php:600
+#: includes/class-form-plant.php:645
 msgid "Failed to load the log."
 msgstr ""
 
-#: includes/class-form-plant.php:602
+#: includes/class-form-plant.php:647
 msgid "Migrated at"
 msgstr ""
 
-#: includes/class-form-plant.php:604
+#: includes/class-form-plant.php:649
 msgid "Source form"
 msgstr ""
 
-#: includes/class-form-plant.php:605
+#: includes/class-form-plant.php:650
 msgid "Warnings"
 msgstr ""
 
-#: includes/class-form-plant.php:674
+#: includes/class-form-plant.php:738
 msgid "Edit Field"
 msgstr ""
 
-#: includes/class-form-plant.php:676
+#: includes/class-form-plant.php:739
+msgid "Add Field"
+msgstr ""
+
+#: includes/class-form-plant.php:740
 msgid "Value"
 msgstr ""
 
-#: includes/class-form-plant.php:680
+#: includes/class-form-plant.php:745
 msgid "At least one option is required"
 msgstr ""
 
-#: includes/class-form-plant.php:681
+#: includes/class-form-plant.php:746
 msgid "Please enter a field name"
 msgstr ""
 
-#: includes/class-form-plant.php:683
+#: includes/class-form-plant.php:748
 msgid "Please enter a field label"
 msgstr ""
 
-#: includes/class-form-plant.php:684
+#: includes/class-form-plant.php:749
 msgid "This field name is already in use"
 msgstr ""
 
-#: includes/class-form-plant.php:685
+#: includes/class-form-plant.php:750
 msgid "Please add at least one option"
 msgstr ""
 
-#: includes/class-form-plant.php:686
+#: includes/class-form-plant.php:751
 msgid "Are you sure you want to delete this field?"
 msgstr ""
 
-#: includes/class-form-plant.php:687
+#: includes/class-form-plant.php:752
 msgid "Are you sure you want to delete this form?"
 msgstr ""
 
-#: includes/class-form-plant.php:688
+#: includes/class-form-plant.php:753
 msgid "Move this form to trash?"
 msgstr ""
 
-#: includes/class-form-plant.php:689
+#: includes/class-form-plant.php:754
 msgid "Delete this CSS file?"
 msgstr ""
 
-#: includes/class-form-plant.php:690
+#: includes/class-form-plant.php:755
 msgid "Copied!"
 msgstr ""
 
-#: includes/class-form-plant.php:691
+#: includes/class-form-plant.php:756
 msgid "Uploading..."
 msgstr ""
 
-#: includes/class-form-plant.php:692
+#: includes/class-form-plant.php:757
 msgid "Upload complete:"
 msgstr ""
 
-#: includes/class-form-plant.php:693
-#: includes/class-form-plant.php:740
-#: includes/class-form-plant.php:768
+#: includes/class-form-plant.php:758
+#: includes/class-form-plant.php:821
+#: includes/class-form-plant.php:849
 msgid "An error occurred"
 msgstr ""
 
-#: includes/class-form-plant.php:694
+#: includes/class-form-plant.php:759
 msgid "A network error occurred"
 msgstr ""
 
-#: includes/class-form-plant.php:695
+#: includes/class-form-plant.php:760
 msgid "Upload failed"
 msgstr ""
 
-#: includes/class-form-plant.php:696
-#: includes/class-form-plant.php:767
+#: includes/class-form-plant.php:761
+#: includes/class-form-plant.php:848
 msgid "Delete failed"
 msgstr ""
 
-#: includes/class-form-plant.php:700
+#: includes/class-form-plant.php:765
 msgid "Dismiss this notice"
 msgstr ""
 
-#: includes/class-form-plant.php:701
+#: includes/class-form-plant.php:766
 msgid "No fields yet. Click \"Add Field\" button to add one."
 msgstr ""
 
-#: includes/class-form-plant.php:702
+#: includes/class-form-plant.php:767
 msgid "Field name:"
 msgstr ""
 
-#: includes/class-form-plant.php:703
+#: includes/class-form-plant.php:768
 msgid "Please select a CSS file (.css)"
 msgstr ""
 
-#: includes/class-form-plant.php:704
+#: includes/class-form-plant.php:769
 msgid "Maximum 10 CSS files can be uploaded."
 msgstr ""
 
-#: includes/class-form-plant.php:705
+#: includes/class-form-plant.php:770
 msgid "Current file:"
 msgstr ""
 
-#: includes/class-form-plant.php:706
+#: includes/class-form-plant.php:771
 msgid "Error:"
 msgstr ""
 
-#: includes/class-form-plant.php:707
+#: includes/class-form-plant.php:772
 msgid "The following required items are missing from the HTML template:"
 msgstr ""
 
-#: includes/class-form-plant.php:709
+#: includes/class-form-plant.php:774
 msgid "HTML template is empty. Please add the required tags or uncheck \"Use HTML template\"."
 msgstr ""
 
-#: includes/class-form-plant.php:710
+#: includes/class-form-plant.php:775
 msgid "Confirmation HTML template is empty. Please add the required tags or uncheck \"Use confirmation screen HTML template\"."
 msgstr ""
 
-#: includes/class-form-plant.php:711
+#: includes/class-form-plant.php:776
 msgid "Submit button [fplant_confirm_submit] is required in the confirmation template."
 msgstr ""
 
-#: includes/class-form-plant.php:712
+#: includes/class-form-plant.php:777
 msgid "Changes have not been saved. Are you sure you want to close?"
 msgstr ""
 
-#: includes/class-form-plant.php:734
+#: includes/class-form-plant.php:778
+msgid "Sample Label"
+msgstr ""
+
+#: includes/class-form-plant.php:779
+msgid "Sample text"
+msgstr ""
+
+#: includes/class-form-plant.php:780
+msgid "Field 1"
+msgstr ""
+
+#: includes/class-form-plant.php:781
+msgid "Field 2"
+msgstr ""
+
+#: includes/class-form-plant.php:782
+msgid "Field 3"
+msgstr ""
+
+#: includes/class-form-plant.php:783
+msgid "Choice 1"
+msgstr ""
+
+#: includes/class-form-plant.php:784
+msgid "Choice 2"
+msgstr ""
+
+#: includes/class-form-plant.php:785
+msgid "Choice 3"
+msgstr ""
+
+#: includes/class-form-plant.php:786
+msgid "Empty / no error state"
+msgstr ""
+
+#: includes/class-form-plant.php:787
+msgid "Entered / error state"
+msgstr ""
+
+#: includes/class-form-plant.php:788
+msgid "This is a sample field description."
+msgstr ""
+
+#: includes/class-form-plant.php:790
+msgid "This is a sample error message."
+msgstr ""
+
+#: includes/class-form-plant.php:791
+msgid "This field is required."
+msgstr ""
+
+#: includes/class-form-plant.php:793
+msgid "Please save the form first."
+msgstr ""
+
+#: includes/class-form-plant.php:815
 msgid "Export completed."
 msgstr ""
 
-#: includes/class-form-plant.php:735
+#: includes/class-form-plant.php:816
 msgid "Please select a file."
 msgstr ""
 
-#: includes/class-form-plant.php:736
+#: includes/class-form-plant.php:817
 msgid "Please select a JSON file."
 msgstr ""
 
-#: includes/class-form-plant.php:737
+#: includes/class-form-plant.php:818
 msgid "Please select at least one form."
 msgstr ""
 
-#: includes/class-form-plant.php:738
+#: includes/class-form-plant.php:819
 msgid "Import forms from this file?"
 msgstr ""
 
-#: includes/class-form-plant.php:739
+#: includes/class-form-plant.php:820
 msgid "No forms found to export."
 msgstr ""
 
-#: includes/class-form-plant.php:763
+#: includes/class-form-plant.php:844
 msgid "Are you sure you want to delete this submission?"
 msgstr ""
 
-#: includes/class-form-plant.php:764
+#: includes/class-form-plant.php:845
 msgid "Please select items to delete"
 msgstr ""
 
-#: includes/class-form-plant.php:765
+#: includes/class-form-plant.php:846
 msgid "Are you sure you want to delete the selected"
 msgstr ""
 
-#: includes/class-form-plant.php:766
+#: includes/class-form-plant.php:847
 msgid "submissions?"
 msgstr ""
 
-#: includes/class-form-plant.php:899
-#: includes/class-form-plant.php:1003
+#: includes/class-form-plant.php:980
+#: includes/class-form-plant.php:1084
 msgid "Invalid nonce."
 msgstr ""
 
-#: includes/class-form-plant.php:905
+#: includes/class-form-plant.php:986
 msgid "No file uploaded."
 msgstr ""
 
-#: includes/class-form-plant.php:914
+#: includes/class-form-plant.php:995
 msgid "Only .css files are allowed."
 msgstr ""
 
-#: includes/class-form-plant.php:924
-#: includes/class-form-plant.php:1023
+#: includes/class-form-plant.php:1005
+#: includes/class-form-plant.php:1104
 msgid "Invalid file type."
 msgstr ""
 
-#: includes/class-form-plant.php:929
+#: includes/class-form-plant.php:1010
 msgid "Failed to create upload directory."
 msgstr ""
 
-#: includes/class-form-plant.php:979
+#: includes/class-form-plant.php:1060
 msgid "Failed to upload custom CSS file"
 msgstr ""
 
-#: includes/class-form-plant.php:1009
+#: includes/class-form-plant.php:1090
 msgid "No file specified."
 msgstr ""
 
-#: includes/class-form-plant.php:1018
+#: includes/class-form-plant.php:1099
 msgid "Invalid filename."
 msgstr ""
 
-#: includes/class-form-plant.php:1031
-#: includes/class-form-plant.php:1050
+#: includes/class-form-plant.php:1112
+#: includes/class-form-plant.php:1131
 msgid "File deleted."
 msgstr ""
 
-#: includes/class-form-plant.php:1041
+#: includes/class-form-plant.php:1122
 msgid "Invalid file path."
 msgstr ""
 
-#: includes/class-form-plant.php:1047
+#: includes/class-form-plant.php:1128
 msgid "Failed to delete file."
 msgstr ""
 
-#: includes/class-form-plant.php:1135
+#: includes/class-form-plant.php:1217
 msgid "Contact Form"
 msgstr ""
 
-#: includes/class-form-plant.php:1151
+#: includes/class-form-plant.php:1233
 msgid "Thank you for your message. We will get back to you shortly."
 msgstr ""
 
-#: includes/class-form-plant.php:1159
+#: includes/class-form-plant.php:1241
 msgid "[{site_name}] New contact form submission"
 msgstr ""
 
-#: includes/class-form-plant.php:1160
+#: includes/class-form-plant.php:1242
 msgid ""
 "You have received a new message.\n"
 "\n"
@@ -3703,7 +3983,7 @@ msgid ""
 "{message}"
 msgstr ""
 
-#: includes/class-form-plant.php:1168
+#: includes/class-form-plant.php:1250
 msgid ""
 "Thank you for contacting us.\n"
 "\n"
@@ -3716,87 +3996,99 @@ msgid ""
 "We will get back to you shortly."
 msgstr ""
 
+#: includes/class-preview.php:84
+msgid "You are not allowed to preview this form."
+msgstr ""
+
+#: includes/class-preview.php:90
+msgid "This preview link has expired. Please reload the form editor and try again."
+msgstr ""
+
+#: includes/class-preview.php:95
+msgid "Form not found."
+msgstr ""
+
 #: includes/class-rest-api.php:304
-#: includes/class-rest-api.php:537
-#: includes/class-rest-api.php:666
+#: includes/class-rest-api.php:540
+#: includes/class-rest-api.php:669
 msgid "JS embedding is not allowed for this form"
 msgstr ""
 
-#: includes/class-rest-api.php:509
-#: includes/class-rest-api.php:638
-#: includes/class-submission-manager.php:225
-#: includes/class-submission-manager.php:390
+#: includes/class-rest-api.php:512
+#: includes/class-rest-api.php:641
+#: includes/class-submission-manager.php:244
+#: includes/class-submission-manager.php:429
 msgid "Invalid data format"
 msgstr ""
 
-#: includes/class-rest-api.php:528
-#: includes/class-rest-api.php:657
-#: includes/class-submission-manager.php:60
-#: includes/class-submission-manager.php:235
-#: includes/class-submission-manager.php:408
+#: includes/class-rest-api.php:531
+#: includes/class-rest-api.php:660
+#: includes/class-submission-manager.php:63
+#: includes/class-submission-manager.php:261
+#: includes/class-submission-manager.php:447
 msgid "This form is currently unavailable."
 msgstr ""
 
-#: includes/class-rest-api.php:561
-#: includes/class-rest-api.php:690
+#: includes/class-rest-api.php:564
+#: includes/class-rest-api.php:693
 msgid "Submissions from this domain are not allowed"
 msgstr ""
 
-#: includes/class-rest-api.php:711
-#: includes/class-rest-api.php:720
-#: includes/class-submission-manager.php:308
-#: includes/class-submission-manager.php:317
+#: includes/class-rest-api.php:714
+#: includes/class-rest-api.php:723
+#: includes/class-submission-manager.php:335
+#: includes/class-submission-manager.php:344
 msgid "Submission was blocked. Please try again later."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/class-rest-api.php:787
-#: includes/class-rest-api.php:809
-#: includes/class-submission-manager.php:263
-#: includes/class-submission-manager.php:285
-#: includes/class-submission-manager.php:436
-#: includes/class-submission-manager.php:458
+#: includes/class-rest-api.php:790
+#: includes/class-rest-api.php:812
+#: includes/class-submission-manager.php:289
+#: includes/class-submission-manager.php:311
+#: includes/class-submission-manager.php:475
+#: includes/class-submission-manager.php:497
 #, php-format
 msgid "%s: This email address cannot be used"
 msgstr ""
 
-#: includes/class-rest-api.php:838
+#: includes/class-rest-api.php:841
 msgid "Submission processing failed"
 msgstr ""
 
-#: includes/class-rest-api.php:851
-#: includes/class-submission-manager.php:152
+#: includes/class-rest-api.php:854
+#: includes/class-submission-manager.php:171
 msgid "Submission completed"
 msgstr ""
 
-#: includes/class-rest-api.php:893
+#: includes/class-rest-api.php:896
 msgid "reCAPTCHA verification is required"
 msgstr ""
 
-#: includes/class-rest-api.php:914
+#: includes/class-rest-api.php:917
 msgid "An error occurred during reCAPTCHA verification"
 msgstr ""
 
-#: includes/class-rest-api.php:925
-#: includes/class-submission-manager.php:828
-#: includes/class-submission-manager.php:851
+#: includes/class-rest-api.php:928
+#: includes/class-submission-manager.php:867
+#: includes/class-submission-manager.php:890
 msgid "reCAPTCHA verification failed"
 msgstr ""
 
-#: includes/class-rest-api.php:936
+#: includes/class-rest-api.php:939
 msgid "Submission was blocked due to suspected spam activity"
 msgstr ""
 
-#: includes/class-rest-api.php:963
+#: includes/class-rest-api.php:966
 msgid "Cloudflare Turnstile verification is required"
 msgstr ""
 
-#: includes/class-rest-api.php:984
+#: includes/class-rest-api.php:987
 msgid "An error occurred during Cloudflare Turnstile verification"
 msgstr ""
 
-#: includes/class-rest-api.php:995
-#: includes/class-submission-manager.php:883
+#: includes/class-rest-api.php:998
+#: includes/class-submission-manager.php:922
 msgid "Cloudflare Turnstile verification failed"
 msgstr ""
 
@@ -3808,85 +4100,89 @@ msgstr ""
 msgid "Preview: This form is not published yet, so it is hidden from visitors. Only users who can edit it can see it."
 msgstr ""
 
-#: includes/class-submission-manager.php:130
+#: includes/class-submission-manager.php:94
+msgid "This is a preview. The form works correctly, but the submission was not saved and no emails were sent."
+msgstr ""
+
+#: includes/class-submission-manager.php:149
 msgid "Failed to save data"
 msgstr ""
 
-#: includes/class-submission-manager.php:502
+#: includes/class-submission-manager.php:541
 msgid "Validation successful"
 msgstr ""
 
-#: includes/class-submission-manager.php:787
+#: includes/class-submission-manager.php:826
 msgid "Invalid CAPTCHA type"
 msgstr ""
 
-#: includes/class-submission-manager.php:822
+#: includes/class-submission-manager.php:861
 msgid "reCAPTCHA configuration is incomplete"
 msgstr ""
 
-#: includes/class-submission-manager.php:845
+#: includes/class-submission-manager.php:884
 msgid "Failed to communicate with reCAPTCHA server"
 msgstr ""
 
-#: includes/class-submission-manager.php:860
+#: includes/class-submission-manager.php:899
 msgid "Suspected spam detected"
 msgstr ""
 
-#: includes/class-submission-manager.php:877
+#: includes/class-submission-manager.php:916
 msgid "Cloudflare Turnstile configuration is incomplete"
 msgstr ""
 
-#: includes/class-submission-manager.php:900
+#: includes/class-submission-manager.php:939
 msgid "Failed to communicate with Cloudflare Turnstile server"
 msgstr ""
 
 #. translators: %s: error code from Cloudflare Turnstile
-#: includes/class-submission-manager.php:911
+#: includes/class-submission-manager.php:950
 #, php-format
 msgid "Cloudflare Turnstile verification failed: %s"
 msgstr ""
 
 #. translators: %s: field name
-#: includes/class-submission-manager.php:1044
-#: includes/class-submission-manager.php:1163
-#: includes/class-submission-manager.php:1620
+#: includes/class-submission-manager.php:1083
+#: includes/class-submission-manager.php:1202
+#: includes/class-submission-manager.php:1659
 #, php-format
 msgid "Failed to upload %s"
 msgstr ""
 
-#: includes/class-submission-manager.php:1060
-#: includes/class-submission-manager.php:1108
+#: includes/class-submission-manager.php:1099
+#: includes/class-submission-manager.php:1147
 msgid "This file type cannot be uploaded"
 msgstr ""
 
-#: includes/class-submission-manager.php:1069
-#: includes/class-submission-manager.php:1133
+#: includes/class-submission-manager.php:1108
+#: includes/class-submission-manager.php:1172
 msgid "Invalid filename"
 msgstr ""
 
-#: includes/class-submission-manager.php:1215
-#: includes/class-submission-manager.php:1272
+#: includes/class-submission-manager.php:1254
+#: includes/class-submission-manager.php:1311
 msgid "Failed to create upload directory"
 msgstr ""
 
-#: includes/class-submission-manager.php:1248
+#: includes/class-submission-manager.php:1287
 msgid "Invalid upload directory"
 msgstr ""
 
-#: includes/class-submission-manager.php:1267
+#: includes/class-submission-manager.php:1306
 msgid "Upload directory must be inside the uploads folder"
 msgstr ""
 
 #. translators: 1: field label, 2: max file size
-#: includes/class-submission-manager.php:1633
-#: includes/class-validator.php:493
+#: includes/class-submission-manager.php:1672
+#: includes/class-validator.php:495
 #, php-format
 msgid "%1$s file size must be %2$sMB or less"
 msgstr ""
 
 #. translators: 1: field label, 2: allowed file types
-#: includes/class-submission-manager.php:1651
-#: includes/class-validator.php:507
+#: includes/class-submission-manager.php:1690
+#: includes/class-validator.php:509
 #, php-format
 msgid "%1$s only accepts %2$s files"
 msgstr ""
@@ -3898,7 +4194,7 @@ msgstr ""
 #: includes/class-validator.php:236
 #: includes/class-validator.php:339
 #: includes/class-validator.php:359
-#: includes/class-validator.php:438
+#: includes/class-validator.php:440
 #, php-format
 msgid "%s format is invalid"
 msgstr ""
@@ -3947,13 +4243,13 @@ msgid "%1$s does not meet the required strength level (%2$s)"
 msgstr ""
 
 #. translators: 1: field label, 2: maximum length
-#: includes/class-validator.php:424
+#: includes/class-validator.php:426
 #, php-format
 msgid "%1$s must be at most %2$s characters"
 msgstr ""
 
 #. translators: %s: field label
-#: includes/class-validator.php:480
+#: includes/class-validator.php:482
 #, php-format
 msgid "%s upload failed"
 msgstr ""

@@ -451,11 +451,14 @@ class FPLANT_REST_API {
 								</label>
 							<?php endif; ?>
 
+							<?php echo wp_kses_post( $field_manager->render_field_description( $field, 'after_label' ) ); ?>
+							<?php echo wp_kses_post( $field_manager->render_field_description( $field, 'before_input' ) ); ?>
 							<?php
 							// Render field using template (supports theme overrides)
 							echo wp_kses( $field_manager->render_field( $field, $field_value, $form_id, $settings ), fplant_get_allowed_form_html() );
 							?>
 							<div class="fplant-field-error" style="display: none;"></div>
+							<?php echo wp_kses_post( $field_manager->render_field_description( $field, 'after_input' ) ); ?>
 						</div>
 						<?php
 					endforeach;

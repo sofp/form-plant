@@ -80,24 +80,24 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				<button type="button" class="fplant-button-link fplant-delete-form-edit" data-form-id="<?php echo esc_attr( absint( $fplant_form['id'] ) ); ?>">
 					<?php esc_html_e( 'Move to Trash', 'form-plant' ); ?>
 				</button>
+				<code class="fplant-shortcode-code">[fplant id="<?php echo esc_attr( absint( $fplant_form['id'] ) ); ?>"]</code>
+				<button type="button" class="button button-small fplant-copy-button" data-copy='[fplant id="<?php echo esc_attr( absint( $fplant_form['id'] ) ); ?>"]'>
+					<?php esc_html_e( 'Copy', 'form-plant' ); ?>
+				</button>
 				<?php endif; ?>
 			</div>
 			<div class="fplant-publish-box-right">
+				<?php if ( ! $fplant_is_new ) : ?>
+				<button type="button" class="fplant-button-preview fplant-preview-form" data-form-id="<?php echo esc_attr( absint( $fplant_form['id'] ) ); ?>">
+					<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+					<span><?php esc_html_e( 'Preview', 'form-plant' ); ?></span>
+				</button>
+				<?php endif; ?>
 				<button type="button" class="fplant-button fplant-save-form" data-form-id="<?php echo esc_attr( absint( $fplant_form['id'] ?? 0 ) ); ?>">
 					<?php echo $fplant_is_new ? esc_html__( 'Publish', 'form-plant' ) : esc_html__( 'Update', 'form-plant' ); ?>
 				</button>
 			</div>
 		</div>
-
-		<?php if ( ! $fplant_is_new ) : ?>
-		<div class="fplant-shortcode-box">
-			<span class="fplant-shortcode-label"><?php esc_html_e( 'Shortcode:', 'form-plant' ); ?></span>
-			<code class="fplant-shortcode-code">[fplant id="<?php echo esc_attr( absint( $fplant_form['id'] ) ); ?>"]</code>
-			<button type="button" class="button button-small fplant-copy-button" data-copy='[fplant id="<?php echo esc_attr( absint( $fplant_form['id'] ) ); ?>"]'>
-				<?php esc_html_e( 'Copy', 'form-plant' ); ?>
-			</button>
-		</div>
-		<?php endif; ?>
 
 		<div class="fplant-tabs">
 			<button type="button" class="fplant-tab active" data-tab="tab-fields">
@@ -105,6 +105,9 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 			</button>
 			<button type="button" class="fplant-tab" data-tab="tab-layout">
 				<?php esc_html_e( 'Layout', 'form-plant' ); ?>
+			</button>
+			<button type="button" class="fplant-tab" data-tab="tab-design">
+				<?php esc_html_e( 'Design', 'form-plant' ); ?>
 			</button>
 			<button type="button" class="fplant-tab" data-tab="tab-email">
 				<?php esc_html_e( 'Email Settings', 'form-plant' ); ?>
@@ -120,39 +123,20 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 		<!-- Field Settings tab -->
 		<div id="tab-fields" class="fplant-tab-content active">
 			<div class="fplant-card">
-				<div class="fplant-card-header">
-					<?php esc_html_e( 'Fields', 'form-plant' ); ?>
+				<div style="text-align: right; margin-bottom: 20px;">
+					<button type="button" class="fplant-button fplant-add-field">
+						<?php esc_html_e( '+ Add Field', 'form-plant' ); ?>
+					</button>
 				</div>
 
-				<button type="button" class="fplant-button fplant-add-field" style="margin-bottom: 20px;">
-					<?php esc_html_e( '+ Add Field', 'form-plant' ); ?>
-				</button>
+				<!-- Field rows (accordion) are rendered by admin.js renderFieldList() on load. -->
+				<div class="fplant-field-list"></div>
 
-				<div class="fplant-field-list">
-					<?php if ( ! empty( $fplant_form['fields'] ) ) : ?>
-						<?php foreach ( $fplant_form['fields'] as $fplant_index => $fplant_field ) : ?>
-							<div class="fplant-field-item" data-field-index="<?php echo esc_attr( $fplant_index ); ?>">
-								<div class="fplant-field-item-header">
-									<div class="fplant-field-item-title">
-										<?php echo esc_html( $fplant_field['label'] ?? $fplant_field['name'] ); ?>
-										<span style="color: #646970; font-weight: normal;">
-											(<?php echo esc_html( $fplant_field['type'] ); ?>)
-										</span>
-									</div>
-									<div class="fplant-field-item-actions">
-										<button type="button" class="button fplant-edit-field">
-											<?php esc_html_e( 'Edit', 'form-plant' ); ?>
-										</button>
-										<button type="button" class="button fplant-delete-field" style="color: #d63638;">
-											<?php esc_html_e( 'Delete', 'form-plant' ); ?>
-										</button>
-									</div>
-								</div>
-							</div>
-						<?php endforeach; ?>
-					<?php else : ?>
-						<p class="fplant-no-fields"><?php esc_html_e( 'No fields yet. Click "Add Field" button to add fields.', 'form-plant' ); ?></p>
-					<?php endif; ?>
+				<div style="text-align: right; margin-top: 20px;">
+					<?php // Hidden by admin.js for short field lists (renderFieldList). ?>
+					<button type="button" class="fplant-button fplant-add-field fplant-add-field-bottom">
+						<?php esc_html_e( '+ Add Field', 'form-plant' ); ?>
+					</button>
 				</div>
 			</div>
 		</div>
@@ -404,6 +388,10 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				</div>
 			</div>
 
+		</div>
+
+		<!-- Design tab -->
+		<div id="tab-design" class="fplant-tab-content">
 			<!-- Form Design Settings -->
 			<div class="fplant-card">
 				<div class="fplant-card-header">
@@ -445,6 +433,255 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 					<?php endforeach; ?>
 				</div>
 
+				<div class="fplant-design-adjust"<?php if ( 'none' === $fplant_current_design ) { echo ' style="display: none;"'; } ?>>
+					<hr style="border: 0; border-top: 1px solid #dcdcde; margin: 20px 0;">
+
+					<div class="fplant-form-group">
+						<label><?php esc_html_e( 'Design Adjustments', 'form-plant' ); ?></label>
+						<p class="description" style="margin-bottom: 10px;">
+							<?php esc_html_e( 'Adjust colors and sizes visually without writing CSS. Empty fields keep the design preset defaults.', 'form-plant' ); ?>
+						</p>
+
+						<?php
+						// Current values: settings.design_options (empty string = unset).
+						$fplant_design_opts = ( isset( $fplant_form['settings']['design_options'] ) && is_array( $fplant_form['settings']['design_options'] ) )
+							? $fplant_form['settings']['design_options']
+							: array();
+
+						$fplant_design_val = function ( $fplant_dsection, $fplant_dkey ) use ( $fplant_design_opts ) {
+							return isset( $fplant_design_opts[ $fplant_dsection ][ $fplant_dkey ] ) ? (string) $fplant_design_opts[ $fplant_dsection ][ $fplant_dkey ] : '';
+						};
+
+						$fplant_design_color = function ( $fplant_dsection, $fplant_dkey, $fplant_dlabel ) use ( $fplant_design_val ) {
+							$fplant_did = 'fplant-design-' . $fplant_dsection . '-' . $fplant_dkey;
+							?>
+							<div class="fplant-design-control">
+								<label for="<?php echo esc_attr( $fplant_did ); ?>"><?php echo esc_html( $fplant_dlabel ); ?></label>
+								<input
+									type="text"
+									id="<?php echo esc_attr( $fplant_did ); ?>"
+									class="fplant-design-input fplant-design-color"
+									data-design-key="<?php echo esc_attr( $fplant_dkey ); ?>"
+									value="<?php echo esc_attr( $fplant_design_val( $fplant_dsection, $fplant_dkey ) ); ?>"
+								>
+							</div>
+							<?php
+						};
+
+						$fplant_design_number = function ( $fplant_dsection, $fplant_dkey, $fplant_dlabel, $fplant_dmin, $fplant_dmax, $fplant_dslider = false, $fplant_ddefault = null, $fplant_dstep = 1 ) use ( $fplant_design_val ) {
+							$fplant_did  = 'fplant-design-' . $fplant_dsection . '-' . $fplant_dkey;
+							$fplant_dval = $fplant_design_val( $fplant_dsection, $fplant_dkey );
+							// While unset, the range parks at the known preset default (if any) rather than its min.
+							$fplant_dpark = null !== $fplant_ddefault ? $fplant_ddefault : $fplant_dmin;
+							?>
+							<div class="fplant-design-control">
+								<label for="<?php echo esc_attr( $fplant_did ); ?>"><?php echo esc_html( $fplant_dlabel ); ?></label>
+								<div class="fplant-design-slider-group<?php echo $fplant_dslider ? ' has-range' : ''; ?>">
+									<?php if ( $fplant_dslider ) : ?>
+										<?php // Pointer-only companion: the number input stays the single data-bound control (empty = preset default). ?>
+										<input
+											type="range"
+											class="fplant-design-range"
+											min="<?php echo esc_attr( $fplant_dmin ); ?>"
+											max="<?php echo esc_attr( $fplant_dmax ); ?>"
+											step="<?php echo esc_attr( $fplant_dstep ); ?>"
+											value="<?php echo esc_attr( '' !== $fplant_dval ? $fplant_dval : $fplant_dpark ); ?>"
+											<?php if ( null !== $fplant_ddefault ) : ?>
+												data-default="<?php echo esc_attr( $fplant_ddefault ); ?>"
+											<?php endif; ?>
+											aria-hidden="true"
+											tabindex="-1"
+										>
+									<?php endif; ?>
+									<?php if ( null !== $fplant_ddefault ) : ?>
+										<?php // Show the preset's actual default value so an empty box is not a mystery. ?>
+										<span class="fplant-design-default-hint">
+											<?php
+											/* translators: %s: default value in pixels, e.g. 800 */
+											printf( esc_html__( 'Default: %spx', 'form-plant' ), esc_html( $fplant_ddefault ) );
+											?>
+										</span>
+									<?php endif; ?>
+									<input
+										type="number"
+										id="<?php echo esc_attr( $fplant_did ); ?>"
+										class="fplant-design-input"
+										data-design-key="<?php echo esc_attr( $fplant_dkey ); ?>"
+										min="<?php echo esc_attr( $fplant_dmin ); ?>"
+										max="<?php echo esc_attr( $fplant_dmax ); ?>"
+										step="<?php echo esc_attr( $fplant_dstep ); ?>"
+										placeholder="<?php esc_attr_e( 'Default', 'form-plant' ); ?>"
+										value="<?php echo esc_attr( $fplant_dval ); ?>"
+									>
+								</div>
+							</div>
+							<?php
+						};
+
+						$fplant_design_select = function ( $fplant_dsection, $fplant_dkey, $fplant_dlabel, $fplant_dchoices ) use ( $fplant_design_val ) {
+							$fplant_did  = 'fplant-design-' . $fplant_dsection . '-' . $fplant_dkey;
+							$fplant_dcur = $fplant_design_val( $fplant_dsection, $fplant_dkey );
+							?>
+							<div class="fplant-design-control">
+								<label for="<?php echo esc_attr( $fplant_did ); ?>"><?php echo esc_html( $fplant_dlabel ); ?></label>
+								<select id="<?php echo esc_attr( $fplant_did ); ?>" class="fplant-design-input" data-design-key="<?php echo esc_attr( $fplant_dkey ); ?>">
+									<?php foreach ( $fplant_dchoices as $fplant_dval => $fplant_dchoice ) : ?>
+										<option value="<?php echo esc_attr( $fplant_dval ); ?>" <?php selected( $fplant_dcur, $fplant_dval ); ?>><?php echo esc_html( $fplant_dchoice ); ?></option>
+									<?php endforeach; ?>
+								</select>
+							</div>
+							<?php
+						};
+
+						$fplant_design_button_controls = function ( $fplant_dsection ) use ( $fplant_design_color, $fplant_design_number, $fplant_design_select ) {
+							$fplant_design_color( $fplant_dsection, 'color', __( 'Text Color', 'form-plant' ) );
+							$fplant_design_color( $fplant_dsection, 'background', __( 'Background Color', 'form-plant' ) );
+							$fplant_design_color( $fplant_dsection, 'border_color', __( 'Border Color', 'form-plant' ) );
+							$fplant_design_number( $fplant_dsection, 'border_width', __( 'Border Width (px)', 'form-plant' ), 0, 10, true );
+							$fplant_design_color( $fplant_dsection, 'hover_color', __( 'Hover Text Color', 'form-plant' ) );
+							$fplant_design_color( $fplant_dsection, 'hover_background', __( 'Hover Background Color', 'form-plant' ) );
+							$fplant_design_number( $fplant_dsection, 'border_radius', __( 'Corner Radius (px)', 'form-plant' ), 0, 50, true );
+							$fplant_design_number( $fplant_dsection, 'box_shadow', __( 'Shadow', 'form-plant' ), 0, 10, true );
+							$fplant_design_number( $fplant_dsection, 'font_size', __( 'Font Size (px)', 'form-plant' ), 10, 32, true );
+							$fplant_design_number( $fplant_dsection, 'padding_v', __( 'Vertical Padding (px)', 'form-plant' ), 0, 40, true );
+							$fplant_design_number( $fplant_dsection, 'padding_h', __( 'Horizontal Padding (px)', 'form-plant' ), 0, 80, true );
+							$fplant_design_select(
+								$fplant_dsection,
+								'width',
+								__( 'Width', 'form-plant' ),
+								array(
+									''     => __( 'Default', 'form-plant' ),
+									'auto' => __( 'Auto', 'form-plant' ),
+									'full' => __( 'Full Width (100%)', 'form-plant' ),
+								)
+							);
+						};
+
+						$fplant_design_use_confirmation = ! empty( $fplant_form['settings']['use_confirmation'] );
+
+						$fplant_design_accordion = function ( $fplant_dsection, $fplant_dtitle, $fplant_dcontrols, $fplant_dconfirmation_only = false ) use ( $fplant_design_use_confirmation ) {
+							$fplant_dclass = 'fplant-design-accordion';
+							if ( $fplant_dconfirmation_only ) {
+								$fplant_dclass .= ' fplant-design-confirmation-only';
+							}
+							?>
+							<div class="<?php echo esc_attr( $fplant_dclass ); ?>" data-design-section="<?php echo esc_attr( $fplant_dsection ); ?>"<?php if ( $fplant_dconfirmation_only && ! $fplant_design_use_confirmation ) { echo ' style="display: none;"'; } ?>>
+								<button type="button" class="fplant-design-accordion-header" aria-expanded="false" aria-controls="fplant-design-body-<?php echo esc_attr( $fplant_dsection ); ?>">
+									<span class="fplant-design-accordion-title"><?php echo esc_html( $fplant_dtitle ); ?></span>
+									<span class="dashicons dashicons-arrow-down" aria-hidden="true"></span>
+								</button>
+								<div class="fplant-design-accordion-body" id="fplant-design-body-<?php echo esc_attr( $fplant_dsection ); ?>" hidden>
+									<div class="fplant-design-controls">
+										<?php $fplant_dcontrols(); ?>
+									</div>
+									<div class="fplant-design-preview">
+										<div class="fplant-design-preview-host" data-design-section="<?php echo esc_attr( $fplant_dsection ); ?>"></div>
+									</div>
+									<div class="fplant-design-actions">
+										<span class="fplant-design-save-status" role="status"></span>
+										<button type="button" class="button fplant-design-reset">
+											<?php esc_html_e( 'Reset', 'form-plant' ); ?>
+										</button>
+										<button type="button" class="button button-primary fplant-design-save">
+											<?php esc_html_e( 'Save', 'form-plant' ); ?>
+										</button>
+									</div>
+								</div>
+							</div>
+							<?php
+						};
+
+						$fplant_design_accordion(
+							'form',
+							__( 'Overall', 'form-plant' ),
+							function () use ( $fplant_design_color, $fplant_design_number, $fplant_design_select ) {
+								?>
+								<h4 class="fplant-design-subheading"><?php esc_html_e( 'Form Frame', 'form-plant' ); ?></h4>
+								<?php
+								// 800 is the preset default (.fplant-form-wrapper max-width in form.css / design-*.css).
+								$fplant_design_number( 'form', 'max_width', __( 'Max Width (px)', 'form-plant' ), 300, 1200, true, 800, 10 );
+								$fplant_design_color( 'form', 'background', __( 'Background Color', 'form-plant' ) );
+								$fplant_design_color( 'form', 'border_color', __( 'Border Color', 'form-plant' ) );
+								$fplant_design_number( 'form', 'border_width', __( 'Border Width (px)', 'form-plant' ), 0, 10, true );
+								$fplant_design_number( 'form', 'border_radius', __( 'Corner Radius (px)', 'form-plant' ), 0, 50, true );
+								$fplant_design_number( 'form', 'box_shadow', __( 'Shadow', 'form-plant' ), 0, 10, true );
+								?>
+								<h4 class="fplant-design-subheading"><?php esc_html_e( 'Field Labels', 'form-plant' ); ?></h4>
+								<?php
+								$fplant_design_color( 'form', 'label_color', __( 'Text Color', 'form-plant' ) );
+								$fplant_design_select(
+									'form',
+									'label_bold',
+									__( 'Font Weight', 'form-plant' ),
+									array(
+										''       => __( 'Default', 'form-plant' ),
+										'bold'   => __( 'Bold', 'form-plant' ),
+										'normal' => __( 'Normal', 'form-plant' ),
+									)
+								);
+								$fplant_design_color( 'form', 'label_background', __( 'Background Color', 'form-plant' ) );
+								$fplant_design_number( 'form', 'label_font_size', __( 'Font Size (px)', 'form-plant' ), 10, 32, true );
+								?>
+								<h4 class="fplant-design-subheading"><?php esc_html_e( 'Field Descriptions', 'form-plant' ); ?></h4>
+								<?php
+								$fplant_design_color( 'form', 'desc_color', __( 'Text Color', 'form-plant' ) );
+								$fplant_design_number( 'form', 'desc_font_size', __( 'Font Size (px)', 'form-plant' ), 10, 32, true );
+							}
+						);
+
+						$fplant_design_accordion(
+							'input',
+							__( 'Input Fields', 'form-plant' ),
+							function () use ( $fplant_design_color, $fplant_design_number ) {
+								$fplant_design_color( 'input', 'color', __( 'Text Color', 'form-plant' ) );
+								$fplant_design_color( 'input', 'background', __( 'Background Color', 'form-plant' ) );
+								$fplant_design_number( 'input', 'font_size', __( 'Font Size (px)', 'form-plant' ), 10, 32, true );
+								$fplant_design_color( 'input', 'border_color', __( 'Border Color', 'form-plant' ) );
+								$fplant_design_color( 'input', 'focus_border_color', __( 'Focus Border Color', 'form-plant' ) );
+								$fplant_design_color( 'input', 'error_border_color', __( 'Error Border Color', 'form-plant' ) );
+								$fplant_design_color( 'input', 'placeholder_color', __( 'Placeholder Text Color', 'form-plant' ) );
+							}
+						);
+
+						$fplant_design_accordion(
+							'submit',
+							__( 'Submit/Confirm Button (Input Screen)', 'form-plant' ),
+							function () use ( $fplant_design_button_controls ) {
+								$fplant_design_button_controls( 'submit' );
+							}
+						);
+
+						$fplant_design_accordion(
+							'confirm_buttons',
+							__( 'Confirmation Screen Buttons', 'form-plant' ),
+							function () use ( $fplant_design_button_controls ) {
+								// Back and submit buttons share one frame; each set of
+								// controls keeps its own data-design-section sub-scope so
+								// the JS still collects/saves them as separate sections.
+								echo '<div class="fplant-design-subscope" data-design-section="back">';
+								echo '<h4 class="fplant-design-subheading">' . esc_html__( 'Back Button', 'form-plant' ) . '</h4>';
+								$fplant_design_button_controls( 'back' );
+								echo '</div>';
+								echo '<div class="fplant-design-subscope" data-design-section="confirm">';
+								echo '<h4 class="fplant-design-subheading">' . esc_html__( 'Submit Button', 'form-plant' ) . '</h4>';
+								$fplant_design_button_controls( 'confirm' );
+								echo '</div>';
+							},
+							true
+						);
+
+						$fplant_design_accordion(
+							'error',
+							__( 'Error Messages', 'form-plant' ),
+							function () use ( $fplant_design_color ) {
+								$fplant_design_color( 'error', 'color', __( 'Text Color', 'form-plant' ) );
+								$fplant_design_color( 'error', 'background', __( 'Background Color', 'form-plant' ) );
+							}
+						);
+						?>
+					</div>
+				</div>
+
 				<hr style="border: 0; border-top: 1px solid #dcdcde; margin: 20px 0;">
 
 				<div class="fplant-form-group">
@@ -483,6 +720,9 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 
 				<div class="fplant-form-group">
 					<label><?php esc_html_e( 'Inline CSS', 'form-plant' ); ?></label>
+					<p class="description" style="margin-bottom: 10px;">
+						<?php esc_html_e( 'Design Adjustments output per-form CSS using an ID selector (#fplant-form-...). To override them here, prefix your selectors with the same ID or use !important.', 'form-plant' ); ?>
+					</p>
 					<textarea
 						class="fplant-form-control fplant-custom-css-inline"
 						rows="10"
@@ -1285,40 +1525,29 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 	</div>
 </div>
 
-<!-- Field Edit Modal -->
-<div id="fplant-field-modal" class="fplant-modal">
-	<div class="fplant-modal-content fplant-field-modal-content">
-		<div class="fplant-modal-header">
-			<h2 id="fplant-field-modal-title"><?php esc_html_e( 'Add Field', 'form-plant' ); ?></h2>
-			<button type="button" class="fplant-modal-close">&times;</button>
+<!-- Field editor: a single instance moved into the open accordion row body. -->
+<div id="fplant-field-editor-host" hidden>
+	<div id="fplant-field-editor" class="fplant-field-editor">
+		<div id="fplant-field-modal-errors" class="fplant-notice fplant-notice-error" style="display: none;"></div>
+		<div class="fplant-field-tabs" role="tablist">
+			<button type="button" class="fplant-field-tab active" role="tab" aria-selected="true" data-ftab="basic"><?php esc_html_e( 'Basic', 'form-plant' ); ?></button>
+			<button type="button" class="fplant-field-tab" role="tab" aria-selected="false" data-ftab="validation"><?php esc_html_e( 'Validation', 'form-plant' ); ?></button>
+			<button type="button" class="fplant-field-tab" role="tab" aria-selected="false" data-ftab="advanced"><?php esc_html_e( 'Advanced', 'form-plant' ); ?></button>
 		</div>
-		<div class="fplant-modal-body">
-			<div id="fplant-field-modal-errors" class="fplant-notice fplant-notice-error" style="display: none;"></div>
+		<div class="fplant-field-tab-panel active" role="tabpanel" data-ftab="basic">
 			<div class="fplant-form-group">
 				<label for="fplant-field-type"><?php esc_html_e( 'Field Type', 'form-plant' ); ?> <span class="required">*</span></label>
 				<select id="fplant-field-type" class="fplant-form-control">
-					<option value="name_parts"><?php esc_html_e( 'Name', 'form-plant' ); ?></option>
-					<option value="name_kana"><?php esc_html_e( 'Name (Kana)', 'form-plant' ); ?></option>
-					<option value="email"><?php esc_html_e( 'Email Address', 'form-plant' ); ?></option>
-					<option value="text"><?php esc_html_e( 'Text', 'form-plant' ); ?></option>
-					<option value="tel"><?php esc_html_e( 'Phone Number', 'form-plant' ); ?></option>
-					<option value="url"><?php esc_html_e( 'URL', 'form-plant' ); ?></option>
-					<option value="number"><?php esc_html_e( 'Number', 'form-plant' ); ?></option>
-					<option value="textarea"><?php esc_html_e( 'Textarea', 'form-plant' ); ?></option>
-					<option value="select"><?php esc_html_e( 'Select Box', 'form-plant' ); ?></option>
-					<option value="radio"><?php esc_html_e( 'Radio Button', 'form-plant' ); ?></option>
-					<option value="checkbox"><?php esc_html_e( 'Checkbox', 'form-plant' ); ?></option>
-					<option value="date"><?php esc_html_e( 'Date (Calendar)', 'form-plant' ); ?></option>
-					<option value="date_select"><?php esc_html_e( 'Date (Dropdown)', 'form-plant' ); ?></option>
-					<option value="time"><?php esc_html_e( 'Time', 'form-plant' ); ?></option>
-					<option value="password"><?php esc_html_e( 'Password', 'form-plant' ); ?></option>
-					<option value="file"><?php esc_html_e( 'File Upload', 'form-plant' ); ?></option>
-					<option value="postal_code"><?php esc_html_e( 'Postal Code', 'form-plant' ); ?></option>
-					<option value="prefecture"><?php esc_html_e( 'Prefecture', 'form-plant' ); ?></option>
-					<option value="address"><?php esc_html_e( 'Address', 'form-plant' ); ?></option>
-					<option value="hidden"><?php esc_html_e( 'Hidden', 'form-plant' ); ?></option>
-					<option value="html"><?php esc_html_e( 'HTML', 'form-plant' ); ?></option>
-					<option value="custom_mail_tag"><?php esc_html_e( 'Custom Mail Tag', 'form-plant' ); ?></option>
+					<?php
+					// Generate options from the single source of truth (filtered via fplant_field_types),
+					// so Pro-registered field types appear in the picker automatically.
+					$fplant_field_type_list = ( new FPLANT_Field_Manager() )->get_field_types();
+					foreach ( $fplant_field_type_list as $fplant_type_key => $fplant_type_cfg ) :
+						?>
+						<option value="<?php echo esc_attr( $fplant_type_key ); ?>"><?php echo esc_html( $fplant_type_cfg['label'] ?? $fplant_type_key ); ?></option>
+						<?php
+					endforeach;
+					?>
 				</select>
 			</div>
 
@@ -1336,29 +1565,8 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 			<div class="fplant-form-group">
 				<label for="fplant-field-placeholder"><?php esc_html_e( 'Placeholder', 'form-plant' ); ?></label>
 				<input type="text" id="fplant-field-placeholder" class="fplant-form-control">
-			</div>
-
-			<div class="fplant-checkbox">
-				<input type="checkbox" id="fplant-field-required">
-				<label for="fplant-field-required"><?php esc_html_e( 'Required Field', 'form-plant' ); ?></label>
-			</div>
-
-			<div class="fplant-form-group">
-				<label for="fplant-field-validation-message"><?php esc_html_e( 'Validation Message', 'form-plant' ); ?></label>
-				<input type="text" id="fplant-field-validation-message" class="fplant-form-control" placeholder="<?php esc_attr_e( 'This field is required. Please enter a value.', 'form-plant' ); ?>">
-				<p class="description"><?php esc_html_e( 'Message to display when required field is empty (default message used if blank)', 'form-plant' ); ?></p>
-			</div>
-
-			<div class="fplant-form-group">
-				<label for="fplant-field-custom-id"><?php esc_html_e( 'Custom ID', 'form-plant' ); ?></label>
-				<input type="text" id="fplant-field-custom-id" class="fplant-form-control" placeholder="<?php esc_attr_e( 'e.g., my-custom-field', 'form-plant' ); ?>">
-				<p class="description"><?php esc_html_e( 'Set a custom ID for the field (auto-generated if blank)', 'form-plant' ); ?></p>
-			</div>
-
-			<div class="fplant-form-group">
-				<label for="fplant-field-custom-class"><?php esc_html_e( 'Custom Class', 'form-plant' ); ?></label>
-				<input type="text" id="fplant-field-custom-class" class="fplant-form-control" placeholder="<?php esc_attr_e( 'e.g., my-class another-class', 'form-plant' ); ?>">
-				<p class="description"><?php esc_html_e( 'CSS classes to add to the field (separate multiple with spaces)', 'form-plant' ); ?></p>
+				<?php // Multi-line variant shown for the textarea field type (toggled in admin.js). ?>
+				<textarea id="fplant-field-placeholder-textarea" class="fplant-form-control" rows="2" style="display: none;"></textarea>
 			</div>
 
 			<!-- Options Settings (for select/radio/checkbox) -->
@@ -1440,35 +1648,18 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				</div>
 			</div>
 
-			<!-- Input Field Settings (for text / email / url / password) -->
+			<!-- Input Field Settings (for text / email / url / password). Max Length lives in the Validation tab. -->
 			<div id="fplant-field-text-settings-section" class="fplant-form-group" style="display: none;">
-				<label><?php esc_html_e( 'Input Field Settings', 'form-plant' ); ?></label>
-				<div style="display: flex; gap: 10px; align-items: flex-start; margin-top: 10px;">
-					<div style="flex: 1;">
-						<label for="fplant-field-size" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Size', 'form-plant' ); ?></label>
-						<input
-							type="number"
-							id="fplant-field-size"
-							class="fplant-form-control"
-							placeholder=""
-							min="1"
-							max="200"
-						>
-						<p class="description"><?php esc_html_e( 'Display width of the input field (number of characters)', 'form-plant' ); ?></p>
-					</div>
-					<div style="flex: 1;">
-						<label for="fplant-field-maxlength" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Max Length', 'form-plant' ); ?></label>
-						<input
-							type="number"
-							id="fplant-field-maxlength"
-							class="fplant-form-control"
-							placeholder=""
-							min="1"
-							max="10000"
-						>
-						<p class="description"><?php esc_html_e( 'Maximum number of characters allowed', 'form-plant' ); ?></p>
-					</div>
-				</div>
+				<label for="fplant-field-size"><?php esc_html_e( 'Size', 'form-plant' ); ?></label>
+				<input
+					type="number"
+					id="fplant-field-size"
+					class="fplant-form-control"
+					placeholder=""
+					min="1"
+					max="200"
+				>
+				<p class="description"><?php esc_html_e( 'Display width of the input field (number of characters)', 'form-plant' ); ?></p>
 			</div>
 
 			<!-- Textarea Field Settings (for textarea) -->
@@ -1498,18 +1689,6 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 							max="200"
 						>
 						<p class="description"><?php esc_html_e( 'Visible width (number of characters)', 'form-plant' ); ?></p>
-					</div>
-					<div style="flex: 1;">
-						<label for="fplant-field-textarea-maxlength" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Max Length', 'form-plant' ); ?></label>
-						<input
-							type="number"
-							id="fplant-field-textarea-maxlength"
-							class="fplant-form-control"
-							placeholder=""
-							min="1"
-							max="10000"
-						>
-						<p class="description"><?php esc_html_e( 'Maximum number of characters allowed', 'form-plant' ); ?></p>
 					</div>
 				</div>
 			</div>
@@ -1553,10 +1732,6 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 							<div style="flex: 1;">
 								<label for="fplant-field-name-placeholder-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Placeholder', 'form-plant' ); ?></label>
 								<input type="text" id="fplant-field-name-placeholder-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control">
-							</div>
-							<div style="flex: 1;">
-								<label for="fplant-field-name-validation-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Validation Message', 'form-plant' ); ?></label>
-								<input type="text" id="fplant-field-name-validation-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Default message used if blank', 'form-plant' ); ?>">
 							</div>
 						</div>
 					</div>
@@ -1603,58 +1778,17 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 								<label for="fplant-field-kana-placeholder-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Placeholder', 'form-plant' ); ?></label>
 								<input type="text" id="fplant-field-kana-placeholder-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control">
 							</div>
-							<div style="flex: 1;">
-								<label for="fplant-field-kana-validation-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Validation Message', 'form-plant' ); ?></label>
-								<input type="text" id="fplant-field-kana-validation-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Default message used if blank', 'form-plant' ); ?>">
-							</div>
 						</div>
 					</div>
 					<?php endforeach; ?>
 				</div>
-				<div style="margin-top: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px;">
-					<label style="font-weight: 600; font-size: 12px; margin-bottom: 8px; display: block;"><?php esc_html_e( 'Kana Validation', 'form-plant' ); ?></label>
-					<label style="font-weight: normal; margin-right: 15px;">
-						<input type="radio" name="fplant-field-kana-validation" value="katakana" checked>
-						<?php esc_html_e( 'Katakana only', 'form-plant' ); ?>
-					</label>
-					<label style="font-weight: normal; margin-right: 15px;">
-						<input type="radio" name="fplant-field-kana-validation" value="hiragana">
-						<?php esc_html_e( 'Hiragana only', 'form-plant' ); ?>
-					</label>
-					<label style="font-weight: normal;">
-						<input type="radio" name="fplant-field-kana-validation" value="none">
-						<?php esc_html_e( 'No validation', 'form-plant' ); ?>
-					</label>
-				</div>
-				<div id="fplant-field-kana-error-message-section" style="margin-top: 10px;">
-					<label for="fplant-field-kana-error-message" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Kana Validation Error Message', 'form-plant' ); ?></label>
-					<input type="text" id="fplant-field-kana-error-message" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Please enter in katakana.', 'form-plant' ); ?>">
-					<p class="description"><?php esc_html_e( 'Custom error message for kana validation (default message used if blank)', 'form-plant' ); ?></p>
-				</div>
 			</div>
 
-			<!-- Password Settings (for password) -->
+			<!-- Password Settings (for password). Min length / strength live in the Validation tab. -->
 			<div id="fplant-field-password-section" class="fplant-form-group" style="display: none;">
 				<label><?php esc_html_e( 'Password Field Settings', 'form-plant' ); ?></label>
 
 				<div style="margin-top: 10px;">
-					<label for="fplant-field-password-min-length" style="font-weight: normal; font-size: 12px;">
-						<?php esc_html_e( 'Minimum Character Length', 'form-plant' ); ?>
-					</label>
-					<input
-						type="number"
-						id="fplant-field-password-min-length"
-						class="fplant-form-control"
-						min="1"
-						max="100"
-						style="width: 100px;"
-					>
-					<p class="description">
-						<?php esc_html_e( 'Minimum number of characters required (leave blank for no limit)', 'form-plant' ); ?>
-					</p>
-				</div>
-
-				<div style="margin-top: 15px;">
 					<div class="fplant-checkbox">
 						<input type="checkbox" id="fplant-field-password-mask-email">
 						<label for="fplant-field-password-mask-email">
@@ -1676,40 +1810,6 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 					<p class="description">
 						<?php esc_html_e( 'Replace the password value with masked characters before saving to database (irreversible)', 'form-plant' ); ?>
 					</p>
-				</div>
-
-				<div style="margin-top: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px;">
-					<div class="fplant-checkbox">
-						<input type="checkbox" id="fplant-field-password-strength-meter">
-						<label for="fplant-field-password-strength-meter">
-							<?php esc_html_e( 'Show password strength meter', 'form-plant' ); ?>
-						</label>
-					</div>
-
-					<div id="fplant-field-password-strength-level-section" style="margin-top: 10px; display: none;">
-						<label style="font-weight: 600; font-size: 12px; display: block; margin-bottom: 8px;">
-							<?php esc_html_e( 'Required Strength Level', 'form-plant' ); ?>
-						</label>
-						<label style="font-weight: normal; margin-right: 15px;">
-							<input type="radio" name="fplant-field-password-strength-level" value="none" checked>
-							<?php esc_html_e( 'None', 'form-plant' ); ?>
-						</label>
-						<label style="font-weight: normal; margin-right: 15px;">
-							<input type="radio" name="fplant-field-password-strength-level" value="weak">
-							<?php esc_html_e( 'Weak', 'form-plant' ); ?>
-						</label>
-						<label style="font-weight: normal; margin-right: 15px;">
-							<input type="radio" name="fplant-field-password-strength-level" value="fair">
-							<?php esc_html_e( 'Fair', 'form-plant' ); ?>
-						</label>
-						<label style="font-weight: normal;">
-							<input type="radio" name="fplant-field-password-strength-level" value="strong">
-							<?php esc_html_e( 'Strong', 'form-plant' ); ?>
-						</label>
-						<p class="description">
-							<?php esc_html_e( 'Set the minimum password strength required for submission', 'form-plant' ); ?>
-						</p>
-					</div>
 				</div>
 			</div>
 
@@ -1901,10 +2001,6 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 								<label for="fplant-field-address-placeholder-<?php echo esc_attr( $fplant_sub_key ); ?>" style="font-weight: normal; font-size: 11px;"><?php esc_html_e( 'Placeholder', 'form-plant' ); ?></label>
 								<input type="text" id="fplant-field-address-placeholder-<?php echo esc_attr( $fplant_sub_key ); ?>" class="fplant-form-control">
 							</div>
-							<div style="flex: 1;">
-								<label for="fplant-field-address-validation-<?php echo esc_attr( $fplant_sub_key ); ?>" style="font-weight: normal; font-size: 11px;"><?php esc_html_e( 'Validation Message', 'form-plant' ); ?></label>
-								<input type="text" id="fplant-field-address-validation-<?php echo esc_attr( $fplant_sub_key ); ?>" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Default message used if blank', 'form-plant' ); ?>">
-							</div>
 						</div>
 					</div>
 					<?php endforeach; ?>
@@ -1915,12 +2011,239 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 			<div id="fplant-field-default-value-section" class="fplant-form-group" style="display: none;">
 				<label for="fplant-field-default-value"><?php esc_html_e( 'Default Value', 'form-plant' ); ?></label>
 				<input type="text" id="fplant-field-default-value" class="fplant-form-control">
+				<?php // Multi-line variant shown for the textarea field type (toggled in admin.js). ?>
+				<textarea id="fplant-field-default-value-textarea" class="fplant-form-control" rows="3" style="display: none;"></textarea>
 				<p class="description"><?php esc_html_e( 'Default value for the field', 'form-plant' ); ?></p>
 			</div>
+		</div><!-- /[data-ftab="basic"] -->
+
+		<div class="fplant-field-tab-panel" role="tabpanel" data-ftab="validation" hidden>
+			<div class="fplant-checkbox">
+				<input type="checkbox" id="fplant-field-required">
+				<label for="fplant-field-required"><?php esc_html_e( 'Required Field', 'form-plant' ); ?></label>
+			</div>
+
+			<div class="fplant-form-group">
+				<label for="fplant-field-validation-message"><?php esc_html_e( 'Validation Message', 'form-plant' ); ?></label>
+				<input type="text" id="fplant-field-validation-message" class="fplant-form-control" placeholder="<?php esc_attr_e( 'This field is required. Please enter a value.', 'form-plant' ); ?>">
+				<p class="description"><?php esc_html_e( 'Message to display when required field is empty (default message used if blank)', 'form-plant' ); ?></p>
+			</div>
+
+			<!-- Max Length Settings (for textarea) -->
+			<div id="fplant-field-maxlength-section" class="fplant-form-group" style="display: none;">
+				<label for="fplant-field-textarea-maxlength"><?php esc_html_e( 'Max Length', 'form-plant' ); ?></label>
+				<input
+					type="number"
+					id="fplant-field-textarea-maxlength"
+					class="fplant-form-control"
+					min="1"
+					max="10000"
+				>
+				<p class="description"><?php esc_html_e( 'Maximum number of characters allowed', 'form-plant' ); ?></p>
+
+				<label for="fplant-field-maxlength-message" style="margin-top: 12px;"><?php esc_html_e( 'Max Length Error Message', 'form-plant' ); ?></label>
+				<input type="text" id="fplant-field-maxlength-message" class="fplant-form-control">
+				<p class="description"><?php esc_html_e( 'Message to display when the maximum length is exceeded (default message used if blank)', 'form-plant' ); ?></p>
+			</div>
+
+			<!-- Max Length (for text / email / url / password) -->
+			<div id="fplant-field-maxlength-text-section" class="fplant-form-group" style="display: none;">
+				<label for="fplant-field-maxlength"><?php esc_html_e( 'Max Length', 'form-plant' ); ?></label>
+				<input type="number" id="fplant-field-maxlength" class="fplant-form-control" placeholder="" min="1" max="10000">
+				<p class="description"><?php esc_html_e( 'Maximum number of characters allowed', 'form-plant' ); ?></p>
+			</div>
+
+			<!-- Validation Messages (for name_parts) -->
+			<div id="fplant-field-name-parts-validation-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Validation Messages', 'form-plant' ); ?></label>
+				<div style="margin-top: 10px;">
+					<?php foreach ( $fplant_name_parts_order as $fplant_part ) : ?>
+					<div class="fplant-name-validation-row" data-part="<?php echo esc_attr( $fplant_part ); ?>" style="<?php echo 'middle' === $fplant_part ? 'display: none; ' : ''; ?>margin-bottom: 10px;">
+						<label for="fplant-field-name-validation-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;">
+							<span class="fplant-name-part-heading"
+								<?php if ( 'family' === $fplant_part ) : ?>
+									data-label-default="<?php echo esc_attr( $fplant_name_part_labels['family'] ); ?>"
+									data-label-single="<?php esc_attr_e( 'Full Name', 'form-plant' ); ?>"
+								<?php endif; ?>
+							><?php echo esc_html( $fplant_name_part_labels[ $fplant_part ] ); ?></span>
+						</label>
+						<input type="text" id="fplant-field-name-validation-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Default message used if blank', 'form-plant' ); ?>">
+					</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+
+			<!-- Validation (for name_kana) -->
+			<div id="fplant-field-name-kana-validation-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Validation Messages', 'form-plant' ); ?></label>
+				<div style="margin-top: 10px;">
+					<?php foreach ( $fplant_kana_parts_order as $fplant_part ) : ?>
+					<div class="fplant-kana-validation-row" data-part="<?php echo esc_attr( $fplant_part ); ?>" style="<?php echo 'middle' === $fplant_part ? 'display: none; ' : ''; ?>margin-bottom: 10px;">
+						<label for="fplant-field-kana-validation-<?php echo esc_attr( $fplant_part ); ?>" style="font-weight: normal; font-size: 12px;">
+							<span class="fplant-kana-part-heading"
+								<?php if ( 'family' === $fplant_part ) : ?>
+									data-label-default="<?php echo esc_attr( $fplant_kana_part_labels['family'] ); ?>"
+									data-label-single="<?php esc_attr_e( 'Full Name (Kana)', 'form-plant' ); ?>"
+								<?php endif; ?>
+							><?php echo esc_html( $fplant_kana_part_labels[ $fplant_part ] ); ?></span>
+						</label>
+						<input type="text" id="fplant-field-kana-validation-<?php echo esc_attr( $fplant_part ); ?>" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Default message used if blank', 'form-plant' ); ?>">
+					</div>
+					<?php endforeach; ?>
+				</div>
+				<div style="margin-top: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px;">
+					<label style="font-weight: 600; font-size: 12px; margin-bottom: 8px; display: block;"><?php esc_html_e( 'Kana Validation', 'form-plant' ); ?></label>
+					<label style="font-weight: normal; margin-right: 15px;">
+						<input type="radio" name="fplant-field-kana-validation" value="katakana" checked>
+						<?php esc_html_e( 'Katakana only', 'form-plant' ); ?>
+					</label>
+					<label style="font-weight: normal; margin-right: 15px;">
+						<input type="radio" name="fplant-field-kana-validation" value="hiragana">
+						<?php esc_html_e( 'Hiragana only', 'form-plant' ); ?>
+					</label>
+					<label style="font-weight: normal;">
+						<input type="radio" name="fplant-field-kana-validation" value="none">
+						<?php esc_html_e( 'No validation', 'form-plant' ); ?>
+					</label>
+				</div>
+				<div id="fplant-field-kana-error-message-section" style="margin-top: 10px;">
+					<label for="fplant-field-kana-error-message" style="font-weight: normal; font-size: 12px;"><?php esc_html_e( 'Kana Validation Error Message', 'form-plant' ); ?></label>
+					<input type="text" id="fplant-field-kana-error-message" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Please enter in katakana.', 'form-plant' ); ?>">
+					<p class="description"><?php esc_html_e( 'Custom error message for kana validation (default message used if blank)', 'form-plant' ); ?></p>
+				</div>
+			</div>
+
+			<!-- Validation Messages (for address) -->
+			<div id="fplant-field-address-validation-section" class="fplant-form-group" style="display: none;">
+				<label><?php esc_html_e( 'Validation Messages', 'form-plant' ); ?></label>
+				<div style="margin-top: 10px;">
+					<?php
+					foreach ( $fplant_addr_all_sub_fields as $fplant_sub_key ) :
+						$fplant_addr_row_hidden = $fplant_addr_is_ja && in_array( $fplant_sub_key, $fplant_addr_intl_only_keys, true );
+						?>
+					<div class="fplant-address-validation-row" data-sub-key="<?php echo esc_attr( $fplant_sub_key ); ?>" style="margin-bottom: 8px;<?php echo $fplant_addr_row_hidden ? ' display: none;' : ''; ?>">
+						<label for="fplant-field-address-validation-<?php echo esc_attr( $fplant_sub_key ); ?>" style="font-weight: normal; font-size: 11px;"><?php echo esc_html( $fplant_addr_all_labels[ $fplant_sub_key ] ); ?></label>
+						<input type="text" id="fplant-field-address-validation-<?php echo esc_attr( $fplant_sub_key ); ?>" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Default message used if blank', 'form-plant' ); ?>">
+					</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+
+			<!-- Password constraints (for password) -->
+			<div id="fplant-field-password-validation-section" class="fplant-form-group" style="display: none;">
+				<div>
+					<label for="fplant-field-password-min-length" style="font-weight: normal; font-size: 12px;">
+						<?php esc_html_e( 'Minimum Character Length', 'form-plant' ); ?>
+					</label>
+					<input
+						type="number"
+						id="fplant-field-password-min-length"
+						class="fplant-form-control"
+						min="1"
+						max="100"
+						style="width: 100px;"
+					>
+					<p class="description">
+						<?php esc_html_e( 'Minimum number of characters required (leave blank for no limit)', 'form-plant' ); ?>
+					</p>
+				</div>
+
+				<div style="margin-top: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px;">
+					<div class="fplant-checkbox">
+						<input type="checkbox" id="fplant-field-password-strength-meter">
+						<label for="fplant-field-password-strength-meter">
+							<?php esc_html_e( 'Show password strength meter', 'form-plant' ); ?>
+						</label>
+					</div>
+
+					<div id="fplant-field-password-strength-level-section" style="margin-top: 10px; display: none;">
+						<label style="font-weight: 600; font-size: 12px; display: block; margin-bottom: 8px;">
+							<?php esc_html_e( 'Required Strength Level', 'form-plant' ); ?>
+						</label>
+						<label style="font-weight: normal; margin-right: 15px;">
+							<input type="radio" name="fplant-field-password-strength-level" value="none" checked>
+							<?php esc_html_e( 'None', 'form-plant' ); ?>
+						</label>
+						<label style="font-weight: normal; margin-right: 15px;">
+							<input type="radio" name="fplant-field-password-strength-level" value="weak">
+							<?php esc_html_e( 'Weak', 'form-plant' ); ?>
+						</label>
+						<label style="font-weight: normal; margin-right: 15px;">
+							<input type="radio" name="fplant-field-password-strength-level" value="fair">
+							<?php esc_html_e( 'Fair', 'form-plant' ); ?>
+						</label>
+						<label style="font-weight: normal;">
+							<input type="radio" name="fplant-field-password-strength-level" value="strong">
+							<?php esc_html_e( 'Strong', 'form-plant' ); ?>
+						</label>
+						<p class="description">
+							<?php esc_html_e( 'Set the minimum password strength required for submission', 'form-plant' ); ?>
+						</p>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div class="fplant-modal-footer">
-			<button type="button" class="button fplant-button-secondary fplant-modal-close"><?php esc_html_e( 'Cancel', 'form-plant' ); ?></button>
-			<button type="button" id="fplant-save-field" class="button button-primary"><?php esc_html_e( 'Save', 'form-plant' ); ?></button>
+
+		<div class="fplant-field-tab-panel" role="tabpanel" data-ftab="advanced" hidden>
+			<div class="fplant-form-group">
+				<label for="fplant-field-desc-after-label"><?php esc_html_e( 'Description below label', 'form-plant' ); ?></label>
+				<textarea id="fplant-field-desc-after-label" class="fplant-form-control" rows="2"></textarea>
+				<p class="description"><?php esc_html_e( 'Shown directly below the field label. HTML tags are allowed.', 'form-plant' ); ?></p>
+			</div>
+
+			<div class="fplant-form-group">
+				<label for="fplant-field-desc-before-input"><?php esc_html_e( 'Description above input', 'form-plant' ); ?></label>
+				<textarea id="fplant-field-desc-before-input" class="fplant-form-control" rows="2"></textarea>
+				<p class="description"><?php esc_html_e( 'Shown directly above the input. HTML tags are allowed.', 'form-plant' ); ?></p>
+			</div>
+
+			<div class="fplant-form-group">
+				<label for="fplant-field-desc-after-input"><?php esc_html_e( 'Description below input', 'form-plant' ); ?></label>
+				<textarea id="fplant-field-desc-after-input" class="fplant-form-control" rows="2"></textarea>
+				<p class="description"><?php esc_html_e( 'Shown below the input (below the error message if any). HTML tags are allowed.', 'form-plant' ); ?></p>
+			</div>
+
+			<div class="fplant-form-group">
+				<label for="fplant-field-custom-id"><?php esc_html_e( 'Custom ID', 'form-plant' ); ?></label>
+				<input type="text" id="fplant-field-custom-id" class="fplant-form-control" placeholder="<?php esc_attr_e( 'e.g., my-custom-field', 'form-plant' ); ?>">
+				<p class="description"><?php esc_html_e( 'Set a custom ID for the field (auto-generated if blank)', 'form-plant' ); ?></p>
+			</div>
+
+			<div class="fplant-form-group">
+				<label for="fplant-field-custom-class"><?php esc_html_e( 'Custom Class', 'form-plant' ); ?></label>
+				<input type="text" id="fplant-field-custom-class" class="fplant-form-control" placeholder="<?php esc_attr_e( 'e.g., my-class another-class', 'form-plant' ); ?>">
+				<p class="description"><?php esc_html_e( 'CSS classes to add to the field (separate multiple with spaces)', 'form-plant' ); ?></p>
+			</div>
+		</div>
+
+		<div class="fplant-field-editor-footer">
+			<button type="button" id="fplant-save-field" class="button button-primary"><?php esc_html_e( 'Close', 'form-plant' ); ?></button>
+		</div>
+	</div><!-- /#fplant-field-editor -->
+</div><!-- /#fplant-field-editor-host -->
+
+<!-- Field Type Picker Modal (icon grid; choosing a type creates a field of that type) -->
+<div id="fplant-field-type-picker-modal" class="fplant-modal">
+	<div class="fplant-modal-content fplant-type-picker-content">
+		<div class="fplant-modal-header">
+			<h2><?php esc_html_e( 'Select Field Type', 'form-plant' ); ?></h2>
+			<button type="button" class="fplant-modal-close">&times;</button>
+		</div>
+		<div class="fplant-modal-body">
+			<div class="fplant-type-picker-grid">
+				<?php
+				// Generated from the single source of truth (fplant_field_types filter),
+				// so Pro-registered types appear here automatically.
+				foreach ( ( new FPLANT_Field_Manager() )->get_field_types() as $fplant_pick_type => $fplant_pick_cfg ) :
+					?>
+					<button type="button" class="fplant-type-picker-option" data-type="<?php echo esc_attr( $fplant_pick_type ); ?>">
+						<span class="dashicons <?php echo esc_attr( $fplant_pick_cfg['icon'] ?? 'dashicons-forms' ); ?>" aria-hidden="true"></span>
+						<span class="fplant-type-picker-label"><?php echo esc_html( $fplant_pick_cfg['label'] ?? $fplant_pick_type ); ?></span>
+					</button>
+					<?php
+				endforeach;
+				?>
+			</div>
 		</div>
 	</div>
 </div>
@@ -2062,3 +2385,46 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 		</div>
 	</div>
 </div>
+
+<?php if ( ! $fplant_is_new ) : ?>
+<!-- Form Preview Modal (renders the saved form inside the active theme via an iframe) -->
+<div id="fplant-preview-modal" class="fplant-modal fplant-preview-modal">
+	<div class="fplant-modal-content fplant-preview-modal-content">
+		<div class="fplant-modal-header">
+			<h2><?php esc_html_e( 'Form Preview', 'form-plant' ); ?></h2>
+			<button type="button" class="fplant-modal-close">&times;</button>
+		</div>
+		<div class="fplant-modal-body fplant-preview-modal-body">
+			<p class="description fplant-preview-note"><?php esc_html_e( 'This preview shows the saved form as it appears on your site. Save the form to reflect the latest changes.', 'form-plant' ); ?></p>
+			<div class="fplant-preview-toolbar">
+				<div class="fplant-preview-devices" role="group" aria-label="<?php esc_attr_e( 'Preview device', 'form-plant' ); ?>">
+					<button type="button" class="button fplant-preview-device active" data-width="">
+						<?php esc_html_e( 'Desktop', 'form-plant' ); ?>
+					</button>
+					<button type="button" class="button fplant-preview-device" data-width="768">
+						<?php esc_html_e( 'Tablet', 'form-plant' ); ?>
+					</button>
+					<button type="button" class="button fplant-preview-device" data-width="375">
+						<?php esc_html_e( 'Mobile', 'form-plant' ); ?>
+					</button>
+				</div>
+				<label class="fplant-preview-zoom-label">
+					<?php esc_html_e( 'Zoom', 'form-plant' ); ?>
+					<select class="fplant-preview-zoom">
+						<option value="0.5">50%</option>
+						<option value="0.75">75%</option>
+						<option value="1" selected>100%</option>
+						<option value="1.25">125%</option>
+						<option value="1.5">150%</option>
+					</select>
+				</label>
+			</div>
+			<div class="fplant-preview-stage">
+				<div class="fplant-preview-frame">
+					<iframe class="fplant-preview-iframe" title="<?php esc_attr_e( 'Form Preview', 'form-plant' ); ?>" src="about:blank"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<?php endif; ?>

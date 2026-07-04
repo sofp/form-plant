@@ -10,6 +10,101 @@
 	// Hold field data
 	let formFields = [];
 
+	// Original form-level settings, kept verbatim so unknown (Pro/future) settings
+	// keys survive a save (GAP-3). Populated from fplantAdminData.formData.settings.
+	let originalSettings = {};
+
+	// Names of fields that were already saved to the DB (from the initial load). Fields
+	// NOT in this set are new this session, so their field-name input stays editable
+	// (renaming a saved field would break stored entries / mail tags). Rebuilt on the
+	// page reload that follows a save.
+	let originalFieldNames = new Set();
+
+	// Every field key the editor UI owns, grouped to mirror the type-specific blocks in
+	// commitEditor(). On save we strip these from the cloned original field, then re-apply
+	// from the UI — so a cleared core value does not linger (and an old type's keys are
+	// dropped when the type changes), while any key NOT listed here (Pro keys, future
+	// keys) is preserved (GAP-3).
+	//
+	// INVARIANT: every key that commitEditor() writes onto `field` MUST appear here. When
+	// you add a key to a type block in commitEditor(), add it to the matching group below.
+	// (A key written but missing here would linger with a stale value after a type switch;
+	// a key listed here but treated as a Pro key elsewhere would be wiped on every save.)
+	const CORE_FIELD_KEYS = [
+		// Always-present core (every type)
+		'type', 'name', 'label', 'placeholder', 'required', 'validation_message',
+		'custom_id', 'custom_class', 'validation', 'default',
+		'desc_after_label', 'desc_before_input', 'desc_after_input',
+		// select / radio / checkbox
+		'options', 'layout', 'delimiter',
+		// date / date_select
+		'year_start', 'year_end',
+		// file
+		'max_size',
+		// text / email / url / password (size, maxlength) + textarea (rows, cols)
+		'size', 'maxlength', 'rows', 'cols',
+		// html
+		'content',
+		// custom_mail_tag
+		'display_in_form', 'display_wrapper',
+		// name_parts / name_kana
+		'name_format', 'name_labels', 'name_placeholders', 'name_validation_messages',
+		'kana_validation', 'kana_error_message',
+		// password
+		'password_min_length', 'password_mask_email', 'password_mask_save',
+		'password_strength_meter', 'password_strength_level',
+		// tel
+		'tel_format',
+		// postal_code (postal_target_* shared with address)
+		'postal_format', 'postal_show_search_btn', 'postal_autofill',
+		'postal_target_pref', 'postal_target_addr1', 'postal_target_addr2',
+		// prefecture / address
+		'pref_display_type',
+		'address_labels', 'address_placeholders', 'address_validation_messages'
+	];
+
+	// Pro field-editor tab registry (extension socket §5-A). Pro registers additional
+	// tabs/sections on the field editor; the accordion renders them for matching field
+	// types and their read() merges values onto the field. Because those keys are NOT in
+	// CORE_FIELD_KEYS, they ride the GAP-3 merge path and are preserved on save.
+	window.fplant = window.fplant || {};
+	window.fplant.fields = window.fplant.fields || {};
+	window.fplant.fields._tabs = window.fplant.fields._tabs || [];
+	window.fplant.fields.version = '1.0';
+	// registerTab({ id, label, types:['*']|['select',...], render($panel, field), read($panel, field), priority })
+	window.fplant.fields.registerTab = function(config) {
+		if (!config || !config.id || typeof config.render !== 'function') {
+			return;
+		}
+		this._tabs = this._tabs.filter(function(t) { return t.id !== config.id; }); // last registration wins
+		this._tabs.push(config);
+		this._tabs.sort(function(a, b) { return (a.priority || 100) - (b.priority || 100); });
+	};
+	window.fplant.fields.getTabsForType = function(type) {
+		return (this._tabs || []).filter(function(t) {
+			return !t.types || t.types.indexOf('*') !== -1 || t.types.indexOf(type) !== -1;
+		});
+	};
+
+	/**
+	 * Get the dashicon class for a field type from the single source of truth
+	 * (fplantAdminData.fieldTypes, generated from FPLANT_Field_Manager::get_field_types()).
+	 * Falls back to a generic icon for unknown / Pro types without an icon.
+	 */
+	function getFieldTypeIcon(type) {
+		const types = (typeof fplantAdminData !== 'undefined' && fplantAdminData.fieldTypes) || {};
+		return (types[type] && types[type].icon) ? types[type].icon : 'dashicons-forms';
+	}
+
+	/**
+	 * Get the human-readable label for a field type from the single source of truth.
+	 * Falls back to the raw type slug for unknown types.
+	 */
+	function getFieldTypeLabel(type) {
+		const types = (typeof fplantAdminData !== 'undefined' && fplantAdminData.fieldTypes) || {};
+		return (types[type] && types[type].label) ? types[type].label : type;
+	}
+
 	/**
 	 * Display WordPress-style admin notice
 	 */
@@ -67,9 +162,34 @@
 	 * Add field
 	 */
 	function initFieldAdd() {
+		// Open the field-type picker; the actual field is created when a type is chosen.
+		// Commit/park any open row first (synchronously, so the picker's later
+		// renderFieldList cannot destroy the in-row editor). If that row is invalid,
+		// keep it open and do NOT open the picker.
 		$('.fplant-add-field').on('click', function(e) {
 			e.preventDefault();
-			openFieldModal();
+			if (!commitOpenAccordion()) {
+				return;
+			}
+			$('#fplant-field-type-picker-modal').addClass('active');
+		});
+	}
+
+	// Field-type picker: clicking an icon creates a provisional field of that type and
+	// opens it expanded for editing (committing/collapsing any currently open row first).
+	function initFieldTypePicker() {
+		$(document).on('click', '.fplant-type-picker-option', function(e) {
+			e.preventDefault();
+			const type = $(this).data('type');
+			if (!type) {
+				return;
+			}
+			$('#fplant-field-type-picker-modal').removeClass('active');
+			// Any previously open row was already committed/parked when the picker
+			// opened (initFieldAdd), so just create the field and open it.
+			formFields.push({ type: type, name: '', label: '', required: false, validation: {} });
+			renderFieldList();
+			openFieldAccordion(formFields.length - 1, true);
 		});
 	}
 
@@ -77,9 +197,11 @@
 	 * Display error in field modal
 	 */
 	function showFieldModalError(message) {
-		$('#fplant-field-modal-errors').text(message).show();
-		// Scroll to top of modal
-		$('.fplant-field-modal-content .fplant-modal-body').scrollTop(0);
+		const $err = $('#fplant-field-modal-errors').text(message).show();
+		// Bring the error (top of the open editor) into view.
+		if ($err.length && $err[0].scrollIntoView) {
+			$err[0].scrollIntoView({ block: 'nearest' });
+		}
 	}
 
 	/**
@@ -94,25 +216,36 @@
 	 */
 	let currentEditingIndex = null;
 
-	function openFieldModal(index = null) {
+	// The accordion body currently sliding up (collapse animation in flight), or null.
+	// Used to force-complete a pending collapse before the next action so rapid clicks
+	// within the ~160ms animation window cannot re-enter the collapse path.
+	let collapseInFlight = null;
+
+	// While a drag reorders fields, the index of the row that was open when the drag
+	// started (or null). If the drag ends without reordering (cancel / drop-in-place),
+	// that row is re-opened so the drag does not silently collapse the editor.
+	let sortReopenIndex = null;
+
+	function openFieldModal(index, isNew) {
 		// Clear error display
 		clearFieldModalErrors();
 		currentEditingIndex = index;
-		const isEdit = index !== null;
-		const field = isEdit ? formFields[index] : null;
+		const field = (index !== null && index !== undefined) ? formFields[index] : null;
 
-		// Set modal title
-		$('#fplant-field-modal-title').text(isEdit ? fplantAdminData.i18n.editField : fplantAdminData.i18n.addField);
-
-		// Set field data
+		// Set field data. The name input is locked for existing fields (renaming a
+		// saved field would break stored entries / mail tags); editable while new.
 		$('#fplant-field-type').val(field ? field.type : 'text');
-		$('#fplant-field-name').val(field ? field.name : '').prop('disabled', isEdit);
+		$('#fplant-field-name').val(field ? field.name : '').prop('disabled', !isNew);
 		$('#fplant-field-label').val(field ? field.label : '');
 		$('#fplant-field-placeholder').val(field ? field.placeholder : '');
+		$('#fplant-field-placeholder-textarea').val(field ? field.placeholder : '');
 		$('#fplant-field-required').prop('checked', field ? field.required : false);
 		$('#fplant-field-validation-message').val(field && field.validation_message ? field.validation_message : '');
 		$('#fplant-field-custom-id').val(field && field.custom_id ? field.custom_id : '');
 		$('#fplant-field-custom-class').val(field && field.custom_class ? field.custom_class : '');
+		$('#fplant-field-desc-after-label').val(field && field.desc_after_label ? field.desc_after_label : '');
+		$('#fplant-field-desc-before-input').val(field && field.desc_before_input ? field.desc_before_input : '');
+		$('#fplant-field-desc-after-input').val(field && field.desc_after_input ? field.desc_after_input : '');
 
 		// Set date range
 		$('#fplant-field-year-start').val(field && field.year_start ? field.year_start : '');
@@ -125,13 +258,21 @@
 		$('#fplant-field-size').val(field && field.size ? field.size : '');
 		$('#fplant-field-maxlength').val(field && field.type !== 'textarea' && field.maxlength ? field.maxlength : '');
 
-		// Set textarea field settings (rows, cols, maxlength)
+		// Set textarea field settings (rows, cols)
 		$('#fplant-field-rows').val(field && field.rows ? field.rows : '');
 		$('#fplant-field-cols').val(field && field.cols ? field.cols : '');
-		$('#fplant-field-textarea-maxlength').val(field && field.type === 'textarea' && field.maxlength ? field.maxlength : '');
 
-		// Set default value
+		// Textarea max length now lives in the Validation tab as a validation rule
+		// (validation.max_length). Fall back to the legacy top-level maxlength so
+		// fields saved before this change still show their value.
+		const fieldValidation = (field && field.validation) ? field.validation : {};
+		const textareaMaxlength = fieldValidation.max_length || (field && field.type === 'textarea' && field.maxlength) || '';
+		$('#fplant-field-textarea-maxlength').val(textareaMaxlength);
+		$('#fplant-field-maxlength-message').val(fieldValidation.max_length_message || '');
+
+		// Set default value (input + multi-line variant for textarea)
 		$('#fplant-field-default-value').val(field && field.default ? field.default : '');
+		$('#fplant-field-default-value-textarea').val(field && field.default ? field.default : '');
 
 		// Set HTML content
 		$('#fplant-field-html-content').val(field && field.content ? field.content : '');
@@ -255,12 +396,13 @@
 				$(this).find('input[id$="-placeholder-' + subKey + '"]').val(
 					field.address_placeholders ? field.address_placeholders[subKey] || '' : ''
 				);
-				$(this).find('input[id$="-validation-' + subKey + '"]').val(
+				// Validation messages now live on the Validation tab (global id).
+				$('#fplant-field-address-validation-' + subKey).val(
 					field.address_validation_messages ? field.address_validation_messages[subKey] || '' : ''
 				);
 			});
 		} else {
-			$('.fplant-address-label-row input').val('');
+			$('.fplant-address-label-row input, .fplant-address-validation-row input').val('');
 		}
 
 		// Show/hide options area
@@ -279,9 +421,6 @@
 
 		// Set delimiter
 		$('#fplant-field-delimiter').val(field && field.delimiter ? field.delimiter : ', ');
-
-		// Show modal
-		$('#fplant-field-modal').addClass('active');
 	}
 
 	/**
@@ -393,6 +532,13 @@
 			$('#fplant-field-address-section').hide();
 		}
 
+		// Validation-tab sections (relocated from the Basic tab) — shown per type.
+		$('#fplant-field-maxlength-text-section').toggle(['text', 'email', 'url', 'password'].indexOf(fieldType) !== -1);
+		$('#fplant-field-name-parts-validation-section').toggle(fieldType === 'name_parts');
+		$('#fplant-field-name-kana-validation-section').toggle(fieldType === 'name_kana');
+		$('#fplant-field-address-validation-section').toggle(fieldType === 'address');
+		$('#fplant-field-password-validation-section').toggle(fieldType === 'password');
+
 		// Default value setting (show for all types except file, html, name_parts, name_kana, password, address, postal_code, prefecture)
 		const noDefaultTypes = ['file', 'html', 'name_parts', 'name_kana', 'password', 'address', 'postal_code', 'prefecture'];
 		if (!noDefaultTypes.includes(fieldType)) {
@@ -432,29 +578,43 @@
 		} else {
 			$placeholderGroup.hide();
 		}
+
+		// Textarea uses multi-line inputs for Placeholder and Default Value; every
+		// other type keeps the single-line <input>. Toggle which variant is shown.
+		const isTextarea = fieldType === 'textarea';
+		$('#fplant-field-placeholder').toggle(!isTextarea);
+		$('#fplant-field-placeholder-textarea').toggle(isTextarea);
+		$('#fplant-field-default-value').toggle(!isTextarea);
+		$('#fplant-field-default-value-textarea').toggle(isTextarea);
+
+		// Max Length (validation rule) is offered for the textarea type only.
+		$('#fplant-field-maxlength-section').toggle(isTextarea);
 	}
 
 	/**
 	 * Toggle visibility of name parts sublabel rows based on format
 	 */
 	function updateNameFormatVisibility(format) {
-		var $familyHeading = $('.fplant-name-sublabel-row[data-part="family"] .fplant-name-part-heading');
+		// Toggle both the basic-tab sub-label rows and the validation-tab message
+		// rows (the validation messages now live on the Validation tab).
+		var $familyHeading = $('.fplant-name-sublabel-row[data-part="family"] .fplant-name-part-heading, .fplant-name-validation-row[data-part="family"] .fplant-name-part-heading');
+		var rows = function(part) { return $('.fplant-name-sublabel-row[data-part="' + part + '"], .fplant-name-validation-row[data-part="' + part + '"]'); };
 
 		if (format === '1') {
-			$('.fplant-name-sublabel-row[data-part="family"]').show();
-			$('.fplant-name-sublabel-row[data-part="given"]').hide();
-			$('.fplant-name-sublabel-row[data-part="middle"]').hide();
+			rows('family').show();
+			rows('given').hide();
+			rows('middle').hide();
 			$familyHeading.text($familyHeading.data('label-single'));
 		} else if (format === '3') {
-			$('.fplant-name-sublabel-row[data-part="family"]').show();
-			$('.fplant-name-sublabel-row[data-part="given"]').show();
-			$('.fplant-name-sublabel-row[data-part="middle"]').show();
+			rows('family').show();
+			rows('given').show();
+			rows('middle').show();
 			$familyHeading.text($familyHeading.data('label-default'));
 		} else {
 			// Default: 2 parts
-			$('.fplant-name-sublabel-row[data-part="family"]').show();
-			$('.fplant-name-sublabel-row[data-part="given"]').show();
-			$('.fplant-name-sublabel-row[data-part="middle"]').hide();
+			rows('family').show();
+			rows('given').show();
+			rows('middle').hide();
 			$familyHeading.text($familyHeading.data('label-default'));
 		}
 	}
@@ -463,23 +623,25 @@
 	 * Toggle visibility of name kana sublabel rows based on format
 	 */
 	function updateNameKanaFormatVisibility(format) {
-		var $familyHeading = $('.fplant-kana-sublabel-row[data-part="family"] .fplant-kana-part-heading');
+		// Toggle both the basic-tab sub-label rows and the validation-tab message rows.
+		var $familyHeading = $('.fplant-kana-sublabel-row[data-part="family"] .fplant-kana-part-heading, .fplant-kana-validation-row[data-part="family"] .fplant-kana-part-heading');
+		var rows = function(part) { return $('.fplant-kana-sublabel-row[data-part="' + part + '"], .fplant-kana-validation-row[data-part="' + part + '"]'); };
 
 		if (format === '1') {
-			$('.fplant-kana-sublabel-row[data-part="family"]').show();
-			$('.fplant-kana-sublabel-row[data-part="given"]').hide();
-			$('.fplant-kana-sublabel-row[data-part="middle"]').hide();
+			rows('family').show();
+			rows('given').hide();
+			rows('middle').hide();
 			$familyHeading.text($familyHeading.data('label-single'));
 		} else if (format === '3') {
-			$('.fplant-kana-sublabel-row[data-part="family"]').show();
-			$('.fplant-kana-sublabel-row[data-part="given"]').show();
-			$('.fplant-kana-sublabel-row[data-part="middle"]').show();
+			rows('family').show();
+			rows('given').show();
+			rows('middle').show();
 			$familyHeading.text($familyHeading.data('label-default'));
 		} else {
 			// Default: 2 parts
-			$('.fplant-kana-sublabel-row[data-part="family"]').show();
-			$('.fplant-kana-sublabel-row[data-part="given"]').show();
-			$('.fplant-kana-sublabel-row[data-part="middle"]').hide();
+			rows('family').show();
+			rows('given').show();
+			rows('middle').hide();
 			$familyHeading.text($familyHeading.data('label-default'));
 		}
 	}
@@ -715,8 +877,8 @@
 	 */
 	function initAutoGenerateFieldName() {
 		$(document).on('input', '#fplant-field-label', function() {
-			// Only auto-generate for new fields (disabled during edit)
-			if (currentEditingIndex === null && !$('#fplant-field-name').val()) {
+			// Only auto-generate while the name input is editable (new field) and empty.
+			if (!$('#fplant-field-name').prop('disabled') && !$('#fplant-field-name').val()) {
 				let fieldName = $(this).val()
 					.toLowerCase()
 					.replace(/[^a-z0-9]/g, '_')
@@ -730,58 +892,82 @@
 	/**
 	 * Save field
 	 */
-	function initSaveField() {
-		$(document).on('click', '#fplant-save-field', function(e) {
-			e.preventDefault();
+	// Read the editor inputs, validate, and write the merged field back into
+	// formFields[currentEditingIndex] (memory only — the DB save happens on the
+	// explicit Update button). Returns true on success, false if validation failed
+	// (an error is shown and the caller should keep the editor open).
+	function commitEditor() {
+		if (currentEditingIndex === null) {
+			return true;
+		}
 
-			const fieldType = $('#fplant-field-type').val();
-			const fieldName = $('#fplant-field-name').val().trim();
-			const fieldLabel = $('#fplant-field-label').val().trim();
-			const fieldPlaceholder = $('#fplant-field-placeholder').val().trim();
-			const fieldRequired = $('#fplant-field-required').is(':checked');
-			const validationMessage = $('#fplant-field-validation-message').val().trim();
-			const customId = $('#fplant-field-custom-id').val().trim();
-			const customClass = $('#fplant-field-custom-class').val().trim();
+		const fieldType = $('#fplant-field-type').val();
+		const fieldName = $('#fplant-field-name').val().trim();
+		const fieldLabel = $('#fplant-field-label').val().trim();
+		// Textarea reads the multi-line variant so newlines are preserved.
+		const fieldPlaceholder = (fieldType === 'textarea'
+			? $('#fplant-field-placeholder-textarea')
+			: $('#fplant-field-placeholder')).val().trim();
+		const fieldRequired = $('#fplant-field-required').is(':checked');
+		const validationMessage = $('#fplant-field-validation-message').val().trim();
+		const customId = $('#fplant-field-custom-id').val().trim();
+		const customClass = $('#fplant-field-custom-class').val().trim();
+		const descAfterLabel = $('#fplant-field-desc-after-label').val().trim();
+		const descBeforeInput = $('#fplant-field-desc-before-input').val().trim();
+		const descAfterInput = $('#fplant-field-desc-after-input').val().trim();
 
-			// Validation
-			if (!fieldName) {
-				showFieldModalError(fplantAdminData.i18n.fieldNameRequired);
-				return;
+		// Validation
+		if (!fieldName) {
+			showFieldModalError(fplantAdminData.i18n.fieldNameRequired);
+			return false;
+		}
+
+		// Field name format check (alphanumeric and underscores only)
+		if (!/^[a-zA-Z0-9_]+$/.test(fieldName)) {
+			showFieldModalError(fplantAdminData.i18n.fieldNameAlphanumeric);
+			return false;
+		}
+
+		// Duplicate field name check (against every OTHER field)
+		{
+			const exists = formFields.some((f, i) => i !== currentEditingIndex && f.name === fieldName);
+			if (exists) {
+				showFieldModalError(fplantAdminData.i18n.fieldNameExists);
+				return false;
 			}
+		}
 
-			// Field name format check (alphanumeric and underscores only)
-			if (!/^[a-zA-Z0-9_]+$/.test(fieldName)) {
-				showFieldModalError(fplantAdminData.i18n.fieldNameAlphanumeric);
-				return;
-			}
+		// Label is required for every type that shows a label field. hidden / html /
+		// custom_mail_tag hide the label input (updateOptionsVisibility) and fall back
+		// to the field name, so they are exempt.
+		if (fieldType !== 'hidden' && fieldType !== 'html' && fieldType !== 'custom_mail_tag' && !fieldLabel) {
+			showFieldModalError(fplantAdminData.i18n.fieldLabelRequired);
+			return false;
+		}
 
-			// Label required for non-hidden and non-html types
-			if (fieldType !== 'hidden' && fieldType !== 'html' && !fieldLabel) {
-				showFieldModalError(fplantAdminData.i18n.fieldLabelRequired);
-				return;
-			}
+			// Create field object (GAP-3: merge over the original instead of rebuilding
+			// from scratch, so keys the editor does not know about — Pro keys, future
+			// keys — are preserved). Start from a deep clone of the existing field, strip
+			// every core-managed key (so a cleared value does not linger from the clone),
+			// then re-apply core values from the UI below. Keys NOT in CORE_FIELD_KEYS are
+			// never touched here and therefore survive untouched.
+			const field = (currentEditingIndex !== null && formFields[currentEditingIndex])
+				? $.extend(true, {}, formFields[currentEditingIndex])
+				: {};
+			CORE_FIELD_KEYS.forEach(function(coreKey) { delete field[coreKey]; });
 
-			// Duplicate field name check (except during edit)
-			if (currentEditingIndex === null) {
-				const exists = formFields.some(f => f.name === fieldName);
-				if (exists) {
-					showFieldModalError(fplantAdminData.i18n.fieldNameExists);
-					return;
-				}
-			}
-
-			// Create field object
-			const field = {
-				type: fieldType,
-				name: fieldName,
-				label: fieldLabel,
-				placeholder: fieldPlaceholder,
-				required: fieldRequired,
-				validation_message: validationMessage,
-				custom_id: customId,
-				custom_class: customClass,
-				validation: {}
-			};
+			field.type = fieldType;
+			field.name = fieldName;
+			field.label = fieldLabel;
+			field.placeholder = fieldPlaceholder;
+			field.required = fieldRequired;
+			field.validation_message = validationMessage;
+			field.custom_id = customId;
+			field.custom_class = customClass;
+			field.desc_after_label = descAfterLabel;
+			field.desc_before_input = descBeforeInput;
+			field.desc_after_input = descAfterInput;
+			field.validation = {};
 
 			// For date types that need range settings
 			if (fieldType === 'date' || fieldType === 'date_select') {
@@ -811,25 +997,37 @@
 				}
 			}
 
-			// For textarea field type (rows, cols, maxlength)
+			// For textarea field type (rows, cols). Max length is a validation rule
+			// (validation.max_length), set in the Validation tab handling below.
 			if (fieldType === 'textarea') {
 				const rows = $('#fplant-field-rows').val();
 				const cols = $('#fplant-field-cols').val();
-				const textareaMaxlength = $('#fplant-field-textarea-maxlength').val();
 				if (rows) {
 					field.rows = parseInt(rows);
 				}
 				if (cols) {
 					field.cols = parseInt(cols);
 				}
+
+				// Max length + its optional custom error message. Stored under
+				// field.validation so the server enforces it (and lets the user
+				// exceed it to actually trigger the message) instead of a hard
+				// HTML maxlength cap.
+				const textareaMaxlength = $('#fplant-field-textarea-maxlength').val();
 				if (textareaMaxlength) {
-					field.maxlength = parseInt(textareaMaxlength);
+					field.validation.max_length = parseInt(textareaMaxlength);
+					const maxlengthMessage = $('#fplant-field-maxlength-message').val().trim();
+					if (maxlengthMessage) {
+						field.validation.max_length_message = maxlengthMessage;
+					}
 				}
 			}
 
-			// Default value setting (except file)
+			// Default value setting (except file). Textarea reads its multi-line variant.
 			if (fieldType !== 'file') {
-				const defaultValue = $('#fplant-field-default-value').val().trim();
+				const defaultValue = (fieldType === 'textarea'
+					? $('#fplant-field-default-value-textarea')
+					: $('#fplant-field-default-value')).val().trim();
 				if (defaultValue) {
 					field.default = defaultValue;
 				}
@@ -845,7 +1043,7 @@
 				const htmlContent = $('#fplant-field-html-content').val();
 				if (!htmlContent.trim()) {
 					showFieldModalError(fplantAdminData.i18n.htmlContentRequired || 'HTML content is required');
-					return;
+					return false;
 				}
 				field.content = htmlContent;
 				if (!field.label) {
@@ -954,7 +1152,8 @@
 					var subKey = $(this).data('sub-key');
 					field.address_labels[subKey] = $(this).find('input[id$="-label-' + subKey + '"]').val().trim();
 					field.address_placeholders[subKey] = $(this).find('input[id$="-placeholder-' + subKey + '"]').val().trim();
-					field.address_validation_messages[subKey] = $(this).find('input[id$="-validation-' + subKey + '"]').val().trim();
+					// Validation messages now live on the Validation tab (global id).
+					field.address_validation_messages[subKey] = ($('#fplant-field-address-validation-' + subKey).val() || '').trim();
 				});
 			}
 
@@ -964,7 +1163,7 @@
 
 				if (options.length === 0) {
 					showFieldModalError(fplantAdminData.i18n.addOneOption);
-					return;
+					return false;
 				}
 
 				field.options = options;
@@ -981,21 +1180,194 @@
 				field.delimiter = delimiter !== '' ? delimiter : ', ';
 			}
 
-			// Add or update field
-			if (currentEditingIndex !== null) {
-				formFields[currentEditingIndex] = field;
-			} else {
-				formFields.push(field);
-			}
+			// Let Pro-registered tabs merge their values onto the field (extension
+		// socket §5-A). These keys are not in CORE_FIELD_KEYS, so they are preserved.
+		readProTabs(field);
 
-			// Close modal
-			$('#fplant-field-modal').removeClass('active');
+		// Write the merged field back to memory. The DB save is deferred to the
+		// explicit Update button (saveFormToDatabase), matching the accordion
+		// "edit in memory, save on Update" model.
+		formFields[currentEditingIndex] = field;
+		return true;
+	}
 
-			// Re-render list
+	// Done button: commit the open editor and collapse its row.
+	function initSaveField() {
+		$(document).on('click', '#fplant-save-field', function(e) {
+			e.preventDefault();
+			commitAndCollapse();
+		});
+	}
+
+	// Generate a field name not already used by another field.
+	function uniqueFieldName(base) {
+		base = (base || 'field').toLowerCase().replace(/[^a-z0-9_]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '') || 'field';
+		let name = base;
+		let n = 1;
+		while (formFields.some(f => f.name === name)) {
+			n++;
+			name = base + '_' + n;
+		}
+		return name;
+	}
+
+	// Move the single editor into the given row, populate it and expand the row.
+	// isNew=true keeps the field-name input editable (existing fields lock the name).
+	function openFieldAccordion(index, isNew) {
+		flushCollapse(); // ensure no collapse is mid-flight before moving the editor
+		const $item = $('.fplant-field-item[data-field-index="' + index + '"]');
+		const $body = $item.find('.fplant-field-accordion-body');
+		$('#fplant-field-editor').appendTo($body);
+		// Keep the name editable for fields not yet saved to the DB (new this session),
+		// even when re-opened later via the accordion header (isNew=false).
+		const nameEditable = !!isNew || !originalFieldNames.has(formFields[index].name);
+		openFieldModal(index, nameEditable);
+		renderProTabs(formFields[index]);
+		setEditorTab('basic');
+		$item.addClass('open').find('.fplant-field-accordion-header').attr('aria-expanded', 'true');
+		$item.find('.fplant-field-toggle .dashicons').removeClass('dashicons-arrow-down').addClass('dashicons-arrow-up');
+		// Smooth expand.
+		$body.stop(true, true).prop('hidden', false).hide().slideDown(160);
+	}
+
+	// Commit the open editor to memory and smoothly collapse its row. Runs `callback`
+	// after the collapse completes (or immediately if nothing is open). Returns false
+	// without collapsing if validation failed (the row stays open).
+	function commitAndCollapse(callback) {
+		flushCollapse(); // settle any in-flight collapse before starting a new one
+		if (currentEditingIndex === null) {
+			if (callback) { callback(); }
+			return true;
+		}
+		if (!commitEditor()) {
+			return false;
+		}
+		animatedCollapse(currentEditingIndex, callback);
+		return true;
+	}
+
+	// Slide the given row's body up, then park the editor and refresh the list.
+	function animatedCollapse(index, callback) {
+		const $item = $('.fplant-field-item[data-field-index="' + index + '"]');
+		$item.find('.fplant-field-toggle .dashicons').removeClass('dashicons-arrow-up').addClass('dashicons-arrow-down');
+		const $body = $item.find('.fplant-field-accordion-body');
+		const finish = function() {
+			collapseInFlight = null;
+			closeAccordionDom();
 			renderFieldList();
+			if (callback) { callback(); }
+		};
+		if (!$body.length) {
+			finish();
+			return;
+		}
+		collapseInFlight = $body;
+		$body.stop(true, true).slideUp(160, finish);
+	}
 
-			// Save to database
-			saveFormToDatabase();
+	// If a collapse animation is mid-flight, finish it immediately (synchronously) so the
+	// editor is parked and the list rebuilt before the next action runs. Entry points call
+	// this first to avoid re-entrancy from rapid clicks within the animation window.
+	function flushCollapse() {
+		if (collapseInFlight) {
+			collapseInFlight.stop(true, true); // jumps to end and fires `finish` synchronously
+		}
+	}
+
+	// Park the editor back in its hidden host and collapse every row (no re-render).
+	function closeAccordionDom() {
+		// Drop any Pro-rendered tabs/panels so the parked editor is clean for next use.
+		$('#fplant-field-editor').find('.fplant-field-tab[data-pro-tab], .fplant-field-tab-panel[data-pro-tab]').remove();
+		$('#fplant-field-editor').appendTo('#fplant-field-editor-host');
+		$('.fplant-field-accordion-body').prop('hidden', true);
+		$('.fplant-field-item').removeClass('open');
+		$('.fplant-field-accordion-header').attr('aria-expanded', 'false');
+		$('.fplant-field-toggle .dashicons').removeClass('dashicons-arrow-up').addClass('dashicons-arrow-down');
+		currentEditingIndex = null;
+	}
+
+	// Commit the open editor to memory, then collapse and refresh the list.
+	// Returns false if validation failed (keep the row open).
+	function commitOpenAccordion() {
+		flushCollapse(); // settle any in-flight collapse first
+		if (currentEditingIndex === null) {
+			return true;
+		}
+		if (!commitEditor()) {
+			return false;
+		}
+		closeAccordionDom();
+		renderFieldList();
+		return true;
+	}
+
+	// Switch the active field-editor tab (basic / validation / advanced).
+	function setEditorTab(tab) {
+		const $editor = $('#fplant-field-editor');
+		$editor.find('.fplant-field-tab').removeClass('active').attr('aria-selected', 'false');
+		$editor.find('.fplant-field-tab[data-ftab="' + tab + '"]').addClass('active').attr('aria-selected', 'true');
+		$editor.find('.fplant-field-tab-panel').prop('hidden', true).removeClass('active');
+		$editor.find('.fplant-field-tab-panel[data-ftab="' + tab + '"]').prop('hidden', false).addClass('active');
+	}
+
+	// Render Pro-registered tabs for the given field's type into the editor. Existing
+	// Pro tabs/panels are cleared first so the editor (reused across rows) never carries
+	// stale Pro UI from a previous field.
+	function renderProTabs(field) {
+		const $editor = $('#fplant-field-editor');
+		$editor.find('.fplant-field-tab[data-pro-tab], .fplant-field-tab-panel[data-pro-tab]').remove();
+		if (!window.fplant || !window.fplant.fields || typeof window.fplant.fields.getTabsForType !== 'function') {
+			return;
+		}
+		const $tablist = $editor.find('.fplant-field-tabs');
+		const $footer = $editor.find('.fplant-field-editor-footer');
+		window.fplant.fields.getTabsForType(field.type).forEach(function(t) {
+			const ftab = 'pro-' + t.id;
+			$('<button type="button" class="fplant-field-tab" role="tab" aria-selected="false"></button>')
+				.attr('data-ftab', ftab).attr('data-pro-tab', t.id).text(t.label || t.id)
+				.appendTo($tablist);
+			const $panel = $('<div class="fplant-field-tab-panel" role="tabpanel" hidden></div>')
+				.attr('data-ftab', ftab).attr('data-pro-tab', t.id);
+			$panel.insertBefore($footer);
+			try {
+				t.render($panel, field);
+			} catch (err) {
+				/* isolate Pro render errors so core editing keeps working */
+			}
+		});
+	}
+
+	// Let each rendered Pro tab merge its values onto the field before it is committed.
+	function readProTabs(field) {
+		$('#fplant-field-editor .fplant-field-tab-panel[data-pro-tab]').each(function() {
+			const id = $(this).data('pro-tab');
+			const cfg = (window.fplant.fields._tabs || []).filter(function(t) { return t.id === id; })[0];
+			if (cfg && typeof cfg.read === 'function') {
+				try {
+					cfg.read($(this), field);
+				} catch (err) {
+					/* isolate Pro read errors so core save keeps working */
+				}
+			}
+		});
+	}
+
+	// Field-editor tab interactions (click + left/right arrow keys).
+	function initEditorTabs() {
+		$(document).on('click', '#fplant-field-editor .fplant-field-tab', function() {
+			setEditorTab($(this).data('ftab'));
+		});
+		$(document).on('keydown', '#fplant-field-editor .fplant-field-tab', function(e) {
+			if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+				return;
+			}
+			e.preventDefault();
+			const $tabs = $('#fplant-field-editor .fplant-field-tab');
+			let i = $tabs.index(this);
+			i = e.key === 'ArrowRight' ? (i + 1) % $tabs.length : (i - 1 + $tabs.length) % $tabs.length;
+			const $next = $tabs.eq(i);
+			setEditorTab($next.data('ftab'));
+			$next.trigger('focus');
 		});
 	}
 
@@ -1006,29 +1378,43 @@
 		const $list = $('.fplant-field-list');
 		$list.empty();
 
+		// The bottom "+ Add Field" button is redundant for short lists (the top
+		// one is already in view), so only show it once the list gets long.
+		$('.fplant-add-field-bottom').toggle(formFields.length > 5);
+
 		if (formFields.length === 0) {
 			$list.html('<p class="fplant-no-fields">' + fplantAdminData.i18n.noFieldsYet + '</p>');
 			return;
 		}
 
 		formFields.forEach((field, index) => {
-			const $item = $(`
-				<div class="fplant-field-item" data-field-index="${index}">
-					<div class="fplant-field-item-header">
-						<span class="fplant-drag-handle dashicons dashicons-move" style="cursor: move; color: #8c8f94; margin-right: 8px;"></span>
-						<div class="fplant-field-item-title">
-							${field.label}
-							<span style="color: #646970; font-weight: normal;">(${field.type})</span>
-							<br>
-							<span style="color: #787c82; font-size: 12px; font-weight: normal;">${fplantAdminData.i18n.fieldNameLabel} ${field.name}</span>
-						</div>
-						<div class="fplant-field-item-actions">
-							<button type="button" class="button fplant-edit-field" data-index="${index}">${fplantAdminData.i18n.edit}</button>
-							<button type="button" class="button fplant-delete-field" data-index="${index}" style="color: #d63638;">${fplantAdminData.i18n.delete}</button>
-						</div>
-					</div>
-				</div>
-			`);
+			const labelText = escapeHtml(field.label || field.name || getFieldTypeLabel(field.type));
+			const typeName = escapeHtml(getFieldTypeLabel(field.type));
+			const nameText = escapeHtml(field.name || '');
+			const bodyId = 'fplant-field-body-' + index;
+			const dupLabel = escapeHtml(fplantAdminData.i18n.duplicate || 'Duplicate');
+			const delLabel = escapeHtml(fplantAdminData.i18n.delete);
+			// Red required mark so required fields are spottable at a glance.
+			const requiredMark = field.required ? '<span class="fplant-required" aria-hidden="true">*</span>' : '';
+			const $item = $(
+				'<div class="fplant-field-item" data-field-index="' + index + '">' +
+					'<div class="fplant-field-accordion-header" role="button" tabindex="0" aria-expanded="false" aria-controls="' + bodyId + '">' +
+						'<span class="fplant-drag-handle dashicons dashicons-menu" aria-hidden="true"></span>' +
+						'<span class="fplant-field-type-icon dashicons ' + getFieldTypeIcon(field.type) + '" aria-hidden="true"></span>' +
+						'<span class="fplant-field-item-title">' +
+							'<span class="fplant-field-label-text">' + labelText + requiredMark + '</span>' +
+							'<span class="fplant-field-type-name">' + typeName + '</span>' +
+							'<span class="fplant-field-name-text">' + escapeHtml(fplantAdminData.i18n.fieldNameLabel) + ' ' + nameText + '</span>' +
+						'</span>' +
+						'<span class="fplant-field-item-actions">' +
+							'<button type="button" class="button-link fplant-field-duplicate" aria-label="' + dupLabel + '" title="' + dupLabel + '"><span class="dashicons dashicons-admin-page" aria-hidden="true"></span></button>' +
+							'<button type="button" class="button-link fplant-field-delete" aria-label="' + delLabel + '" title="' + delLabel + '"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>' +
+							'<span class="fplant-field-toggle" aria-hidden="true"><span class="dashicons dashicons-arrow-down"></span></span>' +
+						'</span>' +
+					'</div>' +
+					'<div class="fplant-field-accordion-body" id="' + bodyId + '" hidden></div>' +
+				'</div>'
+			);
 
 			$list.append($item);
 		});
@@ -1037,32 +1423,88 @@
 		initFieldSort();
 	}
 
+	// Expand/collapse a field row. Opening commits the previously open row first.
+	function toggleFieldAccordion(index) {
+		if (currentEditingIndex === index) {
+			commitAndCollapse(); // clicking the open row again collapses it
+			return;
+		}
+		// Collapse the currently open row (if any), then open the requested one.
+		// If the open row is invalid, commitAndCollapse aborts and it stays open.
+		commitAndCollapse(function() {
+			openFieldAccordion(index, false);
+		});
+	}
+
 	/**
-	 * Delete field
+	 * Accordion header: open/close the row (click + Enter/Space).
+	 */
+	function initFieldEdit() {
+		$(document).on('click', '.fplant-field-accordion-header', function(e) {
+			// Ignore clicks on the action buttons / drag handle.
+			if ($(e.target).closest('.fplant-field-item-actions, .fplant-drag-handle').length) {
+				return;
+			}
+			const index = $(this).closest('.fplant-field-item').data('field-index');
+			toggleFieldAccordion(index);
+		});
+		$(document).on('keydown', '.fplant-field-accordion-header', function(e) {
+			if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') {
+				return;
+			}
+			e.preventDefault();
+			const index = $(this).closest('.fplant-field-item').data('field-index');
+			toggleFieldAccordion(index);
+		});
+	}
+
+	/**
+	 * Delete a field row.
 	 */
 	function initFieldDelete() {
-		$(document).on('click', '.fplant-delete-field', function(e) {
+		$(document).on('click', '.fplant-field-delete', function(e) {
 			e.preventDefault();
+			e.stopPropagation();
 
 			if (!confirm(fplantAdminData.i18n.confirmDeleteField)) {
 				return;
 			}
 
-			const index = $(this).data('index');
+			// Read the index before flushing — flushCollapse() rebuilds the list and
+			// would detach the clicked element.
+			const index = $(this).closest('.fplant-field-item').data('field-index');
+			flushCollapse();
+			// If a DIFFERENT row is open with unsaved edits, commit them first so they
+			// are not lost (abort the delete if that row is invalid, so the user can fix
+			// it). The row being deleted itself needs no commit.
+			if (currentEditingIndex !== null) {
+				if (currentEditingIndex !== index && !commitEditor()) {
+					return;
+				}
+				closeAccordionDom();
+			}
 			formFields.splice(index, 1);
 			renderFieldList();
 		});
 	}
 
 	/**
-	 * Edit field
+	 * Duplicate a field row, preserving unknown (Pro/future) keys.
 	 */
-	function initFieldEdit() {
-		$(document).on('click', '.fplant-edit-field', function(e) {
+	function initFieldDuplicate() {
+		$(document).on('click', '.fplant-field-duplicate', function(e) {
 			e.preventDefault();
+			e.stopPropagation();
 
-			const index = $(this).data('index');
-			openFieldModal(index);
+			const index = $(this).closest('.fplant-field-item').data('field-index');
+			// Commit/collapse the open row first, then insert the copy below the source.
+			commitAndCollapse(function() {
+				const copy = $.extend(true, {}, formFields[index]);
+				copy.name = uniqueFieldName((copy.name || 'field') + '_copy');
+				copy.custom_id = ''; // avoid duplicate DOM ids
+				formFields.splice(index + 1, 0, copy);
+				renderFieldList();
+			});
 		});
 	}
 
@@ -1120,9 +1562,21 @@
 			placeholder: 'fplant-field-placeholder',
 			start: function(e, ui) {
 				ui.placeholder.height(ui.item.height());
+				// If a row is open, commit its edits to memory (valid edits are kept) and
+				// park the editor in its host so it is not carried around / destroyed by
+				// the reorder. No re-render here — that would break the in-progress drag.
+				// Remember the row so it can be re-opened if the drag is cancelled.
+				if (currentEditingIndex !== null) {
+					commitEditor();
+					sortReopenIndex = currentEditingIndex;
+					closeAccordionDom();
+				} else {
+					sortReopenIndex = null;
+				}
 			},
 			update: function(e, ui) {
-				// Update order
+				// Order actually changed — indices shift, so do not re-open by old index.
+				sortReopenIndex = null;
 				const newOrder = [];
 				$('.fplant-field-item').each(function() {
 					const index = $(this).data('field-index');
@@ -1130,6 +1584,15 @@
 				});
 				formFields = newOrder;
 				renderFieldList();
+			},
+			stop: function(e, ui) {
+				// Drag ended without reordering (cancel / drop-in-place): restore the row
+				// that was open before the drag, so cancelling does not lose the open state.
+				if (sortReopenIndex !== null) {
+					const idx = sortReopenIndex;
+					sortReopenIndex = null;
+					openFieldAccordion(idx, false);
+				}
 			}
 		});
 	}
@@ -1237,6 +1700,940 @@
 		return text.split('\n')
 			.map(url => url.trim())
 			.filter(url => url.length > 0);
+	}
+
+	/**
+	 * Initialize the form preview modal. Opens an iframe pointing at the theme-context
+	 * preview route (/fplant-preview/{id}/?_fplant_preview={nonce}), so the admin sees
+	 * the saved form rendered with the active theme + design preset + custom CSS.
+	 */
+	/**
+	 * Apply the preview viewport: the iframe keeps a fixed CSS viewport width
+	 * (the real device width, or the stage width at 100% for desktop) so media
+	 * queries fire consistently, and zoom scales the whole frame — form and the
+	 * surrounding page chrome together. The frame carries the scaled width, so
+	 * the stage scrolls horizontally once a zoomed-in preview outgrows it.
+	 */
+	function applyPreviewViewport() {
+		const $stage = $('#fplant-preview-modal .fplant-preview-stage');
+		if (!$stage.length || !$('#fplant-preview-modal').hasClass('active')) {
+			return;
+		}
+		const zoom = parseFloat($('.fplant-preview-zoom').val() || '1') || 1;
+		const deviceWidth = parseInt($('.fplant-preview-device.active').data('width'), 10) || 0; // 0 = desktop
+
+		const stageStyle = window.getComputedStyle($stage[0]);
+		const padX = parseFloat(stageStyle.paddingLeft) + parseFloat(stageStyle.paddingRight);
+		const padY = parseFloat(stageStyle.paddingTop) + parseFloat(stageStyle.paddingBottom);
+		const stageW = $stage[0].clientWidth - padX;
+		const stageH = $stage[0].clientHeight - padY;
+
+		// Base (100%) viewport: the real device width, or the stage width for
+		// desktop. Zoom magnifies the whole frame from this fixed base so the
+		// form and its surroundings grow together instead of the form reflowing.
+		const baseW   = deviceWidth || Math.round(stageW);
+		const frameW  = Math.round(baseW * zoom);
+		const iframeW = baseW;
+
+		$('.fplant-preview-frame').css({
+			width: frameW + 'px',
+			height: stageH + 'px'
+		});
+		$('.fplant-preview-iframe').css({
+			width: iframeW + 'px',
+			height: Math.round(stageH / zoom) + 'px',
+			transform: 'scale(' + zoom + ')'
+		});
+	}
+
+	function initFormPreview() {
+		$(document).on('click', '.fplant-preview-form', function(e) {
+			e.preventDefault();
+
+			const formId = $(this).data('form-id');
+			const base = fplantAdminData.previewUrlBase || '';
+			const nonce = fplantAdminData.previewNonce || '';
+
+			if (!formId || !base || !nonce) {
+				return;
+			}
+
+			// Cache-buster so the iframe reflects the most recently saved version.
+			const url = base + formId + '/?_fplant_preview=' + encodeURIComponent(nonce) + '&t=' + (new Date().getTime());
+			$('#fplant-preview-modal').find('.fplant-preview-iframe').attr('src', url);
+			$('#fplant-preview-modal').addClass('active');
+			// Size the viewport once the modal is visible (clientWidth needs layout).
+			window.setTimeout(applyPreviewViewport, 0);
+		});
+
+		// Clear the iframe when the preview modal closes (stop background loading/audio).
+		$(document).on('click', '#fplant-preview-modal .fplant-modal-close', function() {
+			$('#fplant-preview-modal').find('.fplant-preview-iframe').attr('src', 'about:blank');
+		});
+
+		// Device switch (PC / tablet / mobile)
+		$(document).on('click', '.fplant-preview-device', function() {
+			$('.fplant-preview-device').removeClass('active');
+			$(this).addClass('active');
+			applyPreviewViewport();
+		});
+
+		// Zoom select
+		$(document).on('change', '.fplant-preview-zoom', applyPreviewViewport);
+
+		// Keep the viewport sized while the modal is open
+		$(window).on('resize', applyPreviewViewport);
+	}
+
+	/* ==========================================================================
+	   Design adjustments (Layout tab)
+	   ========================================================================== */
+
+	// Design sections that are edited together inside one accordion frame but
+	// stored/generated as separate schema sections. The key is a DOM-only group
+	// id (never a schema section, never persisted); the value lists the real
+	// sections it bundles, in display order.
+	const DESIGN_GROUPS = { confirm_buttons: ['back', 'confirm'] };
+
+	function designGroupMembers(section) {
+		return DESIGN_GROUPS[section] || null;
+	}
+
+	/**
+	 * Read one section's design adjustment values from the DOM. Keys come from
+	 * the localized schema (FPLANT_Design_Options::get_schema()) so the collected
+	 * object always matches what the PHP CSS generator understands. The two
+	 * confirmation buttons share one accordion, so their controls live in a
+	 * per-section sub-scope — match either an accordion or a sub-scope.
+	 */
+	function collectDesignSectionValues(section) {
+		const schema = (fplantAdminData.designSchema || {})[section];
+		const values = {};
+		if (!schema) {
+			return values;
+		}
+		const $scope = $('.fplant-design-accordion[data-design-section="' + section + '"], .fplant-design-subscope[data-design-section="' + section + '"]');
+		Object.keys(schema.props).forEach(function(key) {
+			const $input = $scope.find('.fplant-design-input[data-design-key="' + key + '"]');
+			values[key] = $input.length ? String($input.val() || '').trim() : '';
+		});
+		return values;
+	}
+
+	/**
+	 * Collect all sections into the settings.design_options shape
+	 * ({ form: {...}, submit: {...}, ... }). Unset values (empty strings) are
+	 * dropped — safe because saving replaces the whole design_options object.
+	 */
+	function collectDesignOptions() {
+		const options = {};
+		Object.keys(fplantAdminData.designSchema || {}).forEach(function(section) {
+			const values = collectDesignSectionValues(section);
+			const set = {};
+			Object.keys(values).forEach(function(key) {
+				if (values[key] !== '') {
+					set[key] = values[key];
+				}
+			});
+			if (Object.keys(set).length) {
+				options[section] = set;
+			}
+		});
+		return options;
+	}
+
+	/**
+	 * Hex color validation / darkening — JS mirrors of
+	 * FPLANT_Design_Options::sanitize_color() / darken(). Keep in sync.
+	 */
+	function designColor(value) {
+		const v = String(value || '').trim();
+		return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ? v.toLowerCase() : '';
+	}
+
+	function designDarken(hex, ratio) {
+		let h = designColor(hex).replace('#', '');
+		if (!h) {
+			return '';
+		}
+		if (h.length === 3) {
+			h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+		}
+		let out = '#';
+		[0, 2, 4].forEach(function(offset) {
+			let c = Math.round(parseInt(h.substr(offset, 2), 16) * (1 - ratio));
+			c = Math.max(0, Math.min(255, c));
+			out += ('0' + c.toString(16)).slice(-2);
+		});
+		return out;
+	}
+
+	function designPx(value, min, max) {
+		const v = String(value || '').trim();
+		if (v === '' || !isFinite(Number(v))) {
+			return null;
+		}
+		return Math.max(min, Math.min(max, Math.round(Number(v))));
+	}
+
+	// Legacy keyword values from the pre-slider shadow select, mapped onto the
+	// 0-10 intensity scale by strength (sm=1 / md=3 / lg=8).
+	const DESIGN_SHADOW_LEGACY = { none: '0', sm: '1', md: '3', lg: '8' };
+
+	/**
+	 * Box-shadow for a shadow intensity step (0 = none). Equal x/y offsets so
+	 * the shadow extends evenly to the right and bottom. JS mirror of
+	 * FPLANT_Design_Options::shadow_css() — keep in sync (positive half-way
+	 * values round up in both).
+	 */
+	function designShadowCss(intensity) {
+		if (intensity <= 0) {
+			return 'none';
+		}
+		const offset = Math.round(0.75 * intensity);
+		// Negative spread keeps the blur from spilling past the top/left edges.
+		const spread = Math.round(0.5 * intensity);
+		// Alpha built as the integer digits of 0.XX (12-25) — mirrors the PHP integer math.
+		const alpha = Math.round(10 + 1.5 * intensity);
+		return offset + 'px ' + offset + 'px ' + Math.round(2.5 * intensity) + 'px -' + spread + 'px rgba(0,0,0,0.' + alpha + ')';
+	}
+
+	/**
+	 * Build the CSS for one design section. JS mirror of
+	 * FPLANT_Design_Options::build_section_css() — keep in sync. The schema is
+	 * localized from PHP, so only the assembly logic lives here.
+	 */
+	function buildSectionCss(prefix, section, values) {
+		const schema = (fplantAdminData.designSchema || {})[section];
+		if (!schema) {
+			return '';
+		}
+		const decls = {};
+		const border = {};
+		const push = function(rule, decl) {
+			(decls[rule] = decls[rule] || []).push(decl);
+		};
+
+		Object.keys(schema.props).forEach(function(key) {
+			const def = schema.props[key];
+			const raw = values[key] === undefined || values[key] === null ? '' : String(values[key]).trim();
+			if (raw === '') {
+				return;
+			}
+			let color;
+			let number;
+			switch (def.type) {
+				case 'color':
+					color = designColor(raw);
+					if (color) {
+						push(def.rule, def.css + ':' + color);
+						// Secondary outputs (e.g. error text color → errored input border)
+						if (def.also) {
+							def.also.forEach(function(extra) {
+								push(extra.rule, extra.css + ':' + color);
+							});
+						}
+					}
+					break;
+				case 'px':
+					number = designPx(raw, def.min, def.max);
+					if (number !== null) {
+						push(def.rule, def.css + ':' + number + 'px');
+					}
+					break;
+				case 'px-pair':
+					number = designPx(raw, def.min, def.max);
+					if (number !== null) {
+						def.css.forEach(function(prop) {
+							push(def.rule, prop + ':' + number + 'px');
+						});
+					}
+					break;
+				case 'shadow':
+					// Legacy keyword values (pre-slider selects) map onto the intensity scale.
+					number = designPx(
+						Object.prototype.hasOwnProperty.call(DESIGN_SHADOW_LEGACY, raw) ? DESIGN_SHADOW_LEGACY[raw] : raw,
+						def.min,
+						def.max
+					);
+					if (number !== null) {
+						push(def.rule, def.css + ':' + designShadowCss(number));
+					}
+					break;
+				case 'weight':
+					if (raw === 'bold' || raw === 'normal') {
+						push(def.rule, def.css + ':' + (raw === 'bold' ? '700' : '400'));
+					}
+					break;
+				case 'btn-width':
+					if (raw === 'auto' || raw === 'full') {
+						push(def.rule, 'width:' + (raw === 'full' ? '100%' : 'auto'));
+					}
+					break;
+				case 'border-width':
+					number = designPx(raw, def.min, def.max);
+					if (number !== null) {
+						(border[def.rule] = border[def.rule] || {}).width = number;
+					}
+					break;
+				case 'border-color':
+					color = designColor(raw);
+					if (color) {
+						(border[def.rule] = border[def.rule] || {}).color = color;
+					}
+					break;
+				case 'bg-padded':
+					color = designColor(raw);
+					if (color) {
+						push(def.rule, def.css + ':' + color);
+						push(def.rule, 'padding:' + def.pad);
+						push(def.rule, 'border-radius:' + def.radius);
+					}
+					break;
+			}
+		});
+
+		// Compose the border shorthand (width or color alone gets a default for the other half).
+		Object.keys(border).forEach(function(rule) {
+			const width = border[rule].width === undefined ? 1 : border[rule].width;
+			const color = border[rule].color || '#dcdcde';
+			push(rule, 'border:' + width + 'px solid ' + color);
+		});
+
+		// Hover fallback: derive a darker hover background so a custom background
+		// does not freeze the button on hover (see PHP counterpart).
+		if (schema.props.hover_background) {
+			const baseBg = designColor(values.background);
+			if (baseBg && !designColor(values.hover_background)) {
+				push('hover', 'background:' + designDarken(baseBg, 0.12));
+			}
+		}
+
+		let css = '';
+		Object.keys(schema.rules).forEach(function(rule) {
+			if (!decls[rule] || !decls[rule].length) {
+				return;
+			}
+			const selectors = schema.rules[rule].map(function(suffix) {
+				return prefix + suffix;
+			});
+			css += selectors.join(', ') + '{' + decls[rule].join(';') + '}';
+		});
+		return css;
+	}
+
+	/**
+	 * Minimal sample markup per section, mirroring the real front-end class
+	 * structure so the preset CSS inside the shadow root styles it like the
+	 * real form. Generated CSS targets #fplant-sample-{section}.
+	 */
+	function designSampleHtml(section) {
+		const i18n = fplantAdminData.i18n || {};
+		const sampleLabel = escapeHtml(i18n.designSampleLabel || 'Sample Label');
+		const sampleText = escapeHtml(i18n.designSampleText || 'Sample text');
+		const open = '<div id="fplant-sample-' + section + '" class="fplant-form-wrapper">';
+
+		// Shared multi-field markup (text + radio + textarea) so the form/input
+		// previews mirror a realistic form rather than a single text field. The
+		// class names match the real front-end templates so the preset CSS in the
+		// shadow root styles them like the live form.
+		const label1 = escapeHtml(i18n.designSampleLabel1 || 'Field 1');
+		const label2 = escapeHtml(i18n.designSampleLabel2 || 'Field 2');
+		const label3 = escapeHtml(i18n.designSampleLabel3 || 'Field 3');
+		const sampleDesc = escapeHtml(i18n.designSampleDesc || 'This is a sample field description.');
+		const choice1 = escapeHtml(i18n.designSampleChoice1 || 'Choice 1');
+		const choice2 = escapeHtml(i18n.designSampleChoice2 || 'Choice 2');
+		const choice3 = escapeHtml(i18n.designSampleChoice3 || 'Choice 3');
+		const radioGroup =
+			'<div class="fplant-field-group">' +
+				'<label>' + label2 + '</label>' +
+				'<div class="fplant-field fplant-field-radio fplant-layout-vertical">' +
+					'<label class="fplant-radio-label"><input type="radio" disabled><span>' + choice1 + '</span></label>' +
+					'<label class="fplant-radio-label"><input type="radio" disabled><span>' + choice2 + '</span></label>' +
+					'<label class="fplant-radio-label"><input type="radio" disabled><span>' + choice3 + '</span></label>' +
+				'</div>' +
+			'</div>';
+		const textareaGroup =
+			'<div class="fplant-field-group">' +
+				'<label>' + label3 + '</label>' +
+				'<textarea class="fplant-field fplant-field-textarea" rows="3" readonly>' + sampleText + '</textarea>' +
+			'</div>';
+
+		switch (section) {
+			case 'form':
+				return '<div class="fplant-design-sample-scale">' + open +
+					'<div class="fplant-form">' +
+						'<div class="fplant-field-group">' +
+							'<label>' + label1 + '</label>' +
+							'<div class="fplant-field-desc">' + sampleDesc + '</div>' +
+							'<input type="text" class="fplant-field fplant-field-text" value="' + sampleText + '" readonly>' +
+						'</div>' +
+						radioGroup +
+						textareaGroup +
+					'</div>' +
+				'</div></div>';
+			case 'input': {
+				// Only the input boxes themselves — no frame, labels, radio or
+				// textarea — at full size so the text field styling reads clearly.
+				// A normal field (placeholder visible) plus an errored field (error
+				// border) cover every input option, each prefixed with a caption
+				// explaining the state it demonstrates. The field groups are forced
+				// to block so the input fills the width regardless of the preset's
+				// label/field grid. Inputs stay focusable (readonly, not disabled)
+				// so the focus border color shows on click.
+				const caption = function(text) {
+					return '<div style="font-size:12px;color:#646970;margin:0 0 4px;font-weight:600;">' + escapeHtml(text) + '</div>';
+				};
+				return open +
+					'<div class="fplant-form">' +
+						'<div class="fplant-field-group" style="display:block;margin:0 0 16px;">' +
+							caption(i18n.designSampleStateNormal || 'Empty / no error state') +
+							'<input type="text" class="fplant-field fplant-field-text" placeholder="' + sampleText + '" readonly>' +
+						'</div>' +
+						'<div class="fplant-field-group fplant-field-has-error" style="display:block;margin:0;">' +
+							caption(i18n.designSampleStateError || 'Entered / error state') +
+							'<input type="text" class="fplant-field fplant-field-text" value="' + sampleText + '" readonly>' +
+						'</div>' +
+					'</div>' +
+				'</div>';
+			}
+			case 'submit':
+				return open +
+					'<div class="fplant-form">' +
+						'<div class="fplant-submit-wrapper">' +
+							'<button type="button" class="fplant-submit-button"></button>' +
+						'</div>' +
+					'</div>' +
+				'</div>';
+			case 'confirm_buttons':
+				// The real confirmation footer holds both buttons side by side
+				// (templates/confirmation.php), so render both in the merged
+				// preview. Each section's CSS is scoped to this wrapper id
+				// (#fplant-sample-confirm_buttons) in updateDesignPreview().
+				return open +
+					'<div class="fplant-confirmation">' +
+						'<div class="fplant-confirmation-footer">' +
+							'<button type="button" class="fplant-back-button"></button>' +
+							'<button type="button" class="fplant-confirm-submit-button"></button>' +
+						'</div>' +
+					'</div>' +
+				'</div>';
+			case 'error':
+				return open +
+					'<div class="fplant-form">' +
+						'<div class="fplant-messages">' +
+							'<div class="fplant-errors" style="display: block;"><ul><li>' + escapeHtml(i18n.designSampleError || 'This is a sample error message.') + '</li></ul></div>' +
+						'</div>' +
+						'<div class="fplant-field-group fplant-field-has-error">' +
+							'<input type="text" class="fplant-field fplant-field-text" value="' + sampleText + '" readonly>' +
+							'<div class="fplant-field-error" style="display: block;">' + escapeHtml(i18n.designSampleFieldError || 'This field is required.') + '</div>' +
+						'</div>' +
+					'</div>' +
+				'</div>';
+		}
+		return open + '</div>';
+	}
+
+	/**
+	 * The preset CSS URL for the currently selected design type.
+	 */
+	function currentDesignCssUrl() {
+		let type = $('input[name="design_type"]:checked').val() || 'simple1';
+		if (type === 'default') {
+			type = 'simple1';
+		}
+		return (fplantAdminData.designCssUrls || {})[type] || '';
+	}
+
+	/**
+	 * Build one preview host: a shadow root isolates the front-end preset CSS
+	 * from the admin styles (and vice versa).
+	 */
+	function initDesignPreviewHost(host, section) {
+		const root = host.attachShadow({ mode: 'open' });
+
+		const link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.href = currentDesignCssUrl();
+		link.addEventListener('load', function() {
+			// Re-measure the scaled sample once the preset CSS is applied.
+			updateDesignPreview(section);
+			// Preset defaults are read from this now-styled preview, so refresh
+			// the default-color hints of the controls it backs (initial load and
+			// every preset swap re-fire this).
+			updateDesignDefaultHints($('.fplant-design-preview-host[data-design-section="' + section + '"]').closest('.fplant-design-accordion'));
+		});
+
+		const baseStyle = document.createElement('style');
+		baseStyle.textContent = ':host{display:block;}' +
+			'.fplant-design-sample-scale{width:200%;transform:scale(0.5);transform-origin:0 0;}';
+
+		const genStyle = document.createElement('style');
+		genStyle.setAttribute('data-gen', '');
+
+		const content = document.createElement('div');
+		content.innerHTML = designSampleHtml(section);
+
+		root.appendChild(link);
+		root.appendChild(baseStyle);
+		root.appendChild(genStyle);
+		root.appendChild(content);
+	}
+
+	/**
+	 * Regenerate the preview CSS for one section from the current input values.
+	 */
+	function updateDesignPreview(section) {
+		const host = document.querySelector('.fplant-design-preview-host[data-design-section="' + section + '"]');
+		if (!host || !host.shadowRoot) {
+			return;
+		}
+		// A group host (e.g. confirm_buttons) renders several real sections in
+		// one preview; concatenate each member's CSS under the host's sample id.
+		const members = designGroupMembers(section);
+		const css = members
+			? members.map(function(member) {
+				return buildSectionCss('#fplant-sample-' + section, member, collectDesignSectionValues(member));
+			}).join('')
+			: buildSectionCss('#fplant-sample-' + section, section, collectDesignSectionValues(section));
+		host.shadowRoot.querySelector('style[data-gen]').textContent = css;
+
+		// The 'form' sample renders at 200% width scaled down to 50% so max-width
+		// changes stay visible; clip the host to the visual (transformed) height.
+		// Height is 0 while the accordion body is hidden — skip and measure again
+		// when the section opens.
+		if (section === 'form') {
+			const scaleEl = host.shadowRoot.querySelector('.fplant-design-sample-scale');
+			if (scaleEl) {
+				const visualHeight = Math.ceil(scaleEl.getBoundingClientRect().height);
+				if (visualHeight > 0) {
+					// + allowance: the rect excludes the frame's box-shadow
+					// (up to ~16px at intensity 10, halved by the 0.5 scale),
+					// which would otherwise be clipped at the bottom.
+					host.style.height = (visualHeight + 12) + 'px';
+					host.style.overflow = 'hidden';
+				}
+			}
+		}
+
+	}
+
+	function updateAllDesignPreviews() {
+		// Iterate the actual preview hosts (not schema keys) so group hosts like
+		// confirm_buttons are refreshed and the now-hostless back/confirm sections
+		// are skipped.
+		document.querySelectorAll('.fplant-design-preview-host').forEach(function(host) {
+			updateDesignPreview(host.getAttribute('data-design-section'));
+		});
+	}
+
+	// --- Default-color hint shown in each color control's label ------------
+	// An empty color picker renders as a white swatch, which reads as "white
+	// selected" rather than "using the preset default". Append the preset default
+	// to the label as "Label (■ Default)", always visible so the picker never
+	// shifts. Defaults track the selected preset (read from the part preview);
+	// the two state-only colors an unfocused preview can't expose are pinned to
+	// their cross-preset constants (all three presets share these values).
+	const DESIGN_DEFAULT_COLOR_OVERRIDES = {
+		input: { focus_border_color: '#2271b1', error_border_color: '#d63638' }
+	};
+
+	function designHostSectionFor(section) {
+		for (const group in DESIGN_GROUPS) {
+			if (DESIGN_GROUPS[group].indexOf(section) !== -1) {
+				return group;
+			}
+		}
+		return section;
+	}
+
+	function isTransparentColor(value) {
+		if (!value) {
+			return true;
+		}
+		const v = value.replace(/\s+/g, '').toLowerCase();
+		return v === 'transparent' || /^rgba\(\d+,\d+,\d+,0(\.0+)?\)$/.test(v);
+	}
+
+	/**
+	 * The preset default color for one color option, resolved from the live part
+	 * preview (or a pinned constant for focus/error states). Returns '' when it
+	 * can't be determined.
+	 */
+	function resolveDesignDefaultColor(section, key) {
+		const override = (DESIGN_DEFAULT_COLOR_OVERRIDES[section] || {})[key];
+		if (override) {
+			return override;
+		}
+		const schema = (fplantAdminData.designSchema || {})[section];
+		if (!schema || !schema.props || !schema.props[key]) {
+			return '';
+		}
+		const def = schema.props[key];
+		if (def.type !== 'color' && def.type !== 'bg-padded' && def.type !== 'border-color') {
+			return '';
+		}
+		const host = document.querySelector('.fplant-design-preview-host[data-design-section="' + designHostSectionFor(section) + '"]');
+		if (!host || !host.shadowRoot) {
+			return '';
+		}
+		const rawSel = ((schema.rules[def.rule] || [])[0] || '');
+		const isPlaceholder = rawSel.indexOf('::placeholder') !== -1;
+		// Strip pseudo bits so the selector matches a real element to measure.
+		let sel = rawSel.replace('::placeholder', '').replace(/:(focus|hover|active)/g, '').trim();
+		if (sel === '') {
+			sel = '.fplant-form'; // the root rule targets the wrapper itself
+		}
+		let el = null;
+		try {
+			el = host.shadowRoot.querySelector(sel);
+		} catch (e) {
+			el = null;
+		}
+		if (!el) {
+			return '';
+		}
+		const cs = isPlaceholder ? window.getComputedStyle(el, '::placeholder') : window.getComputedStyle(el);
+		// The 'border-color' type composes a border shorthand and carries no css
+		// key, so read the resolved border color directly.
+		if (def.type === 'border-color') {
+			return cs.borderTopColor;
+		}
+		const prop = def.css || 'color';
+		if (prop === 'border-color') {
+			return cs.borderTopColor;
+		}
+		if (prop === 'background') {
+			return cs.backgroundColor;
+		}
+		return cs.getPropertyValue(prop) || cs.color;
+	}
+
+	/**
+	 * Build (once) and refresh the "(■ Default)" suffix inside a color control's
+	 * label. Caller must have neutralized the preview's override <style> first so
+	 * the read reflects the preset default rather than the field's own value.
+	 */
+	function updateDesignDefaultHint(input) {
+		const $input = $(input);
+		const $control = $input.closest('.fplant-design-control');
+		const $label = $control.children('label').first();
+		if (!$label.length) {
+			return;
+		}
+		let $hint = $label.find('.fplant-design-default-inline');
+		if (!$hint.length) {
+			const label = (fplantAdminData.i18n && fplantAdminData.i18n.designDefaultLabel) || 'Default';
+			$hint = $('<span class="fplant-design-default-inline">（<span class="fplant-design-default-swatch"></span>' +
+				escapeHtml(label) +
+				'）</span>');
+			$label.append($hint);
+		}
+		const section = $control.closest('[data-design-section]').data('design-section');
+		const color = resolveDesignDefaultColor(section, $input.data('design-key'));
+		const $swatch = $hint.find('.fplant-design-default-swatch');
+		if (!color || isTransparentColor(color)) {
+			$swatch.css('background-color', '').addClass('is-none');
+		} else {
+			$swatch.css('background-color', color).removeClass('is-none');
+		}
+	}
+
+	/**
+	 * Refresh the default-color label suffixes within one or more accordions.
+	 * Defaults are read from the part preview with its override <style> blanked
+	 * out (restored synchronously, before any paint) so a field that already has
+	 * a value still shows the preset default rather than its own color.
+	 */
+	function updateDesignDefaultHints($scope) {
+		$scope = $scope || $(document);
+		const $accordions = $scope.is('.fplant-design-accordion') ? $scope : $scope.find('.fplant-design-accordion');
+		$accordions.each(function() {
+			const $acc = $(this);
+			const $colors = $acc.find('.fplant-design-color');
+			if (!$colors.length) {
+				return;
+			}
+			const host = $acc.find('.fplant-design-preview-host')[0];
+			const gen = host && host.shadowRoot ? host.shadowRoot.querySelector('style[data-gen]') : null;
+			const saved = gen ? gen.textContent : null;
+			if (gen) {
+				gen.textContent = ''; // drop overrides so reads return preset defaults
+			}
+			$colors.each(function() {
+				updateDesignDefaultHint(this);
+			});
+			if (gen) {
+				gen.textContent = saved; // restore before the browser paints
+			}
+		});
+	}
+
+	/**
+	 * Sync the sample button captions with the configured button texts.
+	 */
+	function updateDesignSampleLabels() {
+		const i18n = fplantAdminData.i18n || {};
+		const labels = {
+			submit: $('#fplant-input-submit-text').val() || i18n.submit || 'Submit',
+			back: $('#fplant-confirmation-back-text').val() || i18n.back || 'Back',
+			confirm: $('#fplant-confirmation-submit-text').val() || i18n.submitForm || 'Submit'
+		};
+		// The submit button has its own preview host; the back and confirm
+		// buttons share the merged confirm_buttons host, so target each by class.
+		const targets = [
+			{ section: 'submit', selector: '.fplant-submit-button', text: labels.submit },
+			{ section: 'confirm_buttons', selector: '.fplant-back-button', text: labels.back },
+			{ section: 'confirm_buttons', selector: '.fplant-confirm-submit-button', text: labels.confirm }
+		];
+		targets.forEach(function(target) {
+			const host = document.querySelector('.fplant-design-preview-host[data-design-section="' + target.section + '"]');
+			if (host && host.shadowRoot) {
+				const btn = host.shadowRoot.querySelector(target.selector);
+				if (btn) {
+					btn.textContent = target.text;
+				}
+			}
+		});
+	}
+
+	/**
+	 * Open one design accordion section. Exclusive: any other open section is
+	 * closed first, mirroring the field list accordion behavior.
+	 */
+	function openDesignAccordion($acc) {
+		$('.fplant-design-accordion.open').not($acc).each(function() {
+			closeDesignAccordion($(this));
+		});
+		$acc.addClass('open');
+		$acc.find('.fplant-design-accordion-header').attr('aria-expanded', 'true')
+			.find('.dashicons').removeClass('dashicons-arrow-down').addClass('dashicons-arrow-up');
+		$acc.find('.fplant-design-accordion-body')
+			.stop(true, true).prop('hidden', false).hide().slideDown(160, function() {
+				// Measure-dependent bits (scaled sample height) need a visible body.
+				updateDesignPreview($acc.data('design-section'));
+				updateDesignSampleLabels();
+				updateDesignDefaultHints($acc);
+			});
+	}
+
+	function closeDesignAccordion($acc) {
+		const $body = $acc.find('.fplant-design-accordion-body');
+		$acc.removeClass('open');
+		$acc.find('.fplant-design-accordion-header').attr('aria-expanded', 'false')
+			.find('.dashicons').removeClass('dashicons-arrow-up').addClass('dashicons-arrow-down');
+		$body.stop(true, true).slideUp(160, function() {
+			$body.prop('hidden', true);
+		});
+	}
+
+	/**
+	 * Reset every input of one section to "unset" (= the design preset's
+	 * defaults). Only touches the editor and the preview — nothing is
+	 * persisted until the section's Save button is clicked.
+	 */
+	function resetDesignSection($acc) {
+		$acc.find('.fplant-design-color').each(function() {
+			// The picker's own clear button resets both the value and the swatch.
+			$(this).closest('.wp-picker-container').find('.wp-picker-clear').trigger('click');
+		});
+		$acc.find('.fplant-design-input').not('.fplant-design-color').val('');
+		$acc.find('.fplant-design-range').each(function() {
+			// Park at the known preset default (if any) — same as the unset state.
+			this.value = this.getAttribute('data-default') || this.min;
+		});
+		updateDesignPreview($acc.data('design-section'));
+	}
+
+	/**
+	 * Show a short-lived status message next to the section's Save button.
+	 */
+	function showDesignSaveStatus($status, message, isError) {
+		$status.text(message).toggleClass('error', !!isError).addClass('visible');
+		window.clearTimeout($status.data('fplantStatusTimer'));
+		$status.data('fplantStatusTimer', window.setTimeout(function() {
+			$status.removeClass('visible');
+		}, 3000));
+	}
+
+	/**
+	 * Collect a section's non-empty values into a plain object. Unset keys are
+	 * dropped so an emptied control falls back to the design preset default.
+	 */
+	function collectDesignSectionPayload(section) {
+		const all = collectDesignSectionValues(section);
+		const values = {};
+		Object.keys(all).forEach(function(key) {
+			if (all[key] !== '') {
+				values[key] = all[key];
+			}
+		});
+		return values;
+	}
+
+	/**
+	 * Persist an accordion's section(s) via AJAX (fplant_save_design_options).
+	 * This is a partial save: the server merges only the posted sections into the
+	 * stored design_options, so other sections, unsaved field edits and the rest
+	 * of the form are untouched and the page does not reload. A group accordion
+	 * (e.g. confirm_buttons) sends all its member sections in one atomic request
+	 * — saving them as separate concurrent requests would race on the shared
+	 * settings meta and lose a section.
+	 */
+	function saveDesignSection($acc) {
+		const i18n = fplantAdminData.i18n || {};
+		const section = $acc.data('design-section');
+		const $status = $acc.find('.fplant-design-save-status');
+		const formId = fplantAdminData.formData && fplantAdminData.formData.id ? fplantAdminData.formData.id : 0;
+
+		if (!formId) {
+			showDesignSaveStatus($status, i18n.designSaveFirst || 'Please save the form first.', true);
+			return;
+		}
+
+		const members = designGroupMembers(section);
+		const request = {
+			action: 'fplant_save_design_options',
+			nonce: fplantAdminData.nonce,
+			form_id: formId
+		};
+		if (members) {
+			// Bulk save: a { section: values, ... } map written in one request.
+			const sections = {};
+			members.forEach(function(member) {
+				sections[member] = collectDesignSectionPayload(member);
+			});
+			request.sections = JSON.stringify(sections);
+		} else {
+			request.section = section;
+			request.values = JSON.stringify(collectDesignSectionPayload(section));
+		}
+
+		const $btn = $acc.find('.fplant-design-save').prop('disabled', true);
+		$.post(fplantAdminData.ajaxUrl, request).done(function(response) {
+			if (response && response.success) {
+				showDesignSaveStatus($status, (response.data && response.data.message) || i18n.designSaved || 'Saved.', false);
+			} else {
+				showDesignSaveStatus($status, (response && response.data && response.data.message) || i18n.errorOccurred || 'An error occurred', true);
+			}
+		}).fail(function() {
+			showDesignSaveStatus($status, i18n.networkError || 'A network error occurred', true);
+		}).always(function() {
+			$btn.prop('disabled', false);
+		});
+	}
+
+	/**
+	 * Schedule a preview refresh for the section containing $el. The timeout
+	 * lets the color picker write its value to the input first.
+	 */
+	function scheduleDesignPreviewUpdate($el) {
+		const $acc = $el.closest('.fplant-design-accordion');
+		const section = $acc.length ? $acc.data('design-section') : null;
+		window.setTimeout(function() {
+			if (section) {
+				updateDesignPreview(section);
+			} else {
+				updateAllDesignPreviews();
+			}
+		}, 0);
+	}
+
+	/**
+	 * Initialize the design adjustments UI (Layout tab).
+	 */
+	function initDesignOptions() {
+		if (!$('.fplant-design-adjust').length || !fplantAdminData.designSchema) {
+			return;
+		}
+
+		// Accordion open/close: all sections start closed and only one is open
+		// at a time — opening a section collapses the previous one.
+		$(document).on('click', '.fplant-design-accordion-header', function() {
+			const $acc = $(this).closest('.fplant-design-accordion');
+			if ($acc.hasClass('open')) {
+				closeDesignAccordion($acc);
+			} else {
+				openDesignAccordion($acc);
+			}
+		});
+
+		// Per-section reset / partial AJAX save
+		$(document).on('click', '.fplant-design-reset', function() {
+			resetDesignSection($(this).closest('.fplant-design-accordion'));
+		});
+		$(document).on('click', '.fplant-design-save', function() {
+			saveDesignSection($(this).closest('.fplant-design-accordion'));
+		});
+
+		// Part previews (shadow roots)
+		document.querySelectorAll('.fplant-design-preview-host').forEach(function(host) {
+			initDesignPreviewHost(host, host.getAttribute('data-design-section'));
+		});
+
+		// Color pickers (clear button = back to the preset default)
+		$('.fplant-design-color').wpColorPicker({
+			change: function() {
+				scheduleDesignPreviewUpdate($(this));
+			},
+			clear: function() {
+				scheduleDesignPreviewUpdate($(this));
+			}
+		});
+
+		// Number/select inputs (and direct hex typing) → live preview.
+		$(document).on('input change', '.fplant-design-input', function() {
+			scheduleDesignPreviewUpdate($(this));
+		});
+
+		// Slider companions: dragging the range writes into the paired number
+		// input (the single data-bound control), typing in the number moves the
+		// slider. An emptied number = unset; the slider just parks at the known
+		// preset default (data-default) or, failing that, its min.
+		$(document).on('input', '.fplant-design-range', function() {
+			$(this).closest('.fplant-design-slider-group')
+				.find('.fplant-design-input').val(this.value).trigger('input');
+		});
+		$(document).on('input change', '.fplant-design-slider-group .fplant-design-input', function() {
+			const $range = $(this).closest('.fplant-design-slider-group').find('.fplant-design-range');
+			if ($range.length) {
+				const raw = String($(this).val() || '').trim();
+				$range.val(raw === '' ? ($range.attr('data-default') || $range.attr('min')) : raw);
+			}
+		});
+
+		// Design type switch: show/hide the whole block and swap the preset CSS
+		// inside every preview.
+		$('input[name="design_type"]').on('change', function() {
+			const none = $(this).val() === 'none';
+			$('.fplant-design-adjust').toggle(!none);
+			if (!none) {
+				const url = currentDesignCssUrl();
+				if (url) {
+					document.querySelectorAll('.fplant-design-preview-host').forEach(function(host) {
+						const link = host.shadowRoot && host.shadowRoot.querySelector('link[rel="stylesheet"]');
+						if (link && link.href !== url) {
+							link.href = url;
+						}
+					});
+				}
+			}
+		});
+
+		// Confirmation toggle: the back/confirm button sections only make sense
+		// when the confirmation screen is enabled.
+		$(document).on('change', '.fplant-setting-use-confirmation', function() {
+			$('.fplant-design-confirmation-only').toggle($(this).is(':checked'));
+		});
+
+		// Re-sync sample captions when a button text modal is saved.
+		$(document).on('click', '#fplant-save-input-submit, #fplant-save-confirmation-back, #fplant-save-confirmation-submit', function() {
+			window.setTimeout(updateDesignSampleLabels, 0);
+		});
+
+		updateDesignSampleLabels();
+		updateAllDesignPreviews();
+		updateDesignDefaultHints();
 	}
 
 	/**
@@ -1364,6 +2761,12 @@
 	 * Save form to database
 	 */
 	function saveFormToDatabase() {
+		// Commit the currently open field row to memory first; abort the save if its
+		// values are invalid (keep the row open so the user can fix them).
+		if (!commitOpenAccordion()) {
+			return;
+		}
+
 		// Validate HTML template for required fields
 		var validation = validateHtmlTemplate();
 		if (!validation.success) {
@@ -1378,58 +2781,65 @@
 			return;
 		}
 
+		// Core settings owned by this editor, rebuilt from the UI. Merged (shallow)
+		// over a clone of the original settings so unknown (Pro/future) top-level
+		// settings keys survive the save (GAP-3). Shallow merge overwrites array-valued
+		// core keys wholesale, avoiding the $.extend deep array index-merge hazard.
+		const coreSettings = {
+			use_html_template: $('.fplant-setting-use-html-template').is(':checked'),
+			input_submit_text: $('#fplant-input-submit-text').val(),
+			input_submit_class: $('#fplant-input-submit-class').val(),
+			input_submit_id: $('#fplant-input-submit-id').val(),
+			form_tag_class: $('#fplant-form-tag-class').val(),
+			form_tag_id: $('#fplant-form-tag-id').val(),
+			use_confirmation: $('.fplant-setting-use-confirmation').is(':checked'),
+			confirmation_title: $('.fplant-setting-confirmation-title').val(),
+			confirmation_message: $('.fplant-setting-confirmation-message').val(),
+			use_confirmation_template: $('.fplant-setting-use-confirmation-template').is(':checked'),
+			confirmation_template: $('.fplant-confirmation-template').val(),
+			confirmation_back_text: $('#fplant-confirmation-back-text').val(),
+			confirmation_back_class: $('#fplant-confirmation-back-class').val(),
+			confirmation_back_id: $('#fplant-confirmation-back-id').val(),
+			confirmation_submit_text: $('#fplant-confirmation-submit-text').val(),
+			confirmation_submit_class: $('#fplant-confirmation-submit-class').val(),
+			confirmation_submit_id: $('#fplant-confirmation-submit-id').val(),
+			action_type: $('.fplant-setting-action-type').val(),
+			success_message: $('.fplant-setting-success-message').val(),
+			success_page_html: $('.fplant-setting-success-page-html').val(),
+			redirect_url: $('.fplant-setting-redirect-url').val(),
+			save_submission: $('.fplant-setting-save-submission:checked').val() || 'none',
+			required_mark_text: $('.fplant-setting-required-mark').val() || '*',
+			design_type: $('input[name="design_type"]:checked').val() || 'simple1',
+			design_options: collectDesignOptions(),
+			custom_css_file_urls: getCustomCssFileUrls(),
+			custom_css_inline: $('.fplant-custom-css-inline').val() || '',
+			// Embed settings
+			embed_iframe_enabled: $('.fplant-setting-embed-iframe-enabled').is(':checked'),
+			embed_iframe_allowed_urls: parseUrls($('.fplant-setting-embed-iframe-allowed-urls').val()),
+			embed_js_enabled: $('.fplant-setting-embed-js-enabled').is(':checked'),
+			embed_js_allowed_urls: parseUrls($('.fplant-setting-embed-js-allowed-urls').val()),
+			// CAPTCHA settings
+			captcha_type: $('input[name="captcha_type"]:checked').val() || 'none',
+			// Spam protection settings
+			spam_honeypot_enabled: $('.fplant-setting-spam-honeypot').is(':checked'),
+			spam_honeypot_field_name: $('.fplant-setting-spam-honeypot-field-name').val() || 'fplant_website_url',
+			spam_rate_limit_enabled: $('.fplant-setting-spam-rate-limit').is(':checked'),
+			spam_rate_limit_minutes: parseInt($('.fplant-setting-spam-rate-limit-minutes').val()) || 5,
+			spam_rate_limit_count: parseInt($('.fplant-setting-spam-rate-limit-count').val()) || 3,
+			spam_time_check_enabled: $('.fplant-setting-spam-time-check').is(':checked'),
+			spam_time_check_seconds: parseInt($('.fplant-setting-spam-time-check-seconds').val()) || 3,
+			// Disposable email blocking
+			spam_disposable_email_block: $('.fplant-setting-spam-disposable-email-block').is(':checked'),
+			// URL parameter settings
+			allow_url_params: $('.fplant-setting-allow-url-params').is(':checked')
+		};
+
 		const formData = {
 			title: $('.fplant-form-title-input').val(),
 			status: $('.fplant-form-status').val() || 'publish',
 			fields: formFields,
 			html_template: $('.fplant-html-template').val(),
-			settings: {
-				use_html_template: $('.fplant-setting-use-html-template').is(':checked'),
-				input_submit_text: $('#fplant-input-submit-text').val(),
-				input_submit_class: $('#fplant-input-submit-class').val(),
-				input_submit_id: $('#fplant-input-submit-id').val(),
-				form_tag_class: $('#fplant-form-tag-class').val(),
-				form_tag_id: $('#fplant-form-tag-id').val(),
-				use_confirmation: $('.fplant-setting-use-confirmation').is(':checked'),
-				confirmation_title: $('.fplant-setting-confirmation-title').val(),
-				confirmation_message: $('.fplant-setting-confirmation-message').val(),
-				use_confirmation_template: $('.fplant-setting-use-confirmation-template').is(':checked'),
-				confirmation_template: $('.fplant-confirmation-template').val(),
-				confirmation_back_text: $('#fplant-confirmation-back-text').val(),
-				confirmation_back_class: $('#fplant-confirmation-back-class').val(),
-				confirmation_back_id: $('#fplant-confirmation-back-id').val(),
-				confirmation_submit_text: $('#fplant-confirmation-submit-text').val(),
-				confirmation_submit_class: $('#fplant-confirmation-submit-class').val(),
-				confirmation_submit_id: $('#fplant-confirmation-submit-id').val(),
-				action_type: $('.fplant-setting-action-type').val(),
-				success_message: $('.fplant-setting-success-message').val(),
-				success_page_html: $('.fplant-setting-success-page-html').val(),
-				redirect_url: $('.fplant-setting-redirect-url').val(),
-				save_submission: $('.fplant-setting-save-submission:checked').val() || 'none',
-				required_mark_text: $('.fplant-setting-required-mark').val() || '*',
-				design_type: $('input[name="design_type"]:checked').val() || 'simple1',
-				custom_css_file_urls: getCustomCssFileUrls(),
-				custom_css_inline: $('.fplant-custom-css-inline').val() || '',
-				// Embed settings
-				embed_iframe_enabled: $('.fplant-setting-embed-iframe-enabled').is(':checked'),
-				embed_iframe_allowed_urls: parseUrls($('.fplant-setting-embed-iframe-allowed-urls').val()),
-				embed_js_enabled: $('.fplant-setting-embed-js-enabled').is(':checked'),
-				embed_js_allowed_urls: parseUrls($('.fplant-setting-embed-js-allowed-urls').val()),
-				// CAPTCHA settings
-				captcha_type: $('input[name="captcha_type"]:checked').val() || 'none',
-				// Spam protection settings
-				spam_honeypot_enabled: $('.fplant-setting-spam-honeypot').is(':checked'),
-				spam_honeypot_field_name: $('.fplant-setting-spam-honeypot-field-name').val() || 'fplant_website_url',
-				spam_rate_limit_enabled: $('.fplant-setting-spam-rate-limit').is(':checked'),
-				spam_rate_limit_minutes: parseInt($('.fplant-setting-spam-rate-limit-minutes').val()) || 5,
-				spam_rate_limit_count: parseInt($('.fplant-setting-spam-rate-limit-count').val()) || 3,
-				spam_time_check_enabled: $('.fplant-setting-spam-time-check').is(':checked'),
-				spam_time_check_seconds: parseInt($('.fplant-setting-spam-time-check-seconds').val()) || 3,
-				// Disposable email blocking
-				spam_disposable_email_block: $('.fplant-setting-spam-disposable-email-block').is(':checked'),
-				// URL parameter settings
-				allow_url_params: $('.fplant-setting-allow-url-params').is(':checked')
-			},
+			settings: $.extend({}, originalSettings, coreSettings),
 			email_admin: {
 				enabled: $('.fplant-email-admin-enabled').is(':checked'),
 				to: $('.fplant-email-admin-to').val(),
@@ -1456,7 +2866,10 @@
 
 		// Collect custom settings fields (fplant_custom_settings_fields).
 		// Skip keys that collide with built-in settings to avoid clobbering them.
-		const fplantCoreSettingKeys = Object.keys(formData.settings);
+		// Note: compare against coreSettings (built-in keys only), NOT the merged
+		// formData.settings — otherwise a previously-saved custom/Pro key carried over
+		// from originalSettings would block its own DOM-edited value from being collected.
+		const fplantCoreSettingKeys = Object.keys(coreSettings);
 		$('#tab-settings [data-fplant-setting]').each(function () {
 			const $csEl = $(this);
 			const csKey = $csEl.attr('data-fplant-setting');
@@ -2119,8 +3532,11 @@
 	$(document).ready(function() {
 		initTabs();
 		initFieldAdd();
+		initFieldTypePicker();
 		initFieldDelete();
 		initFieldEdit();
+		initFieldDuplicate();
+		initEditorTabs();
 		initFormDelete();
 		initFormDuplicate();
 		initModal();
@@ -2141,12 +3557,21 @@
 		initCustomCssFileUploader();
 		initDesignCssDownload();
 		initEmbedSettings();
+		initFormPreview();
+		initDesignOptions();
 		initQuickEdit();
 
-		// Load existing fields if any
-		if (typeof fplantAdminData.formData !== 'undefined' && fplantAdminData.formData.fields) {
-			formFields = fplantAdminData.formData.fields;
-			renderFieldList();
+		// Load existing fields and settings. Deep-clone both so the editor's working
+		// state is independent of the localized source, and so the merge paths in
+		// initSaveField()/saveFormToDatabase() can preserve unknown (Pro/future) keys
+		// from the originals (GAP-3).
+		if (typeof fplantAdminData.formData !== 'undefined') {
+			if (fplantAdminData.formData.fields) {
+				formFields = $.extend(true, [], fplantAdminData.formData.fields);
+				originalFieldNames = new Set(formFields.map(function(f) { return f.name; }));
+				renderFieldList();
+			}
+			originalSettings = $.extend(true, {}, fplantAdminData.formData.settings || {});
 		}
 	});
 

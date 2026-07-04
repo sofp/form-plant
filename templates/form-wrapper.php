@@ -69,8 +69,11 @@ $fplant_wrapper_class = 'fplant-form-wrapper';
 						</label>
 					<?php endif; ?>
 
+					<?php echo wp_kses_post( $fplant_field_manager->render_field_description( $fplant_field, 'after_label' ) ); ?>
+					<?php echo wp_kses_post( $fplant_field_manager->render_field_description( $fplant_field, 'before_input' ) ); ?>
 					<?php echo wp_kses( do_shortcode( '[fplant_field name="' . esc_attr( $fplant_field['name'] ) . '"]' ), fplant_get_allowed_form_html() ); ?>
 					<div class="fplant-field-error" style="display: none;"></div>
+					<?php echo wp_kses_post( $fplant_field_manager->render_field_description( $fplant_field, 'after_input' ) ); ?>
 				</div>
 			<?php endforeach; ?>
 
