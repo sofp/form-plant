@@ -612,6 +612,14 @@
 	width: 12em;
 }
 
+.fplant-field-has-error .fplant-postal-code-input {
+	border-color: #d63638;
+}
+
+.fplant-field-has-error .fplant-postal-code-input:focus {
+	box-shadow: 0 0 0 1px #d63638;
+}
+
 .fplant-tel-split {
 	display: flex;
 	align-items: center;
@@ -638,6 +646,14 @@
 	outline: none;
 	border-color: #2271b1;
 	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.fplant-field-has-error .fplant-tel-input {
+	border-color: #d63638;
+}
+
+.fplant-field-has-error .fplant-tel-input:focus {
+	box-shadow: 0 0 0 1px #d63638;
 }
 
 .fplant-postal-code-search {

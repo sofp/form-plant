@@ -3,7 +3,7 @@ Contributors: reiji-sato
 Tags: contact form, confirmation, mw wp form, csv export, recaptcha
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -154,6 +154,10 @@ Yes, the File Upload field type allows users to upload files with configurable s
 6. One-click migration from MW WP Form, with a report of converted fields and items that need manual review.
 
 == Changelog ==
+
+= 1.2.2 =
+* Fix: The 3-part phone number and split postal code fields (added for MW WP Form migration) now follow the form's theme design. Previously the input boxes kept the plain default style and the field container's gray background and border leaked around them.
+* Fix: Required phone number and postal code fields now show the red error border like other fields when submitted empty.
 
 = 1.2.1 =
 * Important: Forms now respect their publish status. Private, draft, and pending forms are no longer shown to or submittable by visitors; only users who can edit a form can preview and test-submit it. Published forms are unaffected. To restore the previous behavior, use the new `fplant_form_is_viewable` / `fplant_form_is_submittable` filters.

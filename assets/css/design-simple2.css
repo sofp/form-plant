@@ -457,6 +457,45 @@
 	box-shadow: 0 0 0 1px #d63638;
 }
 
+/* Tel (3-part split) field */
+.fplant-tel-split {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.fplant-tel-input {
+	padding: 10px 15px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 16px;
+	width: 7em;
+	box-sizing: border-box;
+	background-color: #fff;
+	transition: border-color 0.3s;
+}
+
+.fplant-tel-input:focus {
+	outline: none;
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.fplant-tel-separator {
+	color: #666;
+	font-size: 14px;
+	flex-shrink: 0;
+}
+
+.fplant-field-has-error .fplant-tel-input {
+	border-color: #d63638;
+}
+
+.fplant-field-has-error .fplant-tel-input:focus {
+	box-shadow: 0 0 0 1px #d63638;
+}
+
 /* Password field */
 .fplant-password-wrapper {
 	width: 100%;
@@ -584,11 +623,19 @@
 
 .fplant-postal-code-part1,
 .fplant-postal-code-part2 {
-	width: 6em;
+	width: 7em;
 }
 
 .fplant-postal-code-full {
 	width: 12em;
+}
+
+.fplant-field-has-error .fplant-postal-code-input {
+	border-color: #d63638;
+}
+
+.fplant-field-has-error .fplant-postal-code-input:focus {
+	box-shadow: 0 0 0 1px #d63638;
 }
 
 .fplant-postal-code-search {
@@ -791,10 +838,12 @@
 .fplant-form-wrapper .fplant-field-name-kana,
 .fplant-form-wrapper .fplant-field-postal-code,
 .fplant-form-wrapper .fplant-field-address,
-.fplant-form-wrapper .fplant-field-prefecture {
+.fplant-form-wrapper .fplant-field-prefecture,
+.fplant-form-wrapper .fplant-field-tel[data-tel-format="split3"] {
 	border: none;
 	padding: 0;
 	box-shadow: none;
+	background-color: transparent;
 }
 
 /* Submit button */

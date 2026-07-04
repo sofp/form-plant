@@ -457,6 +457,45 @@
 	box-shadow: 0 0 0 1px #d63638;
 }
 
+/* Tel (3-part split) field */
+.fplant-tel-split {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.fplant-tel-input {
+	padding: 12px 16px;
+	border: 2px solid #e0e0e0;
+	border-radius: 6px;
+	font-size: 16px;
+	width: 7em;
+	box-sizing: border-box;
+	background-color: #f9f9f9;
+	transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.fplant-tel-input:focus {
+	outline: none;
+	border-color: #2271b1;
+	box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.15);
+}
+
+.fplant-tel-separator {
+	color: #666;
+	font-size: 14px;
+	flex-shrink: 0;
+}
+
+.fplant-field-has-error .fplant-tel-input {
+	border-color: #d63638;
+}
+
+.fplant-field-has-error .fplant-tel-input:focus {
+	box-shadow: 0 0 0 1px #d63638;
+}
+
 /* Password field */
 .fplant-password-wrapper {
 	width: 100%;
@@ -568,27 +607,36 @@
 }
 
 .fplant-postal-code-input {
-	padding: 10px 15px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
+	padding: 12px 16px;
+	border: 2px solid #e0e0e0;
+	border-radius: 6px;
 	font-size: 16px;
 	box-sizing: border-box;
-	transition: border-color 0.2s;
+	background-color: #f9f9f9;
+	transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .fplant-postal-code-input:focus {
 	outline: none;
 	border-color: #2271b1;
-	box-shadow: 0 0 0 1px #2271b1;
+	box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.15);
 }
 
 .fplant-postal-code-part1,
 .fplant-postal-code-part2 {
-	width: 6em;
+	width: 7em;
 }
 
 .fplant-postal-code-full {
 	width: 12em;
+}
+
+.fplant-field-has-error .fplant-postal-code-input {
+	border-color: #d63638;
+}
+
+.fplant-field-has-error .fplant-postal-code-input:focus {
+	box-shadow: 0 0 0 1px #d63638;
 }
 
 .fplant-postal-code-search {
@@ -789,10 +837,12 @@
 .fplant-form-wrapper .fplant-field-name-kana,
 .fplant-form-wrapper .fplant-field-postal-code,
 .fplant-form-wrapper .fplant-field-address,
-.fplant-form-wrapper .fplant-field-prefecture {
+.fplant-form-wrapper .fplant-field-prefecture,
+.fplant-form-wrapper .fplant-field-tel[data-tel-format="split3"] {
 	border: none;
 	padding: 0;
 	box-shadow: none;
+	background-color: transparent;
 }
 
 /* Field error */
