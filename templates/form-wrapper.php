@@ -60,7 +60,8 @@ $fplant_wrapper_class = 'fplant-form-wrapper';
 				endif;
 				?>
 				<div class="fplant-field-group" data-field-name="<?php echo esc_attr( $fplant_field['name'] ); ?>">
-					<?php if ( ! empty( $fplant_field['label'] ) ) : ?>
+					<?php // Acceptance hides the item-name label unless acceptance_show_label is enabled. ?>
+					<?php if ( FPLANT_Field_Manager::shows_group_label( $fplant_field ) ) : ?>
 						<label for="fplant-field-<?php echo esc_attr( $fplant_field['name'] ); ?>">
 							<?php echo esc_html( $fplant_field['label'] ); ?>
 							<?php if ( ! empty( $fplant_field['required'] ) ) : ?>

@@ -24,6 +24,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 class FPLANT_Preview extends FPLANT_Rewrite_Endpoint {
 
 	/**
+	 * Wire the shared endpoint hooks, plus a preview-only hook to hide the admin bar.
+	 */
+	public function __construct() {
+		parent::__construct();
+
+		// The editor is logged in, so WordPress would render #wpadminbar (and reserve a
+		// top offset via body.admin-bar) inside the preview iframe — chrome that never
+		// appears on a real [fplant] placement. Disable it on the `wp` action, which
+		// fires before _wp_admin_bar_init (template_redirect, priority 0); disabling it
+		// any later leaves the admin-bar bump CSS in place, so the bar vanishes but an
+		// empty gap remains at the top.
+		add_action( 'wp', array( $this, 'maybe_disable_admin_bar' ) );
+	}
+
+	/**
+	 * Hide the admin bar when the current request is a form preview.
+	 */
+	public function maybe_disable_admin_bar() {
+		if ( get_query_var( 'fplant_preview_form' ) ) {
+			add_filter( 'show_admin_bar', '__return_false' );
+		}
+	}
+
+	/**
 	 * Rewrite regex for the preview endpoint.
 	 *
 	 * @return string

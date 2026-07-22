@@ -23,6 +23,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		continue;
 	}
 
+	// Skip acceptance fields unless configured to show on the confirmation
+	// screen (default OFF).
+	if ( 'acceptance' === $field['type'] && empty( $field['acceptance_show_confirmation'] ) ) {
+		continue;
+	}
+
 	$field_name  = $field['name'];
 	$field_label = ! empty( $field['label'] ) ? $field['label'] : $field_name;
 	$value       = isset( $values[ $field_name ] ) ? $values[ $field_name ] : '';
@@ -67,6 +73,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 			}
 			$delimiter     = isset( $field['delimiter'] ) ? $field['delimiter'] : ', ';
 			$display_value = ! empty( $display_labels ) ? esc_html( implode( $delimiter, $display_labels ) ) : '-';
+			break;
+
+		case 'acceptance':
+			$display_value = ( ! empty( $value ) && '0' !== $value )
+				? esc_html( FPLANT_Field_Manager::acceptance_display_value() )
+				: '-';
 			break;
 
 		case 'file':
@@ -155,7 +167,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		default:
 			// text, email, date, date_select, tel, url, number, time, prefecture, etc.
-			$display_value = ! empty( $value ) ? esc_html( $value ) : '-';
+			// Extension types may carry structured (array) values — render them
+			// through the shared plain-text boundary.
+			if ( is_array( $value ) ) {
+				$fplant_c_formatted = FPLANT_Field_Manager::format_submission_value( $value, $field, 'confirmation', isset( $form_id ) ? (int) $form_id : 0 );
+				$display_value      = '' !== $fplant_c_formatted ? nl2br( esc_html( $fplant_c_formatted ) ) : '-';
+			} else {
+				$display_value = ! empty( $value ) ? esc_html( $value ) : '-';
+			}
 			break;
 	}
 	?>

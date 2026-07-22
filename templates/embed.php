@@ -112,7 +112,8 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 					$field_value = $field_manager->get_field_initial_value( $field, $form_id, $settings );
 					?>
 					<div class="fplant-field-group" data-field-name="<?php echo esc_attr( $field_name ); ?>">
-						<?php if ( ! empty( $field['label'] ) ) : ?>
+						<?php // Acceptance hides the item-name label unless acceptance_show_label is enabled. ?>
+						<?php if ( FPLANT_Field_Manager::shows_group_label( $field ) ) : ?>
 							<label for="fplant-field-<?php echo esc_attr( $field_name ); ?>">
 								<?php echo esc_html( $field['label'] ); ?>
 								<?php if ( ! empty( $field['required'] ) ) : ?>

@@ -218,9 +218,12 @@ class FPLANT_Database {
 	 *
 	 * @param int   $form_id Form ID
 	 * @param array $data    Submission data
+	 * @param array $extra   Optional. Extra top-level keys stored alongside the
+	 *                       form data (e.g. 'acceptance' consent snapshot).
+	 *                       Reserved keys (form_data, ip_address, ...) win.
 	 * @return int|false Submission ID or false
 	 */
-	public static function save_submission( $form_id, $data ) {
+	public static function save_submission( $form_id, $data, $extra = array() ) {
 		global $wpdb;
 
 		// Include additional info in submission data
@@ -231,6 +234,10 @@ class FPLANT_Database {
 			'referrer'   => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '',
 			'user_id'    => get_current_user_id(),
 		);
+
+		if ( is_array( $extra ) && ! empty( $extra ) ) {
+			$submission_data = array_merge( $extra, $submission_data );
+		}
 
 		$table_name = self::get_table_name();
 
@@ -285,15 +292,103 @@ class FPLANT_Database {
 		}
 
 		return array(
-			'id'         => $row['id'],
-			'form_id'    => $row['form_id'],
-			'data'       => isset( $submission_data['form_data'] ) ? $submission_data['form_data'] : array(),
-			'ip_address' => isset( $submission_data['ip_address'] ) ? $submission_data['ip_address'] : '',
-			'user_agent' => isset( $submission_data['user_agent'] ) ? $submission_data['user_agent'] : '',
-			'referrer'   => isset( $submission_data['referrer'] ) ? $submission_data['referrer'] : '',
-			'user_id'    => isset( $submission_data['user_id'] ) ? $submission_data['user_id'] : 0,
-			'created_at' => $row['sent_time'],
+			'id'                 => $row['id'],
+			'form_id'            => $row['form_id'],
+			'data'               => isset( $submission_data['form_data'] ) ? $submission_data['form_data'] : array(),
+			'ip_address'         => isset( $submission_data['ip_address'] ) ? $submission_data['ip_address'] : '',
+			'user_agent'         => isset( $submission_data['user_agent'] ) ? $submission_data['user_agent'] : '',
+			'referrer'           => isset( $submission_data['referrer'] ) ? $submission_data['referrer'] : '',
+			'user_id'            => isset( $submission_data['user_id'] ) ? $submission_data['user_id'] : 0,
+			'webhook_deliveries' => isset( $submission_data['webhook_deliveries'] ) ? $submission_data['webhook_deliveries'] : array(),
+			'acceptance'         => isset( $submission_data['acceptance'] ) ? $submission_data['acceptance'] : array(),
+			'created_at'         => $row['sent_time'],
 		);
+	}
+
+	/**
+	 * Read an extra key from a submission's JSON blob (counterpart of
+	 * set_submission_extra()). Lets extensions retrieve data they stored
+	 * with a submission (e.g. a field-definition snapshot) without relying
+	 * on the fixed key list get_submission() returns.
+	 *
+	 * @since 1.4.0
+	 * @param int    $submission_id Submission ID.
+	 * @param string $key           Extra key name.
+	 * @param mixed  $default_value Returned when the key is absent.
+	 * @return mixed
+	 */
+	public static function get_submission_extra( $submission_id, $key, $default_value = null ) {
+		global $wpdb;
+
+		$table_name = self::get_table_name();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		// Note: $table_name is internal and safe (from esc_sql), dynamic table name requires interpolation
+		$raw = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT submission_data FROM {$table_name} WHERE id = %d",
+				$submission_id
+			)
+		);
+		// phpcs:enable
+
+		if ( null === $raw ) {
+			return $default_value;
+		}
+
+		$decoded = json_decode( $raw, true );
+		if ( ! is_array( $decoded ) || ! array_key_exists( $key, $decoded ) ) {
+			return $default_value;
+		}
+
+		return $decoded[ $key ];
+	}
+
+	/**
+	 * Store an extra key inside a submission's JSON blob (e.g. webhook
+	 * delivery results). Existing keys are preserved.
+	 *
+	 * @since 1.4.0
+	 * @param int    $submission_id Submission ID.
+	 * @param string $key           Extra key name.
+	 * @param mixed  $value         Value to store.
+	 * @return bool
+	 */
+	public static function set_submission_extra( $submission_id, $key, $value ) {
+		global $wpdb;
+
+		$table_name = self::get_table_name();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		// Note: $table_name is internal and safe (from esc_sql), dynamic table name requires interpolation
+		$raw = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT submission_data FROM {$table_name} WHERE id = %d",
+				$submission_id
+			)
+		);
+
+		if ( null === $raw ) {
+			return false;
+		}
+
+		$decoded = json_decode( $raw, true );
+		if ( ! is_array( $decoded ) ) {
+			$decoded = array();
+		}
+
+		$decoded[ sanitize_key( $key ) ] = $value;
+
+		$result = $wpdb->update(
+			$table_name,
+			array( 'submission_data' => wp_json_encode( $decoded, JSON_UNESCAPED_UNICODE ) ),
+			array( 'id' => $submission_id ),
+			array( '%s' ),
+			array( '%d' )
+		);
+		// phpcs:enable
+
+		return false !== $result;
 	}
 
 	/**

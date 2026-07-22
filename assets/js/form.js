@@ -32,6 +32,32 @@
 		}
 	};
 
+	// Value-access API for extensions (conditional logic etc.).
+	// Handlers register themselves on construction; when the same form id is
+	// rendered twice on one page the first instance wins.
+	window.fplant._handlers = window.fplant._handlers || [];
+	function findHandler(formId) {
+		const id = String(formId);
+		for (const handler of window.fplant._handlers) {
+			if (String(handler.formId) === id) {
+				return handler;
+			}
+		}
+		return null;
+	}
+	// Normalized value of one field (composite fields resolve via their
+	// synthesized hidden input). Returns null when the form or field is unknown.
+	window.fplant.getFieldValue = function(formId, fieldName) {
+		const handler = findHandler(formId);
+		return handler ? handler.getFieldValueByName(fieldName) : null;
+	};
+	// All field values as {name: value} — same shape the server receives.
+	// Returns null when the form is unknown.
+	window.fplant.getFormData = function(formId) {
+		const handler = findHandler(formId);
+		return handler ? handler.getFormData() : null;
+	};
+
 	/**
 	 * Form handler
 	 */
@@ -52,6 +78,8 @@
 			if (!this.captchaConfig.type && this.captchaConfig.enabled) {
 				this.captchaConfig.type = 'recaptcha';
 			}
+			// Register for the public value-access API (window.fplant.getFieldValue etc.)
+			window.fplant._handlers.push(this);
 			this.init();
 		}
 
@@ -74,6 +102,17 @@
 				// Combine values when date (dropdown) changes
 				if (e.target.matches('.fplant-date-select-year, .fplant-date-select-month, .fplant-date-select-day')) {
 					this.handleDateSelectChange(e);
+				}
+				// Extension hook (fplant:fieldChange) for plain-named fields.
+				// Composite sub-inputs (fieldname[sub]) are skipped here — their
+				// synthesis handlers fire the event after combining the value.
+				const rawName = e.target.getAttribute('name');
+				if (rawName) {
+					if (rawName.indexOf('[') === -1) {
+						this.dispatchFieldChange(rawName);
+					} else if (rawName.endsWith('[]')) {
+						this.dispatchFieldChange(rawName.slice(0, -2));
+					}
 				}
 			});
 
@@ -216,6 +255,7 @@
 
 			// Validation
 			this.validateField(fieldName);
+			this.dispatchFieldChange(fieldName);
 		}
 
 		handleNamePartsChange(e) {
@@ -244,6 +284,7 @@
 
 			// Validation
 			this.validateField(fieldName);
+			this.dispatchFieldChange(fieldName);
 		}
 
 		/**
@@ -272,6 +313,12 @@
 			} else {
 				hidden.value = '';
 			}
+
+			// Extension hook: plain-named hidden only (address sub-fields keep
+			// a composite name and are not covered by fplant:fieldChange yet)
+			if (hidden.name && hidden.name.indexOf('[') === -1) {
+				this.dispatchFieldChange(hidden.name);
+			}
 		}
 
 		/**
@@ -296,6 +343,10 @@
 				hidden.value = [v1, v2, v3].join('-');
 			} else {
 				hidden.value = '';
+			}
+
+			if (hidden.name && hidden.name.indexOf('[') === -1) {
+				this.dispatchFieldChange(hidden.name);
 			}
 		}
 
@@ -736,7 +787,9 @@
 			// Also get standalone error display elements
 			const standaloneErrors = this.form.querySelectorAll('[data-field-error="' + fieldName + '"]');
 			const label = group.querySelector('label');
-			const isRequired = label && label.querySelector('.required');
+			// Acceptance is always required by design and renders no .required mark,
+			// so it is detected structurally. Works in HTML-template layouts too.
+			const isRequired = (label && label.querySelector('.required')) || group.querySelector('.fplant-field-acceptance');
 
 			// Clear errors
 			if (errorContainer) {
@@ -796,7 +849,11 @@
 						}
 					});
 					if (checked === 0) {
-						errorMessage = customMessage || fplantData.i18n.requiredCheckbox;
+						// Acceptance (single consent checkbox) has its own default message
+						const isAcceptance = group.querySelector('.fplant-field-acceptance');
+						errorMessage = customMessage || (isAcceptance
+							? fplantData.i18n.requiredAcceptance
+							: fplantData.i18n.requiredCheckbox);
 					}
 				} else if (fieldType === 'radio') {
 					// Radio button: one selected
@@ -1545,6 +1602,11 @@
 					return;
 				}
 
+				// Skip acceptance fields configured to hide from the confirmation screen
+				if (this.isHiddenFromConfirmation(fieldName)) {
+					return;
+				}
+
 				const fieldLabel = this.getFieldLabel(fieldName);
 				let fieldValue = formData[fieldName];
 
@@ -1565,14 +1627,19 @@
 					fieldValue = fieldValue ? '\u25CF'.repeat(fieldValue.length) : '';
 				}
 
+				// Acceptance stores '1'; show the shared "Agreed" wording
+				if (this.isAcceptanceField(fieldName)) {
+					fieldValue = fieldValue ? fplantData.i18n.agreed : '';
+				}
+
 				// Convert value to label for select/radio/checkbox fields
 				if (this.isChoiceField(fieldName)) {
 					fieldValue = this.getOptionLabel(fieldName, fieldValue);
 				}
 
-				// Join array values with comma
-				if (Array.isArray(fieldValue)) {
-					fieldValue = fieldValue.join(', ');
+				// Format arrays and structured (extension) values as plain text
+				if (fieldValue !== null && typeof fieldValue === 'object') {
+					fieldValue = this.formatStructuredValue(fieldValue, fieldName);
 				}
 
 				// Escape value then convert newlines to <br>
@@ -1725,6 +1792,17 @@
 					continue;
 				}
 
+				// Generic bracket-name parsing for structured (extension) field
+				// types — parent[0][sub] builds repeater rows, parent[sub] builds
+				// a group object. The composite types above never reach here.
+				// Out-of-contract shapes and unsafe keys are dropped entirely
+				// (bracket names never fall through as literal keys).
+				const structuredMatch = key.match(/^([^\[\]]+)\[([^\[\]]+)\](?:\[([^\[\]]+)\])?$/);
+				if (structuredMatch) {
+					this.assignStructuredValue(data, structuredMatch[1], structuredMatch[2], structuredMatch[3], value);
+					continue;
+				}
+
 				// Remove [] from field name
 				let fieldName = key;
 				const isArray = fieldName.endsWith('[]');
@@ -1749,7 +1827,81 @@
 				}
 			}
 
+			// Dense-normalize structured rows: drop gaps left by sparse or
+			// forged row indexes (filter skips array holes; checkbox arrays
+			// have no holes so they pass through unchanged).
+			for (const k of Object.keys(data)) {
+				if (Array.isArray(data[k])) {
+					data[k] = data[k].filter((v) => v !== undefined);
+				}
+			}
+
 			return data;
+		}
+
+		// Assign one structured bracket-name entry into data:
+		//   parent[sub]       -> group object   (non-numeric sub key)
+		//   parent[row][sub]  -> repeater rows  (numeric row, non-numeric sub)
+		// Guards: prototype-polluting keys are rejected, row indexes and
+		// per-object key counts are capped, and entries whose target was
+		// already claimed by another shape are dropped. Returns whether the
+		// value was assigned.
+		assignStructuredValue(data, parent, key1, key2, value) {
+			const MAX_ROWS = 100;
+			const MAX_KEYS = 50;
+			const isUnsafe = (k) => k === '__proto__' || k === 'prototype' || k === 'constructor';
+			const isIndex = (k) => /^\d+$/.test(k);
+
+			if (isUnsafe(parent) || isUnsafe(key1) || (key2 !== undefined && isUnsafe(key2))) {
+				return false;
+			}
+
+			if (key2 === undefined) {
+				// Group object: parent[sub]
+				if (isIndex(key1)) {
+					return false;
+				}
+				if (data[parent] === undefined) {
+					data[parent] = {};
+				}
+				const target = data[parent];
+				if (typeof target !== 'object' || target === null || Array.isArray(target)) {
+					return false;
+				}
+				if (!(key1 in target) && Object.keys(target).length >= MAX_KEYS) {
+					return false;
+				}
+				target[key1] = value;
+				return true;
+			}
+
+			// Repeater rows: parent[row][sub]
+			if (!isIndex(key1) || isIndex(key2)) {
+				return false;
+			}
+			const row = parseInt(key1, 10);
+			if (row >= MAX_ROWS) {
+				return false;
+			}
+			if (data[parent] === undefined) {
+				data[parent] = [];
+			}
+			const rows = data[parent];
+			if (!Array.isArray(rows)) {
+				return false;
+			}
+			if (rows[row] === undefined) {
+				rows[row] = {};
+			}
+			const rowObj = rows[row];
+			if (typeof rowObj !== 'object' || rowObj === null || Array.isArray(rowObj)) {
+				return false;
+			}
+			if (!(key2 in rowObj) && Object.keys(rowObj).length >= MAX_KEYS) {
+				return false;
+			}
+			rowObj[key2] = value;
+			return true;
 		}
 
 		handleSuccess(response) {
@@ -1781,8 +1933,9 @@
 				// Clear form
 				this.form.reset();
 
-				// Dispatch custom event
-				this.form.dispatchEvent(new CustomEvent('fplant:success', { detail: response.data }));
+				// Dispatch custom event via the shared helper so it bubbles like
+				// every other fplant:* event (detail stays the raw response data)
+				this.dispatchFplantEvent('fplant:success', response.data);
 			} else {
 				this.showErrors(response.data.message, response.data.errors);
 				// Show field-specific errors (works even in HTML template mode without a
@@ -1952,6 +2105,54 @@
 			return div.innerHTML;
 		}
 
+		// Plain-text formatting for array / structured (extension) field values.
+		// Mirrors the PHP boundary (FPLANT_Field_Manager::format_submission_value):
+		// flat arrays keep the ', ' join, repeater rows become numbered
+		// "label: value / ..." lines, group objects a single such line.
+		formatStructuredValue(fieldValue, fieldName) {
+			if (Array.isArray(fieldValue)) {
+				const hasObjectItems = fieldValue.some(
+					(item) => item !== null && typeof item === 'object'
+				);
+				if (!hasObjectItems) {
+					return fieldValue.join(', ');
+				}
+				return fieldValue
+					.map((row, i) => (i + 1) + '. ' + this.formatRowAsLine(row, fieldName))
+					.join('\n');
+			}
+			return this.formatRowAsLine(fieldValue, fieldName);
+		}
+
+		// One row / group object -> "label: value / label: value".
+		// Sub-field labels resolve from fplantFieldsConfig when available.
+		formatRowAsLine(row, fieldName) {
+			if (row === null || typeof row !== 'object') {
+				return String(row);
+			}
+			const subFields = this.getSubFieldDefs(fieldName);
+			return Object.keys(row)
+				.map((subName) => {
+					let v = row[subName];
+					if (Array.isArray(v)) {
+						v = v.join(', ');
+					}
+					const def = subFields.find((s) => s && s.name === subName);
+					const label = def && def.label ? def.label : subName;
+					return label + ': ' + v;
+				})
+				.join(' / ');
+		}
+
+		getSubFieldDefs(fieldName) {
+			const cfg = window.fplantFieldsConfig && window.fplantFieldsConfig[this.formId];
+			if (!cfg) {
+				return [];
+			}
+			const field = cfg.find((f) => f && f.name === fieldName);
+			return field && Array.isArray(field.sub_fields) ? field.sub_fields : [];
+		}
+
 		dispatchFplantEvent(eventName, detail, cancelable) {
 			const event = new CustomEvent(eventName, {
 				detail: detail || {},
@@ -1959,6 +2160,29 @@
 				cancelable: cancelable || false
 			});
 			return this.form.dispatchEvent(event);
+		}
+
+		// Resolve a field's normalized value by name (backs the public
+		// window.fplant.getFieldValue API and fplant:fieldChange payloads).
+		// Composite fields resolve via their synthesized hidden input; returns
+		// null when no input with that name exists (e.g. address sub-fields).
+		getFieldValueByName(fieldName) {
+			const fields = this.form.querySelectorAll('[name="' + fieldName + '"], [name="' + fieldName + '[]"]');
+			if (!fields.length) return null;
+			const firstField = fields[0];
+			const fieldType = firstField.getAttribute('type') || firstField.tagName.toLowerCase();
+			return this.getFieldValue(fieldName, fields, fieldType);
+		}
+
+		// Extension hook: a field's normalized value may have changed.
+		// Granularity is change-based for plain fields and synthesis-based
+		// (per input) for composite fields; listeners debounce as needed.
+		dispatchFieldChange(fieldName) {
+			this.dispatchFplantEvent('fplant:fieldChange', {
+				formId: this.formId,
+				fieldName: fieldName,
+				value: this.getFieldValueByName(fieldName)
+			});
 		}
 
 		getFieldValue(fieldName, fields, fieldType) {
@@ -1990,6 +2214,26 @@
 			}
 
 			return null;
+		}
+
+		isAcceptanceField(fieldName) {
+			// Detect from the rendered markup so it works on shortcode, iframe
+			// and JS-embed pages alike (fplantFieldsConfig is not always present).
+			return !!this.form.querySelector(
+				'.fplant-field-group[data-field-name="' + fieldName + '"] .fplant-field-acceptance'
+			);
+		}
+
+		isHiddenFromConfirmation(fieldName) {
+			// Acceptance fields appear on the confirmation screen only when
+			// acceptance_show_confirmation is enabled (default OFF). Client-side
+			// fallback rendering; the server templates skip them independently.
+			const fieldsConfig = window.fplantFieldsConfig && window.fplantFieldsConfig[this.formId];
+			if (!fieldsConfig) {
+				return false;
+			}
+			const fieldConfig = fieldsConfig.find(f => f.name === fieldName);
+			return !!(fieldConfig && fieldConfig.type === 'acceptance' && !fieldConfig.acceptance_show_confirmation);
 		}
 
 		renderConfirmationTemplate(template, formData, title, message, buttonTexts) {
@@ -2024,13 +2268,18 @@
 							}
 						}
 
+						// Acceptance stores '1'; show the shared "Agreed" wording
+						if (this.isAcceptanceField(fieldName)) {
+							fieldValue = fieldValue ? fplantData.i18n.agreed : '';
+						}
+
 						// Convert value to label for select/radio/checkbox fields
 						if (this.isChoiceField(fieldName)) {
 							fieldValue = this.getOptionLabel(fieldName, fieldValue);
 						}
 
-						if (Array.isArray(fieldValue)) {
-							fieldValue = fieldValue.join(', ');
+						if (fieldValue !== null && typeof fieldValue === 'object') {
+							fieldValue = this.formatStructuredValue(fieldValue, fieldName);
 						}
 
 						html = html.replace(match, this.escapeHtml(fieldValue));
@@ -2085,6 +2334,11 @@
 					return;
 				}
 
+				// Skip acceptance fields configured to hide from the confirmation screen
+				if (this.isHiddenFromConfirmation(fieldName)) {
+					return;
+				}
+
 				const fieldLabel = this.getFieldLabel(fieldName);
 				let fieldValue = formData[fieldName];
 
@@ -2105,14 +2359,19 @@
 					fieldValue = fieldValue ? '\u25CF'.repeat(fieldValue.length) : '';
 				}
 
+				// Acceptance stores '1'; show the shared "Agreed" wording
+				if (this.isAcceptanceField(fieldName)) {
+					fieldValue = fieldValue ? fplantData.i18n.agreed : '';
+				}
+
 				// Convert value to label for select/radio/checkbox fields
 				if (this.isChoiceField(fieldName)) {
 					fieldValue = this.getOptionLabel(fieldName, fieldValue);
 				}
 
-				// Join array values with comma
-				if (Array.isArray(fieldValue)) {
-					fieldValue = fieldValue.join(', ');
+				// Format arrays and structured (extension) values as plain text
+				if (fieldValue !== null && typeof fieldValue === 'object') {
+					fieldValue = this.formatStructuredValue(fieldValue, fieldName);
 				}
 
 				// Escape value then convert newlines to <br>

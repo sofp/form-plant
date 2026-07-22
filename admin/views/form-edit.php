@@ -115,6 +115,9 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 			<button type="button" class="fplant-tab" data-tab="tab-settings">
 				<?php esc_html_e( 'Form Settings', 'form-plant' ); ?>
 			</button>
+			<button type="button" class="fplant-tab" data-tab="tab-integrations">
+				<?php esc_html_e( 'Integrations', 'form-plant' ); ?>
+			</button>
 			<button type="button" class="fplant-tab" data-tab="tab-spam">
 				<?php esc_html_e( 'Spam Protection', 'form-plant' ); ?>
 			</button>
@@ -1282,6 +1285,74 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 			<?php endif; ?>
 		</div>
 
+		<!-- Integrations tab -->
+		<div id="tab-integrations" class="fplant-tab-content">
+			<div class="fplant-card">
+				<div class="fplant-card-header">
+					<?php esc_html_e( 'Webhooks', 'form-plant' ); ?>
+				</div>
+
+				<p class="description" style="margin-bottom: 16px;">
+					<?php esc_html_e( 'When a submission completes, the form data is sent as signed JSON (POST) to the URLs below — for Zapier, Make, Google Apps Script or your own API. Up to 3 destinations per form, HTTPS only.', 'form-plant' ); ?>
+				</p>
+
+				<?php
+				$fplant_webhooks = isset( $fplant_form['settings']['webhooks'] ) && is_array( $fplant_form['settings']['webhooks'] )
+					? $fplant_form['settings']['webhooks']
+					: array();
+
+				// Single source for the row markup: used for saved rows and for
+				// the <template> cloned by admin.js when adding a new row.
+				$fplant_webhook_render_row = function ( $fplant_wh ) {
+					?>
+					<div class="fplant-webhook-row" style="border: 1px solid #dcdcde; border-radius: 6px; padding: 14px 16px; margin-bottom: 12px;">
+						<div class="fplant-form-group">
+							<label class="fplant-checkbox">
+								<input type="checkbox" class="fplant-webhook-enabled" <?php checked( ! empty( $fplant_wh['enabled'] ) ); ?>>
+								<?php esc_html_e( 'Enable this webhook', 'form-plant' ); ?>
+							</label>
+						</div>
+						<div class="fplant-form-group">
+							<label><?php esc_html_e( 'Destination URL', 'form-plant' ); ?></label>
+							<input type="url" class="fplant-webhook-url widefat" placeholder="https://example.com/webhook" value="<?php echo esc_attr( $fplant_wh['url'] ?? '' ); ?>">
+						</div>
+						<div class="fplant-form-group">
+							<label><?php esc_html_e( 'Signing secret', 'form-plant' ); ?></label>
+							<input type="text" class="fplant-webhook-secret widefat" readonly value="<?php echo esc_attr( $fplant_wh['secret'] ?? '' ); ?>">
+							<p class="description"><?php esc_html_e( 'Used for the X-FPlant-Signature header (HMAC-SHA256). Keep it secret.', 'form-plant' ); ?></p>
+						</div>
+						<div class="fplant-form-group" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+							<button type="button" class="button fplant-webhook-regenerate" data-confirm="<?php esc_attr_e( 'Regenerate the secret? The receiver must be updated with the new value.', 'form-plant' ); ?>"><?php esc_html_e( 'Regenerate secret', 'form-plant' ); ?></button>
+							<button type="button" class="button fplant-webhook-test"><?php esc_html_e( 'Send test', 'form-plant' ); ?></button>
+							<button type="button" class="button-link-delete fplant-webhook-remove"><?php esc_html_e( 'Remove', 'form-plant' ); ?></button>
+							<span class="fplant-webhook-test-result" aria-live="polite"></span>
+						</div>
+					</div>
+					<?php
+				};
+				?>
+				<div class="fplant-webhook-rows" data-max="3">
+					<?php
+					foreach ( $fplant_webhooks as $fplant_wh ) {
+						$fplant_webhook_render_row( $fplant_wh );
+					}
+					?>
+				</div>
+
+				<button type="button" class="fplant-button fplant-webhook-add"<?php echo count( $fplant_webhooks ) >= 3 ? ' style="display:none;"' : ''; ?>>
+					<?php esc_html_e( '+ Add Webhook', 'form-plant' ); ?>
+				</button>
+
+				<p class="description" style="margin-top: 12px;">
+					<?php esc_html_e( 'Save the form to apply webhook changes. Delivery results are shown in each submission\'s detail view.', 'form-plant' ); ?>
+				</p>
+
+				<template id="fplant-webhook-row-template">
+					<?php $fplant_webhook_render_row( array( 'enabled' => true ) ); ?>
+				</template>
+			</div>
+		</div>
+
 		<!-- Spam Protection tab -->
 		<div id="tab-spam" class="fplant-tab-content">
 
@@ -1560,6 +1631,32 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 			<div class="fplant-form-group">
 				<label for="fplant-field-label"><?php esc_html_e( 'Field Label', 'form-plant' ); ?> <span class="required">*</span></label>
 				<input type="text" id="fplant-field-label" class="fplant-form-control" placeholder="<?php esc_attr_e( 'Your Name', 'form-plant' ); ?>">
+			</div>
+
+			<!-- Acceptance Settings (for acceptance) -->
+			<div id="fplant-field-acceptance-section" class="fplant-form-group" style="display: none;">
+				<label for="fplant-field-acceptance-text"><?php esc_html_e( 'Consent Text', 'form-plant' ); ?></label>
+				<textarea id="fplant-field-acceptance-text" class="fplant-form-control" rows="2"></textarea>
+				<?php // The example markup is intentionally displayed as code. ?>
+				<p class="description"><?php esc_html_e( 'Text displayed next to the checkbox. If left blank, the field label is used. HTML tags for links and emphasis (a, strong, em, br) are allowed. Example: I agree to the <a href="https://example.com/privacy/" target="_blank">Privacy Policy</a>', 'form-plant' ); ?></p>
+				<div style="margin-top: 12px;">
+					<label class="fplant-checkbox" style="font-weight: normal; display: block; margin-bottom: 6px;">
+						<input type="checkbox" id="fplant-field-acceptance-show-label">
+						<?php esc_html_e( 'Show the field label on the form', 'form-plant' ); ?>
+					</label>
+					<label class="fplant-checkbox" style="font-weight: normal; display: block; margin-bottom: 6px;">
+						<input type="checkbox" id="fplant-field-acceptance-show-confirmation">
+						<?php esc_html_e( 'Show on the confirmation screen', 'form-plant' ); ?>
+					</label>
+					<label class="fplant-checkbox" style="font-weight: normal; display: block; margin-bottom: 6px;">
+						<input type="checkbox" id="fplant-field-acceptance-show-email">
+						<?php esc_html_e( 'Include in emails ({all_fields})', 'form-plant' ); ?>
+					</label>
+					<label class="fplant-checkbox" style="font-weight: normal; display: block;">
+						<input type="checkbox" id="fplant-field-acceptance-save-submission">
+						<?php esc_html_e( 'Save to submission data', 'form-plant' ); ?>
+					</label>
+				</div>
 			</div>
 
 			<div class="fplant-form-group">
@@ -2021,6 +2118,8 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 			<div class="fplant-checkbox">
 				<input type="checkbox" id="fplant-field-required">
 				<label for="fplant-field-required"><?php esc_html_e( 'Required Field', 'form-plant' ); ?></label>
+				<?php // Shown for the acceptance type, whose required flag is fixed ON (admin.js). ?>
+				<p id="fplant-field-required-fixed-note" class="description" style="display: none;"><?php esc_html_e( 'Acceptance fields are always required.', 'form-plant' ); ?></p>
 			</div>
 
 			<div class="fplant-form-group">

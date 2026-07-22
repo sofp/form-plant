@@ -345,6 +345,8 @@ class FPLANT_Embed extends FPLANT_Rewrite_Endpoint {
 				'i18n'            => array(
 					'validationError'     => __( 'There are errors in your input', 'form-plant' ),
 					'requiredCheckbox'    => __( 'This field is required. Please select at least one option.', 'form-plant' ),
+					'requiredAcceptance'  => __( 'You must agree before submitting.', 'form-plant' ),
+					'agreed'              => __( 'Agreed', 'form-plant' ),
 					'requiredRadio'       => __( 'This field is required. Please make a selection.', 'form-plant' ),
 					'requiredSelect'      => __( 'This field is required. Please make a selection.', 'form-plant' ),
 					'requiredFile'        => __( 'This field is required. Please select a file.', 'form-plant' ),

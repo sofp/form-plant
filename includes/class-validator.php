@@ -37,6 +37,30 @@ class FPLANT_Validator {
 			$field_name = $field['name'];
 			$value      = isset( $data[ $field_name ] ) ? $data[ $field_name ] : '';
 
+			// Acceptance fields are always required regardless of the stored
+			// required flag: consent must be explicit on every submission.
+			if ( 'acceptance' === $field['type'] ) {
+				if ( empty( $value ) || '0' === $value ) {
+					$message = ! empty( $field['validation_message'] )
+						? $field['validation_message']
+						: __( 'You must agree before submitting.', 'form-plant' );
+
+					/**
+					 * Filters the validation message for an unchecked acceptance field.
+					 *
+					 * Follows the fplant_validation_message_{type} convention.
+					 *
+					 * @since 1.4.0
+					 * @param string $message Validation message.
+					 * @param array  $field   Field configuration.
+					 * @param mixed  $value   Submitted value.
+					 * @param array  $context Context (type of failure).
+					 */
+					$errors[ $field_name ] = apply_filters( 'fplant_validation_message_acceptance', $message, $field, $value, array( 'type' => 'required' ) );
+				}
+				continue;
+			}
+
 			// Required check
 			if ( ! empty( $field['required'] ) ) {
 				$is_empty = false;

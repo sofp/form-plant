@@ -60,7 +60,10 @@
 		'postal_target_pref', 'postal_target_addr1', 'postal_target_addr2',
 		// prefecture / address
 		'pref_display_type',
-		'address_labels', 'address_placeholders', 'address_validation_messages'
+		'address_labels', 'address_placeholders', 'address_validation_messages',
+		// acceptance
+		'acceptance_text', 'acceptance_show_label', 'acceptance_show_confirmation',
+		'acceptance_show_email', 'acceptance_save_submission'
 	];
 
 	// Pro field-editor tab registry (extension socket §5-A). Pro registers additional
@@ -280,6 +283,13 @@
 		// Set custom mail tag settings
 		$('#fplant-field-cmt-display-in-form').prop('checked', field && typeof field.display_in_form !== 'undefined' ? !!field.display_in_form : true);
 		$('#fplant-field-cmt-display-wrapper').val(field && field.display_wrapper ? field.display_wrapper : 'span');
+
+		// Set acceptance settings (every visibility/save toggle defaults to OFF)
+		$('#fplant-field-acceptance-text').val(field && field.acceptance_text ? field.acceptance_text : '');
+		$('#fplant-field-acceptance-show-label').prop('checked', field ? !!field.acceptance_show_label : false);
+		$('#fplant-field-acceptance-show-confirmation').prop('checked', field ? !!field.acceptance_show_confirmation : false);
+		$('#fplant-field-acceptance-show-email').prop('checked', field ? !!field.acceptance_show_email : false);
+		$('#fplant-field-acceptance-save-submission').prop('checked', field ? !!field.acceptance_save_submission : false);
 
 		// Set name parts settings
 		$('#fplant-field-name-format').val(field && field.name_format ? field.name_format : '2');
@@ -539,8 +549,9 @@
 		$('#fplant-field-address-validation-section').toggle(fieldType === 'address');
 		$('#fplant-field-password-validation-section').toggle(fieldType === 'password');
 
-		// Default value setting (show for all types except file, html, name_parts, name_kana, password, address, postal_code, prefecture)
-		const noDefaultTypes = ['file', 'html', 'name_parts', 'name_kana', 'password', 'address', 'postal_code', 'prefecture'];
+		// Default value setting (show for all types except file, html, name_parts, name_kana, password, address, postal_code, prefecture, acceptance)
+		// acceptance: a pre-checked consent box would defeat explicit consent.
+		const noDefaultTypes = ['file', 'html', 'name_parts', 'name_kana', 'password', 'address', 'postal_code', 'prefecture', 'acceptance'];
 		if (!noDefaultTypes.includes(fieldType)) {
 			$('#fplant-field-default-value-section').show();
 		} else {
@@ -569,6 +580,27 @@
 			$requiredGroup.show();
 			$validationGroup.show();
 		}
+
+		// Acceptance: consent is always required — force the toggle ON and lock it.
+		// Re-enable for every other type (commitEditor also forces required=true).
+		const isAcceptance = fieldType === 'acceptance';
+		if (isAcceptance) {
+			$('#fplant-field-required').prop('checked', true).prop('disabled', true);
+		} else {
+			$('#fplant-field-required').prop('disabled', false);
+		}
+		$('#fplant-field-required-fixed-note').toggle(isAcceptance);
+		// The acceptance default message differs from the generic one; reflect it
+		// in the validation-message placeholder.
+		$('#fplant-field-validation-message').attr('placeholder', isAcceptance
+			? (fplantAdminData.i18n.acceptanceDefaultMessage || '')
+			: (fplantAdminData.i18n.validationMessagePlaceholder || ''));
+		// Acceptance settings section (consent text + display/save toggles).
+		$('#fplant-field-acceptance-section').toggle(isAcceptance);
+		// The label is the item name here (e.g. "Consent"); hint at that.
+		$('#fplant-field-label').attr('placeholder', isAcceptance
+			? (fplantAdminData.i18n.acceptanceLabelPlaceholder || '')
+			: (fplantAdminData.i18n.labelPlaceholder || ''));
 
 		// Placeholder is only for text input types and select (name_parts/address have own per-part placeholders)
 		const hasPlaceholder = ['text', 'email', 'tel', 'url', 'number', 'textarea', 'select', 'password', 'postal_code'].includes(fieldType);
@@ -1058,6 +1090,17 @@
 				if (!field.label) {
 					field.label = field.name;
 				}
+			}
+
+			// For acceptance type: consent is always required — force the flag so
+			// the stored value never depends on the (locked) toggle state.
+			if (fieldType === 'acceptance') {
+				field.required = true;
+				field.acceptance_text = $('#fplant-field-acceptance-text').val().trim();
+				field.acceptance_show_label = $('#fplant-field-acceptance-show-label').is(':checked');
+				field.acceptance_show_confirmation = $('#fplant-field-acceptance-show-confirmation').is(':checked');
+				field.acceptance_show_email = $('#fplant-field-acceptance-show-email').is(':checked');
+				field.acceptance_save_submission = $('#fplant-field-acceptance-save-submission').is(':checked');
 			}
 
 			// For name parts types
@@ -2831,7 +2874,9 @@
 			// Disposable email blocking
 			spam_disposable_email_block: $('.fplant-setting-spam-disposable-email-block').is(':checked'),
 			// URL parameter settings
-			allow_url_params: $('.fplant-setting-allow-url-params').is(':checked')
+			allow_url_params: $('.fplant-setting-allow-url-params').is(':checked'),
+			// Webhooks (Integrations tab)
+			webhooks: fplantCollectWebhooks()
 		};
 
 		const formData = {
@@ -3573,6 +3618,91 @@
 			}
 			originalSettings = $.extend(true, {}, fplantAdminData.formData.settings || {});
 		}
+	});
+
+	// ==========================================
+	// Webhooks (Integrations tab)
+	// ==========================================
+
+	function fplantGenerateWebhookSecret() {
+		const bytes = new Uint8Array(16);
+		window.crypto.getRandomValues(bytes);
+		return Array.prototype.map.call(bytes, function (b) {
+			return ('0' + b.toString(16)).slice(-2);
+		}).join('');
+	}
+
+	// Collect webhook rows for the save payload. Rows without a URL are
+	// dropped server-side (FPLANT_Webhook::sanitize_settings).
+	function fplantCollectWebhooks() {
+		const rows = [];
+		$('#tab-integrations .fplant-webhook-rows .fplant-webhook-row').each(function () {
+			const $row = $(this);
+			rows.push({
+				enabled: $row.find('.fplant-webhook-enabled').is(':checked'),
+				url: ($row.find('.fplant-webhook-url').val() || '').trim(),
+				secret: $row.find('.fplant-webhook-secret').val() || ''
+			});
+		});
+		return rows;
+	}
+
+	function fplantUpdateWebhookAddButton() {
+		const $rows = $('#tab-integrations .fplant-webhook-rows');
+		if (!$rows.length) {
+			return;
+		}
+		const max = parseInt($rows.data('max'), 10) || 3;
+		$('.fplant-webhook-add').toggle($rows.find('.fplant-webhook-row').length < max);
+	}
+
+	$(document).on('click', '.fplant-webhook-add', function () {
+		const tpl = document.getElementById('fplant-webhook-row-template');
+		if (!tpl) {
+			return;
+		}
+		const $row = $(tpl.content.firstElementChild.cloneNode(true));
+		$row.find('.fplant-webhook-secret').val(fplantGenerateWebhookSecret());
+		$('#tab-integrations .fplant-webhook-rows').append($row);
+		fplantUpdateWebhookAddButton();
+	});
+
+	$(document).on('click', '.fplant-webhook-remove', function () {
+		$(this).closest('.fplant-webhook-row').remove();
+		fplantUpdateWebhookAddButton();
+	});
+
+	$(document).on('click', '.fplant-webhook-regenerate', function () {
+		if (!window.confirm($(this).data('confirm'))) {
+			return;
+		}
+		$(this).closest('.fplant-webhook-row').find('.fplant-webhook-secret').val(fplantGenerateWebhookSecret());
+	});
+
+	$(document).on('click', '.fplant-webhook-test', function () {
+		const $btn = $(this);
+		const $row = $btn.closest('.fplant-webhook-row');
+		const $result = $row.find('.fplant-webhook-test-result');
+		$btn.prop('disabled', true);
+		$result.text('…').css('color', '');
+		$.ajax({
+			url: fplantAdminData.ajaxUrl,
+			type: 'POST',
+			data: {
+				action: 'fplant_webhook_test',
+				nonce: fplantAdminData.nonce,
+				form_id: $('.fplant-save-form').data('form-id') || 0,
+				url: ($row.find('.fplant-webhook-url').val() || '').trim(),
+				secret: $row.find('.fplant-webhook-secret').val() || ''
+			}
+		}).done(function (response) {
+			const data = (response && response.data) || {};
+			$result.text(data.message || '').css('color', response && response.success ? '#1a7f37' : '#b32d2e');
+		}).fail(function () {
+			$result.text('Request failed').css('color', '#b32d2e');
+		}).always(function () {
+			$btn.prop('disabled', false);
+		});
 	});
 
 })(jQuery);

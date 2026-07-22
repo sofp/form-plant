@@ -99,7 +99,7 @@ class FPLANT_Submission_Manager {
 		}
 
 		// Sanitize data
-		$sanitized_data = $this->sanitize_submission_data( $data, $form['fields'] );
+		$sanitized_data = $this->sanitize_submission_data( $data, $form['fields'], $form_id );
 
 		// Filter: modify submission data
 		$sanitized_data = apply_filters( 'fplant_submission_data', $sanitized_data, $form_id );
@@ -141,7 +141,29 @@ class FPLANT_Submission_Manager {
 				$save_data = array();
 			}
 
-			$submission_id = FPLANT_Database::save_submission( $form_id, $save_data );
+			// Drop acceptance fields unless configured to be stored (default
+			// OFF; their value still reaches emails/webhooks — only the DB
+			// record omits them).
+			foreach ( $form['fields'] as $fplant_acc_field ) {
+				if ( 'acceptance' === $fplant_acc_field['type']
+					&& empty( $fplant_acc_field['acceptance_save_submission'] ) ) {
+					unset( $save_data[ $fplant_acc_field['name'] ] );
+				}
+			}
+
+			// Snapshot the consent wording of every checked acceptance field
+			// being stored, so the record shows what the user agreed to even
+			// after the wording changes. (Dropped fields have no value left in
+			// $save_data, so they are skipped naturally.)
+			$extra = array();
+			if ( 'metadata_only' !== $save_submission ) {
+				$acceptance_snapshot = self::build_acceptance_snapshot( $form['fields'], $save_data );
+				if ( ! empty( $acceptance_snapshot ) ) {
+					$extra['acceptance'] = $acceptance_snapshot;
+				}
+			}
+
+			$submission_id = FPLANT_Database::save_submission( $form_id, $save_data, $extra );
 
 			if ( ! $submission_id ) {
 				return array(
@@ -156,6 +178,10 @@ class FPLANT_Submission_Manager {
 
 		// Send emails
 		$this->send_emails( $form, $sanitized_data, $submission_id );
+
+		// Generic webhooks (preview runs return before this point, so they
+		// never trigger deliveries)
+		FPLANT_Webhook::dispatch( $form, $form_id, $sanitized_data, $submission_id );
 
 		// Action: custom processing after submission (external API integration, etc.)
 		do_action( 'fplant_after_submission_complete', $sanitized_data, $form_id, $form, $submission_id );
@@ -176,11 +202,13 @@ class FPLANT_Submission_Manager {
 		 * MW WP Form's mwform_complete_content equivalent.
 		 *
 		 * @since 1.2.0
+		 * @since 1.4.0 Added the $form parameter.
 		 * @param string $success_message Completion message.
 		 * @param int    $form_id         Form ID.
 		 * @param array  $sanitized_data  Submitted data.
+		 * @param array  $form            Full form configuration.
 		 */
-		$success_message = apply_filters( 'fplant_complete_message', $success_message, $form_id, $sanitized_data );
+		$success_message = apply_filters( 'fplant_complete_message', $success_message, $form_id, $sanitized_data, $form );
 
 		// Get action type
 		$action_type = ! empty( $form['settings']['action_type'] ) ? $form['settings']['action_type'] : 'message';
@@ -200,11 +228,13 @@ class FPLANT_Submission_Manager {
 			 * MW WP Form's mwform_redirect_url equivalent.
 			 *
 			 * @since 1.2.0
+			 * @since 1.4.0 Added the $form parameter.
 			 * @param string $redirect_url   Redirect URL from form settings.
 			 * @param int    $form_id        Form ID.
 			 * @param array  $sanitized_data Submitted data.
+			 * @param array  $form           Full form configuration.
 			 */
-			$redirect_url           = apply_filters( 'fplant_redirect_url', $form['settings']['redirect_url'], $form_id, $sanitized_data );
+			$redirect_url           = apply_filters( 'fplant_redirect_url', $form['settings']['redirect_url'], $form_id, $sanitized_data, $form );
 			$result['redirect_url'] = esc_url_raw( $redirect_url );
 		} elseif ( 'custom_page' === $action_type && ! empty( $form['settings']['success_page_html'] ) ) {
 			/**
@@ -213,11 +243,13 @@ class FPLANT_Submission_Manager {
 			 * MW WP Form's mwform_complete_content equivalent.
 			 *
 			 * @since 1.2.0
+			 * @since 1.4.0 Added the $form parameter.
 			 * @param string $success_page_html Completion page HTML (placeholders already replaced).
 			 * @param int    $form_id           Form ID.
 			 * @param array  $sanitized_data    Submitted data.
+			 * @param array  $form              Full form configuration.
 			 */
-			$result['success_page_html'] = apply_filters( 'fplant_success_html', fplant_replace_template_values( $form['settings']['success_page_html'], $form_id ), $form_id, $sanitized_data );
+			$result['success_page_html'] = apply_filters( 'fplant_success_html', fplant_replace_template_values( $form['settings']['success_page_html'], $form_id ), $form_id, $sanitized_data, $form );
 		}
 
 		return $result;
@@ -549,9 +581,10 @@ class FPLANT_Submission_Manager {
 	 *
 	 * @param array $data Submission data.
 	 * @param array $fields Field settings.
+	 * @param int   $form_id Form ID (passed to the fplant_sanitize_field_value filter).
 	 * @return array
 	 */
-	private function sanitize_submission_data( $data, $fields ) {
+	private function sanitize_submission_data( $data, $fields, $form_id = 0 ) {
 		$sanitized = array();
 
 		foreach ( $fields as $field ) {
@@ -618,14 +651,78 @@ class FPLANT_Submission_Manager {
 					$sanitized[ $field_name ] = sanitize_text_field( $value );
 					break;
 
+				case 'acceptance':
+					// Validation guarantees a checked box; normalize to '1'.
+					$sanitized[ $field_name ] = ( ! empty( $value ) && '0' !== $value ) ? '1' : '';
+					break;
+
 				default:
-					$sanitized[ $field_name ] = sanitize_text_field( $value );
+					/**
+					 * Filters the sanitized value of a field type without a
+					 * dedicated sanitizer (e.g. custom types registered via
+					 * fplant_field_types).
+					 *
+					 * The default sanitizes recursively (map_deep), so array
+					 * values from extension field types survive submission
+					 * instead of being flattened to '' by sanitize_text_field.
+					 * Scalar values keep the previous sanitize_text_field
+					 * behavior. Return a replacement to apply type-appropriate
+					 * sanitization to the raw value.
+					 *
+					 * @since 1.4.0
+					 * @param mixed $sanitized_value Recursively text-sanitized value.
+					 * @param mixed $value           Raw submitted value.
+					 * @param array $field           Field configuration.
+					 * @param int   $form_id         Form ID.
+					 */
+					$sanitized[ $field_name ] = apply_filters(
+						'fplant_sanitize_field_value',
+						map_deep( $value, 'sanitize_text_field' ),
+						$value,
+						$field,
+						$form_id
+					);
 					break;
 			}
 
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Build the consent-wording snapshot for checked acceptance fields.
+	 *
+	 * Returns array( field_name => array( 'label' => ..., 'text' => ... ) )
+	 * for every acceptance field that was agreed to in this submission. The
+	 * consent text keeps its inline HTML (links included), so the record
+	 * shows exactly what wording and link targets the user consented to at
+	 * the time, even after the field is edited later. An empty 'text' means
+	 * the label itself was displayed as the consent wording.
+	 *
+	 * @since 1.4.0
+	 * @param array $fields Form field definitions.
+	 * @param array $data   Sanitized submission data.
+	 * @return array
+	 */
+	public static function build_acceptance_snapshot( $fields, $data ) {
+		$snapshot = array();
+
+		foreach ( $fields as $field ) {
+			if ( ! isset( $field['type'] ) || 'acceptance' !== $field['type'] ) {
+				continue;
+			}
+			$field_name = $field['name'];
+			if ( empty( $data[ $field_name ] ) ) {
+				continue;
+			}
+			$snapshot[ $field_name ] = array(
+				'label' => isset( $field['label'] ) ? (string) $field['label'] : '',
+				'text'  => isset( $field['acceptance_text'] ) ? (string) $field['acceptance_text'] : '',
+			);
+		}
+
+		return $snapshot;
 	}
 
 	/**
@@ -743,9 +840,15 @@ class FPLANT_Submission_Manager {
 					if ( 'html' !== $field['type'] ) {
 						$value = isset( $submission['data'][ $field['name'] ] ) ? $submission['data'][ $field['name'] ] : '';
 
-						// Convert array to comma-separated
+						// Acceptance stores '1'; export the shared wording instead.
+						if ( 'acceptance' === $field['type'] && ! empty( $value ) ) {
+							$value = FPLANT_Field_Manager::acceptance_display_value();
+						}
+
+						// Convert array values via the shared plain-text boundary
+						// (flat arrays keep the historical ', ' join).
 						if ( is_array( $value ) ) {
-							$value = implode( ', ', $value );
+							$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'csv_single', (int) $form_id );
 						}
 
 						$row[] = $this->sanitize_csv_value( $value );
@@ -771,7 +874,9 @@ class FPLANT_Submission_Manager {
 					$data_parts = array();
 					foreach ( $submission['data'] as $key => $value ) {
 						if ( is_array( $value ) ) {
-							$value = implode( ', ', $value );
+							// No field definition in the all-forms export;
+							// the boundary still renders structured values.
+							$value = FPLANT_Field_Manager::format_submission_value( $value, array(), 'csv_all', (int) $submission['form_id'] );
 						}
 						$data_parts[] = $key . ': ' . $value;
 					}

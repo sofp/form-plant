@@ -55,6 +55,7 @@ class FPLANT_Admin {
 		add_action( 'wp_ajax_fplant_get_submission_detail', array( $this, 'ajax_get_submission_detail' ) );
 		add_action( 'wp_ajax_fplant_delete_submissions', array( $this, 'ajax_delete_submissions' ) );
 		add_action( 'wp_ajax_fplant_quick_edit_form', array( $this, 'ajax_quick_edit_form' ) );
+		add_action( 'wp_ajax_fplant_webhook_test', array( $this, 'ajax_webhook_test' ) );
 		add_action( 'wp_ajax_fplant_trash_form', array( $this, 'ajax_trash_form' ) );
 		add_action( 'wp_ajax_fplant_download_file', array( $this, 'ajax_download_file' ) );
 		add_action( 'wp_ajax_fplant_export_forms', array( $this, 'ajax_export_forms' ) );
@@ -644,7 +645,9 @@ class FPLANT_Admin {
 		}
 
 		$form_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
-		$html_allowed_keys = array( 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
+		// 'acceptance_text' passes this stage with HTML intact so update_form()
+		// can apply its dedicated (stricter) kses rules.
+		$html_allowed_keys = array( 'acceptance_text', 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_json_input().
 		$form_data = FPLANT_Form_Manager::sanitize_json_input( isset( $_POST['form_data'] ) ? wp_unslash( $_POST['form_data'] ) : '', $html_allowed_keys );
 		if ( null === $form_data ) {
@@ -885,6 +888,52 @@ class FPLANT_Admin {
 	}
 
 	/**
+	 * AJAX: Send a webhook test delivery
+	 *
+	 * @since 1.4.0
+	 */
+	public function ajax_webhook_test() {
+		// Nonce verification
+		check_ajax_referer( 'fplant_admin_nonce', 'nonce' );
+
+		// Permission check
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied', 'form-plant' ) ) );
+		}
+
+		$form_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
+		$url     = isset( $_POST['url'] ) ? esc_url_raw( trim( (string) sanitize_text_field( wp_unslash( $_POST['url'] ) ) ) ) : '';
+		$secret  = isset( $_POST['secret'] ) ? preg_replace( '/[^A-Za-z0-9]/', '', sanitize_text_field( wp_unslash( $_POST['secret'] ) ) ) : '';
+
+		if ( '' === $url || '' === $secret ) {
+			wp_send_json_error( array( 'message' => __( 'Enter a destination URL first, then save or keep the generated secret.', 'form-plant' ) ) );
+		}
+
+		if ( ! FPLANT_Webhook::is_url_allowed( $url ) ) {
+			wp_send_json_error( array( 'message' => __( 'Only HTTPS URLs are allowed.', 'form-plant' ) ) );
+		}
+
+		$result = FPLANT_Webhook::send_test( $url, $secret, $form_id );
+
+		if ( 'ok' === $result['status'] ) {
+			wp_send_json_success(
+				array(
+					/* translators: %d: HTTP status code. */
+					'message' => sprintf( __( 'Delivered (HTTP %d)', 'form-plant' ), $result['http_code'] ),
+				)
+			);
+		}
+
+		$detail = $result['http_code'] > 0
+			/* translators: %d: HTTP status code. */
+			? sprintf( __( 'HTTP %d', 'form-plant' ), $result['http_code'] )
+			: $result['error'];
+
+		/* translators: %s: HTTP status or error detail. */
+		wp_send_json_error( array( 'message' => sprintf( __( 'Delivery failed (%s)', 'form-plant' ), $detail ) ) );
+	}
+
+	/**
 	 * Render submission detail HTML
 	 *
 	 * @param array $submission Submission data
@@ -958,6 +1007,23 @@ class FPLANT_Admin {
 								$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
 							}
 
+							// Acceptance stores '1'; show the shared wording plus the
+							// consent snapshot (wording and link URLs agreed to at the time).
+							if ( $field_def && 'acceptance' === $field_def['type'] && ! empty( $value ) ) {
+								$value       = FPLANT_Field_Manager::acceptance_display_value();
+								$fplant_snap = isset( $submission['acceptance'][ $field_name ] ) ? $submission['acceptance'][ $field_name ] : array();
+								// An empty snapshot text means the label itself was
+								// displayed as the consent wording.
+								$fplant_snap_text = ! empty( $fplant_snap['text'] ) ? $fplant_snap['text'] : ( $fplant_snap['label'] ?? '' );
+								if ( '' !== $fplant_snap_text ) {
+									$value .= ' — ' . trim( wp_strip_all_tags( $fplant_snap_text ) );
+									// Keep the agreed link targets visible in this plain-text cell.
+									if ( preg_match_all( '/href="([^"]+)"/', $fplant_snap_text, $fplant_snap_urls ) ) {
+										$value .= ' (' . implode( ', ', $fplant_snap_urls[1] ) . ')';
+									}
+								}
+							}
+
 							// Check if file field
 							if ( is_array( $value ) && isset( $value['url'] ) && isset( $value['filename'] ) ) :
 								// Generate AJAX download endpoint URL
@@ -989,9 +1055,15 @@ class FPLANT_Admin {
 									</td>
 								</tr>
 							<?php else :
-								// Display comma-separated if array
+								// Arrays (flat and structured) render via the shared
+								// plain-text boundary; flat arrays keep the ', ' join.
 								if ( is_array( $value ) ) {
-									$value = implode( ', ', $value );
+									$value = FPLANT_Field_Manager::format_submission_value(
+										$value,
+										$field_def ? $field_def : array(),
+										'admin_detail',
+										isset( $form['id'] ) ? (int) $form['id'] : 0
+									);
 								}
 								?>
 								<tr>
@@ -1003,6 +1075,40 @@ class FPLANT_Admin {
 					</table>
 				<?php endif; ?>
 			</div>
+
+			<?php if ( ! empty( $submission['webhook_deliveries'] ) && is_array( $submission['webhook_deliveries'] ) ) : ?>
+				<div class="fplant-submission-webhooks" style="margin-top: 20px;">
+					<h3><?php esc_html_e( 'Webhook Deliveries', 'form-plant' ); ?></h3>
+					<table class="fplant-table">
+						<tr>
+							<th><?php esc_html_e( 'Destination URL', 'form-plant' ); ?></th>
+							<th><?php esc_html_e( 'Result', 'form-plant' ); ?></th>
+							<th><?php esc_html_e( 'Attempted At', 'form-plant' ); ?></th>
+						</tr>
+						<?php foreach ( $submission['webhook_deliveries'] as $fplant_delivery ) : ?>
+							<tr>
+								<td style="word-break: break-all;"><?php echo esc_html( $fplant_delivery['url'] ?? '' ); ?></td>
+								<td>
+									<?php if ( 'ok' === ( $fplant_delivery['status'] ?? '' ) ) : ?>
+										<span style="color: #1a7f37;">✓ <?php esc_html_e( 'Delivered', 'form-plant' ); ?></span>
+									<?php else : ?>
+										<span style="color: #b32d2e;">✗ <?php esc_html_e( 'Failed', 'form-plant' ); ?></span>
+									<?php endif; ?>
+									<?php if ( ! empty( $fplant_delivery['http_code'] ) ) : ?>
+										(HTTP <?php echo esc_html( (string) $fplant_delivery['http_code'] ); ?>)
+									<?php elseif ( ! empty( $fplant_delivery['error'] ) ) : ?>
+										(<?php echo esc_html( $fplant_delivery['error'] ); ?>)
+									<?php endif; ?>
+									<?php if ( ! empty( $fplant_delivery['retried'] ) ) : ?>
+										<span class="description"><?php esc_html_e( '(retried)', 'form-plant' ); ?></span>
+									<?php endif; ?>
+								</td>
+								<td><?php echo esc_html( $fplant_delivery['attempted_at'] ?? '' ); ?></td>
+							</tr>
+						<?php endforeach; ?>
+					</table>
+				</div>
+			<?php endif; ?>
 		</div>
 		<?php
 		return ob_get_clean();

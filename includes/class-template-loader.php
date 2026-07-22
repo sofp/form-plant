@@ -55,6 +55,7 @@ class FPLANT_Template_Loader {
 		'prefecture',
 		'address',
 		'custom_mail_tag',
+		'acceptance',
 	);
 
 	/**

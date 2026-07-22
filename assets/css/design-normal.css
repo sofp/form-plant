@@ -78,9 +78,10 @@
 	appearance: none;
 }
 
-/* Radio buttons and checkboxes */
+/* Radio buttons, checkboxes and acceptance (no input-box frame, incl. error state) */
 .fplant-field-radio,
-.fplant-field-checkbox {
+.fplant-field-checkbox,
+.fplant-field-acceptance {
 	border: none;
 	padding: 0;
 }
@@ -844,6 +845,7 @@
 /* Composite fields: remove border/padding that .fplant-field adds */
 .fplant-form-wrapper .fplant-field-radio,
 .fplant-form-wrapper .fplant-field-checkbox,
+.fplant-form-wrapper .fplant-field-acceptance,
 .fplant-form-wrapper .fplant-field-date-select,
 .fplant-form-wrapper .fplant-field-name-parts,
 .fplant-form-wrapper .fplant-field-name-kana,

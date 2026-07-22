@@ -235,12 +235,14 @@
  * scales to whatever box .dashicons sets in each context (list row 20px, picker 24px).
  */
 .fplant-icon-postal-ja::before,
-.fplant-icon-namekana-ja::before {
+.fplant-icon-namekana-ja::before,
+.fplant-icon-acceptance::before {
 	content: "";
 }
 
 .fplant-icon-postal-ja,
-.fplant-icon-namekana-ja {
+.fplant-icon-namekana-ja,
+.fplant-icon-acceptance {
 	background-color: currentColor;
 	-webkit-mask-position: center;
 	mask-position: center;
@@ -258,6 +260,11 @@
 .fplant-icon-namekana-ja {
 	-webkit-mask-image: url(../../assets/icons/name-kana-ja.svg);
 	mask-image: url(../../assets/icons/name-kana-ja.svg);
+}
+
+.fplant-icon-acceptance {
+	-webkit-mask-image: url(../../assets/icons/acceptance.svg);
+	mask-image: url(../../assets/icons/acceptance.svg);
 }
 
 .fplant-field-item-title {

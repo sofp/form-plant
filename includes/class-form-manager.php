@@ -98,6 +98,20 @@ class FPLANT_Form_Manager {
 			// Allow HTML in description field
 			$html_allowed_keys = array( 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input' );
 			$sanitized_fields  = self::sanitize_array_recursive( $data['fields'], $html_allowed_keys );
+
+			// The acceptance consent text allows limited inline HTML (links
+			// etc.), which the generic recursion strips. Re-sanitize it from
+			// the input with the dedicated rules.
+			if ( is_array( $data['fields'] ) ) {
+				foreach ( $data['fields'] as $fplant_field_idx => $fplant_raw_field ) {
+					if ( is_array( $fplant_raw_field )
+						&& 'acceptance' === ( $fplant_raw_field['type'] ?? '' )
+						&& isset( $fplant_raw_field['acceptance_text'] ) && is_string( $fplant_raw_field['acceptance_text'] ) ) {
+						$sanitized_fields[ $fplant_field_idx ]['acceptance_text'] = FPLANT_Field_Manager::sanitize_acceptance_text( $fplant_raw_field['acceptance_text'] );
+					}
+				}
+			}
+
 			FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_FIELDS, $sanitized_fields );
 			$updated = true;
 		}
@@ -119,6 +133,14 @@ class FPLANT_Form_Manager {
 				}
 			}
 			$sanitized_settings = self::sanitize_array_recursive( $data['settings'], $html_allowed_keys );
+
+			// Webhooks need dedicated sanitization (URL / secret rules, row
+			// cap) from the raw input — the generic recursion above is not
+			// sufficient for URLs.
+			if ( isset( $data['settings']['webhooks'] ) ) {
+				$sanitized_settings['webhooks'] = FPLANT_Webhook::sanitize_settings( $data['settings']['webhooks'] );
+			}
+
 			FPLANT_Database::update_form_meta( $form_id, FPLANT_Database::META_SETTINGS, $sanitized_settings );
 
 			/**
@@ -379,7 +401,9 @@ class FPLANT_Form_Manager {
 
 		// Save form data
 		if ( isset( $_POST['fplant_form_data'] ) ) {
-			$html_allowed_keys = array( 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
+			// 'acceptance_text' passes this stage with HTML intact so
+			// update_form() can apply its dedicated (stricter) kses rules.
+			$html_allowed_keys = array( 'acceptance_text', 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_json_input().
 			$form_data = self::sanitize_json_input( wp_unslash( $_POST['fplant_form_data'] ), $html_allowed_keys );
 			if ( null === $form_data ) {

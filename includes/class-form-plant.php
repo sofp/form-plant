@@ -116,6 +116,7 @@ class FPLANT_Form_Plant {
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-submission-manager.php';
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-validator.php';
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-email-handler.php';
+		require_once FPLANT_PLUGIN_DIR . 'includes/class-webhook.php';
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-shortcode.php';
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-database.php';
 		require_once FPLANT_PLUGIN_DIR . 'includes/class-design-options.php';
@@ -152,6 +153,9 @@ class FPLANT_Form_Plant {
 	private function init_hooks() {
 		// Load translations
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+
+		// Webhook retry cron callback (must be registered on every load)
+		FPLANT_Webhook::init();
 
 		// Register custom post types
 		add_action( 'init', array( $this, 'register_post_types' ) );
@@ -475,6 +479,8 @@ class FPLANT_Form_Plant {
 				'i18n'    => array(
 					'validationError'     => __( 'There are errors in your input', 'form-plant' ),
 					'requiredCheckbox'    => __( 'This field is required. Please select at least one option.', 'form-plant' ),
+					'requiredAcceptance'  => __( 'You must agree before submitting.', 'form-plant' ),
+					'agreed'              => __( 'Agreed', 'form-plant' ),
 					'requiredRadio'       => __( 'This field is required. Please make a selection.', 'form-plant' ),
 					'requiredSelect'      => __( 'This field is required. Please make a selection.', 'form-plant' ),
 					'requiredFile'        => __( 'This field is required. Please select a file.', 'form-plant' ),
@@ -791,6 +797,13 @@ class FPLANT_Form_Plant {
 					'designSampleFieldError'       => __( 'This field is required.', 'form-plant' ),
 					'designSaved'                  => __( 'Saved.', 'form-plant' ),
 					'designSaveFirst'              => __( 'Please save the form first.', 'form-plant' ),
+					// Validation-message placeholders (swapped per field type in admin.js)
+					'validationMessagePlaceholder' => __( 'This field is required. Please enter a value.', 'form-plant' ),
+					'acceptanceDefaultMessage'     => __( 'You must agree before submitting.', 'form-plant' ),
+					// Field-label placeholders (swapped per field type in admin.js)
+					'labelPlaceholder'             => __( 'Your Name', 'form-plant' ),
+					// For acceptance the label is the item name shown in lists.
+					'acceptanceLabelPlaceholder'   => __( 'Consent', 'form-plant' ),
 				),
 			)
 		);

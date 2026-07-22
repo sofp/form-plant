@@ -105,8 +105,16 @@ class FPLANT_Email_Handler {
 				$form['title']
 			);
 
-		// Apply filter
-		$subject = apply_filters( 'fplant_admin_email_subject', $subject, $form['id'] );
+		/**
+		 * Filters the admin notification email subject.
+		 *
+		 * @since 1.2.0
+		 * @since 1.4.0 Added the $data parameter.
+		 * @param string $subject Email subject.
+		 * @param int    $form_id Form ID.
+		 * @param array  $data    Submission data.
+		 */
+		$subject = apply_filters( 'fplant_admin_email_subject', $subject, $form['id'], $data );
 
 		// Body
 		$message = ! empty( $email_settings['body'] )
@@ -256,8 +264,16 @@ class FPLANT_Email_Handler {
 			? $this->replace_tags( $email_settings['subject'], $data, $form, $submission_id )
 			: __( 'Your inquiry has been received', 'form-plant' );
 
-		// Apply filter
-		$subject = apply_filters( 'fplant_user_email_subject', $subject, $form['id'] );
+		/**
+		 * Filters the auto-reply email subject.
+		 *
+		 * @since 1.2.0
+		 * @since 1.4.0 Added the $data parameter.
+		 * @param string $subject Email subject.
+		 * @param int    $form_id Form ID.
+		 * @param array  $data    Submission data.
+		 */
+		$subject = apply_filters( 'fplant_user_email_subject', $subject, $form['id'], $data );
 
 		// Body
 		$message = ! empty( $email_settings['body'] )
@@ -355,13 +371,18 @@ class FPLANT_Email_Handler {
 			foreach ( $matches[1] as $field_name ) {
 				$value = isset( $data[ $field_name ] ) ? $data[ $field_name ] : '';
 
-				// Mask password field value in email
+				// Mask password / translate acceptance field values in email
 				if ( ! empty( $form['fields'] ) && is_string( $value ) && ! empty( $value ) ) {
 					foreach ( $form['fields'] as $f ) {
-						if ( $f['name'] === $field_name && 'password' === $f['type'] && ! empty( $f['password_mask_email'] ) ) {
-							$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
-							break;
+						if ( $f['name'] !== $field_name ) {
+							continue;
 						}
+						if ( 'password' === $f['type'] && ! empty( $f['password_mask_email'] ) ) {
+							$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
+						} elseif ( 'acceptance' === $f['type'] ) {
+							$value = FPLANT_Field_Manager::acceptance_display_value();
+						}
+						break;
 					}
 				}
 
@@ -369,17 +390,18 @@ class FPLANT_Email_Handler {
 				if ( is_array( $value ) && isset( $value['filename'] ) ) {
 					$value = $value['filename'];
 				} elseif ( is_array( $value ) ) {
-					// Search for field delimiter setting
-					$delimiter = ', ';
+					// Flat and structured arrays share the plain-text boundary
+					// (the field definition carries the delimiter / sub_fields).
+					$field_def = array();
 					if ( ! empty( $form['fields'] ) ) {
 						foreach ( $form['fields'] as $f ) {
-							if ( $f['name'] === $field_name && isset( $f['delimiter'] ) ) {
-								$delimiter = $f['delimiter'];
+							if ( $f['name'] === $field_name ) {
+								$field_def = $f;
 								break;
 							}
 						}
 					}
-					$value = implode( $delimiter, $value );
+					$value = FPLANT_Field_Manager::format_submission_value( $value, $field_def, 'email_tag', (int) $form['id'] );
 				}
 				$text = str_replace( '{field:' . $field_name . '}', $value, $text );
 			}
@@ -391,17 +413,25 @@ class FPLANT_Email_Handler {
 			if ( is_array( $value ) && isset( $value['filename'] ) ) {
 				$value = $value['filename'];
 			} elseif ( is_array( $value ) ) {
-				// Search for field delimiter setting
-				$delimiter = ', ';
+				// Flat and structured arrays share the plain-text boundary.
+				$field_def = array();
 				if ( ! empty( $form['fields'] ) ) {
 					foreach ( $form['fields'] as $f ) {
-						if ( $f['name'] === $key && isset( $f['delimiter'] ) ) {
-							$delimiter = $f['delimiter'];
+						if ( $f['name'] === $key ) {
+							$field_def = $f;
 							break;
 						}
 					}
 				}
-				$value = implode( $delimiter, $value );
+				$value = FPLANT_Field_Manager::format_submission_value( $value, $field_def, 'email_tag', (int) $form['id'] );
+			} elseif ( ! empty( $value ) && ! empty( $form['fields'] ) ) {
+				// Acceptance stores '1'; output the shared wording instead.
+				foreach ( $form['fields'] as $f ) {
+					if ( $f['name'] === $key && 'acceptance' === $f['type'] ) {
+						$value = FPLANT_Field_Manager::acceptance_display_value();
+						break;
+					}
+				}
 			}
 			$text = str_replace( '{' . $key . '}', $value, $text );
 		}
@@ -435,11 +465,22 @@ class FPLANT_Email_Handler {
 				continue;
 			}
 
+			// Skip acceptance fields unless configured to appear in emails
+			// (default OFF).
+			if ( 'acceptance' === $field['type'] && empty( $field['acceptance_show_email'] ) ) {
+				continue;
+			}
+
 			$value = isset( $data[ $field['name'] ] ) ? $data[ $field['name'] ] : '';
 
 			// Mask password field value in email
 			if ( 'password' === $field['type'] && ! empty( $field['password_mask_email'] ) && ! empty( $value ) && is_string( $value ) ) {
 				$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
+			}
+
+			// Acceptance stores '1'; output the shared wording instead.
+			if ( 'acceptance' === $field['type'] && ! empty( $value ) ) {
+				$value = FPLANT_Field_Manager::acceptance_display_value();
 			}
 
 			// Display filename only for file fields
@@ -451,8 +492,8 @@ class FPLANT_Email_Handler {
 					// If file info array
 					$value = isset( $value['filename'] ) ? $value['filename'] : '';
 				} else {
-					$delimiter = isset( $field['delimiter'] ) ? $field['delimiter'] : ', ';
-					$value     = implode( $delimiter, $value );
+					// Flat and structured arrays share the plain-text boundary.
+					$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'email_all_fields', (int) $form['id'] );
 				}
 			}
 
@@ -478,6 +519,12 @@ class FPLANT_Email_Handler {
 				continue;
 			}
 
+			// Skip acceptance fields unless configured to appear in emails
+			// (default OFF).
+			if ( 'acceptance' === $field['type'] && empty( $field['acceptance_show_email'] ) ) {
+				continue;
+			}
+
 			$value = isset( $data[ $field['name'] ] ) ? $data[ $field['name'] ] : '';
 
 			// Mask password field value in email
@@ -485,9 +532,15 @@ class FPLANT_Email_Handler {
 				$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
 			}
 
+			// Acceptance stores '1'; output the shared wording instead.
+			if ( 'acceptance' === $field['type'] && ! empty( $value ) ) {
+				$value = FPLANT_Field_Manager::acceptance_display_value();
+			}
+
 			if ( is_array( $value ) ) {
-				$delimiter = isset( $field['delimiter'] ) ? $field['delimiter'] : ', ';
-				$value     = implode( $delimiter, $value );
+				// Flat and structured arrays share the plain-text boundary
+				// (file-info arrays render their filename there too).
+				$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'email_all_fields', (int) $form['id'] );
 			}
 
 			$label = $field['label'] ?? $field['name'];
@@ -519,6 +572,12 @@ class FPLANT_Email_Handler {
 				continue;
 			}
 
+			// Skip acceptance fields unless configured to appear in emails
+			// (default OFF).
+			if ( 'acceptance' === $field['type'] && empty( $field['acceptance_show_email'] ) ) {
+				continue;
+			}
+
 			$value = isset( $data[ $field['name'] ] ) ? $data[ $field['name'] ] : '';
 
 			// Mask password field value in email
@@ -526,9 +585,15 @@ class FPLANT_Email_Handler {
 				$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
 			}
 
+			// Acceptance stores '1'; output the shared wording instead.
+			if ( 'acceptance' === $field['type'] && ! empty( $value ) ) {
+				$value = FPLANT_Field_Manager::acceptance_display_value();
+			}
+
 			if ( is_array( $value ) ) {
-				$delimiter = isset( $field['delimiter'] ) ? $field['delimiter'] : ', ';
-				$value     = implode( $delimiter, $value );
+				// Flat and structured arrays share the plain-text boundary
+				// (file-info arrays render their filename there too).
+				$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'email_all_fields', (int) $form['id'] );
 			}
 
 			$label = $field['label'] ?? $field['name'];

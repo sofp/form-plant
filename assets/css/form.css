@@ -106,6 +106,27 @@
 	width: auto;
 }
 
+/* Acceptance (consent checkbox with linked label) */
+.fplant-field-acceptance {
+	border: none;
+	padding: 0;
+}
+
+.fplant-acceptance-label {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	font-weight: normal;
+	cursor: pointer;
+}
+
+.fplant-acceptance-label input {
+	width: auto;
+	margin: 0;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
 /* Horizontal layout */
 .fplant-field-radio.fplant-layout-horizontal,
 .fplant-field-checkbox.fplant-layout-horizontal,

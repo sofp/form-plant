@@ -3,7 +3,7 @@ Contributors: reiji-sato
 Tags: contact form, confirmation, mw wp form, csv export, recaptcha
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -28,6 +28,7 @@ Many form plugins require extra extensions for confirmation pages or data manage
 * **Submission data storage** — All form entries are saved in the database and manageable from the admin panel.
 * **CSV export** — Download submission data anytime for reporting or backup.
 * **Embed on external sites** — Display your forms on any website via iframe or JavaScript snippet, not just within WordPress.
+* **Webhooks** — Send submissions to Zapier, Make, or your own API as signed JSON, with delivery logging and automatic retry.
 * **Quick setup** — An intuitive ACF-style accordion editor lets you build forms without touching code.
 * **Flexible customization** — Custom HTML templates, validation messages, and post-submission actions give you full control when you need it.
 
@@ -37,6 +38,8 @@ Many form plugins require extra extensions for confirmation pages or data manage
 * Block editor (Gutenberg) integration — pick a form from a dropdown using the dedicated "Form Plant" block
 * MW WP Form migration tool — convert existing MW WP Form forms (fields, validation rules, admin and auto-reply mail settings, and merge tags) into Form Plant forms, with a warning report for items that need manual review (shown when MW WP Form is active)
 * Email notifications (admin notification and auto-reply)
+* Webhooks — send each submission as signed JSON (HMAC-SHA256) to external URLs, with automatic retry and per-submission delivery log
+* Acceptance (consent) field with a linked label for privacy policy / terms agreement
 * Custom HTML template support
 * Confirmation screen before submission
 * Custom validation messages
@@ -70,6 +73,7 @@ Many form plugins require extra extensions for confirmation pages or data manage
 * Select
 * Checkbox
 * Radio
+* Acceptance (consent checkbox with a linked label, e.g. privacy policy)
 * File Upload
 * Hidden
 * HTML
@@ -154,8 +158,16 @@ Yes, the File Upload field type allows users to upload files with configurable s
 6. One-click migration from MW WP Form, with a report of converted fields and items that need manual review.
 7. Icon-based field type picker for quick field creation.
 8. Design adjustments with a live preview — customize colors and sizes from the admin screen without CSS.
+9. Webhook integrations — send each submission as signed JSON to Zapier, Make, Google Apps Script or your own API, with a test-send button.
 
 == Changelog ==
+
+= 1.4.0 =
+* New: Webhooks. Send each submission as JSON to external services (Zapier, Make, Google Apps Script, or your own API) from the new Integrations tab. Up to 3 HTTPS URLs per form, an HMAC-SHA256 signature header (`X-FPlant-Signature`) for verification, one automatic retry on failure, delivery results shown with the saved submission, and a test-send button.
+* New: Acceptance field — a consent checkbox with a linked label for privacy policy / terms agreement. Always required to submit; showing it on the confirmation screen, in emails, and in saved submissions is configurable (all off by default). When saved, the submission records the exact consent wording the user agreed to.
+* Developer: Webhook customization filters — `fplant_webhook_should_send`, `fplant_webhook_payload`, `fplant_webhook_request_args`, and `fplant_webhook_allow_http`.
+* Developer: Extension APIs for add-ons — new `fplant_sanitize_field_value` filter (custom field types keep array values; previously they were flattened on save), form configuration passed to `fplant_complete_message` / `fplant_redirect_url` / `fplant_success_html`, submission data passed to `fplant_admin_email_subject` / `fplant_user_email_subject`, a new front-end `fplant:fieldChange` event with public `window.fplant.getFieldValue()` / `getFormData()` accessors, and `fplant:success` now bubbles like other events.
+* Developer: Structured field values for add-ons — bracket-style input names (`field[0][sub]`) are now collected as nested values on the front end (also returned by `getFormData()`), stored as JSON with the submission, and rendered as plain text through the new `fplant_format_submission_value` filter in confirmation screens, emails, CSV export, and the admin detail view.
 
 = 1.3.0 =
 * New: Redesigned field editor. Fields now open inline as an accordion with Basic / Validation / Advanced tabs, replacing the modal dialog.

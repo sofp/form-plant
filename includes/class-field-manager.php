@@ -144,6 +144,13 @@ class FPLANT_Field_Manager {
 				'icon'        => 'dashicons-tag',
 				'description' => __( 'Dynamic value provided via PHP filter hook (for email body / data)', 'form-plant' ),
 			),
+			'acceptance' => array(
+				'label'       => __( 'Acceptance', 'form-plant' ),
+				// Custom consent-check mark (assets/icons/acceptance.svg via
+				// .fplant-icon-acceptance in admin.css).
+				'icon'        => 'fplant-icon-acceptance',
+				'description' => __( 'Consent checkbox with a linked label (privacy policy, terms of service)', 'form-plant' ),
+			),
 		);
 
 		return apply_filters( 'fplant_field_types', $field_types );
@@ -290,6 +297,20 @@ class FPLANT_Field_Manager {
 				$defaults['display_wrapper'] = 'span';
 				break;
 
+			case 'acceptance':
+				// Consent must always be explicit: the required flag is fixed ON
+				// (the field editor renders the toggle checked and disabled).
+				// The label is a plain item name like every other field type;
+				// acceptance_text is the wording shown next to the checkbox and
+				// may contain limited inline HTML (see sanitize_acceptance_text()).
+				$defaults['required']                     = true;
+				$defaults['acceptance_text']              = '';
+				$defaults['acceptance_show_label']        = false;
+				$defaults['acceptance_show_confirmation'] = false;
+				$defaults['acceptance_show_email']        = false;
+				$defaults['acceptance_save_submission']   = false;
+				break;
+
 			case 'address':
 				$defaults['postal_format']         = 'single';
 				$defaults['postal_show_search_btn'] = false;
@@ -406,6 +427,233 @@ class FPLANT_Field_Manager {
 		}
 		return '<div class="fplant-field-desc fplant-field-desc-' . str_replace( '_', '-', $position ) . '">'
 			. wp_kses_post( $field[ $key ] ) . '</div>';
+	}
+
+	/**
+	 * Allowed inline HTML for the acceptance consent text.
+	 *
+	 * @since 1.4.0
+	 * @return array wp_kses allowed-HTML map.
+	 */
+	public static function acceptance_text_allowed_html() {
+		return array(
+			'a'      => array(
+				'href'   => true,
+				'target' => true,
+				'rel'    => true,
+			),
+			'strong' => array(),
+			'em'     => array(),
+			'br'     => array(),
+		);
+	}
+
+	/**
+	 * Sanitize the acceptance consent text (limited inline HTML).
+	 *
+	 * Keeps links and simple emphasis, strips everything else. No rel is
+	 * force-added to target="_blank" links: browsers imply noopener for
+	 * target="_blank" (the reason WP 6.7 deprecated wp_targeted_link_rel),
+	 * and an author-written rel attribute is preserved by the kses rules.
+	 *
+	 * @since 1.4.0
+	 * @param string $text Raw consent text.
+	 * @return string Sanitized text.
+	 */
+	public static function sanitize_acceptance_text( $text ) {
+		return wp_kses( (string) $text, self::acceptance_text_allowed_html() );
+	}
+
+	/**
+	 * Consent text HTML for front-end output (next to the checkbox).
+	 *
+	 * Falls back to the escaped plain label when no consent text is set, so
+	 * the checkbox never renders without wording. Stored text is sanitized on
+	 * save; the kses here is defense in depth for field data arriving from
+	 * other sources (import, filters).
+	 *
+	 * @since 1.4.0
+	 * @param array $field Field configuration.
+	 * @return string Safe HTML.
+	 */
+	public static function acceptance_text_html( $field ) {
+		$text = isset( $field['acceptance_text'] ) ? (string) $field['acceptance_text'] : '';
+		if ( '' === trim( $text ) ) {
+			return esc_html( isset( $field['label'] ) ? (string) $field['label'] : '' );
+		}
+		return wp_kses( $text, self::acceptance_text_allowed_html() );
+	}
+
+	/**
+	 * Whether the field-group label (item name) is rendered on the form.
+	 *
+	 * Acceptance fields hide it unless acceptance_show_label is enabled; every
+	 * other type shows it whenever a label exists.
+	 *
+	 * @since 1.4.0
+	 * @param array $field Field configuration.
+	 * @return bool
+	 */
+	public static function shows_group_label( $field ) {
+		if ( empty( $field['label'] ) ) {
+			return false;
+		}
+		if ( isset( $field['type'] ) && 'acceptance' === $field['type'] ) {
+			return ! empty( $field['acceptance_show_label'] );
+		}
+		return true;
+	}
+
+	/**
+	 * Display value for a checked acceptance field.
+	 *
+	 * Shared by the confirmation screen, emails, CSV export and the admin
+	 * submission detail so all outputs render the same wording.
+	 *
+	 * @since 1.4.0
+	 * @return string
+	 */
+	public static function acceptance_display_value() {
+		return __( 'Agreed', 'form-plant' );
+	}
+
+	/**
+	 * Format a stored submission value as plain text for one output context.
+	 *
+	 * Shared boundary used by the confirmation screen (all-fields tables),
+	 * emails, CSV export and the admin submission detail so structured
+	 * values (nested arrays from extension field types such as repeaters
+	 * and groups) render consistently everywhere. The default keeps flat
+	 * arrays identical to the historical implode() output; nested values
+	 * become numbered "label: value" lines.
+	 *
+	 * The return value is PLAIN TEXT — HTML escaping and newline-to-<br>
+	 * conversion are the caller's responsibility, so the XSS boundary
+	 * stays at the output site.
+	 *
+	 * @since 1.4.0
+	 * @param mixed  $value   Stored submission value (may be nested).
+	 * @param array  $field   Root field configuration (may include sub_fields).
+	 * @param string $context Output context: 'confirmation' | 'email_all_fields' |
+	 *                        'email_tag' | 'admin_detail' | 'csv_single' | 'csv_all'.
+	 * @param int    $form_id Form ID (0 when unknown).
+	 * @return string
+	 */
+	public static function format_submission_value( $value, $field, $context, $form_id = 0 ) {
+		$formatted = self::default_format_submission_value( $value, $field, $context );
+
+		/**
+		 * Filters the plain-text representation of a stored submission value.
+		 *
+		 * Lets extensions replace the formatting of their own field types
+		 * (e.g. repeater rows) per output context. Return plain text; the
+		 * caller escapes it for its output medium.
+		 *
+		 * @since 1.4.0
+		 * @param string $formatted Default plain-text formatting.
+		 * @param mixed  $value     Raw stored value.
+		 * @param array  $field     Root field configuration.
+		 * @param string $context   Output context (see format_submission_value()).
+		 * @param int    $form_id   Form ID (0 when unknown).
+		 */
+		return apply_filters( 'fplant_format_submission_value', $formatted, $value, $field, $context, $form_id );
+	}
+
+	/**
+	 * Default plain-text formatting for a submission value.
+	 *
+	 * - Scalars are cast to string.
+	 * - File-info arrays render their filename (historical behavior).
+	 * - Flat arrays (checkbox etc.) keep the historical delimiter join.
+	 * - Lists of rows (repeater shape) become numbered lines:
+	 *   "1. Sub label: value / Sub label: value".
+	 * - Associative arrays (group shape) become one "label: value / ..." line.
+	 *
+	 * @param mixed  $value   Stored value.
+	 * @param array  $field   Root field configuration (sub_fields used for labels).
+	 * @param string $context Output context (CSV / admin detail historically join
+	 *                        flat arrays with ', ' regardless of the field's
+	 *                        delimiter setting; that behavior is preserved).
+	 * @return string
+	 */
+	private static function default_format_submission_value( $value, $field, $context ) {
+		if ( ! is_array( $value ) ) {
+			return (string) $value;
+		}
+
+		// File-info array: expose the filename only.
+		if ( isset( $value['filename'] ) ) {
+			return (string) $value['filename'];
+		}
+
+		$is_list = array_keys( $value ) === range( 0, count( $value ) - 1 );
+
+		if ( $is_list && ! empty( $value ) ) {
+			$has_array_items = false;
+			foreach ( $value as $item ) {
+				if ( is_array( $item ) ) {
+					$has_array_items = true;
+					break;
+				}
+			}
+
+			if ( ! $has_array_items ) {
+				// Flat array (checkbox etc.): historical join. CSV and the
+				// admin detail always used ', '; the other contexts honor
+				// the field's delimiter setting.
+				$fixed_join = in_array( $context, array( 'csv_single', 'csv_all', 'admin_detail' ), true );
+				$delimiter  = ( ! $fixed_join && isset( $field['delimiter'] ) ) ? $field['delimiter'] : ', ';
+				return implode( $delimiter, array_map( 'strval', $value ) );
+			}
+
+			// Rows (repeater shape): one numbered line per row.
+			$lines = array();
+			$row_number = 1;
+			foreach ( $value as $row ) {
+				$lines[] = $row_number . '. ' . self::format_row_as_line( is_array( $row ) ? $row : array( $row ), $field );
+				$row_number++;
+			}
+			return implode( "\n", $lines );
+		}
+
+		// Associative array (group shape): single "label: value / ..." line.
+		return self::format_row_as_line( $value, $field );
+	}
+
+	/**
+	 * Format one row / group as a "label: value / label: value" line.
+	 *
+	 * @param array $row   Sub-name => value map (values may be arrays).
+	 * @param array $field Root field configuration (sub_fields used for labels).
+	 * @return string
+	 */
+	private static function format_row_as_line( $row, $field ) {
+		$parts = array();
+		foreach ( $row as $sub_name => $sub_value ) {
+			if ( is_array( $sub_value ) ) {
+				$sub_value = implode( ', ', array_map( 'strval', $sub_value ) );
+			}
+			$parts[] = self::resolve_sub_label( $sub_name, $field ) . ': ' . (string) $sub_value;
+		}
+		return implode( ' / ', $parts );
+	}
+
+	/**
+	 * Resolve a sub-field label from the root field's sub_fields definition.
+	 *
+	 * @param string $sub_name Sub-field name.
+	 * @param array  $field    Root field configuration.
+	 * @return string Label, or the sub-field name when undefined.
+	 */
+	private static function resolve_sub_label( $sub_name, $field ) {
+		if ( ! empty( $field['sub_fields'] ) && is_array( $field['sub_fields'] ) ) {
+			foreach ( $field['sub_fields'] as $sub ) {
+				if ( isset( $sub['name'] ) && (string) $sub['name'] === (string) $sub_name ) {
+					return ! empty( $sub['label'] ) ? (string) $sub['label'] : (string) $sub_name;
+				}
+			}
+		}
+		return (string) $sub_name;
 	}
 
 	/**

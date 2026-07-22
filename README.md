@@ -16,6 +16,7 @@ Many form plugins require extra extensions for confirmation pages or data manage
 - **Submission data storage** — All form entries are saved in the database and manageable from the admin panel.
 - **CSV export** — Download submission data anytime for reporting or backup.
 - **Embed on external sites** — Display your forms on any website via iframe or JavaScript snippet, not just within WordPress.
+- **Webhooks** — Send submissions to Zapier, Make, or your own API as signed JSON, with delivery logging and automatic retry.
 - **Migrate from MW WP Form** — Import your existing MW WP Form forms — fields, validation rules, and mail settings — with the built-in migration tool. No need to rebuild from scratch.
 - **Quick setup** — An intuitive ACF-style accordion editor lets you build forms without touching code.
 - **No-code design** — Adjust colors, sizes, and spacing from the admin screen with a live preview.
@@ -30,6 +31,8 @@ Many form plugins require extra extensions for confirmation pages or data manage
 - Block editor (Gutenberg) integration — embed forms with the dedicated "Form Plant" block
 - MW WP Form migration tool — convert existing forms, validation rules, and mail settings into Form Plant forms
 - Email notifications (admin notification and auto-reply)
+- Webhooks — send each submission as signed JSON (HMAC-SHA256) to external URLs, with automatic retry and per-submission delivery log
+- Acceptance (consent) field with a linked label for privacy policy / terms agreement
 - Custom HTML template support
 - Confirmation screen before submission
 - Custom validation messages
@@ -77,4 +80,4 @@ See [LICENSE.txt](LICENSE.txt) for details.
 ## Developer Information
 
 - **Author**: SOFPLANT
-- **Version**: 1.3.0
+- **Version**: 1.4.0
