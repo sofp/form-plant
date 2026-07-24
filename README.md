@@ -30,10 +30,11 @@ Many form plugins require extra extensions for confirmation pages or data manage
 - Theme-context form preview with desktop / tablet / mobile switching
 - Block editor (Gutenberg) integration — embed forms with the dedicated "Form Plant" block
 - MW WP Form migration tool — convert existing forms, validation rules, and mail settings into Form Plant forms
+- Prefill fields from a post via URL (`?post_id=`) — post title and custom fields as initial values (MW WP Form querystring equivalent)
 - Email notifications (admin notification and auto-reply)
 - Webhooks — send each submission as signed JSON (HMAC-SHA256) to external URLs, with automatic retry and per-submission delivery log
 - Acceptance (consent) field with a linked label for privacy policy / terms agreement
-- Custom HTML template support
+- Custom HTML template support for the input and confirmation screens, with WordPress shortcode expansion
 - Confirmation screen before submission
 - Custom validation messages
 - Post-submission actions (message / custom HTML / redirect)
@@ -80,4 +81,4 @@ See [LICENSE.txt](LICENSE.txt) for details.
 ## Developer Information
 
 - **Author**: SOFPLANT
-- **Version**: 1.4.0
+- **Version**: 1.4.1

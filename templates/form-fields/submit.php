@@ -23,6 +23,5 @@ if ( ! empty( $submit_class ) ) {
 	$fplant_button_class .= ' ' . $submit_class;
 }
 ?>
-<button type="submit"<?php echo ! empty( $submit_id ) ? ' id="' . esc_attr( $submit_id ) . '"' : ''; ?> class="<?php echo esc_attr( $fplant_button_class ); ?>">
-	<?php echo esc_html( $submit_text ); ?>
-</button>
+<?php // No whitespace inside the button tag: themes styling buttons with white-space: pre-wrap would render it. ?>
+<button type="submit"<?php echo ! empty( $submit_id ) ? ' id="' . esc_attr( $submit_id ) . '"' : ''; ?> class="<?php echo esc_attr( $fplant_button_class ); ?>"><?php echo esc_html( $submit_text ); ?></button>

@@ -426,8 +426,9 @@ class FPLANT_REST_API {
 
 				<?php if ( ! empty( $form['html_template'] ) && ! empty( $settings['use_html_template'] ) ) : ?>
 					<?php
-					// Process shortcodes in the input screen HTML template (same as embed.php)
-					echo wp_kses( do_shortcode( $form['html_template'] ), fplant_get_allowed_form_html() );
+					// Replace {{key}} template values, then process shortcodes (same as embed.php)
+					$template_html = fplant_replace_template_values( $form['html_template'], $form['id'] );
+					echo wp_kses( do_shortcode( $template_html ), fplant_get_allowed_form_html() );
 					?>
 				<?php else : ?>
 					<?php
@@ -478,9 +479,7 @@ class FPLANT_REST_API {
 							type="submit"
 							class="<?php echo esc_attr( $submit_class ); ?>"
 							<?php echo ! empty( $submit_id ) ? 'id="' . esc_attr( $submit_id ) . '"' : ''; ?>
-						>
-							<?php echo esc_html( $submit_text ); ?>
-						</button>
+						><?php echo esc_html( $submit_text ); ?></button>
 					</div>
 				<?php endif; ?>
 			</form>

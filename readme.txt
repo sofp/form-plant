@@ -3,7 +3,7 @@ Contributors: reiji-sato
 Tags: contact form, confirmation, mw wp form, csv export, recaptcha
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -161,6 +161,13 @@ Yes, the File Upload field type allows users to upload files with configurable s
 9. Webhook integrations — send each submission as signed JSON to Zapier, Make, Google Apps Script or your own API, with a test-send button.
 
 == Changelog ==
+
+= 1.4.1 =
+* New: WordPress shortcodes are now expanded in the confirmation screen HTML template, the same as in the input screen HTML template. Shortcodes typed into form fields by visitors are shown as plain text and never executed.
+* New: The `fplant_template_values` filter (`{{key}}` placeholders) now also works in iframe and JavaScript embeds — previously it only worked for forms placed with the shortcode or block.
+* New: Prefill fields from a post via URL. With "Allow initial values from URL parameters" enabled, open the form page with `?post_id=123` and a field whose default value is `{post_title}`, `{post_name}`, `{post_date}`, `{post_excerpt}`, `{post_content}`, `{ID}` or `{your_custom_field}` is prefilled from that post (equivalent of MW WP Form's querystring feature). Only publicly viewable posts are read, and protected meta (`_`-prefixed keys) is never exposed.
+* Fixed: With "Allow initial values from URL parameters" enabled, an unresolved `{placeholder}` default value is no longer rendered as-is into the field.
+* Fixed: Removed stray whitespace inside the submit / back / confirm button tags. On themes that style buttons with `white-space: pre-wrap` (or similar), it could shift the button label. If you have copied `templates/confirmation.php` or `templates/form-fields/submit.php` into your theme, update your copies as well.
 
 = 1.4.0 =
 * New: Webhooks. Send each submission as JSON to external services (Zapier, Make, Google Apps Script, or your own API) from the new Integrations tab. Up to 3 HTTPS URLs per form, an HMAC-SHA256 signature header (`X-FPlant-Signature`) for verification, one automatic retry on failure, delivery results shown with the saved submission, and a test-send button.

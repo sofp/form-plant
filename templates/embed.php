@@ -94,8 +94,9 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 
 			<?php if ( ! empty( $form['html_template'] ) && ! empty( $settings['use_html_template'] ) ) : ?>
 				<?php
-				// Process shortcodes in the input screen HTML template
-				echo wp_kses( do_shortcode( $form['html_template'] ), fplant_get_allowed_form_html() );
+				// Replace {{key}} template values, then process shortcodes (same as form-wrapper.php)
+				$fplant_embed_template_html = fplant_replace_template_values( $form['html_template'], $form['id'] );
+				echo wp_kses( do_shortcode( $fplant_embed_template_html ), fplant_get_allowed_form_html() );
 				?>
 			<?php else : ?>
 				<?php
@@ -148,9 +149,7 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 						type="submit"
 						class="<?php echo esc_attr( $submit_class ); ?>"
 						<?php echo ! empty( $submit_id ) ? 'id="' . esc_attr( $submit_id ) . '"' : ''; ?>
-					>
-						<?php echo esc_html( $submit_text ); ?>
-					</button>
+					><?php echo esc_html( $submit_text ); ?></button>
 				</div>
 			<?php endif; ?>
 			<input type="hidden" name="fplant_form_ts" class="fplant-form-ts" value="">

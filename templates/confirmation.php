@@ -34,10 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php echo wp_kses( $fields_html, fplant_get_allowed_form_html() ); ?>
 </div>
 <div class="fplant-confirmation-footer">
-	<button type="button" class="fplant-back-button <?php echo esc_attr( $back_class ); ?>"<?php echo ! empty( $back_id ) ? ' id="' . esc_attr( $back_id ) . '"' : ''; ?>>
-		<?php echo esc_html( $back_text ); ?>
-	</button>
-	<button type="button" class="fplant-confirm-submit-button <?php echo esc_attr( $submit_class ); ?>"<?php echo ! empty( $submit_id ) ? ' id="' . esc_attr( $submit_id ) . '"' : ''; ?>>
-		<?php echo esc_html( $submit_text ); ?>
-	</button>
+	<?php // No whitespace inside the button tags: themes styling buttons with white-space: pre-wrap would render it. ?>
+	<button type="button" class="fplant-back-button <?php echo esc_attr( $back_class ); ?>"<?php echo ! empty( $back_id ) ? ' id="' . esc_attr( $back_id ) . '"' : ''; ?>><?php echo esc_html( $back_text ); ?></button>
+	<button type="button" class="fplant-confirm-submit-button <?php echo esc_attr( $submit_class ); ?>"<?php echo ! empty( $submit_id ) ? ' id="' . esc_attr( $submit_id ) . '"' : ''; ?>><?php echo esc_html( $submit_text ); ?></button>
 </div>

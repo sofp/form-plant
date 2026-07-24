@@ -1523,6 +1523,8 @@ class FPLANT_Submission_Manager {
 	 */
 	private function render_custom_confirmation_template( $form, $data, $template ) {
 		$html     = fplant_replace_template_values( $template, $form['id'] );
+		// Expand shortcodes before submitted values are injected, so shortcode-like text in field values is never executed.
+		$html     = do_shortcode( $html );
 		$settings = isset( $form['settings'] ) ? $form['settings'] : array();
 
 		// Get filenames for file fields.

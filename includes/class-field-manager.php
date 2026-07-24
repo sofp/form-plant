@@ -398,6 +398,9 @@ class FPLANT_Field_Manager {
 		// Get initial value if $value is empty
 		if ( '' === $value || ( is_array( $value ) && empty( $value ) ) ) {
 			$value = $this->get_field_initial_value( $field, $form_id, $form_settings );
+			// The resolved value is authoritative: clear the raw default so field
+			// templates never fall back to it (an unresolved {placeholder} must stay hidden).
+			$field['default'] = '';
 		}
 
 		// Use template loader for theme override support.
@@ -685,8 +688,10 @@ class FPLANT_Field_Manager {
 	 *
 	 * Priority:
 	 * 1. URL parameter (only if allowed in settings AND default value is {field_name})
-	 * 2. Filter fplant_field_initial_value
-	 * 3. Field default value
+	 * 2. Post property / custom field of the post given via ?post_id=
+	 *    (only if allowed in settings AND default value is a {key} placeholder)
+	 * 3. Filter fplant_field_initial_value
+	 * 4. Field default value
 	 *
 	 * @param array $field         Field configuration
 	 * @param int   $form_id       Form ID
@@ -716,14 +721,26 @@ class FPLANT_Field_Manager {
 			return '';
 		}
 
-		// 2. Initial value via filter
+		// 2. Post property / custom field via ?post_id= (MW WP Form querystring equivalent)
+		//    Condition: allowed in settings AND ?post_id= is present AND default value is a {key} placeholder
+		if ( $allow_url_params && $this->is_post_property_placeholder( $default_value ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$url_post_id = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
+			if ( $url_post_id > 0 ) {
+				$post_value = $this->get_post_property_value( $url_post_id, trim( $default_value, '{}' ) );
+				// Don't show the raw placeholder when post_id is present but unresolvable
+				return ( null !== $post_value ) ? $post_value : '';
+			}
+		}
+
+		// 3. Initial value via filter
 		$filtered_value = apply_filters( 'fplant_field_initial_value', null, $field_name, $field, $form_id );
 		$filtered_value = apply_filters( "fplant_field_initial_value_{$field_name}", $filtered_value, $field, $form_id );
 		if ( null !== $filtered_value ) {
 			return $filtered_value;
 		}
 
-		// 3. Default value
+		// 4. Default value
 		return $default_value;
 	}
 
@@ -856,6 +873,54 @@ class FPLANT_Field_Manager {
 	}
 
 	/**
+	 * Check if the default value is a single {key} placeholder
+	 *
+	 * @param string $default_value Default value
+	 * @return bool
+	 */
+	private function is_post_property_placeholder( $default_value ) {
+		return is_string( $default_value ) && (bool) preg_match( '/\A\{[A-Za-z0-9_-]+\}\z/', $default_value );
+	}
+
+	/**
+	 * Resolve a {key} placeholder against the post given via ?post_id=
+	 *
+	 * Post properties are limited to a whitelist. Custom fields exclude protected
+	 * meta and non-scalar values. Only publicly viewable posts without password
+	 * protection can be read, so private content is never exposed via the URL.
+	 *
+	 * @param int    $post_id Post ID from the URL.
+	 * @param string $key     WP_Post property name or custom field key.
+	 * @return string|null Resolved value, or null if unresolvable.
+	 */
+	private function get_post_property_value( $post_id, $key ) {
+		$post = get_post( $post_id );
+		if ( ! $post instanceof WP_Post ) {
+			return null;
+		}
+
+		if ( ! is_post_publicly_viewable( $post ) || post_password_required( $post ) ) {
+			return null;
+		}
+
+		$allowed_properties = array( 'ID', 'post_title', 'post_name', 'post_date', 'post_excerpt', 'post_content' );
+		if ( in_array( $key, $allowed_properties, true ) ) {
+			return (string) $post->$key;
+		}
+
+		if ( is_protected_meta( $key, 'post' ) ) {
+			return null;
+		}
+
+		$meta = get_post_meta( $post->ID, $key, true );
+		if ( is_array( $meta ) || is_object( $meta ) ) {
+			return null;
+		}
+
+		return (string) $meta;
+	}
+
+	/**
 	 * Get field settings by field name
 	 *
 	 * @param string $field_name Field name
@@ -954,7 +1019,9 @@ class FPLANT_Field_Manager {
 	 * @return string Confirmation HTML.
 	 */
 	private function render_custom_confirmation_template( $form, $data, $template, $filenames = array() ) {
-		$html     = $template;
+		$html     = fplant_replace_template_values( $template, $form['id'] );
+		// Expand shortcodes before submitted values are injected, so shortcode-like text in field values is never executed.
+		$html     = do_shortcode( $html );
 		$settings = isset( $form['settings'] ) ? $form['settings'] : array();
 
 		// Replace [fplant_confirmation_title].
