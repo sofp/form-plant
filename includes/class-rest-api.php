@@ -120,9 +120,13 @@ class FPLANT_REST_API {
 
 		$forms = array();
 		foreach ( $query->posts as $post ) {
-			$forms[] = array(
-				'id'    => $post->ID,
-				'title' => $post->post_title,
+			$settings = FPLANT_Database::get_form_meta( $post->ID, FPLANT_Database::META_SETTINGS, array() );
+			$forms[]  = array(
+				'id'                         => $post->ID,
+				'title'                      => $post->post_title,
+				// Whether the form issues completion tokens, i.e. whether a
+				// "[fplant_complete]" placement makes sense for it (block editor).
+				'complete_shortcode_enabled' => ! empty( $settings['complete_shortcode_enabled'] ),
 			);
 		}
 
@@ -846,23 +850,27 @@ class FPLANT_REST_API {
 			);
 		}
 
-		// Build response based on action type.
-		$settings    = $form['settings'] ?? array();
-		$action_type = $settings['action_type'] ?? 'message';
+		// Build the response from the processed result (since 1.5.0) so the
+		// embed routes render the same completion screen as the shortcode /
+		// block: template values, tags, extension filters (conditional
+		// completion actions) and the completion token all apply.
+		$action_type = ! empty( $result['action_type'] ) ? $result['action_type'] : 'message';
 		$response    = array(
-			'success'     => true,
-			'message'     => $result['message'] ?? __( 'Submission completed', 'form-plant' ),
-			'action_type' => $action_type,
+			'success'       => true,
+			'message'       => $result['message'] ?? __( 'Submission completed', 'form-plant' ),
+			'action_type'   => $action_type,
+			'submission_id' => isset( $result['submission_id'] ) ? (int) $result['submission_id'] : 0,
 		);
 
 		// Add complete page HTML if action type is custom_page.
-		if ( 'custom_page' === $action_type && ! empty( $settings['success_page_html'] ) ) {
-			$response['complete_html'] = wp_kses_post( $settings['success_page_html'] );
+		if ( 'custom_page' === $action_type && ! empty( $result['success_page_html'] ) ) {
+			$response['complete_html'] = wp_kses_post( $result['success_page_html'] );
 		}
 
-		// Add redirect URL if action type is redirect.
-		if ( 'redirect' === $action_type && ! empty( $settings['redirect_url'] ) ) {
-			$response['redirect_url'] = esc_url( $settings['redirect_url'] );
+		// Add redirect URL if action type is redirect (raw escaping: the URL is
+		// consumed by JavaScript, and an entity-encoded & would break the query).
+		if ( 'redirect' === $action_type && ! empty( $result['redirect_url'] ) ) {
+			$response['redirect_url'] = esc_url_raw( $result['redirect_url'] );
 		}
 
 		return rest_ensure_response( $response );

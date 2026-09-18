@@ -11,6 +11,10 @@
 		"formId": {
 			"type": "number",
 			"default": 0
+		},
+		"view": {
+			"type": "string",
+			"default": "form"
 		}
 	},
 	"supports": {

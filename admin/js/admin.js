@@ -242,7 +242,9 @@
 		$('#fplant-field-label').val(field ? field.label : '');
 		$('#fplant-field-placeholder').val(field ? field.placeholder : '');
 		$('#fplant-field-placeholder-textarea').val(field ? field.placeholder : '');
-		$('#fplant-field-required').prop('checked', field ? field.required : false);
+		// Coerce to boolean: a field without the key (created via API/import) must
+		// not inherit the checkbox state left by the previously opened field.
+		$('#fplant-field-required').prop('checked', !!(field && field.required));
 		$('#fplant-field-validation-message').val(field && field.validation_message ? field.validation_message : '');
 		$('#fplant-field-custom-id').val(field && field.custom_id ? field.custom_id : '');
 		$('#fplant-field-custom-class').val(field && field.custom_class ? field.custom_class : '');
@@ -1417,7 +1419,26 @@
 	/**
 	 * Render field list
 	 */
+	// Keep the "values entered in this form" tag lists (completion settings)
+	// in sync with the fields being edited, before the form is saved.
+	function renderFieldTagHelp() {
+		const $targets = $('.fplant-field-tag-list');
+		if (!$targets.length) {
+			return;
+		}
+		const items = [];
+		formFields.forEach(function(field) {
+			if (!field || !field.name || field.type === 'html') {
+				return;
+			}
+			items.push('<code>{field:' + escapeHtml(field.name) + '}</code>' + (field.label ? ' (' + escapeHtml(field.label) + ')' : ''));
+		});
+		$targets.html(items.length ? items.join(', ') : escapeHtml(fplantAdminData.i18n.noFieldTags || ''));
+	}
+
 	function renderFieldList() {
+		renderFieldTagHelp();
+
 		const $list = $('.fplant-field-list');
 		$list.empty();
 
@@ -2850,6 +2871,8 @@
 			success_message: $('.fplant-setting-success-message').val(),
 			success_page_html: $('.fplant-setting-success-page-html').val(),
 			redirect_url: $('.fplant-setting-redirect-url').val(),
+			complete_shortcode_enabled: $('.fplant-setting-complete-shortcode-enabled').is(':checked'),
+			complete_shortcode_fallback_url: $('.fplant-setting-complete-shortcode-fallback-url').val() || '',
 			save_submission: $('.fplant-setting-save-submission:checked').val() || 'none',
 			required_mark_text: $('.fplant-setting-required-mark').val() || '*',
 			design_type: $('input[name="design_type"]:checked').val() || 'simple1',
@@ -3015,6 +3038,13 @@
 	 * Action type toggle
 	 */
 	function initActionTypeToggle() {
+		// The Completion Page HTML field is shared by the "Completion Page" action
+		// and the completion shortcode on the redirect page. Remember its original
+		// position so it can be moved below the shortcode checkbox (and back)
+		// without the page jumping to a field that appears above the viewport.
+		const $htmlGroup = $('.fplant-action-custom-page');
+		const $htmlAnchor = $('<span class="fplant-action-custom-page-anchor" hidden></span>').insertAfter($htmlGroup);
+
 		function toggleActionFields() {
 			const actionType = $('.fplant-setting-action-type').val();
 
@@ -3025,9 +3055,16 @@
 			if (actionType === 'message') {
 				$('.fplant-action-message').show();
 			} else if (actionType === 'custom_page') {
-				$('.fplant-action-custom-page').show();
+				$htmlGroup.insertAfter($htmlAnchor).show();
 			} else if (actionType === 'redirect') {
 				$('.fplant-action-redirect').show();
+				// The completion shortcode on the redirect page reuses the
+				// Completion Page HTML: show it right below the checkbox.
+				const useCompleteShortcode = $('.fplant-setting-complete-shortcode-enabled').is(':checked');
+				$('.fplant-complete-shortcode-options').toggle(useCompleteShortcode);
+				if (useCompleteShortcode) {
+					$htmlGroup.insertBefore($('.fplant-complete-shortcode-options')).show();
+				}
 			}
 		}
 
@@ -3036,6 +3073,7 @@
 
 		// On change
 		$('.fplant-setting-action-type').on('change', toggleActionFields);
+		$('.fplant-setting-complete-shortcode-enabled').on('change', toggleActionFields);
 	}
 
 	/**

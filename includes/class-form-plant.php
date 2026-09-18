@@ -770,6 +770,7 @@ class FPLANT_Form_Plant {
 					'submitForm'            => __( 'Submit Form', 'form-plant' ),
 					'dismissNotice'         => __( 'Dismiss this notice', 'form-plant' ),
 					'noFieldsYet'           => __( 'No fields yet. Click "Add Field" button to add one.', 'form-plant' ),
+					'noFieldTags'           => __( '(add fields to see their tags)', 'form-plant' ),
 					'fieldNameLabel'        => __( 'Field name:', 'form-plant' ),
 					'cssFileRequired'       => __( 'Please select a CSS file (.css)', 'form-plant' ),
 					'cssFileLimit'          => __( 'Maximum 10 CSS files can be uploaded.', 'form-plant' ),

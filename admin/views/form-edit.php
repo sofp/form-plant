@@ -911,7 +911,7 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 						placeholder="<?php echo esc_attr( __( 'Thank you for your inquiry', 'form-plant' ) ); ?>"
 					>
 					<p class="description">
-						<?php esc_html_e( 'Available tags: {form_title}, {field:field_name}, {site_name}, {admin_email}', 'form-plant' ); ?>
+						<?php esc_html_e( 'Available tags: {form_title}, {field:field_name}, {submission_id}, {site_name}, {admin_email}', 'form-plant' ); ?>
 					</p>
 				</div>
 
@@ -926,7 +926,7 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 						echo esc_textarea( $fplant_form['email_user']['body'] ?? $fplant_default_user_body );
 					?></textarea>
 					<p class="description">
-						<?php esc_html_e( 'Available tags: {all_fields}, {field:field_name}, {site_name}, {site_url}, {admin_email}', 'form-plant' ); ?>
+						<?php esc_html_e( 'Available tags: {all_fields}, {field:field_name}, {submission_id}, {submission_date}, {site_name}, {site_url}, {admin_email}', 'form-plant' ); ?>
 					</p>
 				</div>
 
@@ -987,6 +987,27 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 					</select>
 				</div>
 
+				<?php
+				// Field value tags available for this form (initial render from the saved
+				// fields; admin.js keeps the list in sync while fields are edited).
+				$fplant_field_tag_help = function () use ( $fplant_form ) {
+					$fplant_tag_items = array();
+					foreach ( ( $fplant_form['fields'] ?? array() ) as $fplant_tag_field ) {
+						if ( empty( $fplant_tag_field['name'] ) || 'html' === ( $fplant_tag_field['type'] ?? '' ) ) {
+							continue;
+						}
+						$fplant_tag_items[] = '<code>{field:' . esc_html( $fplant_tag_field['name'] ) . '}</code>'
+							. ( ! empty( $fplant_tag_field['label'] ) ? ' (' . esc_html( $fplant_tag_field['label'] ) . ')' : '' );
+					}
+					?>
+					<p class="description fplant-field-tag-help">
+						<?php esc_html_e( 'Values entered in this form:', 'form-plant' ); ?>
+						<span class="fplant-field-tag-list"><?php echo $fplant_tag_items ? implode( ', ', $fplant_tag_items ) : esc_html__( '(add fields to see their tags)', 'form-plant' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?></span>
+						<?php esc_html_e( 'The short form {field_name} also works. System tags: {submission_id} (reference number), {form_title}, {site_name}, {site_url}, {submission_date}. {all_fields} lists every field with its value.', 'form-plant' ); ?>
+					</p>
+					<?php
+				};
+				?>
 				<div class="fplant-form-group fplant-action-message">
 					<label><?php esc_html_e( 'Success Message', 'form-plant' ); ?></label>
 					<input
@@ -994,6 +1015,7 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 						class="fplant-form-control fplant-setting-success-message"
 						value="<?php echo esc_attr( $fplant_form['settings']['success_message'] ?? __( 'Submission completed successfully', 'form-plant' ) ); ?>"
 					>
+					<?php $fplant_field_tag_help(); ?>
 				</div>
 
 				<div class="fplant-form-group fplant-action-custom-page" style="display: none;">
@@ -1004,7 +1026,9 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 					><?php echo esc_textarea( $fplant_form['settings']['success_page_html'] ?? '<h2>Submission Complete</h2>' ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'Enter the HTML to display after submission. The form will be hidden and this HTML will be shown.', 'form-plant' ); ?>
+						<?php esc_html_e( 'Submitted values are HTML-escaped.', 'form-plant' ); ?>
 					</p>
+					<?php $fplant_field_tag_help(); ?>
 				</div>
 
 				<div class="fplant-form-group fplant-action-redirect" style="display: none;">
@@ -1018,6 +1042,39 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 					<p class="description">
 						<?php esc_html_e( 'Enter the URL to redirect to after submission.', 'form-plant' ); ?>
 					</p>
+				</div>
+
+				<?php $fplant_complete_example_id = ! empty( $fplant_form['id'] ) ? (int) $fplant_form['id'] : 'ID'; ?>
+				<div class="fplant-form-group fplant-action-redirect fplant-complete-shortcode-settings" style="display: none;">
+					<label class="fplant-checkbox" style="font-weight: normal;">
+						<input
+							type="checkbox"
+							class="fplant-setting-complete-shortcode-enabled"
+							<?php checked( ! empty( $fplant_form['settings']['complete_shortcode_enabled'] ) ); ?>
+						>
+						<?php esc_html_e( 'Use the completion shortcode on the redirect page', 'form-plant' ); ?>
+					</label>
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %s: shortcode example */
+							esc_html__( 'Place %s on the redirect page to show the completion screen there (the Completion Page HTML below, or the success message). It is shown only right after a submission and cannot be shown again on reload. The submitted values are deleted as soon as the completion screen is shown (or after 5 minutes if the page is never opened), even when submissions are not saved.', 'form-plant' ),
+							'<code>[fplant_complete id="' . esc_attr( $fplant_complete_example_id ) . '"]</code>'
+						);
+						?>
+					</p>
+					<div class="fplant-complete-shortcode-options" style="margin-top: 12px;">
+						<label><?php esc_html_e( 'Redirect URL for direct visits to the completion page (visitors who did not arrive from this form)', 'form-plant' ); ?></label>
+						<input
+							type="url"
+							class="fplant-form-control fplant-setting-complete-shortcode-fallback-url"
+							value="<?php echo esc_attr( $fplant_form['settings']['complete_shortcode_fallback_url'] ?? '' ); ?>"
+							placeholder="https://example.com/contact/"
+						>
+						<p class="description">
+							<?php esc_html_e( 'Visitors who open the completion page directly, or reload it after the completion screen was shown, are sent here, so conversion tags on that page fire only after a real submission. Leave blank to send them to the published page that contains this form (detected automatically from the shortcode or block); if none is found, the site home is used. Set the URL explicitly when the form is placed in a widget or a theme template. Must be a URL on this site.', 'form-plant' ); ?>
+						</p>
+					</div>
 				</div>
 			</div>
 

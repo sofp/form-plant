@@ -7,6 +7,11 @@
  * which keeps the existing front-end asset enqueue (has_shortcode-driven)
  * working exactly as before.
  *
+ * Forms that issue completion tokens (form setting "Use the completion
+ * shortcode on the redirect page") are listed a second time as
+ * "Form name (Completion)"; that choice saves [fplant_complete id="..."]
+ * for the redirect / thank-you page (since 1.5.0).
+ *
  * Note: The icon SVG is mirrored from docs/assets/logo/formplant-logo-icon-32.svg.
  * If the master logo changes, update both files.
  */
@@ -59,6 +64,10 @@
 		var attributes = props.attributes;
 		var setAttributes = props.setAttributes;
 		var formId = attributes.formId || 0;
+		var isComplete = attributes.view === 'complete';
+		// The dropdown value encodes both the form and the view:
+		// "12" = the form, "complete:12" = its completion screen.
+		var selectedValue = formId ? ( isComplete ? 'complete:' + formId : String( formId ) ) : '0';
 
 		var formsState = useState( null );
 		var forms = formsState[ 0 ];
@@ -87,18 +96,29 @@
 		var selectedTitle = '';
 		if ( forms && forms.length > 0 ) {
 			forms.forEach( function ( form ) {
+				var title = form.title || ( '#' + form.id );
 				options.push( {
 					value: String( form.id ),
-					label: form.title || ( '#' + form.id ),
+					label: title,
 				} );
+				if ( form.complete_shortcode_enabled ) {
+					options.push( {
+						value: 'complete:' + form.id,
+						/* translators: %s: form title */
+						label: __( '%s (Completion)', 'form-plant' ).replace( '%s', title ),
+					} );
+				}
 				if ( form.id === formId ) {
-					selectedTitle = form.title || ( '#' + form.id );
+					selectedTitle = title;
 				}
 			} );
 		}
 
 		function onChangeForm( value ) {
-			setAttributes( { formId: parseInt( value, 10 ) || 0 } );
+			var str = String( value || '0' );
+			var complete = str.indexOf( 'complete:' ) === 0;
+			var id = parseInt( complete ? str.slice( 'complete:'.length ) : str, 10 ) || 0;
+			setAttributes( { formId: id, view: complete ? 'complete' : 'form' } );
 		}
 
 		var newFormUrl = ( window.fplantBlockData && window.fplantBlockData.newFormUrl )
@@ -117,7 +137,7 @@
 				{ title: __( 'Form settings', 'form-plant' ), initialOpen: true },
 				el( SelectControl, {
 					label: __( 'Form', 'form-plant' ),
-					value: String( formId ),
+					value: selectedValue,
 					options: options,
 					onChange: onChangeForm,
 				} ),
@@ -168,7 +188,9 @@
 		var instructions = error
 			? error
 			: ( formId
-				? ( selectedTitle || __( 'Form selected.', 'form-plant' ) )
+				? ( isComplete
+					? __( 'Completion screen of "%s". It is shown only right after a submission is redirected to this page; direct visits are sent back to the form page (or the URL set on the form).', 'form-plant' ).replace( '%s', selectedTitle || ( '#' + formId ) )
+					: ( selectedTitle || __( 'Form selected.', 'form-plant' ) ) )
 				: __( 'Select a form to embed.', 'form-plant' ) );
 
 		return el(
@@ -185,7 +207,7 @@
 				el( SelectControl, {
 					label: __( 'Form', 'form-plant' ),
 					hideLabelFromVision: true,
-					value: String( formId ),
+					value: selectedValue,
 					options: options,
 					onChange: onChangeForm,
 				} )
@@ -201,10 +223,11 @@
 			if ( ! formId ) {
 				return null;
 			}
+			var tag = props.attributes.view === 'complete' ? 'fplant_complete' : 'fplant';
 			return el(
 				'div',
 				useBlockProps.save(),
-				'[fplant id="' + formId + '"]'
+				'[' + tag + ' id="' + formId + '"]'
 			);
 		},
 	} );

@@ -2,8 +2,8 @@
 Contributors: reiji-sato
 Tags: contact form, confirmation, mw wp form, csv export, recaptcha
 Requires at least: 6.0
-Tested up to: 7.0
-Stable tag: 1.4.1
+Tested up to: 7.1
+Stable tag: 1.5.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -161,6 +161,14 @@ Yes, the File Upload field type allows users to upload files with configurable s
 9. Webhook integrations — send each submission as signed JSON to Zapier, Make, Google Apps Script or your own API, with a test-send button.
 
 == Changelog ==
+
+= 1.5.0 =
+* New: Completion screens now expand the same tags as emails — `{submission_id}` (use it as a reference number), `{field:field_name}`, `{all_fields}`, `{form_title}` and the other system tags work in the success message and the completion page HTML. Password values are always masked there.
+* New: `[fplant_complete id="123"]` shortcode. Redirect to a thank-you page and still show the completion screen (reference number, submitted values) there. Enable "Use the completion shortcode on the redirect page" in the form's redirect settings. The completion screen appears only right after a submission (once; not on reload), and visitors who open the page directly are sent back to the page that contains the form (or a URL you specify), so conversion tags on the thank-you page fire only after a real submission. The Form Plant block offers it as "Form name (Completion)".
+* New: The success message and completion page HTML settings now list the value tags of the form's own fields.
+* Fixed: iframe and JavaScript embeds now render the same completion screen as the shortcode / block (template values, tags, and extension filters were skipped on the embed API).
+* Fixed: The `{field_name}` shorthand tag now masks password values when "mask in emails" is enabled, the same as `{field:field_name}`.
+* Developer: `fplant_submission_result` filter (switch the completion action based on the submitted data) and `fplant_display_fields` filter (drop fields from the confirmation screen and `{all_fields}` for a submission), both required by Form Plant Pro. `FPLANT_Email_Handler::replace_tags()` is now public static. New `fplant_complete_shortcode_html` and `fplant_complete_token_ttl` filters.
 
 = 1.4.1 =
 * New: WordPress shortcodes are now expanded in the confirmation screen HTML template, the same as in the input screen HTML template. Shortcodes typed into form fields by visitors are shown as plain text and never executed.

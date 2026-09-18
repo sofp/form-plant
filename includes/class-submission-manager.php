@@ -15,6 +15,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 class FPLANT_Submission_Manager {
 
 	/**
+	 * Query parameter carrying the one-time completion token to the redirect page.
+	 *
+	 * @since 1.5.0
+	 */
+	const COMPLETE_TOKEN_PARAM = 'fplant_token';
+
+	/**
+	 * Length of a completion token (alphanumeric).
+	 *
+	 * @since 1.5.0
+	 */
+	const COMPLETE_TOKEN_LENGTH = 40;
+
+	/**
 	 * Custom upload path
 	 *
 	 * @var array
@@ -191,10 +205,23 @@ class FPLANT_Submission_Manager {
 			$this->handle_acf_integration( $form, $sanitized_data );
 		}
 
-		// Success message
+		// Success message. Tags ({submission_id}, {field:name}, {all_fields}, ...)
+		// are expanded here (since 1.5.0); the front end escapes the whole
+		// message on display, so values are inserted unescaped. Passwords are
+		// always masked on completion screens.
 		$success_message = ! empty( $form['settings']['success_message'] )
 			? $form['settings']['success_message']
 			: __( 'Submission completed', 'form-plant' );
+		$success_message = FPLANT_Email_Handler::replace_tags(
+			$success_message,
+			$sanitized_data,
+			$form,
+			$submission_id,
+			array(
+				'mask_password' => true,
+				'context'       => 'completion',
+			)
+		);
 
 		/**
 		 * Filters the completion message shown after submission.
@@ -244,12 +271,49 @@ class FPLANT_Submission_Manager {
 			 *
 			 * @since 1.2.0
 			 * @since 1.4.0 Added the $form parameter.
-			 * @param string $success_page_html Completion page HTML (placeholders already replaced).
+			 * @param string $success_page_html Completion page HTML ({{key}} placeholders and tags already replaced).
 			 * @param int    $form_id           Form ID.
 			 * @param array  $sanitized_data    Submitted data.
 			 * @param array  $form              Full form configuration.
 			 */
-			$result['success_page_html'] = apply_filters( 'fplant_success_html', fplant_replace_template_values( $form['settings']['success_page_html'], $form_id ), $form_id, $sanitized_data, $form );
+			$result['success_page_html'] = apply_filters(
+				'fplant_success_html',
+				self::render_completion_html( $form['settings']['success_page_html'], $form, $sanitized_data, $submission_id ),
+				$form_id,
+				$sanitized_data,
+				$form
+			);
+		}
+
+		/**
+		 * Filters the completion result returned to the front end.
+		 *
+		 * Unlike fplant_complete_message / fplant_redirect_url / fplant_success_html,
+		 * which only fire inside their own action_type branch, this filter sees the
+		 * whole result and can switch the completion action itself based on the
+		 * submitted data (e.g. redirect only for certain answers).
+		 *
+		 * Keys: success, message, submission_id, action_type
+		 * (message | custom_page | redirect), redirect_url, success_page_html.
+		 *
+		 * @since 1.5.0
+		 * @param array $result         Completion result.
+		 * @param int   $form_id        Form ID.
+		 * @param array $sanitized_data Submitted data.
+		 * @param array $form           Full form configuration.
+		 */
+		$result = apply_filters( 'fplant_submission_result', $result, $form_id, $sanitized_data, $form );
+
+		// Completion token for the [fplant_complete] shortcode on the redirect
+		// page (opt-in per form). Issued after the filter so a redirect chosen
+		// by an extension (e.g. conditional completion actions) gets it too.
+		if ( 'redirect' === ( $result['action_type'] ?? '' )
+			&& ! empty( $result['redirect_url'] )
+			&& ! empty( $form['settings']['complete_shortcode_enabled'] ) ) {
+			$fplant_token = self::issue_complete_token( $form, $sanitized_data, $submission_id );
+			if ( '' !== $fplant_token ) {
+				$result['redirect_url'] = add_query_arg( self::COMPLETE_TOKEN_PARAM, $fplant_token, $result['redirect_url'] );
+			}
 		}
 
 		return $result;
@@ -1451,6 +1515,22 @@ class FPLANT_Submission_Manager {
 		// Apply dynamic choices so confirmation labels match the form (fplant_field_choices).
 		$form = ( new FPLANT_Field_Manager() )->apply_field_choices( $form );
 
+		/**
+		 * Filters the fields rendered for a submission (confirmation screen
+		 * and email {all_fields}).
+		 *
+		 * Lets extensions drop fields from the output for this submission only
+		 * (e.g. fields hidden by conditional logic) without touching the stored
+		 * form definition. Return the field definitions to render, in order.
+		 *
+		 * @since 1.5.0
+		 * @param array  $fields  Field definitions from the form.
+		 * @param array  $data    Submitted data.
+		 * @param array  $form    Full form configuration.
+		 * @param string $context 'confirmation', 'email' or 'completion'.
+		 */
+		$form['fields'] = apply_filters( 'fplant_display_fields', $form['fields'], $data, $form, 'confirmation' );
+
 		$settings            = isset( $form['settings'] ) ? $form['settings'] : array();
 		$use_custom_template = ! empty( $settings['use_confirmation_template'] );
 		$custom_template     = isset( $settings['confirmation_template'] ) ? $settings['confirmation_template'] : '';
@@ -1804,6 +1884,156 @@ class FPLANT_Submission_Manager {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Render completion page HTML for a submission: {{key}} template values,
+	 * then the email-style tags with each value HTML-escaped (the result is
+	 * inserted as HTML on the front end and by the [fplant_complete] shortcode).
+	 *
+	 * @since 1.5.0
+	 * @param string $html          Completion page HTML from the form settings.
+	 * @param array  $form          Form data.
+	 * @param array  $data          Submitted (sanitized) data.
+	 * @param int    $submission_id Submission ID (0 when not saved).
+	 * @return string
+	 */
+	public static function render_completion_html( $html, $form, $data, $submission_id = 0 ) {
+		$form_id = isset( $form['id'] ) ? (int) $form['id'] : 0;
+		$html    = fplant_replace_template_values( (string) $html, $form_id );
+
+		return FPLANT_Email_Handler::replace_tags(
+			$html,
+			$data,
+			$form,
+			$submission_id,
+			array(
+				'escape'        => 'html',
+				'mask_password' => true,
+				'context'       => 'completion',
+			)
+		);
+	}
+
+	/**
+	 * Issue a one-time completion token and stash the submission for the
+	 * [fplant_complete] shortcode on the redirect page. The stash is deleted
+	 * as soon as the shortcode renders; the TTL only cleans up tokens whose
+	 * redirect page was never opened.
+	 *
+	 * @since 1.5.0
+	 * @param array $form          Form data.
+	 * @param array $data          Submitted (sanitized) data.
+	 * @param int   $submission_id Submission ID (0 when not saved).
+	 * @return string Token, or '' when it could not be stored.
+	 */
+	public static function issue_complete_token( $form, $data, $submission_id = 0 ) {
+		$form_id = isset( $form['id'] ) ? (int) $form['id'] : 0;
+		if ( ! $form_id ) {
+			return '';
+		}
+
+		$token = wp_generate_password( self::COMPLETE_TOKEN_LENGTH, false, false );
+
+		/**
+		 * Filters how long a completion token (and the stashed submission)
+		 * stays valid when the visitor does not reach the redirect page.
+		 *
+		 * @since 1.5.0
+		 * @param int $ttl     Lifetime in seconds. Default 5 minutes (a redirect
+		 *                     takes seconds; this only bounds abandoned tokens).
+		 * @param int $form_id Form ID.
+		 */
+		$ttl = (int) apply_filters( 'fplant_complete_token_ttl', 5 * MINUTE_IN_SECONDS, $form_id );
+
+		$payload = array(
+			'form_id'       => $form_id,
+			'submission_id' => (int) $submission_id,
+			'data'          => self::mask_passwords_for_storage( is_array( $data ) ? $data : array(), isset( $form['fields'] ) ? $form['fields'] : array() ),
+			'created'       => time(),
+		);
+
+		if ( ! set_transient( self::complete_token_key( $token ), $payload, max( 60, $ttl ) ) ) {
+			return '';
+		}
+
+		return $token;
+	}
+
+	/**
+	 * Read a completion token's payload without consuming it.
+	 *
+	 * @since 1.5.0
+	 * @param string $token   Token from the request.
+	 * @param int    $form_id Form the shortcode is for (payload must match).
+	 * @return array|null
+	 */
+	public static function peek_complete_token( $token, $form_id ) {
+		if ( ! self::is_valid_complete_token_format( $token ) ) {
+			return null;
+		}
+		$payload = get_transient( self::complete_token_key( $token ) );
+		if ( ! is_array( $payload ) || (int) $form_id !== (int) ( $payload['form_id'] ?? 0 ) ) {
+			return null;
+		}
+		return $payload;
+	}
+
+	/**
+	 * Read and invalidate a completion token (one-time use).
+	 *
+	 * @since 1.5.0
+	 * @param string $token   Token from the request.
+	 * @param int    $form_id Form the shortcode is for.
+	 * @return array|null Payload (form_id, submission_id, data, created) or null.
+	 */
+	public static function consume_complete_token( $token, $form_id ) {
+		$payload = self::peek_complete_token( $token, $form_id );
+		if ( null === $payload ) {
+			return null;
+		}
+		delete_transient( self::complete_token_key( $token ) );
+		return $payload;
+	}
+
+	/**
+	 * Transient name for a completion token.
+	 *
+	 * @param string $token Token.
+	 * @return string
+	 */
+	private static function complete_token_key( $token ) {
+		return 'fplant_complete_' . $token;
+	}
+
+	/**
+	 * Whether a string looks like a token we issued.
+	 *
+	 * @param mixed $token Candidate.
+	 * @return bool
+	 */
+	private static function is_valid_complete_token_format( $token ) {
+		return is_string( $token ) && 1 === preg_match( '/^[A-Za-z0-9]{' . self::COMPLETE_TOKEN_LENGTH . '}$/', $token );
+	}
+
+	/**
+	 * Mask password field values before stashing data in a transient.
+	 *
+	 * @param array $data   Submitted data.
+	 * @param array $fields Field definitions.
+	 * @return array
+	 */
+	private static function mask_passwords_for_storage( $data, $fields ) {
+		foreach ( (array) $fields as $field ) {
+			if ( ! is_array( $field ) || 'password' !== ( $field['type'] ?? '' ) || empty( $field['name'] ) ) {
+				continue;
+			}
+			$name = $field['name'];
+			if ( isset( $data[ $name ] ) && is_string( $data[ $name ] ) && '' !== $data[ $name ] ) {
+				$data[ $name ] = str_repeat( '*', max( mb_strlen( $data[ $name ] ), 8 ) );
+			}
+		}
+		return $data;
 	}
 
 	/**

@@ -949,6 +949,9 @@ class FPLANT_Field_Manager {
 		// Apply dynamic choices so confirmation labels match the form (fplant_field_choices).
 		$form = $this->apply_field_choices( $form );
 
+		/** This filter is documented in includes/class-submission-manager.php */
+		$form['fields'] = apply_filters( 'fplant_display_fields', $form['fields'], $data, $form, 'confirmation' );
+
 		$settings            = isset( $form['settings'] ) ? $form['settings'] : array();
 		$use_custom_template = ! empty( $settings['use_confirmation_template'] );
 		$custom_template     = isset( $settings['confirmation_template'] ) ? $settings['confirmation_template'] : '';

@@ -78,7 +78,7 @@ class FPLANT_Email_Handler {
 		$data = apply_filters( 'fplant_before_send_email_data', $data, $form, $submission_id, 'admin' );
 
 		// Recipient (replace tags like {admin_email} before parsing)
-		$to_raw = $this->replace_tags( $email_settings['to'], $data, $form, $submission_id );
+		$to_raw = self::replace_tags( $email_settings['to'], $data, $form, $submission_id );
 		$to     = $this->parse_email_addresses( $to_raw );
 
 		/**
@@ -98,7 +98,7 @@ class FPLANT_Email_Handler {
 
 		// Subject
 		$subject = ! empty( $email_settings['subject'] )
-			? $this->replace_tags( $email_settings['subject'], $data, $form, $submission_id )
+			? self::replace_tags( $email_settings['subject'], $data, $form, $submission_id )
 			: sprintf(
 				/* translators: %s: form title */
 				__( '[%s] New Inquiry', 'form-plant' ),
@@ -118,7 +118,7 @@ class FPLANT_Email_Handler {
 
 		// Body
 		$message = ! empty( $email_settings['body'] )
-			? $this->replace_tags( $email_settings['body'], $data, $form, $submission_id )
+			? self::replace_tags( $email_settings['body'], $data, $form, $submission_id )
 			: $this->generate_default_message( $data, $form );
 
 		// Apply filter
@@ -261,7 +261,7 @@ class FPLANT_Email_Handler {
 
 		// Subject
 		$subject = ! empty( $email_settings['subject'] )
-			? $this->replace_tags( $email_settings['subject'], $data, $form, $submission_id )
+			? self::replace_tags( $email_settings['subject'], $data, $form, $submission_id )
 			: __( 'Your inquiry has been received', 'form-plant' );
 
 		/**
@@ -277,7 +277,7 @@ class FPLANT_Email_Handler {
 
 		// Body
 		$message = ! empty( $email_settings['body'] )
-			? $this->replace_tags( $email_settings['body'], $data, $form, $submission_id )
+			? self::replace_tags( $email_settings['body'], $data, $form, $submission_id )
 			: $this->generate_default_user_message( $data, $form );
 
 		// Apply filter
@@ -352,17 +352,45 @@ class FPLANT_Email_Handler {
 	/**
 	 * Replace tags
 	 *
+	 * Public since 1.5.0 so completion screens and the [fplant_complete]
+	 * shortcode expand the same tags as emails.
+	 *
+	 * @since 1.5.0 Made public static; added the $args parameter.
 	 * @param string $text          Text
 	 * @param array  $data          Submission data
 	 * @param array  $form          Form data
 	 * @param int    $submission_id Submission ID
+	 * @param array  $args          {
+	 *     Optional. Rendering options.
+	 *
+	 *     @type string $escape        'none' (default, plain text / email) or 'html' (each inserted
+	 *                                 value is esc_html()'d; {all_fields} also gets nl2br()).
+	 *     @type bool   $mask_password Mask password field values regardless of the field setting.
+	 *     @type string $context       Context passed to the fplant_display_fields filter for
+	 *                                 {all_fields}: 'email' (default) or 'completion'.
+	 * }
 	 * @return string
 	 */
-	private function replace_tags( $text, $data, $form, $submission_id = 0 ) {
+	public static function replace_tags( $text, $data, $form, $submission_id = 0, $args = array() ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'escape'        => 'none',
+				'mask_password' => false,
+				'context'       => 'email',
+			)
+		);
+		$escape        = ( 'html' === $args['escape'] );
+		$mask_password = ! empty( $args['mask_password'] );
+		$context       = is_string( $args['context'] ) && '' !== $args['context'] ? $args['context'] : 'email';
+		$esc           = static function ( $value ) use ( $escape ) {
+			return $escape ? esc_html( (string) $value ) : (string) $value;
+		};
+
 		// Process {all_fields} tag
 		if ( strpos( $text, '{all_fields}' ) !== false ) {
-			$all_fields_text = $this->generate_all_fields_text( $data, $form );
-			$text            = str_replace( '{all_fields}', $all_fields_text, $text );
+			$all_fields_text = self::generate_all_fields_text( $data, $form, $mask_password, $context );
+			$text            = str_replace( '{all_fields}', $escape ? nl2br( esc_html( $all_fields_text ) ) : $all_fields_text, $text );
 		}
 
 		// Process {field:fieldname} tag
@@ -377,7 +405,7 @@ class FPLANT_Email_Handler {
 						if ( $f['name'] !== $field_name ) {
 							continue;
 						}
-						if ( 'password' === $f['type'] && ! empty( $f['password_mask_email'] ) ) {
+						if ( 'password' === $f['type'] && ( $mask_password || ! empty( $f['password_mask_email'] ) ) ) {
 							$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
 						} elseif ( 'acceptance' === $f['type'] ) {
 							$value = FPLANT_Field_Manager::acceptance_display_value();
@@ -403,7 +431,7 @@ class FPLANT_Email_Handler {
 					}
 					$value = FPLANT_Field_Manager::format_submission_value( $value, $field_def, 'email_tag', (int) $form['id'] );
 				}
-				$text = str_replace( '{field:' . $field_name . '}', $value, $text );
+				$text = str_replace( '{field:' . $field_name . '}', $esc( $value ), $text );
 			}
 		}
 
@@ -426,26 +454,33 @@ class FPLANT_Email_Handler {
 				$value = FPLANT_Field_Manager::format_submission_value( $value, $field_def, 'email_tag', (int) $form['id'] );
 			} elseif ( ! empty( $value ) && ! empty( $form['fields'] ) ) {
 				// Acceptance stores '1'; output the shared wording instead.
+				// Passwords are masked per the field setting (or always on
+				// completion screens).
 				foreach ( $form['fields'] as $f ) {
-					if ( $f['name'] === $key && 'acceptance' === $f['type'] ) {
-						$value = FPLANT_Field_Manager::acceptance_display_value();
-						break;
+					if ( $f['name'] !== $key ) {
+						continue;
 					}
+					if ( 'acceptance' === $f['type'] ) {
+						$value = FPLANT_Field_Manager::acceptance_display_value();
+					} elseif ( 'password' === $f['type'] && is_string( $value ) && ( $mask_password || ! empty( $f['password_mask_email'] ) ) ) {
+						$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
+					}
+					break;
 				}
 			}
-			$text = str_replace( '{' . $key . '}', $value, $text );
+			$text = str_replace( '{' . $key . '}', $esc( $value ), $text );
 		}
 
 		// System tags
-		$text = str_replace( '{form_title}', $form['title'], $text );
-		$text = str_replace( '{submission_id}', $submission_id, $text );
+		$text = str_replace( '{form_title}', $esc( isset( $form['title'] ) ? $form['title'] : '' ), $text );
+		$text = str_replace( '{submission_id}', $esc( $submission_id ), $text );
 		$text = str_replace( '{submission_date}', current_time( 'Y-m-d H:i:s' ), $text );
-		$text = str_replace( '{ip_address}', $this->get_client_ip(), $text );
+		$text = str_replace( '{ip_address}', self::get_client_ip(), $text );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- User agent for logging, sanitized with esc_html in email content
-		$text = str_replace( '{user_agent}', isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '', $text );
-		$text = str_replace( '{site_name}', get_bloginfo( 'name' ), $text );
-		$text = str_replace( '{site_url}', home_url(), $text );
-		$text = str_replace( '{admin_email}', get_option( 'admin_email' ), $text );
+		$text = str_replace( '{user_agent}', $esc( isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '' ), $text );
+		$text = str_replace( '{site_name}', $esc( get_bloginfo( 'name' ) ), $text );
+		$text = str_replace( '{site_url}', $esc( home_url() ), $text );
+		$text = str_replace( '{admin_email}', $esc( get_option( 'admin_email' ) ), $text );
 
 		return $text;
 	}
@@ -457,10 +492,10 @@ class FPLANT_Email_Handler {
 	 * @param array $form Form data
 	 * @return string
 	 */
-	private function generate_all_fields_text( $data, $form ) {
+	private static function generate_all_fields_text( $data, $form, $mask_password = false, $context = 'email' ) {
 		$lines = array();
 
-		foreach ( $form['fields'] as $field ) {
+		foreach ( self::get_display_fields( $data, $form, $context ) as $field ) {
 			if ( in_array( $field['type'], array( 'html', 'hidden' ), true ) ) {
 				continue;
 			}
@@ -473,8 +508,8 @@ class FPLANT_Email_Handler {
 
 			$value = isset( $data[ $field['name'] ] ) ? $data[ $field['name'] ] : '';
 
-			// Mask password field value in email
-			if ( 'password' === $field['type'] && ! empty( $field['password_mask_email'] ) && ! empty( $value ) && is_string( $value ) ) {
+			// Mask password field value in email (always on completion screens)
+			if ( 'password' === $field['type'] && ( $mask_password || ! empty( $field['password_mask_email'] ) ) && ! empty( $value ) && is_string( $value ) ) {
 				$value = str_repeat( '*', max( mb_strlen( $value ), 8 ) );
 			}
 
@@ -514,7 +549,7 @@ class FPLANT_Email_Handler {
 	private function generate_default_message( $data, $form ) {
 		$message = __( 'The following submission was received:', 'form-plant' ) . "\n\n";
 
-		foreach ( $form['fields'] as $field ) {
+		foreach ( self::get_display_fields( $data, $form ) as $field ) {
 			if ( 'html' === $field['type'] || 'hidden' === $field['type'] ) {
 				continue;
 			}
@@ -551,7 +586,7 @@ class FPLANT_Email_Handler {
 		/* translators: %s: submission date and time */
 		$message .= sprintf( __( 'Submitted at: %s', 'form-plant' ), current_time( 'Y-m-d H:i:s' ) ) . "\n";
 		/* translators: %s: IP address */
-		$message .= sprintf( __( 'IP Address: %s', 'form-plant' ), $this->get_client_ip() );
+		$message .= sprintf( __( 'IP Address: %s', 'form-plant' ), self::get_client_ip() );
 
 		return $message;
 	}
@@ -567,7 +602,7 @@ class FPLANT_Email_Handler {
 		$message = __( 'Thank you for your inquiry.', 'form-plant' ) . "\n";
 		$message .= __( 'We have received the following:', 'form-plant' ) . "\n\n";
 
-		foreach ( $form['fields'] as $field ) {
+		foreach ( self::get_display_fields( $data, $form ) as $field ) {
 			if ( 'html' === $field['type'] || 'hidden' === $field['type'] ) {
 				continue;
 			}
@@ -604,6 +639,22 @@ class FPLANT_Email_Handler {
 	}
 
 	/**
+	 * Fields to list in email bodies ({all_fields} and the default messages).
+	 *
+	 * @since 1.5.0
+	 * @param array  $data    Submission data.
+	 * @param array  $form    Form data.
+	 * @param string $context Filter context ('email' or 'completion').
+	 * @return array Field definitions.
+	 */
+	private static function get_display_fields( $data, $form, $context = 'email' ) {
+		/** This filter is documented in includes/class-submission-manager.php */
+		$fields = apply_filters( 'fplant_display_fields', $form['fields'], $data, $form, $context );
+
+		return is_array( $fields ) ? $fields : $form['fields'];
+	}
+
+	/**
 	 * Parse email addresses
 	 *
 	 * @param string $addresses Email addresses (comma-separated allowed)
@@ -621,7 +672,7 @@ class FPLANT_Email_Handler {
 	 *
 	 * @return string
 	 */
-	private function get_client_ip() {
+	private static function get_client_ip() {
 		$ip_keys = array(
 			'HTTP_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
