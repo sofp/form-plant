@@ -3,7 +3,7 @@
  * Plugin Name: Form Plant
  * Plugin URI: https://www.sofplant.com/form-plant/
  * Description: A versatile form plugin with an intuitive field editor and flexible customization options.
- * Version: 1.5.0
+ * Version: 1.5.1
  * Author: SOFPLANT
  * Author URI: https://www.sofplant.com
  * License: GPL v2 or later
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'FPLANT_VERSION', '1.5.0' );
+define( 'FPLANT_VERSION', '1.5.1' );
 define( 'FPLANT_PLUGIN_FILE', __FILE__ );
 define( 'FPLANT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'FPLANT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -72,6 +72,26 @@ register_deactivation_hook( __FILE__, 'fplant_deactivate' );
 function fplant_get_allowed_form_html() {
 	$allowed = wp_kses_allowed_html( 'post' );
 
+	/*
+	 * Attributes every form control needs. wp_kses_allowed_html() adds these
+	 * globally to the tags it knows, but the entries below replace those
+	 * wholesale, so they have to be re-applied here. Without them wp_kses()
+	 * strips the hooks the front-end script reads (data-field-name on the date
+	 * dropdowns, data-max-size on file inputs) and every aria-* attribute.
+	 *
+	 * 'data-*' is the only wildcard wp_kses() understands, so the aria-*
+	 * attributes have to be listed one by one.
+	 */
+	$common_attrs = array(
+		'data-*'           => true,
+		'aria-label'       => true,
+		'aria-labelledby'  => true,
+		'aria-describedby' => true,
+		'aria-required'    => true,
+		'aria-invalid'     => true,
+		'aria-hidden'      => true,
+	);
+
 	$form_tags = array(
 		'form'     => array(
 			'action'     => true,
@@ -81,85 +101,127 @@ function fplant_get_allowed_form_html() {
 			'enctype'    => true,
 			'novalidate' => true,
 		),
-		'input'    => array(
-			'type'         => true,
-			'name'         => true,
-			'value'        => true,
-			'class'        => true,
-			'id'           => true,
-			'placeholder'  => true,
-			'required'     => true,
-			'checked'      => true,
-			'disabled'     => true,
-			'readonly'     => true,
-			'maxlength'    => true,
-			'minlength'    => true,
-			'size'         => true,
-			'min'          => true,
-			'max'          => true,
-			'step'         => true,
-			'accept'       => true,
-			'multiple'     => true,
-			'pattern'      => true,
-			'autocomplete' => true,
-			'style'        => true,
+		'input'    => array_merge(
+			$common_attrs,
+			array(
+				'type'         => true,
+				'name'         => true,
+				'value'        => true,
+				'class'        => true,
+				'id'           => true,
+				'placeholder'  => true,
+				'required'     => true,
+				'checked'      => true,
+				'disabled'     => true,
+				'readonly'     => true,
+				'maxlength'    => true,
+				'minlength'    => true,
+				'size'         => true,
+				'min'          => true,
+				'max'          => true,
+				'step'         => true,
+				'accept'       => true,
+				'multiple'     => true,
+				'pattern'      => true,
+				'autocomplete' => true,
+				'style'        => true,
+			)
 		),
-		'textarea' => array(
-			'name'        => true,
-			'class'       => true,
-			'id'          => true,
-			'rows'        => true,
-			'cols'        => true,
-			'placeholder' => true,
-			'required'    => true,
-			'disabled'    => true,
-			'readonly'    => true,
-			'maxlength'   => true,
-			'style'       => true,
+		'textarea' => array_merge(
+			$common_attrs,
+			array(
+				'name'        => true,
+				'class'       => true,
+				'id'          => true,
+				'rows'        => true,
+				'cols'        => true,
+				'placeholder' => true,
+				'required'    => true,
+				'disabled'    => true,
+				'readonly'    => true,
+				'maxlength'   => true,
+				'style'       => true,
+			)
 		),
-		'select'   => array(
-			'name'     => true,
-			'class'    => true,
-			'id'       => true,
-			'required' => true,
-			'disabled' => true,
-			'multiple' => true,
-			'style'    => true,
+		'select'   => array_merge(
+			$common_attrs,
+			array(
+				'name'     => true,
+				'class'    => true,
+				'id'       => true,
+				'required' => true,
+				'disabled' => true,
+				'multiple' => true,
+				'style'    => true,
+			)
 		),
-		'option'   => array(
-			'value'    => true,
-			'selected' => true,
-			'disabled' => true,
+		'option'   => array_merge(
+			$common_attrs,
+			array(
+				'value'    => true,
+				'selected' => true,
+				'disabled' => true,
+			)
 		),
 		'optgroup' => array(
 			'label'    => true,
 			'disabled' => true,
 		),
-		'label'    => array(
-			'for'   => true,
-			'class' => true,
-			'id'    => true,
+		'label'    => array_merge(
+			$common_attrs,
+			array(
+				'for'   => true,
+				'class' => true,
+				'id'    => true,
+			)
 		),
-		'button'   => array(
-			'type'     => true,
-			'name'     => true,
-			'value'    => true,
-			'class'    => true,
-			'id'       => true,
-			'disabled' => true,
-			'style'    => true,
+		'button'   => array_merge(
+			$common_attrs,
+			array(
+				'type'     => true,
+				'name'     => true,
+				'value'    => true,
+				'class'    => true,
+				'id'       => true,
+				'disabled' => true,
+				'style'    => true,
+			)
 		),
-		'fieldset' => array(
-			'class'    => true,
-			'id'       => true,
-			'disabled' => true,
+		'fieldset' => array_merge(
+			$common_attrs,
+			array(
+				'class'    => true,
+				'id'       => true,
+				'disabled' => true,
+			)
 		),
-		'legend'   => array(
-			'class' => true,
+		'legend'   => array_merge(
+			$common_attrs,
+			array(
+				'class' => true,
+			)
+		),
+		// Row templates for repeatable markup (cloned client-side).
+		'template' => array(
+			'class'  => true,
+			'id'     => true,
+			'data-*' => true,
 		),
 	);
 
-	return array_merge( $allowed, $form_tags );
+	$allowed = array_merge( $allowed, $form_tags );
+
+	/**
+	 * Filters the HTML tags and attributes allowed in form output.
+	 *
+	 * Lets extensions register the markup their own field types render, in the
+	 * wp_kses() $allowed_html format. Use 'data-*' for data attributes; every
+	 * other attribute has to be named in full.
+	 *
+	 * @since 1.5.1
+	 * @param array $allowed Allowed HTML tags and their attributes.
+	 */
+	return apply_filters( 'fplant_allowed_form_html', $allowed );
 }
 
 /**

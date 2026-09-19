@@ -750,6 +750,10 @@ class FPLANT_REST_API {
 			}
 		}
 
+		// Discard any client-sent value for file fields — only the upload
+		// handler below may produce file information.
+		$data = FPLANT_Submission_Manager::strip_client_file_values( $data, $form );
+
 		// Handle file uploads (processes only expected file fields from form definition).
 		$submission_manager = new FPLANT_Submission_Manager();
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- REST API endpoint, no nonce required

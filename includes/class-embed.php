@@ -342,6 +342,8 @@ class FPLANT_Embed extends FPLANT_Rewrite_Endpoint {
 				'embedMode'       => true,
 				'settings'        => $settings,
 				'fields'          => $fields,
+				// Types the built-in client-side validation understands (F-6).
+				'coreFieldTypes'  => FPLANT_Template_Loader::get_core_field_types(),
 				'i18n'            => array(
 					'validationError'     => __( 'There are errors in your input', 'form-plant' ),
 					'requiredCheckbox'    => __( 'This field is required. Please select at least one option.', 'form-plant' ),

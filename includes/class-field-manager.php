@@ -535,14 +535,17 @@ class FPLANT_Field_Manager {
 	 * stays at the output site.
 	 *
 	 * @since 1.4.0
-	 * @param mixed  $value   Stored submission value (may be nested).
-	 * @param array  $field   Root field configuration (may include sub_fields).
-	 * @param string $context Output context: 'confirmation' | 'email_all_fields' |
-	 *                        'email_tag' | 'admin_detail' | 'csv_single' | 'csv_all'.
-	 * @param int    $form_id Form ID (0 when unknown).
+	 * @since 1.5.1 Added the $submission_id parameter.
+	 * @param mixed  $value         Stored submission value (may be nested).
+	 * @param array  $field         Root field configuration (may include sub_fields).
+	 * @param string $context       Output context: 'confirmation' | 'email_all_fields' |
+	 *                              'email_tag' | 'admin_detail' | 'csv_single' | 'csv_all'.
+	 * @param int    $form_id       Form ID (0 when unknown).
+	 * @param int    $submission_id Submission ID (0 when the value is not stored yet,
+	 *                              e.g. on the confirmation screen).
 	 * @return string
 	 */
-	public static function format_submission_value( $value, $field, $context, $form_id = 0 ) {
+	public static function format_submission_value( $value, $field, $context, $form_id = 0, $submission_id = 0 ) {
 		$formatted = self::default_format_submission_value( $value, $field, $context );
 
 		/**
@@ -552,14 +555,20 @@ class FPLANT_Field_Manager {
 		 * (e.g. repeater rows) per output context. Return plain text; the
 		 * caller escapes it for its output medium.
 		 *
+		 * $submission_id lets an extension prefer the definition snapshot taken
+		 * at submission time over the current form definition, so an old entry
+		 * keeps the labels it was submitted with.
+		 *
 		 * @since 1.4.0
-		 * @param string $formatted Default plain-text formatting.
-		 * @param mixed  $value     Raw stored value.
-		 * @param array  $field     Root field configuration.
-		 * @param string $context   Output context (see format_submission_value()).
-		 * @param int    $form_id   Form ID (0 when unknown).
+		 * @since 1.5.1 Added the $submission_id parameter.
+		 * @param string $formatted     Default plain-text formatting.
+		 * @param mixed  $value         Raw stored value.
+		 * @param array  $field         Root field configuration.
+		 * @param string $context       Output context (see format_submission_value()).
+		 * @param int    $form_id       Form ID (0 when unknown).
+		 * @param int    $submission_id Submission ID (0 when not stored yet).
 		 */
-		return apply_filters( 'fplant_format_submission_value', $formatted, $value, $field, $context, $form_id );
+		return apply_filters( 'fplant_format_submission_value', $formatted, $value, $field, $context, $form_id, (int) $submission_id );
 	}
 
 	/**

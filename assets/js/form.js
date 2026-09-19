@@ -229,16 +229,22 @@
 
 		handleDateSelectChange(e) {
 			const select = e.target;
-			const fieldName = select.dataset.fieldName;
 
-			if (!fieldName) return;
-
-			// Get year/month/day selects with the same field name
+			// Get year/month/day selects belonging to the same field
 			const dateGroup = select.closest('.fplant-field-date-select');
+			if (!dateGroup) return;
+
 			const yearSelect = dateGroup.querySelector('.fplant-date-select-year');
 			const monthSelect = dateGroup.querySelector('.fplant-date-select-month');
 			const daySelect = dateGroup.querySelector('.fplant-date-select-day');
 			const hiddenInput = dateGroup.querySelector('.fplant-date-select-value');
+			if (!yearSelect || !monthSelect || !daySelect || !hiddenInput) return;
+
+			// The field name comes from the hidden input that holds the combined
+			// value. data-field-name on the selects is only a fallback: form
+			// output goes through wp_kses(), which used to drop it entirely.
+			const fieldName = select.dataset.fieldName || hiddenInput.getAttribute('name');
+			if (!fieldName) return;
 
 			// Get year/month/day values
 			const year = yearSelect.value;
@@ -255,7 +261,12 @@
 
 			// Validation
 			this.validateField(fieldName);
-			this.dispatchFieldChange(fieldName);
+			// Extension hook: plain-named fields only. A composite name such as
+			// members[0][birth] belongs to the parent field, which fires its own
+			// event after combining (same rule as tel / postal).
+			if (fieldName.indexOf('[') === -1) {
+				this.dispatchFieldChange(fieldName);
+			}
 		}
 
 		handleNamePartsChange(e) {
@@ -362,6 +373,22 @@
 		}
 
 		/**
+		 * Whether a postal-code wrapper has anywhere to put the looked-up address.
+		 *
+		 * Inside an address composite field the sub-inputs are always filled. A
+		 * standalone postal_code field only carries data-autofill-targets when
+		 * auto-fill is configured; without it the lookup result would be thrown
+		 * away, so the request is not worth making.
+		 */
+		hasPostalCodeAutofill(wrapper) {
+			if (wrapper.closest('.fplant-field-address')) {
+				return true;
+			}
+			const fieldEl = wrapper.closest('.fplant-field-postal-code');
+			return !!(fieldEl && fieldEl.getAttribute('data-autofill-targets'));
+		}
+
+		/**
 		 * Auto-search when single input reaches 7 digits
 		 */
 		handlePostalCodeAutoSearch(e) {
@@ -369,7 +396,7 @@
 			const clean = input.value.replace(/[^0-9]/g, '');
 			if (clean.length === 7) {
 				const wrapper = input.closest('.fplant-field-postal-code, .fplant-address-postal-code');
-				if (wrapper) {
+				if (wrapper && this.hasPostalCodeAutofill(wrapper)) {
 					this.searchPostalCode(wrapper);
 				}
 			}
@@ -385,7 +412,7 @@
 				const part1 = container ? container.querySelector('.fplant-postal-code-part1') : null;
 				if (part1 && part1.value.length === 3) {
 					const wrapper = container.closest('.fplant-field-postal-code, .fplant-address-postal-code');
-					if (wrapper) {
+					if (wrapper && this.hasPostalCodeAutofill(wrapper)) {
 						this.searchPostalCode(wrapper);
 					}
 				}
@@ -590,7 +617,7 @@
 					isValid = false;
 
 					// Collect error messages
-					const errorEl = group.querySelector('.fplant-field-error');
+					const errorEl = this.groupErrorContainer(group);
 					const errorMsg = errorEl ? errorEl.textContent : '';
 					if (errorMsg) {
 						fieldErrors[fieldName] = errorMsg;
@@ -779,11 +806,72 @@
 			return !hasError;
 		}
 
+		// The group's own error slot. A plain querySelector would return the first
+		// .fplant-field-error anywhere inside the group, which for a composite or
+		// repeatable field is a sub-field's / row's slot, not the parent's.
+		groupErrorContainer(group) {
+			return group.querySelector(':scope > .fplant-field-error')
+				|| group.querySelector('.fplant-field-error');
+		}
+
+		// Field type as declared in fplantFieldsConfig, or null when unknown.
+		getFieldType(fieldName) {
+			const cfg = window.fplantFieldsConfig && window.fplantFieldsConfig[this.formId];
+			const fields = cfg || (fplantData && fplantData.fields);
+			if (!Array.isArray(fields)) return null;
+			const field = fields.find(f => f && f.name === fieldName);
+			return field && typeof field.type === 'string' ? field.type : null;
+		}
+
+		// True when the type is not one the built-in validation knows about, so
+		// only the fplant:validateField hook should run for it.
+		isExtensionFieldType(fieldType) {
+			if (!fieldType) return false;
+			const core = (fplantData && fplantData.coreFieldTypes) || [];
+			if (!Array.isArray(core) || core.length === 0) return false;
+			return core.indexOf(fieldType) === -1;
+		}
+
+		// Validation for a field type the free plugin does not render: only the
+		// cancelable fplant:validateField hook runs. detail.value carries the
+		// structured value from getFormData(); detail.field is null because there
+		// is no single input that represents the field.
+		validateExtensionField(fieldName, group, errorContainer, standaloneErrors) {
+			const eventDetail = {
+				fieldName: fieldName,
+				value: this.getFormData()[fieldName],
+				field: null,
+				group: group,
+				errorMessage: null
+			};
+			const event = new CustomEvent('fplant:validateField', {
+				detail: eventDetail,
+				bubbles: true,
+				cancelable: true
+			});
+
+			if (this.form.dispatchEvent(event)) {
+				return true;
+			}
+
+			const errorMessage = eventDetail.errorMessage || fplantData.i18n.requiredText;
+			if (errorContainer) {
+				errorContainer.textContent = errorMessage;
+				errorContainer.style.display = 'block';
+			}
+			standaloneErrors.forEach(el => {
+				el.textContent = errorMessage;
+				el.style.display = 'block';
+			});
+			group.classList.add('fplant-field-has-error');
+			return false;
+		}
+
 		validateField(fieldName) {
 			const group = this.form.querySelector('.fplant-field-group[data-field-name="' + fieldName + '"]');
 			if (!group) return true;
 
-			const errorContainer = group.querySelector('.fplant-field-error');
+			const errorContainer = this.groupErrorContainer(group);
 			// Also get standalone error display elements
 			const standaloneErrors = this.form.querySelectorAll('[data-field-error="' + fieldName + '"]');
 			const label = group.querySelector('label');
@@ -811,6 +899,13 @@
 				el.textContent = '';
 			});
 			group.classList.remove('fplant-field-has-error');
+
+			// Extension field types: the built-in rules (address / name-parts
+			// branches, the name="parent" input lookup) do not describe their
+			// markup, so hand validation entirely to the extension.
+			if (this.isExtensionFieldType(this.getFieldType(fieldName))) {
+				return this.validateExtensionField(fieldName, group, errorContainer, standaloneErrors);
+			}
 
 			// Address composite field validation
 			const addressField = group.querySelector('.fplant-field-address');
@@ -1058,8 +1153,13 @@
 				body.append('form_id', this.formId);
 				body.append('data', JSON.stringify(formData));
 
-				// Add file fields
+				// Add file fields. A disabled input is not part of the submission
+				// (a hidden conditional branch, a removed repeater row), so its
+				// file must not be uploaded either.
 				this.form.querySelectorAll('input[type="file"]').forEach((input) => {
+					if (input.disabled) {
+						return;
+					}
 					const file = input.files[0];
 					if (file) {
 						body.append(input.name, file);
@@ -1114,7 +1214,7 @@
 				// Legacy method: .fplant-field-error inside .fplant-field-group
 				const group = this.form.querySelector('.fplant-field-group[data-field-name="' + fieldName + '"]');
 				if (group) {
-					const errorContainer = group.querySelector('.fplant-field-error');
+					const errorContainer = this.groupErrorContainer(group);
 					if (errorContainer) {
 						errorContainer.textContent = fieldErrors[fieldName];
 						errorContainer.style.display = 'block';
@@ -1309,8 +1409,13 @@
 					body.append('fplant_captcha_token', captchaToken);
 				}
 
-				// Add file fields
+				// Add file fields. A disabled input is not part of the submission
+				// (a hidden conditional branch, a removed repeater row), so its
+				// file must not be uploaded either.
 				this.form.querySelectorAll('input[type="file"]').forEach((input) => {
+					if (input.disabled) {
+						return;
+					}
 					const file = input.files[0];
 					if (file) {
 						body.append(input.name, file);

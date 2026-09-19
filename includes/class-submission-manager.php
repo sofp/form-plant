@@ -36,6 +36,14 @@ class FPLANT_Submission_Manager {
 	private $custom_upload_path = array();
 
 	/**
+	 * Upload directories already resolved in this request, keyed by form ID.
+	 *
+	 * @since 1.5.1
+	 * @var array<int,array>
+	 */
+	private $prepared_upload_dirs = array();
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
@@ -463,6 +471,10 @@ class FPLANT_Submission_Manager {
 			}
 		}
 
+		// Discard any client-sent value for file fields — only the upload
+		// handler below may produce file information.
+		$data = self::strip_client_file_values( $data, $form );
+
 		// Handle file uploads
 		$uploaded_files = $this->handle_file_uploads( $form_id );
 		if ( is_wp_error( $uploaded_files ) ) {
@@ -641,6 +653,35 @@ class FPLANT_Submission_Manager {
 	}
 
 	/**
+	 * Remove client-supplied values for file fields.
+	 *
+	 * File information ( url / file / type / filename ) is produced solely by
+	 * handle_file_uploads() from $_FILES. A submission that carries its own
+	 * array for a file field would otherwise be kept as-is whenever no real
+	 * upload overwrites it (i.e. for every optional file field), which let a
+	 * forged 'file' path reach the saved data and the admin email attachments.
+	 *
+	 * @since 1.5.1
+	 * @internal
+	 * @param array $data Submission data as received from the client.
+	 * @param array $form Form data from FPLANT_Database::get_form(). May be null.
+	 * @return array Submission data without values for file fields.
+	 */
+	public static function strip_client_file_values( $data, $form ) {
+		if ( ! is_array( $data ) || empty( $form['fields'] ) || ! is_array( $form['fields'] ) ) {
+			return $data;
+		}
+
+		foreach ( $form['fields'] as $field ) {
+			if ( isset( $field['type'], $field['name'] ) && 'file' === $field['type'] ) {
+				unset( $data[ $field['name'] ] );
+			}
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Sanitize submission data
 	 *
 	 * @param array $data Submission data.
@@ -649,10 +690,17 @@ class FPLANT_Submission_Manager {
 	 * @return array
 	 */
 	private function sanitize_submission_data( $data, $fields, $form_id = 0 ) {
-		$sanitized = array();
+		$sanitized           = array();
+		$allowed_field_types = FPLANT_Template_Loader::get_allowed_field_types();
 
 		foreach ( $fields as $field ) {
 			$field_name = $field['name'];
+
+			// Types with no template are never rendered, so any value posted for
+			// them is unsolicited — do not store it. Mirrors the validation skip.
+			if ( ! in_array( $field['type'], $allowed_field_types, true ) ) {
+				continue;
+			}
 
 			// For address composite fields, collect expanded sub-keys even if parent key is absent
 			if ( 'address' === $field['type'] ) {
@@ -912,7 +960,7 @@ class FPLANT_Submission_Manager {
 						// Convert array values via the shared plain-text boundary
 						// (flat arrays keep the historical ', ' join).
 						if ( is_array( $value ) ) {
-							$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'csv_single', (int) $form_id );
+							$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'csv_single', (int) $form_id, (int) $submission['id'] );
 						}
 
 						$row[] = $this->sanitize_csv_value( $value );
@@ -938,9 +986,19 @@ class FPLANT_Submission_Manager {
 					$data_parts = array();
 					foreach ( $submission['data'] as $key => $value ) {
 						if ( is_array( $value ) ) {
-							// No field definition in the all-forms export;
-							// the boundary still renders structured values.
-							$value = FPLANT_Field_Manager::format_submission_value( $value, array(), 'csv_all', (int) $submission['form_id'] );
+							// Look the field definition up in the form this submission
+							// belongs to, so structured values render with their labels
+							// here too. Keys with no definition keep the old array().
+							$field_def = array();
+							if ( $submission_form && ! empty( $submission_form['fields'] ) ) {
+								foreach ( $submission_form['fields'] as $submission_field ) {
+									if ( isset( $submission_field['name'] ) && $submission_field['name'] === $key ) {
+										$field_def = $submission_field;
+										break;
+									}
+								}
+							}
+							$value = FPLANT_Field_Manager::format_submission_value( $value, $field_def, 'csv_all', (int) $submission['form_id'], (int) $submission['id'] );
 						}
 						$data_parts[] = $key . ': ' . $value;
 					}
@@ -1168,12 +1226,283 @@ class FPLANT_Submission_Manager {
 			return $uploaded_files;
 		}
 
+		// Get expected file field settings from form definition
+		$form = FPLANT_Database::get_form( $form_id );
+		$file_field_configs = array();
+		if ( $form && ! empty( $form['fields'] ) ) {
+			foreach ( $form['fields'] as $field ) {
+				if ( 'file' === $field['type'] ) {
+					$file_field_configs[ $field['name'] ] = $field;
+				}
+			}
+		}
+
+		// Process only expected file fields from form definition (not iterating over $_FILES directly)
+		foreach ( $file_field_configs as $field_name => $field_config ) {
+			// Validate field name format before using as array key
+			if ( ! preg_match( '/^[A-Za-z0-9_]+$/', (string) $field_name ) ) {
+				continue;
+			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling AJAX handler
+			if ( ! isset( $_FILES[ $field_name ] ) ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in calling AJAX handler, file data validated in upload_file_entry()
+			$entry = $this->upload_file_entry( $_FILES[ $field_name ], $field_config, $form_id );
+
+			if ( is_wp_error( $entry ) ) {
+				return $entry;
+			}
+			// No file submitted for this field.
+			if ( null === $entry ) {
+				continue;
+			}
+
+			$uploaded_files[ $field_name ] = $entry;
+		}
+
+		return $uploaded_files;
+	}
+
+	/**
+	 * Validate and store one uploaded file.
+	 *
+	 * Everything that happens to a single file lives here: dangerous-extension
+	 * and double-extension rejection, server-side MIME sniffing, the
+	 * fplant_upload_filename filter with re-validation, and the move into the
+	 * form's upload directory. handle_file_uploads() is a thin loop over this
+	 * method, and extension field types call it for the files inside their own
+	 * structures so they get the same checks and the same destination.
+	 *
+	 * The upload directory is prepared on first use and reused for the rest of
+	 * the request, so calling this repeatedly costs nothing extra.
+	 *
+	 * Reach the shared instance through
+	 * FPLANT_Form_Plant::get_instance()->submission_manager rather than
+	 * constructing a new manager: the constructor registers this plugin's AJAX
+	 * handlers, and a second instance would leave a duplicate registration
+	 * behind for the rest of the request.
+	 *
+	 * @since 1.5.1
+	 * @internal Signature is not frozen yet.
+	 * @param array $file         One $_FILES entry ( name / type / tmp_name / error / size ).
+	 * @param array $field_config File field configuration ( allowed_types, name, ... ).
+	 * @param int   $form_id      Form ID.
+	 * @return array|null|WP_Error File info array ( url / file / type / filename ),
+	 *                             null when no file was submitted, WP_Error on failure.
+	 */
+	public function upload_file_entry( $file, $field_config, $form_id = 0 ) {
+		if ( ! is_array( $file ) ) {
+			return null;
+		}
+
+		$field_name = isset( $field_config['name'] ) ? (string) $field_config['name'] : '';
+
+		// Skip if no file uploaded
+		if ( empty( $file['name'] ) || ( isset( $file['error'] ) && UPLOAD_ERR_NO_FILE === (int) $file['error'] ) ) {
+			return null;
+		}
+
+		// Check for upload errors
+		if ( ! isset( $file['error'] ) || UPLOAD_ERR_OK !== (int) $file['error'] ) {
+			return new WP_Error(
+				'upload_error',
+				sprintf(
+					/* translators: %s: field name */
+					__( 'Failed to upload %s', 'form-plant' ),
+					sanitize_text_field( $field_name )
+				)
+			);
+		}
+
+		$dangerous_extensions = self::dangerous_upload_extensions();
+
+		// Sanitize filename
+		$sanitized_name = sanitize_file_name( $file['name'] );
+		$file_info      = pathinfo( $sanitized_name );
+		$file_ext       = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : '';
+		$file_basename  = $file_info['filename'];
+
+		// Security: check if extension is in blacklist
+		if ( in_array( $file_ext, $dangerous_extensions, true ) ) {
+			return new WP_Error(
+				'invalid_file_type',
+				__( 'This file type cannot be uploaded', 'form-plant' )
+			);
+		}
+
+		// Security: prevent double extension attacks (e.g., malicious.php.jpg)
+		foreach ( $dangerous_extensions as $dangerous_ext ) {
+			if ( preg_match( '/\.' . preg_quote( $dangerous_ext, '/' ) . '$/i', $file_basename ) ) {
+				return new WP_Error(
+					'invalid_filename',
+					__( 'Invalid filename', 'form-plant' )
+				);
+			}
+		}
+
+		// Build allowed MIME types from field settings or use default
+		$allowed_mimes = self::default_allowed_upload_mimes();
+		if ( ! empty( $field_config['allowed_types'] ) ) {
+			$wp_mimes            = wp_get_mime_types();
+			$field_allowed_mimes = array();
+			foreach ( $field_config['allowed_types'] as $ext ) {
+				$ext = strtolower( $ext );
+				foreach ( $wp_mimes as $pattern => $mime ) {
+					if ( preg_match( '/(?:^|\|)' . preg_quote( $ext, '/' ) . '(?:\||$)/', $pattern ) ) {
+						$field_allowed_mimes[ $pattern ] = $mime;
+					}
+				}
+			}
+			if ( ! empty( $field_allowed_mimes ) ) {
+				$allowed_mimes = $field_allowed_mimes;
+			}
+		}
+
+		// Security: validate MIME type server-side (don't trust client-provided value)
+		$real_mime_type = '';
+		$tmp_name       = isset( $file['tmp_name'] ) ? $file['tmp_name'] : '';
+		if ( '' !== $tmp_name && function_exists( 'finfo_open' ) ) {
+			$finfo = finfo_open( FILEINFO_MIME_TYPE );
+			if ( $finfo ) {
+				$real_mime_type = finfo_file( $finfo, $tmp_name );
+				finfo_close( $finfo );
+			}
+		} elseif ( '' !== $tmp_name && function_exists( 'mime_content_type' ) ) {
+			$real_mime_type = mime_content_type( $tmp_name );
+		}
+
+		// Check if MIME type is in whitelist (values of the mapping array)
+		if ( ! empty( $real_mime_type ) && ! in_array( $real_mime_type, array_values( $allowed_mimes ), true ) ) {
+			return new WP_Error(
+				'invalid_mime_type',
+				__( 'This file type cannot be uploaded', 'form-plant' )
+			);
+		}
+
+		$new_filename = $file_basename . '_' . wp_generate_password( 6, false, false ) . '.' . $file_ext;
+
+		/**
+		 * Filters the saved upload filename.
+		 *
+		 * MW WP Form's mwform_upload_filename equivalent. The result is re-sanitized
+		 * and the extension is re-validated against the blacklist for security.
+		 *
+		 * @since 1.2.0
+		 * @param string $new_filename Generated filename.
+		 * @param array  $field_config File field configuration.
+		 * @param int    $form_id      Form ID.
+		 */
+		$new_filename = apply_filters( 'fplant_upload_filename', $new_filename, $field_config, $form_id );
+		$new_filename = sanitize_file_name( $new_filename );
+
+		// Security: re-validate the (possibly filtered) filename and its extension.
+		$filtered_ext = strtolower( (string) pathinfo( $new_filename, PATHINFO_EXTENSION ) );
+		if ( '' === $new_filename || in_array( $filtered_ext, $dangerous_extensions, true ) ) {
+			return new WP_Error(
+				'invalid_filename',
+				__( 'Invalid filename', 'form-plant' )
+			);
+		}
+
+		// Prepare (and remember) the destination directory only once we know the
+		// file is acceptable, so a rejected upload leaves no directory behind.
+		$custom_dir = $this->prepare_upload_directory( $form_id );
+		if ( is_wp_error( $custom_dir ) ) {
+			return $custom_dir;
+		}
+
 		// Load WordPress file upload functions
 		if ( ! function_exists( 'wp_handle_upload' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 
-		// Create custom upload directory
+		// WordPress upload processing (using custom directory)
+		add_filter( 'upload_dir', array( $this, 'custom_upload_dir' ) );
+		$this->custom_upload_path = $custom_dir;
+
+		// Use WordPress file upload handler
+		$upload_overrides = array(
+			'test_form'                => false,
+			'mimes'                    => $allowed_mimes,
+			'unique_filename_callback' => function ( $dir, $name, $ext ) use ( $new_filename ) {
+				return $new_filename;
+			},
+		);
+
+		$upload_result = wp_handle_upload( $file, $upload_overrides );
+
+		remove_filter( 'upload_dir', array( $this, 'custom_upload_dir' ) );
+
+		if ( isset( $upload_result['error'] ) ) {
+			return new WP_Error(
+				'upload_error',
+				sprintf(
+					/* translators: %s: field name */
+					__( 'Failed to upload %s', 'form-plant' ),
+					sanitize_text_field( $field_name )
+				) . ': ' . sanitize_text_field( $upload_result['error'] )
+			);
+		}
+
+		// Return upload info (using verified MIME type)
+		return array(
+			'url'      => $upload_result['url'],
+			'file'     => $upload_result['file'],
+			'type'     => ! empty( $upload_result['type'] ) ? $upload_result['type'] : ( ! empty( $real_mime_type ) ? $real_mime_type : sanitize_mime_type( isset( $file['type'] ) ? $file['type'] : '' ) ),
+			'filename' => basename( $upload_result['file'] ),
+		);
+	}
+
+	/**
+	 * Extensions that may never be stored, whatever the MIME type says.
+	 *
+	 * @since 1.5.1
+	 * @return string[]
+	 */
+	private static function dangerous_upload_extensions() {
+		return array(
+			'php', 'phtml', 'php3', 'php4', 'php5', 'php7', 'phar', 'phps',
+			'cgi', 'pl', 'asp', 'aspx', 'jsp', 'exe', 'sh', 'bat', 'cmd',
+			'com', 'htaccess', 'htpasswd', 'ini', 'py', 'rb', 'js', 'mjs',
+		);
+	}
+
+	/**
+	 * Fallback MIME whitelist for file fields without an allowed_types setting.
+	 *
+	 * @since 1.5.1
+	 * @return array<string,string> Extension pattern => MIME type.
+	 */
+	private static function default_allowed_upload_mimes() {
+		return array(
+			'jpg|jpeg|jpe' => 'image/jpeg',
+			'png'          => 'image/png',
+			'gif'          => 'image/gif',
+			'pdf'          => 'application/pdf',
+			'doc'          => 'application/msword',
+			'docx'         => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+		);
+	}
+
+	/**
+	 * Resolve the upload directory for a form, once per request.
+	 *
+	 * Runs create_upload_directory(), the fplant_upload_dir filter and
+	 * ensure_upload_directory(), then caches the outcome so every file in the
+	 * same submission lands in the same place without repeating the work.
+	 *
+	 * @since 1.5.1
+	 * @param int $form_id Form ID.
+	 * @return array|WP_Error array( 'path' => ..., 'url' => ... ) or error.
+	 */
+	private function prepare_upload_directory( $form_id ) {
+		$cache_key = (int) $form_id;
+		if ( isset( $this->prepared_upload_dirs[ $cache_key ] ) ) {
+			return $this->prepared_upload_dirs[ $cache_key ];
+		}
+
 		$custom_dir = $this->create_upload_directory( $form_id );
 		if ( is_wp_error( $custom_dir ) ) {
 			return $custom_dir;
@@ -1197,193 +1526,9 @@ class FPLANT_Submission_Manager {
 			return $custom_dir;
 		}
 
-		// Blacklist of dangerous extensions (executable files)
-		$dangerous_extensions = array(
-			'php', 'phtml', 'php3', 'php4', 'php5', 'php7', 'phar', 'phps',
-			'cgi', 'pl', 'asp', 'aspx', 'jsp', 'exe', 'sh', 'bat', 'cmd',
-			'com', 'htaccess', 'htpasswd', 'ini', 'py', 'rb', 'js', 'mjs',
-		);
+		$this->prepared_upload_dirs[ $cache_key ] = $custom_dir;
 
-		// Default allowed MIME types (used as fallback when field has no allowed_types setting)
-		$default_allowed_mimes = array(
-			'jpg|jpeg|jpe' => 'image/jpeg',
-			'png'          => 'image/png',
-			'gif'          => 'image/gif',
-			'pdf'          => 'application/pdf',
-			'doc'          => 'application/msword',
-			'docx'         => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-		);
-
-		// Get expected file field settings from form definition
-		$form = FPLANT_Database::get_form( $form_id );
-		$file_field_configs = array();
-		if ( $form && ! empty( $form['fields'] ) ) {
-			foreach ( $form['fields'] as $field ) {
-				if ( 'file' === $field['type'] ) {
-					$file_field_configs[ $field['name'] ] = $field;
-				}
-			}
-		}
-
-		// Process only expected file fields from form definition (not iterating over $_FILES directly)
-		foreach ( $file_field_configs as $field_name => $field_config ) {
-			// Validate field name format before using as array key
-			if ( ! preg_match( '/^[A-Za-z0-9_]+$/', (string) $field_name ) ) {
-				continue;
-			}
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling AJAX handler
-			if ( ! isset( $_FILES[ $field_name ] ) ) {
-				continue;
-			}
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in calling AJAX handler, file data validated below
-			$file = $_FILES[ $field_name ];
-
-			// Skip if no file uploaded
-			if ( empty( $file['name'] ) || $file['error'] === UPLOAD_ERR_NO_FILE ) {
-				continue;
-			}
-
-			// Check for upload errors
-			if ( $file['error'] !== UPLOAD_ERR_OK ) {
-				return new WP_Error(
-					'upload_error',
-					sprintf(
-						/* translators: %s: field name */
-						__( 'Failed to upload %s', 'form-plant' ),
-						sanitize_text_field( $field_name )
-					)
-				);
-			}
-
-			// Sanitize filename
-			$sanitized_name = sanitize_file_name( $file['name'] );
-			$file_info      = pathinfo( $sanitized_name );
-			$file_ext       = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : '';
-			$file_basename  = $file_info['filename'];
-
-			// Security: check if extension is in blacklist
-			if ( in_array( $file_ext, $dangerous_extensions, true ) ) {
-				return new WP_Error(
-					'invalid_file_type',
-					__( 'This file type cannot be uploaded', 'form-plant' )
-				);
-			}
-
-			// Security: prevent double extension attacks (e.g., malicious.php.jpg)
-			foreach ( $dangerous_extensions as $dangerous_ext ) {
-				if ( preg_match( '/\.' . preg_quote( $dangerous_ext, '/' ) . '$/i', $file_basename ) ) {
-					return new WP_Error(
-						'invalid_filename',
-						__( 'Invalid filename', 'form-plant' )
-					);
-				}
-			}
-
-			// Build allowed MIME types from field settings or use default
-			$allowed_mimes = $default_allowed_mimes;
-			if ( ! empty( $field_config['allowed_types'] ) ) {
-				$wp_mimes            = wp_get_mime_types();
-				$field_allowed_mimes = array();
-				foreach ( $field_config['allowed_types'] as $ext ) {
-					$ext = strtolower( $ext );
-					foreach ( $wp_mimes as $pattern => $mime ) {
-						if ( preg_match( '/(?:^|\|)' . preg_quote( $ext, '/' ) . '(?:\||$)/', $pattern ) ) {
-							$field_allowed_mimes[ $pattern ] = $mime;
-						}
-					}
-				}
-				if ( ! empty( $field_allowed_mimes ) ) {
-					$allowed_mimes = $field_allowed_mimes;
-				}
-			}
-
-			// Security: validate MIME type server-side (don't trust client-provided value)
-			$real_mime_type = '';
-			if ( function_exists( 'finfo_open' ) ) {
-				$finfo = finfo_open( FILEINFO_MIME_TYPE );
-				if ( $finfo ) {
-					$real_mime_type = finfo_file( $finfo, $file['tmp_name'] );
-					finfo_close( $finfo );
-				}
-			} elseif ( function_exists( 'mime_content_type' ) ) {
-				$real_mime_type = mime_content_type( $file['tmp_name'] );
-			}
-
-			// Check if MIME type is in whitelist (values of the mapping array)
-			if ( ! empty( $real_mime_type ) && ! in_array( $real_mime_type, array_values( $allowed_mimes ), true ) ) {
-				return new WP_Error(
-					'invalid_mime_type',
-					__( 'This file type cannot be uploaded', 'form-plant' )
-				);
-			}
-
-			$new_filename  = $file_basename . '_' . wp_generate_password( 6, false, false ) . '.' . $file_ext;
-
-			/**
-			 * Filters the saved upload filename.
-			 *
-			 * MW WP Form's mwform_upload_filename equivalent. The result is re-sanitized
-			 * and the extension is re-validated against the blacklist for security.
-			 *
-			 * @since 1.2.0
-			 * @param string $new_filename Generated filename.
-			 * @param array  $field_config File field configuration.
-			 * @param int    $form_id      Form ID.
-			 */
-			$new_filename = apply_filters( 'fplant_upload_filename', $new_filename, $field_config, $form_id );
-			$new_filename = sanitize_file_name( $new_filename );
-
-			// Security: re-validate the (possibly filtered) filename and its extension.
-			$filtered_ext = strtolower( (string) pathinfo( $new_filename, PATHINFO_EXTENSION ) );
-			if ( '' === $new_filename || in_array( $filtered_ext, $dangerous_extensions, true ) ) {
-				return new WP_Error(
-					'invalid_filename',
-					__( 'Invalid filename', 'form-plant' )
-				);
-			}
-
-			// Set destination path
-			$upload_path = $custom_dir['path'] . '/' . $new_filename;
-			$upload_url  = $custom_dir['url'] . '/' . $new_filename;
-
-			// WordPress upload processing (using custom directory)
-			add_filter( 'upload_dir', array( $this, 'custom_upload_dir' ) );
-			$this->custom_upload_path = $custom_dir;
-
-			// Use WordPress file upload handler
-			$upload_overrides = array(
-				'test_form'                => false,
-				'mimes'                    => $allowed_mimes,
-				'unique_filename_callback' => function ( $dir, $name, $ext ) use ( $new_filename ) {
-					return $new_filename;
-				},
-			);
-
-			$upload_result = wp_handle_upload( $file, $upload_overrides );
-
-			remove_filter( 'upload_dir', array( $this, 'custom_upload_dir' ) );
-
-			if ( isset( $upload_result['error'] ) ) {
-				return new WP_Error(
-					'upload_error',
-					sprintf(
-						/* translators: %s: field name */
-						__( 'Failed to upload %s', 'form-plant' ),
-						sanitize_text_field( $field_name )
-					) . ': ' . sanitize_text_field( $upload_result['error'] )
-				);
-			}
-
-			// Add upload info to array (using verified MIME type)
-			$uploaded_files[ $field_name ] = array(
-				'url'      => $upload_result['url'],
-				'file'     => $upload_result['file'],
-				'type'     => ! empty( $upload_result['type'] ) ? $upload_result['type'] : ( ! empty( $real_mime_type ) ? $real_mime_type : sanitize_mime_type( $file['type'] ) ),
-				'filename' => basename( $upload_result['file'] ),
-			);
-		}
-
-		return $uploaded_files;
+		return $custom_dir;
 	}
 
 	/**

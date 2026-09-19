@@ -1055,6 +1055,7 @@ class FPLANT_Admin {
 									</td>
 								</tr>
 							<?php else :
+								$fplant_raw_value = $value;
 								// Arrays (flat and structured) render via the shared
 								// plain-text boundary; flat arrays keep the ', ' join.
 								if ( is_array( $value ) ) {
@@ -1062,13 +1063,47 @@ class FPLANT_Admin {
 										$value,
 										$field_def ? $field_def : array(),
 										'admin_detail',
-										isset( $form['id'] ) ? (int) $form['id'] : 0
+										isset( $form['id'] ) ? (int) $form['id'] : 0,
+										(int) $submission['id']
 									);
 								}
+
+								$fplant_cell_html = nl2br( esc_html( $value ) );
+
+								/**
+								 * Filters the value cell of one row in the submission detail.
+								 *
+								 * Lets an extension render its own field types richly here
+								 * (tables for repeater rows, per-row download links, ...)
+								 * instead of the plain text the shared boundary produces.
+								 * The default is the escaped plain text; a replacement is
+								 * passed through wp_kses_post() before output, so only
+								 * post-level HTML survives.
+								 *
+								 * @since 1.5.1
+								 * @param string $cell_html  Escaped default cell HTML.
+								 * @param mixed  $raw_value  The value before the plain-text
+								 *                           formatting. Passwords arrive
+								 *                           already masked and acceptance
+								 *                           already replaced by its display
+								 *                           wording, so a callback can never
+								 *                           reveal either.
+								 * @param array  $field_def  Field definition ( empty when unknown ).
+								 * @param array  $submission Full submission record.
+								 * @param array  $form       Form configuration.
+								 */
+								$fplant_cell_html = apply_filters(
+									'fplant_submission_detail_value_html',
+									$fplant_cell_html,
+									$fplant_raw_value,
+									$field_def ? $field_def : array(),
+									$submission,
+									$form
+								);
 								?>
 								<tr>
 									<th style="width: 30%;"><?php echo esc_html( $label ); ?></th>
-									<td><?php echo nl2br( esc_html( $value ) ); ?></td>
+									<td><?php echo wp_kses_post( $fplant_cell_html ); ?></td>
 								</tr>
 							<?php endif; ?>
 						<?php endforeach; ?>
@@ -1197,6 +1232,12 @@ class FPLANT_Admin {
 		$submission_id = isset( $_GET['submission_id'] ) ? absint( wp_unslash( $_GET['submission_id'] ) ) : 0;
 		$field_name    = isset( $_GET['field'] ) ? sanitize_text_field( wp_unslash( $_GET['field'] ) ) : '';
 
+		// Optional path into a structured value: 'row' picks a repeater row,
+		// 'sub' picks a sub-field inside a group or row. Absent for top-level
+		// file fields, so existing links keep working unchanged.
+		$row_index = isset( $_GET['row'] ) ? absint( wp_unslash( $_GET['row'] ) ) : null;
+		$sub_key   = isset( $_GET['sub'] ) ? sanitize_text_field( wp_unslash( $_GET['sub'] ) ) : '';
+
 		if ( ! $submission_id || ! $field_name ) {
 			wp_die( esc_html__( 'Invalid parameters', 'form-plant' ), 400 );
 		}
@@ -1213,6 +1254,21 @@ class FPLANT_Admin {
 		}
 
 		$file_data = $submission['data'][ $field_name ];
+
+		// Walk into the row / sub-field when requested.
+		if ( null !== $row_index ) {
+			if ( ! is_array( $file_data ) || ! isset( $file_data[ $row_index ] ) ) {
+				wp_die( esc_html__( 'File not found', 'form-plant' ), 404 );
+			}
+			$file_data = $file_data[ $row_index ];
+		}
+		if ( '' !== $sub_key ) {
+			if ( ! is_array( $file_data ) || ! isset( $file_data[ $sub_key ] ) ) {
+				wp_die( esc_html__( 'File not found', 'form-plant' ), 404 );
+			}
+			$file_data = $file_data[ $sub_key ];
+		}
+
 		if ( ! is_array( $file_data ) || ! isset( $file_data['file'] ) || ! isset( $file_data['filename'] ) ) {
 			wp_die( esc_html__( 'File not found', 'form-plant' ), 404 );
 		}

@@ -119,7 +119,7 @@ class FPLANT_Email_Handler {
 		// Body
 		$message = ! empty( $email_settings['body'] )
 			? self::replace_tags( $email_settings['body'], $data, $form, $submission_id )
-			: $this->generate_default_message( $data, $form );
+			: $this->generate_default_message( $data, $form, $submission_id );
 
 		// Apply filter
 		$message = apply_filters( 'fplant_admin_email_body', $message, $form['id'], $data );
@@ -172,6 +172,27 @@ class FPLANT_Email_Handler {
 
 		// Prepare file attachments
 		$attachments = $this->get_file_attachments( $data, $form );
+
+		/**
+		 * Filters the files attached to the admin notification email.
+		 *
+		 * Lets extensions attach the files their own field types collected
+		 * (e.g. one per repeater row). Paths must be absolute and live inside
+		 * wp-content/uploads/fplant_uploads/ — anything else is dropped by the
+		 * containment check below, which runs after this filter.
+		 *
+		 * @since 1.5.1
+		 * @param string[] $attachments   Absolute file paths.
+		 * @param int      $form_id       Form ID.
+		 * @param array    $data          Submission data.
+		 * @param int      $submission_id Submission ID.
+		 */
+		$attachments = apply_filters( 'fplant_admin_email_attachments', $attachments, $form['id'], $data, $submission_id );
+
+		// Last line of defense: never attach a file from outside the plugin's
+		// own upload directory, whatever produced the path — including this
+		// filter's callbacks.
+		$attachments = self::filter_allowed_attachments( $attachments );
 
 		// Send
 		$result = wp_mail( $to, $subject, $message, $headers, $attachments );
@@ -278,7 +299,7 @@ class FPLANT_Email_Handler {
 		// Body
 		$message = ! empty( $email_settings['body'] )
 			? self::replace_tags( $email_settings['body'], $data, $form, $submission_id )
-			: $this->generate_default_user_message( $data, $form );
+			: $this->generate_default_user_message( $data, $form, $submission_id );
 
 		// Apply filter
 		$message = apply_filters( 'fplant_user_email_body', $message, $form['id'], $data );
@@ -389,7 +410,7 @@ class FPLANT_Email_Handler {
 
 		// Process {all_fields} tag
 		if ( strpos( $text, '{all_fields}' ) !== false ) {
-			$all_fields_text = self::generate_all_fields_text( $data, $form, $mask_password, $context );
+			$all_fields_text = self::generate_all_fields_text( $data, $form, $mask_password, $context, $submission_id );
 			$text            = str_replace( '{all_fields}', $escape ? nl2br( esc_html( $all_fields_text ) ) : $all_fields_text, $text );
 		}
 
@@ -429,7 +450,7 @@ class FPLANT_Email_Handler {
 							}
 						}
 					}
-					$value = FPLANT_Field_Manager::format_submission_value( $value, $field_def, 'email_tag', (int) $form['id'] );
+					$value = FPLANT_Field_Manager::format_submission_value( $value, $field_def, 'email_tag', (int) $form['id'], (int) $submission_id );
 				}
 				$text = str_replace( '{field:' . $field_name . '}', $esc( $value ), $text );
 			}
@@ -451,7 +472,7 @@ class FPLANT_Email_Handler {
 						}
 					}
 				}
-				$value = FPLANT_Field_Manager::format_submission_value( $value, $field_def, 'email_tag', (int) $form['id'] );
+				$value = FPLANT_Field_Manager::format_submission_value( $value, $field_def, 'email_tag', (int) $form['id'], (int) $submission_id );
 			} elseif ( ! empty( $value ) && ! empty( $form['fields'] ) ) {
 				// Acceptance stores '1'; output the shared wording instead.
 				// Passwords are masked per the field setting (or always on
@@ -488,11 +509,14 @@ class FPLANT_Email_Handler {
 	/**
 	 * Generate all fields text
 	 *
-	 * @param array $data Submission data
-	 * @param array $form Form data
+	 * @param array  $data          Submission data
+	 * @param array  $form          Form data
+	 * @param bool   $mask_password Whether to mask password values
+	 * @param string $context       Output context ( 'email' / 'completion' )
+	 * @param int    $submission_id Submission ID ( 0 when unknown )
 	 * @return string
 	 */
-	private static function generate_all_fields_text( $data, $form, $mask_password = false, $context = 'email' ) {
+	private static function generate_all_fields_text( $data, $form, $mask_password = false, $context = 'email', $submission_id = 0 ) {
 		$lines = array();
 
 		foreach ( self::get_display_fields( $data, $form, $context ) as $field ) {
@@ -528,7 +552,7 @@ class FPLANT_Email_Handler {
 					$value = isset( $value['filename'] ) ? $value['filename'] : '';
 				} else {
 					// Flat and structured arrays share the plain-text boundary.
-					$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'email_all_fields', (int) $form['id'] );
+					$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'email_all_fields', (int) $form['id'], (int) $submission_id );
 				}
 			}
 
@@ -542,11 +566,12 @@ class FPLANT_Email_Handler {
 	/**
 	 * Generate default message (for admin)
 	 *
-	 * @param array $data Submission data
-	 * @param array $form Form data
+	 * @param array $data          Submission data
+	 * @param array $form          Form data
+	 * @param int   $submission_id Submission ID ( 0 when unknown )
 	 * @return string
 	 */
-	private function generate_default_message( $data, $form ) {
+	private function generate_default_message( $data, $form, $submission_id = 0 ) {
 		$message = __( 'The following submission was received:', 'form-plant' ) . "\n\n";
 
 		foreach ( self::get_display_fields( $data, $form ) as $field ) {
@@ -575,7 +600,7 @@ class FPLANT_Email_Handler {
 			if ( is_array( $value ) ) {
 				// Flat and structured arrays share the plain-text boundary
 				// (file-info arrays render their filename there too).
-				$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'email_all_fields', (int) $form['id'] );
+				$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'email_all_fields', (int) $form['id'], (int) $submission_id );
 			}
 
 			$label = $field['label'] ?? $field['name'];
@@ -594,11 +619,12 @@ class FPLANT_Email_Handler {
 	/**
 	 * Generate default message (for user)
 	 *
-	 * @param array $data Submission data
-	 * @param array $form Form data
+	 * @param array $data          Submission data
+	 * @param array $form          Form data
+	 * @param int   $submission_id Submission ID ( 0 when unknown )
 	 * @return string
 	 */
-	private function generate_default_user_message( $data, $form ) {
+	private function generate_default_user_message( $data, $form, $submission_id = 0 ) {
 		$message = __( 'Thank you for your inquiry.', 'form-plant' ) . "\n";
 		$message .= __( 'We have received the following:', 'form-plant' ) . "\n\n";
 
@@ -628,7 +654,7 @@ class FPLANT_Email_Handler {
 			if ( is_array( $value ) ) {
 				// Flat and structured arrays share the plain-text boundary
 				// (file-info arrays render their filename there too).
-				$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'email_all_fields', (int) $form['id'] );
+				$value = FPLANT_Field_Manager::format_submission_value( $value, $field, 'email_all_fields', (int) $form['id'], (int) $submission_id );
 			}
 
 			$label = $field['label'] ?? $field['name'];
@@ -690,6 +716,49 @@ class FPLANT_Email_Handler {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Keep only attachment paths inside the plugin's upload directory.
+	 *
+	 * Applies the same realpath() containment check as the submission-detail
+	 * download handler, so neither a forged submission value nor a third-party
+	 * filter can attach an arbitrary server-side file to an outgoing email.
+	 *
+	 * @since 1.5.1
+	 * @param array $attachments Absolute file paths.
+	 * @return array Paths that resolve inside uploads/fplant_uploads/.
+	 */
+	private static function filter_allowed_attachments( $attachments ) {
+		if ( empty( $attachments ) || ! is_array( $attachments ) ) {
+			return array();
+		}
+
+		$upload_dir   = wp_upload_dir();
+		$real_allowed = realpath( $upload_dir['basedir'] . '/fplant_uploads' );
+		if ( false === $real_allowed ) {
+			return array();
+		}
+		$real_allowed = rtrim( $real_allowed, '/\\' ) . DIRECTORY_SEPARATOR;
+
+		$allowed_attachments = array();
+
+		foreach ( $attachments as $attachment ) {
+			if ( ! is_string( $attachment ) || '' === $attachment ) {
+				continue;
+			}
+
+			$real_path = realpath( $attachment );
+			if ( false === $real_path || 0 !== strpos( $real_path, $real_allowed ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging
+				error_log( 'Form Plant - Attachment rejected (outside upload directory): ' . $attachment );
+				continue;
+			}
+
+			$allowed_attachments[] = $attachment;
+		}
+
+		return $allowed_attachments;
 	}
 
 	/**

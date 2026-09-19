@@ -3,7 +3,7 @@ Contributors: reiji-sato
 Tags: contact form, confirmation, mw wp form, csv export, recaptcha
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -160,7 +160,23 @@ Yes, the File Upload field type allows users to upload files with configurable s
 8. Design adjustments with a live preview — customize colors and sizes from the admin screen without CSS.
 9. Webhook integrations — send each submission as signed JSON to Zapier, Make, Google Apps Script or your own API, with a test-send button.
 
+== Upgrade Notice ==
+
+= 1.5.1 =
+Security fix for forms with a file upload field: a crafted submission could attach an arbitrary server-side file to the admin notification email. Also restores date (dropdown) fields, which lost their value, and the per-field file size limit. Updating is recommended.
+
 == Changelog ==
+
+= 1.5.1 =
+* Security: Fixed an issue where a crafted submission to a form with an optional file upload field could attach an arbitrary server-side file to the admin notification email. File information is now produced only by the upload handler, and outgoing attachments are restricted to the plugin's own upload directory (`wp-content/uploads/fplant_uploads/`). Sites using a file upload field should update.
+* Fixed: Date (dropdown) fields lost their value. The three selects never combined into the submitted value, so a required date dropdown could not be submitted at all and an optional one was saved empty. Existing forms work again after updating; no settings change is needed.
+* Fixed: The file size limit checked in the browser was always 2MB regardless of the field's setting, so a file larger than 2MB was rejected before upload even when a larger limit was configured.
+* Fixed: A file chosen in a disabled file field (for example one hidden by an add-on) is no longer uploaded.
+* Fixed: Postal code fields with no address auto-fill configured no longer call the external postal code lookup service — the result was being discarded.
+* Developer: Form output now keeps `data-*` and the common `aria-*` attributes on form controls, allows the `<template>` tag, and can be extended with the new `fplant_allowed_form_html` filter. The two Fixed items above were caused by these attributes being stripped.
+* Developer: New `fplant_submission_detail_value_html` filter (replace one value cell in the submission detail) and `fplant_admin_email_attachments` filter (attach extra files, restricted to the plugin's upload directory). The submission file download endpoint accepts optional `row` / `sub` parameters for files inside structured values. `fplant_format_submission_value` now also receives the submission ID, and the all-forms CSV export passes field definitions.
+* Developer: A field whose type is not registered — for example when the add-on that provided it is deactivated — is now skipped by validation and not saved, instead of blocking submissions, and the field editor keeps its type instead of clearing it. `FPLANT_Template_Loader::get_allowed_field_types()` returns the effective list.
+* Developer: `FPLANT_Validator::validate_field_type()` / `validate_file()` and `FPLANT_Submission_Manager::upload_file_entry()` are now public so add-ons can reuse the built-in validation and upload handling for their own sub-fields.
 
 = 1.5.0 =
 * New: Completion screens now expand the same tags as emails — `{submission_id}` (use it as a reference number), `{field:field_name}`, `{all_fields}`, `{form_title}` and the other system tags work in the success message and the completion page HTML. Password values are always masked there.

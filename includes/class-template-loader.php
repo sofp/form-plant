@@ -28,11 +28,14 @@ class FPLANT_Template_Loader {
 	const THEME_TEMPLATE_DIR = 'form-plant/';
 
 	/**
-	 * Allowed field types
+	 * Field types the free plugin ships templates for.
+	 *
+	 * Extensions add their own via the fplant_allowed_field_types filter; use
+	 * get_allowed_field_types() to read the effective list.
 	 *
 	 * @var array
 	 */
-	private $allowed_field_types = array(
+	private static $core_field_types = array(
 		'text',
 		'textarea',
 		'email',
@@ -222,6 +225,39 @@ class FPLANT_Template_Loader {
 	}
 
 	/**
+	 * Field types the free plugin itself renders.
+	 *
+	 * The list before the fplant_allowed_field_types filter runs, i.e. the types
+	 * whose behavior the free plugin's own validation and front-end script know.
+	 *
+	 * @since 1.5.1
+	 * @return string[]
+	 */
+	public static function get_core_field_types() {
+		return self::$core_field_types;
+	}
+
+	/**
+	 * Field types that may be rendered, after the filter.
+	 *
+	 * A field whose type is not in this list has no template, so it never
+	 * reaches the front end. Validation and sanitization skip those fields
+	 * rather than rejecting a submission over an input the visitor never saw.
+	 *
+	 * @since 1.5.1
+	 * @return string[]
+	 */
+	public static function get_allowed_field_types() {
+		/**
+		 * Filters the field types the plugin will render.
+		 *
+		 * @since 1.0.0
+		 * @param string[] $allowed_field_types Allowed field types.
+		 */
+		return (array) apply_filters( 'fplant_allowed_field_types', self::$core_field_types );
+	}
+
+	/**
 	 * Validate field type
 	 *
 	 * @param string $field_type Field type.
@@ -234,8 +270,7 @@ class FPLANT_Template_Loader {
 		}
 
 		// Check against allowed types (can be extended via filter).
-		$allowed = apply_filters( 'fplant_allowed_field_types', $this->allowed_field_types );
-		return in_array( $field_type, $allowed, true );
+		return in_array( $field_type, self::get_allowed_field_types(), true );
 	}
 
 	/**

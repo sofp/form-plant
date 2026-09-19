@@ -474,9 +474,12 @@ class FPLANT_Form_Plant {
 			'fplant-form',
 			'fplantData',
 			array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'fplant_form_nonce' ),
-				'i18n'    => array(
+				'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+				'nonce'          => wp_create_nonce( 'fplant_form_nonce' ),
+				// Types the built-in client-side validation understands. A field
+				// of any other type is left to its extension (F-6).
+				'coreFieldTypes' => FPLANT_Template_Loader::get_core_field_types(),
+				'i18n'           => array(
 					'validationError'     => __( 'There are errors in your input', 'form-plant' ),
 					'requiredCheckbox'    => __( 'This field is required. Please select at least one option.', 'form-plant' ),
 					'requiredAcceptance'  => __( 'You must agree before submitting.', 'form-plant' ),
@@ -753,6 +756,8 @@ class FPLANT_Form_Plant {
 					'fieldNameAlphanumeric' => __( 'Field name can only contain alphanumeric characters and underscores', 'form-plant' ),
 					'fieldLabelRequired'    => __( 'Please enter a field label', 'form-plant' ),
 					'fieldNameExists'       => __( 'This field name is already in use', 'form-plant' ),
+					/* translators: %s: field type key (e.g. pro_repeater) */
+					'unavailableFieldType'  => __( '%s (unavailable)', 'form-plant' ),
 					'addOneOption'          => __( 'Please add at least one option', 'form-plant' ),
 					'confirmDeleteField'    => __( 'Are you sure you want to delete this field?', 'form-plant' ),
 					'confirmDeleteForm'     => __( 'Are you sure you want to delete this form?', 'form-plant' ),

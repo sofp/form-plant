@@ -28,9 +28,19 @@ class FPLANT_Validator {
 		// Hook: Data processing before validation
 		$data = apply_filters( 'fplant_before_validation', $data, $fields, $form_id );
 
+		$allowed_field_types = FPLANT_Template_Loader::get_allowed_field_types();
+
 		foreach ( $fields as $field ) {
 			// Skip HTML fields
 			if ( 'html' === $field['type'] ) {
+				continue;
+			}
+
+			// A field whose type has no template is never rendered, so the
+			// visitor had no way to fill it in. Skip it entirely — including the
+			// required check — instead of blocking the submission. Happens when
+			// the extension that registered the type is deactivated.
+			if ( ! in_array( $field['type'], $allowed_field_types, true ) ) {
 				continue;
 			}
 
@@ -223,11 +233,17 @@ class FPLANT_Validator {
 	/**
 	 * Validate by field type
 	 *
+	 * Public so extension field types can reuse the built-in per-type rules
+	 * (and their fplant_validation_message_* filters) for their sub-fields
+	 * instead of duplicating them.
+	 *
+	 * @since 1.5.1 Made public.
+	 * @internal Signature is not frozen yet.
 	 * @param array  $field Field configuration
 	 * @param string $value Value
-	 * @return string|false
+	 * @return string|false Error message, or false when valid.
 	 */
-	private function validate_field_type( $field, $value ) {
+	public function validate_field_type( $field, $value ) {
 		switch ( $field['type'] ) {
 			case 'email':
 				if ( ! is_email( $value ) ) {
@@ -481,11 +497,16 @@ class FPLANT_Validator {
 	/**
 	 * Validate file upload
 	 *
+	 * Public so extension field types can validate their own file sub-fields
+	 * (size / extension / upload error) with the same rules and messages.
+	 *
+	 * @since 1.5.1 Made public.
+	 * @internal Signature is not frozen yet.
 	 * @param array $field Field configuration
-	 * @param array $file  File info
-	 * @return string|false
+	 * @param array $file  File info ( a single $_FILES entry )
+	 * @return string|false Error message, or false when valid.
 	 */
-	private function validate_file( $field, $file ) {
+	public function validate_file( $field, $file ) {
 		if ( ! $file || empty( $file['name'] ) ) {
 			return false;
 		}

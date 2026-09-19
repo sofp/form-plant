@@ -229,6 +229,26 @@
 	// that row is re-opened so the drag does not silently collapse the editor.
 	let sortReopenIndex = null;
 
+	// Make sure the field-type picker can represent `type`, even when no plugin
+	// registers it any more. Without this the <select> ends up with
+	// selectedIndex === -1 and commitEditor() writes field.type = null.
+	function ensureFieldTypeOption(type) {
+		if (!type || typeof type !== 'string') {
+			return;
+		}
+		const $select = $('#fplant-field-type');
+		if ($select.find('option').filter(function() { return this.value === type; }).length) {
+			return;
+		}
+		const template = fplantAdminData.i18n.unavailableFieldType || '%s (unavailable)';
+		$select.append(
+			$('<option>')
+				.attr('value', type)
+				.prop('disabled', false)
+				.text(template.replace('%s', type))
+		);
+	}
+
 	function openFieldModal(index, isNew) {
 		// Clear error display
 		clearFieldModalErrors();
@@ -237,6 +257,10 @@
 
 		// Set field data. The name input is locked for existing fields (renaming a
 		// saved field would break stored entries / mail tags); editable while new.
+		// A type the picker does not know about (an extension type whose plugin is
+		// deactivated) gets an option added for it, so opening and saving the field
+		// keeps its type instead of writing null over it.
+		ensureFieldTypeOption(field ? field.type : null);
 		$('#fplant-field-type').val(field ? field.type : 'text');
 		$('#fplant-field-name').val(field ? field.name : '').prop('disabled', !isNew);
 		$('#fplant-field-label').val(field ? field.label : '');
