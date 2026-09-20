@@ -488,6 +488,40 @@ class FPLANT_Field_Manager {
 	}
 
 	/**
+	 * Field types that are layout elements: they render markup but never carry
+	 * a submitted value.
+	 *
+	 * Such a type is rendered without the field-group wrapper (no label, no
+	 * error slot) and is left out of validation, the CSV export, the default
+	 * email bodies / {all_fields}, the webhook payload and the mail tag list.
+	 *
+	 * @since 1.5.2
+	 * @return string[]
+	 */
+	public static function get_layout_field_types() {
+		/**
+		 * Filters the field types treated as layout elements.
+		 *
+		 * @since 1.5.2
+		 * @param string[] $types Layout field types. Default array( 'html' ).
+		 */
+		$types = apply_filters( 'fplant_layout_field_types', array( 'html' ) );
+
+		return is_array( $types ) ? array_values( array_filter( $types, 'is_string' ) ) : array( 'html' );
+	}
+
+	/**
+	 * Whether a field type is a layout element (see get_layout_field_types()).
+	 *
+	 * @since 1.5.2
+	 * @param string $type Field type.
+	 * @return bool
+	 */
+	public static function is_layout_type( $type ) {
+		return is_string( $type ) && in_array( $type, self::get_layout_field_types(), true );
+	}
+
+	/**
 	 * Whether the field-group label (item name) is rendered on the form.
 	 *
 	 * Acceptance fields hide it unless acceptance_show_label is enabled; every

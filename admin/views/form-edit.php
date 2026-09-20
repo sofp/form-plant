@@ -993,7 +993,7 @@ if ( ! $fplant_is_new && ! empty( $fplant_form['fields'] ) ) {
 				$fplant_field_tag_help = function () use ( $fplant_form ) {
 					$fplant_tag_items = array();
 					foreach ( ( $fplant_form['fields'] ?? array() ) as $fplant_tag_field ) {
-						if ( empty( $fplant_tag_field['name'] ) || 'html' === ( $fplant_tag_field['type'] ?? '' ) ) {
+						if ( empty( $fplant_tag_field['name'] ) || FPLANT_Field_Manager::is_layout_type( $fplant_tag_field['type'] ?? '' ) ) {
 							continue;
 						}
 						$fplant_tag_items[] = '<code>{field:' . esc_html( $fplant_tag_field['name'] ) . '}</code>'

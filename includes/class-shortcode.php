@@ -78,7 +78,39 @@ class FPLANT_Shortcode {
 			$output = $this->get_preview_notice( $form ) . $output;
 		}
 
-		return $output;
+		return self::filter_form_output( $output, $form, 'shortcode' );
+	}
+
+	/**
+	 * Pass a rendered form through the fplant_form_output filter.
+	 *
+	 * Shared by the three rendering routes (shortcode, iframe embed, REST /
+	 * JS embed). Never reached for forms that are not viewable, so a filter
+	 * cannot reveal an unpublished form to visitors.
+	 *
+	 * @since 1.5.2
+	 * @param string $html    Rendered form HTML (wrapper element included).
+	 * @param array  $form    Form data.
+	 * @param string $context 'shortcode', 'iframe' or 'rest'.
+	 * @return string
+	 */
+	public static function filter_form_output( $html, $form, $context ) {
+		/**
+		 * Filters the rendered form.
+		 *
+		 * Replace the markup to show something else instead of the form (for
+		 * example a "registration is closed" message), or add markup before /
+		 * after it. Rejecting the submission itself is a separate concern:
+		 * see fplant_form_is_submittable and fplant_submission_gate.
+		 *
+		 * @since 1.5.2
+		 * @param string $html    Rendered form HTML (wrapper element included).
+		 * @param array  $form    Form data.
+		 * @param string $context Rendering route: 'shortcode', 'iframe' or 'rest'.
+		 */
+		$filtered = apply_filters( 'fplant_form_output', $html, $form, $context );
+
+		return is_string( $filtered ) ? $filtered : $html;
 	}
 
 	/**

@@ -520,7 +520,7 @@ class FPLANT_Email_Handler {
 		$lines = array();
 
 		foreach ( self::get_display_fields( $data, $form, $context ) as $field ) {
-			if ( in_array( $field['type'], array( 'html', 'hidden' ), true ) ) {
+			if ( 'hidden' === $field['type'] || FPLANT_Field_Manager::is_layout_type( $field['type'] ) ) {
 				continue;
 			}
 
@@ -575,7 +575,7 @@ class FPLANT_Email_Handler {
 		$message = __( 'The following submission was received:', 'form-plant' ) . "\n\n";
 
 		foreach ( self::get_display_fields( $data, $form ) as $field ) {
-			if ( 'html' === $field['type'] || 'hidden' === $field['type'] ) {
+			if ( 'hidden' === $field['type'] || FPLANT_Field_Manager::is_layout_type( $field['type'] ) ) {
 				continue;
 			}
 
@@ -629,7 +629,7 @@ class FPLANT_Email_Handler {
 		$message .= __( 'We have received the following:', 'form-plant' ) . "\n\n";
 
 		foreach ( self::get_display_fields( $data, $form ) as $field ) {
-			if ( 'html' === $field['type'] || 'hidden' === $field['type'] ) {
+			if ( 'hidden' === $field['type'] || FPLANT_Field_Manager::is_layout_type( $field['type'] ) ) {
 				continue;
 			}
 

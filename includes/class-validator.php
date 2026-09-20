@@ -31,8 +31,8 @@ class FPLANT_Validator {
 		$allowed_field_types = FPLANT_Template_Loader::get_allowed_field_types();
 
 		foreach ( $fields as $field ) {
-			// Skip HTML fields
-			if ( 'html' === $field['type'] ) {
+			// Skip layout elements (HTML etc.): they never carry a value.
+			if ( FPLANT_Field_Manager::is_layout_type( $field['type'] ) ) {
 				continue;
 			}
 

@@ -50,11 +50,9 @@ $fplant_wrapper_class = 'fplant-form-wrapper';
 			<?php
 			$fplant_field_manager = new FPLANT_Field_Manager();
 			foreach ( $form['fields'] as $fplant_field ) :
-				if ( 'hidden' === $fplant_field['type'] ) {
-					continue;
-				}
-				if ( 'html' === $fplant_field['type'] ) :
-					// HTML field: output directly without label or error display.
+				if ( 'hidden' === $fplant_field['type'] || FPLANT_Field_Manager::is_layout_type( $fplant_field['type'] ) ) :
+					// Hidden inputs and layout elements (HTML etc.): output directly
+					// without the field-group wrapper, label or error display.
 					echo wp_kses( do_shortcode( '[fplant_field name="' . esc_attr( $fplant_field['name'] ) . '"]' ), fplant_get_allowed_form_html() );
 					continue;
 				endif;

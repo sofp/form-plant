@@ -57,6 +57,13 @@
 		const handler = findHandler(formId);
 		return handler ? handler.getFormData() : null;
 	};
+	// Run the client-side validation of one field, exactly as on blur: the
+	// field's error message is shown or cleared. Returns true when valid, false
+	// when invalid, null when the form is unknown. (Since 1.5.2)
+	window.fplant.validateField = function(formId, fieldName) {
+		const handler = findHandler(formId);
+		return handler ? handler.validateField(String(fieldName)) : null;
+	};
 
 	/**
 	 * Form handler
@@ -640,6 +647,14 @@
 						this.scrollToMessage(fieldGroup);
 					}
 				}
+
+				// Dispatched after the errors are on screen, whether or not the
+				// form has a .fplant-errors container (fplant:error needs one).
+				this.dispatchFplantEvent('fplant:validationError', {
+					formId: this.formId,
+					errors: fieldErrors,
+					source: 'client'
+				});
 			}
 
 			return isValid;
@@ -1198,6 +1213,12 @@
 					}
 					// Show field-specific errors
 					this.showFieldErrors(errors);
+
+					this.dispatchFplantEvent('fplant:validationError', {
+						formId: this.formId,
+						errors: errors,
+						source: 'server'
+					});
 				}
 			})
 			.catch(error => {

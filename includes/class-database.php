@@ -118,19 +118,55 @@ class FPLANT_Database {
 	/**
 	 * Determine whether a form may accept submissions.
 	 *
-	 * @param array $form Form data from get_form().
+	 * @since 1.5.2 Added the $is_preview parameter.
+	 * @param array $form       Form data from get_form().
+	 * @param bool  $is_preview Whether this is a dry run from the preview screen
+	 *                          (capability-checked by the caller; nothing is
+	 *                          saved or sent).
 	 * @return bool
 	 */
-	public static function is_form_submittable( $form ) {
+	public static function is_form_submittable( $form, $is_preview = false ) {
 		$submittable = self::user_can_access_form( $form );
 
 		/**
 		 * Filter whether a form accepts submissions.
 		 *
+		 * @since 1.5.2 Added the $is_preview parameter.
 		 * @param bool  $submittable Whether the form accepts submissions.
 		 * @param array $form        Form data.
+		 * @param bool  $is_preview  Whether this is a dry run from the preview
+		 *                           screen. Restrictions meant for visitors
+		 *                           (schedules, limits) can let it through:
+		 *                           nothing is saved or sent.
 		 */
-		return (bool) apply_filters( 'fplant_form_is_submittable', $submittable, $form );
+		return (bool) apply_filters( 'fplant_form_is_submittable', $submittable, $form, (bool) $is_preview );
+	}
+
+	/**
+	 * Message returned to the visitor when a form does not accept submissions.
+	 *
+	 * @since 1.5.2
+	 * @param array $form Form data.
+	 * @return string Plain text (the front end escapes it on display).
+	 */
+	public static function get_unavailable_message( $form ) {
+		$default = __( 'This form is currently unavailable.', 'form-plant' );
+
+		/**
+		 * Filters the message shown when is_form_submittable() is false.
+		 *
+		 * Lets an extension that closes a form through
+		 * fplant_form_is_submittable tell the visitor why.
+		 *
+		 * @since 1.5.2
+		 * @param string $message Message (plain text; tags are stripped).
+		 * @param array  $form    Form data.
+		 */
+		$message = apply_filters( 'fplant_form_unavailable_message', $default, $form );
+
+		$message = is_string( $message ) ? trim( wp_strip_all_tags( $message ) ) : '';
+
+		return '' !== $message ? $message : $default;
 	}
 
 	/**

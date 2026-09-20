@@ -301,7 +301,7 @@ class FPLANT_Webhook {
 			$type = $field['type'] ?? '';
 
 			// Non-input widgets never carry a value.
-			if ( '' === $name || in_array( $type, array( 'submit', 'html' ), true ) ) {
+			if ( '' === $name || 'submit' === $type || FPLANT_Field_Manager::is_layout_type( $type ) ) {
 				continue;
 			}
 

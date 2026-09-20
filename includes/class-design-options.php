@@ -28,6 +28,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 class FPLANT_Design_Options {
 
 	/**
+	 * Style-only twin of the submit button.
+	 *
+	 * A button carrying this class looks exactly like the form's submit button
+	 * — design presets and the "Submit button" design adjustments both apply —
+	 * without being one: form.js finds the submit button by .fplant-submit-button
+	 * (loading state, CAPTCHA placement), so a button that merely wants the look
+	 * (e.g. the "Next" button of a multi-step form) must not reuse that class.
+	 *
+	 * @since 1.5.2
+	 */
+	const SUBMIT_STYLE_CLASS = 'fplant-submit-button-style';
+
+	/**
 	 * Box-shadow value for a shadow intensity step.
 	 *
 	 * Offset, blur and opacity grow with the intensity. Equal x/y offsets so
@@ -68,11 +81,17 @@ class FPLANT_Design_Options {
 	 * @return array
 	 */
 	public static function get_schema() {
-		$button_rules = function ( $selector ) {
+		$button_rules = function ( $selectors ) {
+			$base  = array();
+			$hover = array();
+			foreach ( (array) $selectors as $selector ) {
+				$base[]  = ' ' . $selector;
+				$hover[] = ' ' . $selector . ':hover';
+			}
 			return array(
 				'rules' => array(
-					'base'  => array( ' ' . $selector ),
-					'hover' => array( ' ' . $selector . ':hover' ),
+					'base'  => $base,
+					'hover' => $hover,
 				),
 				'props' => array(
 					'color'            => array(
@@ -278,7 +297,9 @@ class FPLANT_Design_Options {
 					),
 				),
 			),
-			'submit'  => $button_rules( '.fplant-submit-button' ),
+			// The second selector is the style-only twin of the submit button
+			// (self::SUBMIT_STYLE_CLASS): it takes the same adjustments.
+			'submit'  => $button_rules( array( '.fplant-submit-button', '.' . self::SUBMIT_STYLE_CLASS ) ),
 			'back'    => $button_rules( '.fplant-back-button' ),
 			'confirm' => $button_rules( '.fplant-confirm-submit-button' ),
 			'error'   => array(

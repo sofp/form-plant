@@ -719,6 +719,8 @@ class FPLANT_Form_Plant {
 				'nonce'              => wp_create_nonce( 'fplant_admin_nonce' ),
 				'formData'           => $form_data,
 				'fieldTypes'         => $this->field_manager->get_field_types(),
+				// Layout elements (no submitted value): left out of the mail tag lists.
+				'layoutFieldTypes'   => FPLANT_Field_Manager::get_layout_field_types(),
 				'previewUrlBase'     => home_url( '/fplant-preview/' ),
 				'previewNonce'       => $fplant_preview_nonce,
 				'cssNonce'           => wp_create_nonce( 'fplant_css_upload' ),

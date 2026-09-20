@@ -42,6 +42,8 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 <body>
 	<?php
 	$fplant_embed_wrapper_class = 'fplant-form-wrapper';
+	// Buffered so the fplant_form_output filter sees the wrapper as a whole.
+	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $fplant_embed_wrapper_class ); ?>" id="fplant-form-<?php echo esc_attr( $form_id ); ?>" data-form-id="<?php echo esc_attr( $form_id ); ?>">
 		<?php
@@ -104,13 +106,15 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 				foreach ( $fields as $field ) :
 					$field_name = $field['name'] ?? '';
 
-					// Skip field group structure for html and hidden fields
-					if ( 'html' === $field['type'] || 'hidden' === $field['type'] ) {
-						continue;
-					}
-
 					// Get initial value via field manager
 					$field_value = $field_manager->get_field_initial_value( $field, $form_id, $settings );
+
+					// Hidden inputs and layout elements (HTML etc.): output directly
+					// without the field-group wrapper (same as form-wrapper.php).
+					if ( 'hidden' === $field['type'] || FPLANT_Field_Manager::is_layout_type( $field['type'] ) ) {
+						echo wp_kses( $field_manager->render_field( $field, $field_value, $form_id, $settings ), fplant_get_allowed_form_html() );
+						continue;
+					}
 					?>
 					<div class="fplant-field-group" data-field-name="<?php echo esc_attr( $field_name ); ?>">
 						<?php // Acceptance hides the item-name label unless acceptance_show_label is enabled. ?>
@@ -160,6 +164,10 @@ $nonce = wp_create_nonce( 'fplant_form_nonce' );
 		// so static HTML is no longer needed.
 		?>
 	</div>
+	<?php
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped while rendering above; extensions filtering the markup are responsible for their own output.
+	echo FPLANT_Shortcode::filter_form_output( ob_get_clean(), $form, 'iframe' );
+	?>
 
 	<?php wp_footer(); ?>
 </body>

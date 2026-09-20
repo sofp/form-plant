@@ -125,14 +125,7 @@ class FPLANT_Form_Manager {
 		// Form settings
 		if ( isset( $data['settings'] ) ) {
 			// Allow HTML in keys that store user-authored HTML content
-			$html_allowed_keys = array( 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template' );
-			// Allow HTML for custom settings fields declared with 'allow_html'.
-			foreach ( self::get_custom_settings_fields( $form_id ) as $custom_field ) {
-				if ( $custom_field['allow_html'] ) {
-					$html_allowed_keys[] = $custom_field['key'];
-				}
-			}
-			$sanitized_settings = self::sanitize_array_recursive( $data['settings'], $html_allowed_keys );
+			$sanitized_settings = self::sanitize_array_recursive( $data['settings'], self::get_html_setting_keys( $form_id ) );
 
 			// Webhooks need dedicated sanitization (URL / secret rules, row
 			// cap) from the raw input — the generic recursion above is not
@@ -236,6 +229,51 @@ class FPLANT_Form_Manager {
 			return null;
 		}
 		return self::sanitize_array_recursive( $decoded, $html_allowed_keys );
+	}
+
+	/**
+	 * Setting keys whose values may contain HTML.
+	 *
+	 * Their values are sanitized with wp_kses_post() instead of being reduced
+	 * to plain text. Built-in keys, plus the custom settings fields declared
+	 * with 'allow_html', plus whatever the fplant_html_setting_keys filter adds.
+	 *
+	 * The save handlers sanitize the posted form in two passes (the whole
+	 * payload first, then each section), and both passes have to let a key
+	 * through: this is the single list both of them use.
+	 *
+	 * @since 1.5.2
+	 * @param int $form_id Form ID (0 for a form that is being created).
+	 * @return string[]
+	 */
+	public static function get_html_setting_keys( $form_id ) {
+		$keys = array( 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template' );
+
+		foreach ( self::get_custom_settings_fields( $form_id ) as $custom_field ) {
+			if ( $custom_field['allow_html'] ) {
+				$keys[] = $custom_field['key'];
+			}
+		}
+
+		/**
+		 * Filters the setting keys whose values may contain HTML.
+		 *
+		 * For extensions that store their own block inside the form settings.
+		 * A key is matched by name at any depth of the settings array, so use
+		 * distinctive (prefixed) names. Values are sanitized with
+		 * wp_kses_post(); escape them again on output.
+		 *
+		 * @since 1.5.2
+		 * @param string[] $keys    Setting keys that allow HTML.
+		 * @param int      $form_id Form ID (0 for a form that is being created).
+		 */
+		$filtered = apply_filters( 'fplant_html_setting_keys', $keys, (int) $form_id );
+
+		if ( ! is_array( $filtered ) ) {
+			return $keys;
+		}
+
+		return array_values( array_unique( array_filter( $filtered, 'is_string' ) ) );
 	}
 
 	/**
@@ -403,7 +441,10 @@ class FPLANT_Form_Manager {
 		if ( isset( $_POST['fplant_form_data'] ) ) {
 			// 'acceptance_text' passes this stage with HTML intact so
 			// update_form() can apply its dedicated (stricter) kses rules.
-			$html_allowed_keys = array( 'acceptance_text', 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
+			$html_allowed_keys = array_merge(
+				array( 'acceptance_text', 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input', 'html_template', 'body' ),
+				self::get_html_setting_keys( $post_id )
+			);
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_json_input().
 			$form_data = self::sanitize_json_input( wp_unslash( $_POST['fplant_form_data'] ), $html_allowed_keys );
 			if ( null === $form_data ) {

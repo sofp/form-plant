@@ -1451,8 +1451,10 @@
 			return;
 		}
 		const items = [];
+		// Layout elements (HTML etc.) carry no value, so they have no tag.
+		const layoutTypes = Array.isArray(fplantAdminData.layoutFieldTypes) ? fplantAdminData.layoutFieldTypes : ['html'];
 		formFields.forEach(function(field) {
-			if (!field || !field.name || field.type === 'html') {
+			if (!field || !field.name || layoutTypes.indexOf(field.type) !== -1) {
 				return;
 			}
 			items.push('<code>{field:' + escapeHtml(field.name) + '}</code>' + (field.label ? ' (' + escapeHtml(field.label) + ')' : ''));

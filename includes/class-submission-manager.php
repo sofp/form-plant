@@ -79,10 +79,10 @@ class FPLANT_Submission_Manager {
 
 		// Safety guard: never process submissions for non-published forms
 		// (editors may test-submit). Front-end handlers also check this earlier.
-		if ( ! FPLANT_Database::is_form_submittable( $form ) ) {
+		if ( ! FPLANT_Database::is_form_submittable( $form, $is_preview ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'This form is currently unavailable.', 'form-plant' ),
+				'message' => FPLANT_Database::get_unavailable_message( $form ),
 			);
 		}
 
@@ -125,6 +125,33 @@ class FPLANT_Submission_Manager {
 
 		// Filter: modify submission data
 		$sanitized_data = apply_filters( 'fplant_submission_data', $sanitized_data, $form_id );
+
+		/**
+		 * Last gate before a validated submission is accepted.
+		 *
+		 * Runs once per real submission, after validation and sanitization and
+		 * right before anything is saved or sent. Return a WP_Error to reject
+		 * the submission: nothing is saved, no emails or webhooks are sent and
+		 * fplant_after_submission does not fire; the error message is shown to
+		 * the visitor as plain text. Not applied to preview submissions.
+		 *
+		 * Meant for checks that must not race or that depend on the final data
+		 * (seat / stock limits, duplicate entries, external approvals).
+		 *
+		 * @since 1.5.2
+		 * @param null|WP_Error $gate           Null to accept the submission.
+		 * @param array         $form           Full form configuration.
+		 * @param array         $sanitized_data Submitted data.
+		 */
+		$gate = apply_filters( 'fplant_submission_gate', null, $form, $sanitized_data );
+		if ( is_wp_error( $gate ) ) {
+			$gate_message = trim( wp_strip_all_tags( $gate->get_error_message() ) );
+
+			return array(
+				'success' => false,
+				'message' => '' !== $gate_message ? $gate_message : FPLANT_Database::get_unavailable_message( $form ),
+			);
+		}
 
 		// Check submission save settings (default is 'full' = save all)
 		$save_submission = isset( $form['settings']['save_submission'] ) ? $form['settings']['save_submission'] : 'full';
@@ -359,10 +386,10 @@ class FPLANT_Submission_Manager {
 		$form = FPLANT_Database::get_form( $form_id );
 
 		// Reject submissions to non-published forms (editors may test-submit).
-		if ( $form && ! FPLANT_Database::is_form_submittable( $form ) ) {
+		if ( $form && ! FPLANT_Database::is_form_submittable( $form, $is_preview ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'This form is currently unavailable.', 'form-plant' ),
+					'message' => FPLANT_Database::get_unavailable_message( $form ),
 				)
 			);
 		}
@@ -548,11 +575,15 @@ class FPLANT_Submission_Manager {
 			);
 		}
 
+		// Same capability-gated preview flag as handle_ajax_submission(): the
+		// confirmation step of a preview is a dry run too.
+		$is_preview = ! empty( $data['fplant_preview'] ) && current_user_can( 'edit_post', $form_id );
+
 		// Reject validation for non-published forms (editors may test).
-		if ( ! FPLANT_Database::is_form_submittable( $form ) ) {
+		if ( ! FPLANT_Database::is_form_submittable( $form, $is_preview ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'This form is currently unavailable.', 'form-plant' ),
+					'message' => FPLANT_Database::get_unavailable_message( $form ),
 				)
 			);
 		}
@@ -933,7 +964,7 @@ class FPLANT_Submission_Manager {
 			// Header row
 			$headers = array( 'ID', 'Submitted At' );
 			foreach ( $form['fields'] as $field ) {
-				if ( 'html' !== $field['type'] ) {
+				if ( ! FPLANT_Field_Manager::is_layout_type( $field['type'] ) ) {
 					$headers[] = $this->sanitize_csv_value( $field['label'] );
 				}
 			}
@@ -949,7 +980,7 @@ class FPLANT_Submission_Manager {
 				);
 
 				foreach ( $form['fields'] as $field ) {
-					if ( 'html' !== $field['type'] ) {
+					if ( ! FPLANT_Field_Manager::is_layout_type( $field['type'] ) ) {
 						$value = isset( $submission['data'][ $field['name'] ] ) ? $submission['data'][ $field['name'] ] : '';
 
 						// Acceptance stores '1'; export the shared wording instead.

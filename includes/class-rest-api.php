@@ -336,7 +336,7 @@ class FPLANT_REST_API {
 		}
 
 		// Generate form HTML
-		$html = $this->generate_embed_form_html( $form );
+		$html = FPLANT_Shortcode::filter_form_output( $this->generate_embed_form_html( $form ), $form, 'rest' );
 
 		// Determine CAPTCHA type
 		$captcha_type          = $form['settings']['captcha_type'] ?? 'none';
@@ -438,13 +438,15 @@ class FPLANT_REST_API {
 					<?php
 					// Render fields using template loader (same as form-wrapper.php)
 					foreach ( $fields as $field ) :
-						// Skip html and hidden fields from field group wrapper
-						if ( 'html' === $field['type'] || 'hidden' === $field['type'] ) {
-							continue;
-						}
-
 						// Get initial value for the field
 						$field_value = $field_manager->get_field_initial_value( $field, $form_id, $settings );
+
+						// Hidden inputs and layout elements (HTML etc.): output directly
+						// without the field-group wrapper (same as form-wrapper.php).
+						if ( 'hidden' === $field['type'] || FPLANT_Field_Manager::is_layout_type( $field['type'] ) ) {
+							echo wp_kses( $field_manager->render_field( $field, $field_value, $form_id, $settings ), fplant_get_allowed_form_html() );
+							continue;
+						}
 						?>
 						<div class="fplant-field-group" data-field-name="<?php echo esc_attr( $field['name'] ); ?>">
 							<?php // Acceptance hides the item-name label unless acceptance_show_label is enabled. ?>
@@ -532,7 +534,7 @@ class FPLANT_REST_API {
 		if ( ! FPLANT_Database::is_form_submittable( $form ) ) {
 			return new WP_Error(
 				'form_unavailable',
-				__( 'This form is currently unavailable.', 'form-plant' ),
+				FPLANT_Database::get_unavailable_message( $form ),
 				array( 'status' => 403 )
 			);
 		}
@@ -661,7 +663,7 @@ class FPLANT_REST_API {
 		if ( ! FPLANT_Database::is_form_submittable( $form ) ) {
 			return new WP_Error(
 				'form_unavailable',
-				__( 'This form is currently unavailable.', 'form-plant' ),
+				FPLANT_Database::get_unavailable_message( $form ),
 				array( 'status' => 403 )
 			);
 		}

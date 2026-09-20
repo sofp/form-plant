@@ -18,8 +18,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 ?>
 <?php foreach ( $fields as $field ) :
-	// Skip hidden and html fields.
-	if ( in_array( $field['type'], array( 'hidden', 'html' ), true ) ) {
+	// Skip hidden fields and layout elements (HTML etc.).
+	if ( 'hidden' === $field['type'] || FPLANT_Field_Manager::is_layout_type( $field['type'] ) ) {
 		continue;
 	}
 

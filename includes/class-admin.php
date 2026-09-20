@@ -647,7 +647,13 @@ class FPLANT_Admin {
 		$form_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
 		// 'acceptance_text' passes this stage with HTML intact so update_form()
 		// can apply its dedicated (stricter) kses rules.
-		$html_allowed_keys = array( 'acceptance_text', 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input', 'html_template', 'confirmation_message', 'after_submit_html', 'success_page_html', 'confirmation_template', 'body' );
+		// The setting keys come from the same list update_form() uses, so that
+		// HTML allowed there (custom settings fields with 'allow_html',
+		// fplant_html_setting_keys) is not already stripped at this stage.
+		$html_allowed_keys = array_merge(
+			array( 'acceptance_text', 'description', 'content', 'desc_after_label', 'desc_before_input', 'desc_after_input', 'html_template', 'body' ),
+			FPLANT_Form_Manager::get_html_setting_keys( $form_id )
+		);
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via sanitize_json_input().
 		$form_data = FPLANT_Form_Manager::sanitize_json_input( isset( $_POST['form_data'] ) ? wp_unslash( $_POST['form_data'] ) : '', $html_allowed_keys );
 		if ( null === $form_data ) {

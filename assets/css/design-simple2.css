@@ -156,7 +156,8 @@
 	text-align: center;
 }
 
-.fplant-submit-button {
+.fplant-submit-button,
+.fplant-submit-button-style {
 	padding: 12px 30px;
 	background-color: #2271b1;
 	color: #fff;
@@ -168,11 +169,13 @@
 	transition: background-color 0.2s;
 }
 
-.fplant-submit-button:hover {
+.fplant-submit-button:hover,
+.fplant-submit-button-style:hover {
 	background-color: #135e96;
 }
 
-.fplant-submit-button:disabled {
+.fplant-submit-button:disabled,
+.fplant-submit-button-style:disabled {
 	background-color: #c3c4c7;
 	cursor: not-allowed;
 }
@@ -886,7 +889,8 @@
 	text-align: center;
 }
 
-.fplant-form-wrapper .fplant-submit-button {
+.fplant-form-wrapper .fplant-submit-button,
+.fplant-form-wrapper .fplant-submit-button-style {
 	padding: 12px 30px;
 	background-color: #2271b1;
 	color: #fff;
@@ -898,7 +902,8 @@
 	transition: background-color 0.2s;
 }
 
-.fplant-form-wrapper .fplant-submit-button:hover {
+.fplant-form-wrapper .fplant-submit-button:hover,
+.fplant-form-wrapper .fplant-submit-button-style:hover {
 	background-color: #135e96;
 }
 
@@ -1021,7 +1026,8 @@
 	}
 
 	.fplant-form-wrapper .fplant-field,
-	.fplant-form-wrapper .fplant-submit-button {
+	.fplant-form-wrapper .fplant-submit-button,
+	.fplant-form-wrapper .fplant-submit-button-style {
 		font-size: 14px;
 	}
 

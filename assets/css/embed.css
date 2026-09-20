@@ -73,7 +73,7 @@
 	margin: 0;
 }
 
-.fplant-form-wrapper button:not(.fplant-submit-button):not(.fplant-back-button):not(.fplant-confirm-submit-button) {
+.fplant-form-wrapper button:not(.fplant-submit-button):not(.fplant-submit-button-style):not(.fplant-back-button):not(.fplant-confirm-submit-button) {
 	cursor: pointer;
 	border: none;
 	background: none;
@@ -89,7 +89,8 @@
 	}
 
 	.fplant-form-wrapper .fplant-field,
-	.fplant-form-wrapper .fplant-submit-button {
+	.fplant-form-wrapper .fplant-submit-button,
+	.fplant-form-wrapper .fplant-submit-button-style {
 		font-size: 14px;
 		padding: 10px 12px;
 	}

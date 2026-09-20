@@ -3,7 +3,7 @@ Contributors: reiji-sato
 Tags: contact form, confirmation, mw wp form, csv export, recaptcha
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -162,10 +162,23 @@ Yes, the File Upload field type allows users to upload files with configurable s
 
 == Upgrade Notice ==
 
+= 1.5.2 =
+Fixes HTML fields not rendering in iframe / JavaScript embeds and hidden fields not being output with the default layout. Also adds extension APIs for add-ons. No settings change is needed.
+
 = 1.5.1 =
 Security fix for forms with a file upload field: a crafted submission could attach an arbitrary server-side file to the admin notification email. Also restores date (dropdown) fields, which lost their value, and the per-field file size limit. Updating is recommended.
 
 == Changelog ==
+
+= 1.5.2 =
+* Fixed: HTML fields were not rendered in iframe and JavaScript embeds. With the default layout they appeared only when the form was placed with the shortcode or the block.
+* Fixed: Hidden fields were not output at all with the default layout. They worked only when placed with `[fplant_field]` in an HTML template.
+* Fixed: The `allow_html` option of a setting registered through `fplant_custom_settings_fields` had no effect when the form was saved from the editor — the tags were stripped before the setting was stored. The built-in HTML settings were not affected.
+* Developer: New `fplant_form_output` filter (replace the rendered form HTML or add to it; `$context` is `shortcode`, `iframe` or `rest`), `fplant_form_unavailable_message` filter (the text shown when a form does not accept submissions), and `fplant_submission_gate` filter (reject a submission with a `WP_Error` after validation and right before it is saved — for capacity limits, duplicate entries, or a check against an external service).
+* Developer: New `fplant_layout_field_types` filter with `FPLANT_Field_Manager::get_layout_field_types()` / `is_layout_type()`. A field type registered as a layout type holds no value, so it is skipped by validation, CSV export, emails, `{all_fields}`, webhooks and the email tag list, and is rendered without a label or error area — the treatment the built-in HTML field already had.
+* Developer: New `fplant_html_setting_keys` filter with `FPLANT_Form_Manager::get_html_setting_keys()` — the form settings whose value may contain HTML. `fplant_form_is_submittable` now receives a third `$is_preview` argument, true for a validation-only submission from the form preview.
+* Developer: New front-end API `window.fplant.validateField( formId, fieldName )` (validate a single field and show its error), and a new `fplant:validationError` event (`detail.source` is `client` or `server`) that fires even when the HTML template contains no `[fplant_errors]` element.
+* Developer: New style-only class `fplant-submit-button-style`. A button carrying it gets the same appearance as the submit button, including the design presets and the Design adjustments settings. It adds no behavior.
 
 = 1.5.1 =
 * Security: Fixed an issue where a crafted submission to a form with an optional file upload field could attach an arbitrary server-side file to the admin notification email. File information is now produced only by the upload handler, and outgoing attachments are restricted to the plugin's own upload directory (`wp-content/uploads/fplant_uploads/`). Sites using a file upload field should update.
